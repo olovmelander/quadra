@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadra - Meditative Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background-color: #0c0a1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Background Container --- */
+        .background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .theme-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 3s ease-in-out;
+            visibility: hidden;
+        }
+        
+        .theme-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        
+        /* --- Forest Theme --- */
+        #forest-theme {
+             background: linear-gradient(to top, #0c0a1a, #1f1a3a);
+        }
+        .forest-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+        }
+        #forest-1 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200"><path d="M0 200 L0 150 C50 120, 100 180, 150 150 C200 120, 250 180, 300 150 C350 120, 400 180, 450 150 C500 120, 550 180, 600 150 C650 120, 700 180, 750 150 L800 150 L800 200 Z" fill="rgba(19, 28, 51, 0.8)" /></svg>');
+            animation: slide 120s linear infinite;
+            height: 40%;
+        }
+        #forest-2 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 250"><path d="M-10 250 V180 C50 140 100 200 160 180 S280 140 340 180 S460 140 520 180 S640 140 700 180 S820 140 880 180 V250 Z" fill="rgba(33, 44, 73, 0.7)"/></svg>');
+            animation: slide 80s linear infinite;
+            height: 50%;
+        }
+        #forest-3 {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300"><path d="M0 300 V200 C60 150 120 230 180 200 S300 150 360 200 S480 150 540 200 S660 150 720 200 L800 200 V300 Z" fill="rgba(48, 63, 102, 0.6)"/></svg>');
+            animation: slide 60s linear infinite;
+            height: 60%;
+        }
+        .firefly {
+            position: absolute;
+            width: 4px; height: 4px;
+            background-color: #ffeeaa;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ffeeaa, 0 0 12px #ffeeaa;
+            animation: fly 10s linear infinite;
+        }
+        @keyframes fly {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+            25% { transform: translate(var(--tx1), var(--ty1)) scale(0.8); opacity: 0.5; }
+            50% { transform: translate(var(--tx2), var(--ty2)) scale(1.2); opacity: 1; }
+            75% { transform: translate(var(--tx3), var(--ty3)) scale(0.9); opacity: 0.6; }
+        }
+
+        /* --- Ocean Theme --- */
+        #ocean-theme {
+            background: linear-gradient(to top, #021B39, #083361, #005A8D);
+        }
+        .bubble {
+            position: absolute;
+            background: rgba(173, 216, 230, 0.3);
+            border-radius: 50%;
+            animation: rise linear infinite;
+        }
+        @keyframes rise {
+            from { bottom: -20px; transform: translateX(0vw); }
+            to { bottom: 105vh; transform: translateX(var(--x-drift)); }
+        }
+        .ocean-wave {
+            position: absolute;
+            bottom: 0; left: 0; width: 200%; height: 25%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 200"><path d="M0 200 V100 C200 0, 600 200, 800 100 S1400 0, 1600 100 V200 Z" fill="rgba(8, 51, 97, 0.5)"></path></svg>');
+            background-size: 800px 200px;
+        }
+        #wave1 { animation: wave 30s linear infinite; z-index: 3; opacity: 0.8; }
+        #wave2 { animation: wave 25s linear infinite reverse; z-index: 2; opacity: 0.6; bottom: 5%; }
+        #wave3 { animation: wave 20s linear infinite; z-index: 1; opacity: 0.4; bottom: 10%; }
+        @keyframes wave {
+            from { transform: translateX(0); }
+            to { transform: translateX(-800px); }
+        }
+        
+        /* --- Sunset Theme --- */
+        #sunset-theme {
+            background: linear-gradient(to top, #F9A870, #E85A4F, #3B3270);
+            animation: sky-shift 120s ease-in-out infinite alternate;
+        }
+        @keyframes sky-shift {
+             from { background-position-y: 0; } to { background-position-y: 100%; }
+        }
+        .sun {
+            position: absolute;
+            top: 70%; left: 50%;
+            width: 150px; height: 150px;
+            background: #FFD700;
+            border-radius: 50%;
+            box-shadow: 0 0 50px #FFD700, 0 0 100px #FFD700, 0 0 150px #FF8C00;
+            transform: translateX(-50%);
+            animation: sunset 120s linear infinite;
+        }
+        @keyframes sunset {
+            from { top: 60%; opacity: 1; }
+            to { top: 110%; opacity: 0.8; }
+        }
+        .cloud {
+            position: absolute;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60"><path d="M 10 30 C -10 30, 0 10, 30 10 C 50 -10, 90 -10, 110 10 C 140 10, 150 30, 130 30 Z" fill="rgba(255,255,255,0.2)"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            width: 200px;
+            height: 60px;
+            animation: drift linear infinite;
+        }
+        @keyframes drift {
+            from { transform: translateX(-250px); }
+            to { transform: translateX(100vw); }
+        }
+
+        /* --- Zen Theme --- */
+        #zen-theme {
+            background: radial-gradient(circle at 50% 100%, #2a223d, #1a1225 60%);
+        }
+        .petal {
+            position: absolute;
+            width: 15px; height: 15px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 182, 193, 0.7)"/></svg>');
+            background-size: contain;
+            animation: fall-petal linear infinite;
+        }
+        @keyframes fall-petal {
+            to {
+                transform: translateY(105vh) rotate(var(--r-end));
+                opacity: 0;
+            }
+        }
+
+        /* --- Winter Theme --- */
+        #winter-theme {
+            background: linear-gradient(to top, #3a5a7e, #8699aa, #ffffff);
+        }
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 1rem;
+            animation: fall-snow linear infinite;
+        }
+        @keyframes fall-snow {
+             to { transform: translateY(105vh) translateX(var(--x-drift)) rotate(var(--r-end)); opacity: 0; }
+        }
+        
+        /* --- Fall Theme --- */
+        #fall-theme {
+             background: linear-gradient(to top, #4d3d3f, #c86b53, #f7b267);
+        }
+        .leaf {
+            position: absolute;
+            width: 20px; height: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C0 5, 5 15, 10 20 C15 15, 20 5, 10 0 Z" fill="rgba(200, 76, 15, 0.8)"/></svg>');
+            background-size: contain;
+            animation: fall-leaf linear infinite;
+        }
+         @keyframes fall-leaf {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) translateX(var(--x-drift)) rotate(var(--r-end)); opacity: 0; }
+        }
+        
+        /* --- Summer Theme --- */
+        #summer-theme {
+            background: linear-gradient(to top, #fceabb, #f8b500);
+        }
+        .sun-ray {
+            position: absolute;
+            background: linear-gradient(to top, rgba(255,255,255,0), rgba(255,255,255,0.4));
+            transform-origin: top center;
+            animation: shine 10s ease-in-out infinite;
+        }
+        @keyframes shine {
+            0%, 100% { opacity: 0.1; transform: scaleY(1) rotate(var(--r-start)); }
+            50% { opacity: 0.3; transform: scaleY(1.1) rotate(var(--r-end)); }
+        }
+        .sparkle {
+            position: absolute;
+            width: 3px; height: 3px;
+            background-color: white;
+            border-radius: 50%;
+            animation: sparkle-anim 2s infinite;
+        }
+        @keyframes sparkle-anim {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        /* --- Spring Theme --- */
+        #spring-theme {
+             background: linear-gradient(to top, #a8e6cf, #dcedc1, #ffd3b6);
+        }
+        .sprout {
+            position: absolute;
+            width: 15px; height: 15px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 20 C5 15, 5 5, 10 0 C15 5, 15 15, 10 20 Z" fill="rgba(119, 221, 119, 0.7)"/></svg>');
+            background-size: contain;
+            animation: float-sprout linear infinite;
+        }
+        @keyframes float-sprout {
+            to { transform: translateY(-10vh) rotate(var(--r-end)); opacity: 0; }
+        }
+
+        /* --- Aurora Theme --- */
+        #aurora-theme {
+            background-color: #000;
+        }
+        .aurora {
+            position: absolute;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, rgba(0, 255, 150, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+            animation: aurora-flow 20s ease-in-out infinite alternate;
+        }
+        @keyframes aurora-flow {
+            from { transform: translateY(-20%) scale(1.5); }
+            to { transform: translateY(20%) scale(1.8); }
+        }
+        
+        /* --- Galaxy Theme --- */
+        #galaxy-theme {
+            background-color: #000010;
+        }
+        .nebula {
+            position: absolute;
+            width: 80vmin; height: 80vmin;
+            background: radial-gradient(circle, #ff00ff 0%, #0000ff 50%, #000010 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            animation: rotate-nebula 80s linear infinite;
+        }
+        @keyframes rotate-nebula { from { transform: rotate(0deg) scale(1.2); } to { transform: rotate(360deg) scale(1.5); } }
+
+        /* --- Rainy Window Theme --- */
+        #rainy-window-theme {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="b"><feGaussianBlur stdDeviation="5"/></filter><rect width="100" height="100" fill="%234a4a4a" filter="url(%23b)"/></svg>') center/cover;
+        }
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.5));
+            animation: rain-fall linear infinite;
+        }
+        @keyframes rain-fall {
+             from { transform: translateY(-20vh); }
+             to { transform: translateY(120vh); }
+        }
+        
+        /* --- Koi Pond Theme --- */
+        #koi-pond-theme {
+            background-color: #3b5249;
+        }
+        .koi {
+            position: absolute;
+            width: 80px; height: 30px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M50 0 C20 0, 0 20, 0 20 S20 40, 50 40 C80 40, 100 20, 100 20 S80 0, 50 0 Z" fill="orange"/><circle cx="30" cy="15" r="5" fill="red"/><circle cx="70" cy="25" r="3" fill="white"/></svg>') no-repeat center/contain;
+            animation: swim 25s ease-in-out infinite;
+        }
+        @keyframes swim {
+            0%, 100% { transform: translate(var(--x1), var(--y1)) rotate(var(--r1)); }
+            25% { transform: translate(var(--x2), var(--y2)) rotate(var(--r2)); }
+            50% { transform: translate(var(--x3), var(--y3)) rotate(var(--r3)); }
+            75% { transform: translate(var(--x4), var(--y4)) rotate(var(--r4)); }
+        }
+
+        /* --- Meadow Theme --- */
+        #meadow-theme {
+             background: linear-gradient(to top, #6a994e, #a7c957, #89c2d9);
+        }
+        .pollen {
+            position: absolute;
+            width: 4px; height: 4px;
+            background-color: #f2e8cf;
+            border-radius: 50%;
+            animation: float-pollen 8s ease-in-out infinite;
+        }
+        @keyframes float-pollen {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.9; }
+            50% { transform: translate(var(--x), var(--y)) scale(0.8); opacity: 0.3; }
+        }
+        .butterfly {
+            position: absolute;
+            width: 25px; height: 25px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="M15 15 C0 0, 0 30, 15 15 M15 15 C30 0, 30 30, 15 15" stroke="gold" fill="rgba(255,215,0,0.5)" stroke-width="2"/></svg>');
+            animation: flutter 15s ease-in-out infinite;
+        }
+        @keyframes flutter {
+            0%, 100% { transform: translate(var(--x1), var(--y1)) rotate(0deg); }
+            25% { transform: translate(var(--x2), var(--y2)) rotate(20deg); }
+            50% { transform: translate(var(--x3), var(--y3)) rotate(-20deg); }
+            75% { transform: translate(var(--x4), var(--y4)) rotate(0deg); }
+        }
+
+
+        @keyframes slide {
+            from { background-position-x: 0; }
+            to { background-position-x: -800px; }
+        }
+
+        .game-container {
+            display: flex;
+            gap: 30px;
+            padding: 20px;
+            animation: fadeIn 0.5s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .game-area { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .next-pieces-container {
+            display: flex; gap: 15px; align-items: flex-end; padding: 15px;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+            border: 2px solid #8b5cf6; border-radius: 12px; min-height: 80px;
+        }
+        .next-piece-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .next-piece-box.main { transform: scale(1.2); margin-right: 10px; }
+        .next-piece-label { font-size: 10px; color: #a78bfa; text-transform: uppercase; font-weight: bold; }
+        .next-piece-box canvas { background: rgba(0, 0, 0, 0.3); border-radius: 6px; padding: 4px; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .next-piece-box.main canvas { border: 2px solid rgba(0, 255, 255, 0.5); box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+
+        #game-canvas {
+            border: 4px solid #8b5cf6;
+            border-radius: 12px;
+            background: rgba(26, 26, 46, 0.8);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3), 0 0 90px rgba(139, 92, 246, 0.1);
+        }
+
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .panel {
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); border: 2px solid #8b5cf6;
+            border-radius: 12px; padding: 20px; min-width: 180px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .panel h2 {
+            font-family: 'Orbitron', sans-serif; font-weight: 700; color: #00ffff; font-size: 18px;
+            margin-bottom: 15px; text-align: center; text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        .stat-label { color: #a78bfa; font-weight: 400; }
+        .stat-value { color: #ffffff; font-weight: 700; }
+        .stat-value.danger { color: #ef4444; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); animation: pulse 0.5s infinite; }
+        .stat-value.warning { color: #fbbf24; text-shadow: 0 0 5px rgba(251, 191, 36, 0.5); }
+        .controls-info { font-size: 12px; color: #a78bfa; }
+        .controls-info div { margin-bottom: 5px; }
+        .action-btn {
+            background: #8b5cf6; border: none; color: white; padding: 10px; border-radius: 8px;
+            cursor: pointer; font-size: 16px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            text-align: center;
+        }
+        .action-btn:hover { background: #7c3aed; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6); }
+
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px); opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; z-index: 1000;
+        }
+        .modal.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(0, 255, 255, 0.1)); border: 3px solid;
+            border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 0 50px rgba(139, 92, 246, 0.5); color: #e0e7ff;
+        }
+        .modal h1 {
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 48px;
+            margin-bottom: 20px; text-shadow: 0 0 20px currentColor;
+        }
+        #start-modal .modal-content { border-color: #00ffff; }
+        #start-modal h1 { background: linear-gradient(45deg, #00ffff, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        #game-over-modal .modal-content, #settings-modal .modal-content { border-color: #8b5cf6; }
+        #game-over-modal h1, #settings-modal h1 { color: #00ffff; }
+        .modal p { font-size: 18px; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
+        }
+        
+        .settings-grid { display: grid; grid-template-columns: auto 1fr; gap: 15px 20px; margin: 20px 0; text-align: left; align-items: center; }
+        .setting { display: contents; }
+        .setting label { justify-self: end; align-self: center; }
+        .key-input, .setting-select {
+            background: rgba(0,0,0,0.3); border: 1px solid #8b5cf6; color: white; padding: 8px; border-radius: 5px;
+            text-align: center; cursor: pointer; width: 150px; justify-self: start;
+        }
+        .setting-select {
+            text-align: left; -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            padding-right: 30px; 
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 8px center; background-size: 1em;
+        }
+        .key-input.listening { border-color: #fbbf24; box-shadow: 0 0 10px #fbbf24; }
+        .slider-container { display: flex; align-items: center; gap: 10px; }
+        .slider-container input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; cursor: pointer; background: transparent; }
+        .slider-container input[type=range]::-webkit-slider-runnable-track { background: rgba(0,0,0,0.5); height: 8px; border-radius: 4px; }
+        .slider-container input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; margin-top: -4px;
+            background-color: #8b5cf6; height: 16px; width: 16px; border-radius: 50%;
+        }
+
+        .score-popup { position: absolute; color: #fbbf24; font-weight: bold; font-size: 24px; pointer-events: none; animation: scorePop 1s ease-out forwards; }
+        @keyframes scorePop {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -150%) scale(1.5); opacity: 0; }
+        }
+
+        .line-flash { animation: flash 0.5s ease; }
+        @keyframes flash {
+            0%, 100% { filter: brightness(1); } 50% { filter: brightness(2); }
+        }
+
+        @media (max-width: 768px) {
+            .game-container { flex-direction: column; align-items: center; transform: scale(0.8); }
+            .game-area { order: -1; }
+            .next-pieces-container { flex-wrap: wrap; max-width: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-container">
+        <div id="stars"></div>
+        
+        <div id="forest-theme" class="theme-container"><div id="fireflies"></div></div>
+        <div id="ocean-theme" class="theme-container">
+            <div id="wave1" class="ocean-wave"></div><div id="wave2" class="ocean-wave"></div><div id="wave3" class="ocean-wave"></div>
+            <div id="bubbles"></div>
+        </div>
+        <div id="sunset-theme" class="theme-container"><div class="sun"></div><div id="clouds"></div></div>
+        <div id="zen-theme" class="theme-container"><div id="petals"></div></div>
+        <div id="winter-theme" class="theme-container"><div id="snowflakes"></div></div>
+        <div id="fall-theme" class="theme-container"><div id="leaves"></div></div>
+        <div id="summer-theme" class="theme-container"><div id="sun-rays"></div><div id="sparkles"></div></div>
+        <div id="spring-theme" class="theme-container"><div id="sprouts"></div></div>
+        <div id="aurora-theme" class="theme-container"><div class="aurora"></div></div>
+        <div id="galaxy-theme" class="theme-container"><div class="nebula"></div></div>
+        <div id="rainy-window-theme" class="theme-container"><div id="raindrops"></div></div>
+        <div id="koi-pond-theme" class="theme-container"><div id="koi-fish"></div></div>
+        <div id="meadow-theme" class="theme-container"><div id="pollen"></div><div id="butterflies"></div></div>
+    </div>
+
+    <div class="game-container">
+        <div class="sidebar">
+            <div class="panel">
+                <h2>STATS</h2>
+                <div class="stat-row"><span class="stat-label">SCORE</span><span id="score" class="stat-value">0</span></div>
+                <div class="stat-row"><span class="stat-label">LINES</span><span id="lines" class="stat-value">0</span></div>
+                <div class="stat-row"><span class="stat-label">LEVEL</span><span id="level" class="stat-value">1</span></div>
+                <div class="stat-row"><span class="stat-label">NEXT LVL</span><span id="next-level" class="stat-value">10</span></div>
+                <div class="stat-row"><span class="stat-label">SPEED</span><span id="speed" class="stat-value">1.0x</span></div>
+                <div class="stat-row"><span class="stat-label">BPM</span><span id="bpm" class="stat-value">0</span></div>
+            </div>
+            <div class="panel">
+                <h2>CONTROLS</h2>
+                <div class="controls-info"><div id="controls-list"></div></div>
+            </div>
+            <button id="sound-toggle" class="action-btn">🔊</button>
+            <button id="fullscreen-toggle" class="action-btn">⛶</button>
+            <button id="settings-btn" class="action-btn">⚙️</button>
+        </div>
+        <div class="game-area">
+            <div class="next-pieces-container">
+                <div class="next-piece-box main"><span class="next-piece-label">Next</span><canvas id="next-0" width="60" height="50"></canvas></div>
+                <div class="next-piece-box"><canvas id="next-1" width="50" height="40"></canvas></div>
+                <div class="next-piece-box"><canvas id="next-2" width="50" height="40"></canvas></div>
+                <div class="next-piece-box"><canvas id="next-3" width="50" height="40"></canvas></div>
+                <div class="next-piece-box"><canvas id="next-4" width="50" height="40"></canvas></div>
+            </div>
+            <div style="position: relative;">
+                <canvas id="game-canvas"></canvas>
+                <div id="score-popups"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="start-modal" class="modal visible">
+        <div class="modal-content">
+            <h1>QUADRA</h1>
+            <p>Press any key to start</p>
+        </div>
+    </div>
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h1>The cycle ends.</h1>
+            <div id="final-stats"></div>
+            <p>Press any key to restart</p>
+        </div>
+    </div>
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h1>SETTINGS</h1>
+            <div class="settings-grid">
+                <div class="setting">
+                    <label for="das-delay">DAS Delay (ms):</label>
+                    <div class="slider-container">
+                        <input type="range" id="das-delay" min="50" max="300" step="10"><span id="das-delay-value">150</span>
+                    </div>
+                </div>
+                <div class="setting">
+                    <label for="das-interval">DAS Interval (ms):</label>
+                    <div class="slider-container">
+                        <input type="range" id="das-interval" min="10" max="100" step="5"><span id="das-interval-value">50</span>
+                    </div>
+                </div>
+                <div class="setting">
+                    <label for="music-track">Music Track:</label>
+                    <select id="music-track" class="setting-select">
+                        <option value="Ambient">Ambient (Relax)</option>
+                        <option value="Decay">Decay (Meditate)</option>
+                        <option value="Zen">Zen (Calm)</option>
+                        <option value="Nostalgia">Nostalgia (Focus)</option>
+                        <option value="Nebula">Nebula (Modern)</option>
+                        <option value="Classic">Classic</option>
+                        <option value="Aurora">Aurora</option>
+                        <option value="Galaxy">Galaxy</option>
+                        <option value="Rainfall">Rainfall</option>
+                        <option value="Koi">Koi</option>
+                        <option value="Meadow">Meadow</option>
+                        <option value="MiracleTone">Miracle Tone (528Hz)</option>
+                        <option value="HealingDrone">Healing Drone (174Hz)</option>
+                    </select>
+                </div>
+                <div class="setting">
+                    <label for="sfx-set">Sound Effects:</label>
+                    <select id="sfx-set" class="setting-select">
+                        <option value="Zen">Zen</option>
+                        <option value="Retro">Retro</option>
+                    </select>
+                </div>
+                 <div class="setting">
+                    <label for="background-mode">Background:</label>
+                    <select id="background-mode" class="setting-select">
+                        <option value="Level">Level Transition</option>
+                        <option value="Random">Random Transition</option>
+                        <option value="Specific">Set Specific</option>
+                    </select>
+                </div>
+                <div class="setting" id="theme-setting">
+                    <label for="background-theme">Theme:</label>
+                    <select id="background-theme" class="setting-select">
+                        <option value="forest">Forest</option>
+                        <option value="ocean">Ocean</option>
+                        <option value="sunset">Sunset</option>
+                        <option value="zen">Zen</option>
+                        <option value="winter">Winter</option>
+                        <option value="fall">Fall</option>
+                        <option value="summer">Summer</option>
+                        <option value="spring">Spring</option>
+                        <option value="aurora">Aurora</option>
+                        <option value="galaxy">Galaxy</option>
+                        <option value="rainy-window">Rainy Window</option>
+                        <option value="koi-pond">Koi Pond</option>
+                        <option value="meadow">Meadow</option>
+                    </select>
+                </div>
+                <div class="setting"><label>Move Left:</label> <div id="key-moveLeft" class="key-input" tabindex="0">ArrowLeft</div></div>
+                <div class="setting"><label>Move Right:</label> <div id="key-moveRight" class="key-input" tabindex="0">ArrowRight</div></div>
+                <div class="setting"><label>Rotate Right:</label> <div id="key-rotateRight" class="key-input" tabindex="0">ArrowUp</div></div>
+                <div class="setting"><label>Rotate Left:</label> <div id="key-rotateLeft" class="key-input" tabindex="0">z</div></div>
+                <div class="setting"><label>Flip (180°):</label> <div id="key-flip" class="key-input" tabindex="0">a</div></div>
+                <div class="setting"><label>Soft Drop:</label> <div id="key-softDrop" class="key-input" tabindex="0">ArrowDown</div></div>
+                <div class="setting"><label>Hard Drop:</label> <div id="key-hardDrop" class="key-input" tabindex="0">Space</div></div>
+                <div class="setting"><label>Toggle Music:</label> <div id="key-toggleMusic" class="key-input" tabindex="0">M</div></div>
+            </div>
+            <button id="close-settings" class="action-btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        class SoundManager {
+            constructor() {
+                this.audioContext = null; this.isMuted = false; this.musicInterval = null;
+                this.musicTrack = 'Ambient'; this.soundSet = 'Zen';
+                this.currentTrackId = null; 
+                this.soundSets = {
+                    Retro: {
+                        move: () => this.createTone(200, 0.05, 'square', 0.2),
+                        rotate: () => this.createTone(400, 0.08, 'triangle', 0.3),
+                        drop: () => this.createTone(120, 0.1, 'sine', 0.4),
+                        lineClear: () => [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => this.createTone(f, 0.2, 'sine', 0.4), i*50)),
+                        levelUp: () => [261, 329, 392, 523, 659].forEach((f, i) => setTimeout(() => this.createTone(f, 0.15, 'sine', 0.5), i*60)),
+                        gameOver: () => [400, 350, 300, 250, 200].forEach((f, i) => setTimeout(() => this.createTone(f, 0.3, 'sawtooth', 0.5), i*150))
+                    },
+                    Zen: {
+                        move: () => this.createTone(100, 0.1, 'sine', 0.1),
+                        rotate: () => this.createTone(150, 0.1, 'sine', 0.15),
+                        drop: () => this.createTone(80, 0.2, 'sine', 0.2),
+                        lineClear: () => [261, 329, 392].forEach((f, i) => setTimeout(() => this.createTone(f, 0.5, 'sine', 0.15), i*80)),
+                        levelUp: () => [392, 493, 587].forEach((f, i) => setTimeout(() => this.createTone(f, 0.6, 'sine', 0.2), i*100)),
+                        gameOver: () => [220, 164, 130].forEach((f, i) => setTimeout(() => this.createTone(f, 0.8, 'sine', 0.2), i*200))
+                    }
+                };
+            }
+            init() { if (!this.audioContext) this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+            createTone(frequency, duration = 0.1, type = 'sine', volume = 0.3, onended = null) {
+                if (!this.audioContext || this.isMuted) return;
+                const osc = this.audioContext.createOscillator(), gain = this.audioContext.createGain();
+                osc.connect(gain); gain.connect(this.audioContext.destination);
+                osc.type = type; osc.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                gain.gain.setValueAtTime(volume, this.audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+                osc.start(); osc.stop(this.audioContext.currentTime + duration);
+                if (onended) osc.onended = onended;
+            }
+            setTrack(trackName) {
+                if (this.musicTrack === trackName && this.currentTrackId !== null) return;
+                this.musicTrack = trackName;
+                this.stopBackgroundMusic();
+                if (!this.isMuted) this.startBackgroundMusic();
+            }
+            setSoundSet(setName) { this.soundSet = setName; }
+            playMove() { this.soundSets[this.soundSet].move(); }
+            playRotate() { this.soundSets[this.soundSet].rotate(); }
+            playDrop() { this.soundSets[this.soundSet].drop(); }
+            playLineClear() { this.soundSets[this.soundSet].lineClear(); }
+            playLevelUp() { this.soundSets[this.soundSet].levelUp(); }
+            playGameOver() { this.soundSets[this.soundSet].gameOver(); }
+            startBackgroundMusic() {
+                if (this.isMuted) return;
+                this.stopBackgroundMusic();
+                this.currentTrackId = Symbol();
+                const trackId = this.currentTrackId;
+                const tracks = {
+                    Classic: () => this.startClassicMusic(trackId), Ambient: () => this.startAmbientMusic(trackId),
+                    Decay: () => this.startDecayMusic(trackId), Nostalgia: () => this.startNostalgiaMusic(trackId),
+                    Zen: () => this.startZenMusic(trackId), Nebula: () => this.startNebulaMusic(trackId),
+                    Aurora: () => this.startAuroraMusic(trackId), Galaxy: () => this.startGalaxyMusic(trackId),
+                    Rainfall: () => this.startRainfallMusic(trackId), Koi: () => this.startKoiMusic(trackId),
+                    Meadow: () => this.startMeadowMusic(trackId), MiracleTone: () => this.startMiracleToneMusic(trackId),
+                    HealingDrone: () => this.startHealingDroneMusic(trackId)
+                };
+                (tracks[this.musicTrack] || tracks.Nebula)(trackId);
+            }
+            startNebulaMusic(trackId) {
+                const b = [65, 73, 82, 73], m = [262, 294, 330, 349, 392, 440, 494, 523]; let bi=0, mi=0;
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(b[bi++ % b.length], 0.4, 'triangle', 0.1); if (bi % 2 === 0) this.createTone(m[mi++ % m.length], 0.2, 'sine', 0.15); }, 250);
+                this.musicInterval = interval;
+            }
+            startClassicMusic(trackId) {
+                const m=[659, 494, 523, 587, 523, 494, 440, 440, 523, 659, 587, 523, 494, 494, 523, 587, 659, 523, 440, 440], h=[220, 261, 329]; let mi=0, hi=0;
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(m[mi++ % m.length], 0.15, 'square', 0.2); if(mi%2===0)this.createTone(h[hi++%h.length],0.15,'sawtooth',0.05);}, 150);
+                this.musicInterval = interval;
+            }
+            startAmbientMusic(trackId) {
+                const s=[261, 311, 349, 392, 466], d=130;
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(s[~~(Math.random()*s.length)], 0.8, 'sine', 0.15); if(Math.random()>0.7)this.createTone(s[~~(Math.random()*s.length)]/2,1.2,'sine',0.1); if(Math.random()>0.9)this.createTone(d,2.5,'sine',0.08); }, 900);
+                this.musicInterval = interval;
+            }
+            startDecayMusic(trackId) {
+                const n=[220, 277.18, 329.63];
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const note=n[~~(Math.random()*n.length)]; this.createTone(note*(1+(Math.random()-0.5)*0.005), 4, 'sine', Math.random()*0.05+0.05); }, 2000+Math.random()*2000);
+                this.musicInterval = interval;
+            }
+            startNostalgiaMusic(trackId) {
+                const m=[293.66, 329.63, 293.66, 220, 146.83]; let mi=0;
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const n=m[mi++ % m.length]; this.createTone(n, 2.5, 'triangle', 0.1); if(Math.random()>0.6) this.createTone(n*2,2.5,'sine',0.05); }, 1500);
+                this.musicInterval = interval;
+            }
+            startZenMusic(trackId) {
+                const scale = [261.63, 392.00, 440.00, 523.25], drone = 110;
+                const interval = setInterval(() => {
+                    if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; }
+                    if (Math.random() > 0.8) this.createTone(drone, 10, 'sine', 0.05);
+                    if (Math.random() > 0.7) this.createTone(scale[~~(Math.random()*scale.length)], 3, 'sine', 0.1);
+                }, 4000);
+                 this.musicInterval = interval;
+            }
+             startAuroraMusic(trackId) {
+                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 100 + 80, 8, 'sine', Math.random() * 0.1, play); };
+                play();
+            }
+            startGalaxyMusic(trackId) {
+                const playDrone = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(55, 15, 'sawtooth', 0.03, playDrone); };
+                const playSparkles = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 1000 + 1000, 0.1, 'triangle', Math.random() * 0.05); setTimeout(playSparkles, Math.random() * 2000 + 500); };
+                playDrone(); playSparkles();
+            }
+            startRainfallMusic(trackId) {
+                const notes = [523, 587, 659, 784]; let idx = 0;
+                const playNote = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(notes[idx % notes.length], 0.5, 'sine', 0.1); idx++; setTimeout(playNote, Math.random() * 800 + 400); };
+                playNote();
+            }
+            startKoiMusic(trackId) {
+                const scale = [261, 329, 392, 523, 587];
+                const playPluck = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(scale[~~(Math.random()*scale.length)], 1.5, 'triangle', 0.15); setTimeout(playPluck, Math.random() * 2000 + 1000); };
+                playPluck();
+            }
+            startMeadowMusic(trackId) {
+                const padScale = [130.81, 196.00, 261.63]; 
+                const bellScale = [523.25, 659.25, 783.99];
+                const playPad = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(padScale[~~(Math.random()*padScale.length)], 12, 'sine', 0.1, playPad); };
+                const playBell = () => { if(this.isMuted || trackId !== this.currentTrackId) return; if(Math.random() > 0.6) this.createTone(bellScale[~~(Math.random()*bellScale.length)], 3, 'sine', 0.08); setTimeout(playBell, Math.random() * 5000 + 3000); };
+                playPad(); playBell();
+            }
+            startMiracleToneMusic(trackId) {
+                const play = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    this.createTone(528, 10, 'sine', 0.1);
+                    this.createTone(264, 10, 'sine', 0.05);
+                    setTimeout(() => { if (!this.isMuted && trackId === this.currentTrackId) play(); }, 12000);
+                };
+                play();
+            }
+            startHealingDroneMusic(trackId) {
+                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(174, 15, 'sine', 0.15, play); };
+                play();
+            }
+
+            stopBackgroundMusic() { 
+                this.currentTrackId = null;
+                if (this.musicInterval) {
+                    clearInterval(this.musicInterval);
+                    this.musicInterval = null;
+                }
+            }
+            toggleMute() { this.isMuted = !this.isMuted; this.isMuted ? this.stopBackgroundMusic() : this.startBackgroundMusic(); return this.isMuted; }
+        }
+
+        const COLS = 10, ROWS = 20, BLOCK_SIZE = 30, HIDDEN_ROWS = 4;
+        const COLORS = { I: '#00ff00', O: '#ff9900', T: '#0000ff', S: '#00ffff', Z: '#ff0000', J: '#ffff00', L: '#cc00cc' };
+        const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
+        const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
+        const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
+        const THEMES = ['forest', 'ocean', 'sunset', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow'];
+
+        let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
+        let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
+        let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false;
+        let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null;
+        let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null;
+        
+        let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
+        const soundManager = new SoundManager();
+
+        function init() {
+            canvas = document.getElementById('game-canvas'); ctx = canvas.getContext('2d');
+            canvas.width = COLS * BLOCK_SIZE; canvas.height = ROWS * BLOCK_SIZE;
+            nextCanvases = Array.from({length: 5}, (_, i) => document.getElementById(`next-${i}`));
+            createParticles(); loadSettings(); setupUI();
+            document.addEventListener('click', initSound, { once: true });
+            document.addEventListener('keydown', initSound, { once: true });
+            document.addEventListener('fullscreenchange', () => {
+                const fullscreenBtn = document.getElementById('fullscreen-toggle');
+                fullscreenBtn.textContent = document.fullscreenElement ? '><' : '⛶';
+            });
+            resetGame();
+        }
+        
+        function createParticles() {
+            const containers = {
+                stars: { count: 100, el: 'stars' }, fireflies: { count: 20, el: 'fireflies' },
+                bubbles: { count: 30, el: 'bubbles' }, clouds: { count: 5, el: 'clouds' },
+                petals: { count: 25, el: 'petals' }, snowflakes: { count: 100, el: 'snowflakes' },
+                leaves: { count: 30, el: 'leaves' }, sunRays: { count: 15, el: 'sun-rays' },
+                sparkles: { count: 50, el: 'sparkles' }, sprouts: { count: 40, el: 'sprouts' },
+                raindrops: { count: 50, el: 'raindrops'}, koi: { count: 10, el: 'koi-fish' },
+                pollen: { count: 50, el: 'pollen' }, butterflies: { count: 8, el: 'butterflies' }
+            };
+
+            for (const key in containers) {
+                const container = document.getElementById(containers[key].el);
+                if (container && container.children.length === 0) {
+                    for (let i = 0; i < containers[key].count; i++) {
+                        let el = document.createElement('div');
+                        switch(key) {
+                            case 'stars': el.className = 'star'; el.style.width = `${Math.random()*2+1}px`; el.style.height=el.style.width; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; el.style.animationDelay = `${Math.random()*5}s`; break;
+                            case 'fireflies': el.className = 'firefly'; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; ['--tx1','--ty1','--tx2','--ty2','--tx3','--ty3'].forEach(v => el.style.setProperty(v, `${Math.random()*100-50}px`)); el.style.animationDelay = `${Math.random()*10}s`; break;
+                            case 'bubbles': el.className = 'bubble'; const size = Math.random()*15+5; el.style.width=`${size}px`; el.style.height=`${size}px`; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+10}s`; el.style.animationDelay=`${Math.random()*15}s`; el.style.setProperty('--x-drift', `${Math.random()*4-2}vw`); break;
+                            case 'clouds': el.className='cloud'; el.style.top=`${Math.random()*40+5}%`; el.style.transform=`scale(${Math.random()*0.5+0.5})`; el.style.animationDuration=`${Math.random()*40+30}s`; el.style.animationDelay=`${Math.random()*30}s`; break;
+                            case 'petals': el.className='petal'; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*5+5}s`; el.style.animationDelay=`${Math.random()*10}s`; el.style.setProperty('--r-end', `${Math.random()*720-360}deg`); break;
+                            case 'snowflakes': el.className = 'snowflake'; el.textContent = '❄'; const snowSize = Math.random() * 0.8 + 0.4; el.style.fontSize = `${snowSize}rem`; el.style.left = `${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+8}s`; el.style.animationDelay=`${Math.random()*10}s`; el.style.setProperty('--x-drift', `${Math.random()*6-3}vw`); el.style.setProperty('--r-end', `${Math.random()*360-180}deg`); break;
+                            case 'leaves': el.className = 'leaf'; const leafColor = ['#c84c0f', '#e67e22', '#f1c40f'][Math.floor(Math.random() * 3)]; el.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C0 5, 5 15, 10 20 C15 15, 20 5, 10 0 Z" fill="${encodeURIComponent(leafColor)}"/></svg>')`; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*8+7}s`; el.style.animationDelay=`${Math.random()*10}s`; el.style.setProperty('--x-drift', `${Math.random()*20-10}vw`); el.style.setProperty('--r-end', `${Math.random()*1080-540}deg`); break;
+                            case 'sunRays': el.className = 'sun-ray'; el.style.height = `${Math.random()*400+300}px`; el.style.width = `${Math.random()*30+20}px`; el.style.top = '0'; el.style.left = `${Math.random()*100-25}%`; el.style.setProperty('--r-start', `${Math.random()*10-5}deg`); el.style.setProperty('--r-end', `${Math.random()*10-5}deg`); el.style.animationDelay = `${Math.random()*5}s`; break;
+                            case 'sparkles': el.className = 'sparkle'; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; el.style.animationDelay = `${Math.random()*2}s`; break;
+                            case 'sprouts': el.className = 'sprout'; el.style.left = `${Math.random()*100}%`; el.style.bottom = `${Math.random()* -20}px`; el.style.animationDuration = `${Math.random()*8+6}s`; el.style.animationDelay = `${Math.random()*14}s`; el.style.setProperty('--r-end', `${Math.random()*180-90}deg`); break;
+                            case 'raindrops': el.className = 'raindrop'; el.style.left = `${Math.random()*100}%`; el.style.height = `${Math.random()*50+50}px`; el.style.animationDuration = `${Math.random()*0.5+0.3}s`; el.style.animationDelay = `${Math.random()*5}s`; break;
+                            case 'koi': el.className = 'koi'; ['--x1','--y1','--x2','--y2','--x3','--y3','--x4','--y4'].forEach(v => el.style.setProperty(v, `${Math.random()*80+10}vw`)); ['--r1','--r2','--r3','--r4'].forEach(v => el.style.setProperty(v, `${Math.random()*360}deg`)); el.style.animationDelay = `${Math.random()*25}s`; break;
+                            case 'pollen': el.className = 'pollen'; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; el.style.setProperty('--x', `${Math.random()*100-50}px`); el.style.setProperty('--y', `${Math.random()*100-50}px`); el.style.animationDelay = `${Math.random()*8}s`; break;
+                            case 'butterflies': el.className = 'butterfly'; ['--x1','--y1','--x2','--y2','--x3','--y3','--x4','--y4'].forEach(v => el.style.setProperty(v, `${Math.random()*80+10}vw`)); el.style.animationDelay = `${Math.random()*15}s`; break;
+                        }
+                        container.appendChild(el);
+                    }
+                }
+            }
+        }
+        
+        function setBackground(themeName) {
+            if (!THEMES.includes(themeName) || activeTheme === themeName) return;
+            activeTheme = themeName;
+            document.querySelectorAll('.theme-container').forEach(el => {
+                if (el.id === `${themeName}-theme`) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+        }
+
+        function startRandomThemeChanger() {
+            stopRandomThemeChanger();
+            if (settings.backgroundMode !== 'Random' || isGameOver) return;
+            randomThemeInterval = setInterval(() => {
+                let newTheme;
+                do { newTheme = THEMES[Math.floor(Math.random() * THEMES.length)]; } while (newTheme === activeTheme);
+                setBackground(newTheme);
+            }, 30000); 
+        }
+
+        function stopRandomThemeChanger() {
+            if (randomThemeInterval) clearInterval(randomThemeInterval);
+            randomThemeInterval = null;
+        }
+
+        function updateBackground(level) {
+            if (settings.backgroundMode !== 'Level') return;
+            const themeIndex = Math.floor((level - 1) / 2) % THEMES.length;
+            setBackground(THEMES[themeIndex]);
+        }
+
+        function initSound() { soundManager.init(); soundManager.startBackgroundMusic(); }
+        
+        function resetGame() {
+            lockedPieces = []; currentPiece = null; nextPieces = [];
+            score = 0; lines = 0; level = 1; linesUntilNextLevel = 10;
+            dropInterval = LEVEL_SPEEDS[0]; dropCounter = 0; piecesPlaced = 0;
+            isGameOver = false; isProcessingPhysics = false; inputQueue = null;
+            startTime = Date.now(); fillBag(); updateStats(); spawnPiece();
+            stopRandomThemeChanger();
+            if (settings.backgroundMode === 'Specific') {
+                setBackground(settings.backgroundTheme);
+            } else {
+                setBackground('forest');
+            }
+        }
+        function fillBag() { while(nextPieces.length<10) { const bag=[...PIECE_KEYS].sort(()=>Math.random()-0.5); nextPieces.push(...bag); } }
+        function spawnPiece() {
+            const shapeKey = nextPieces.shift();
+            currentPiece = { shapeKey, shape: SHAPES[shapeKey], x: ~~(COLS/2)-~~(SHAPES[shapeKey][0].length/2), y: 0, color: COLORS[shapeKey] };
+            fillBag(); drawNextPieces(); piecesPlaced++;
+            if (inputQueue) { const a=inputQueue; inputQueue=null; setTimeout(() => { if (a.type==='move') move(a.dir); else if (a.type==='rotate') rotate(a.dir); }, 0); }
+            if (!isValidPosition(currentPiece)) gameOver();
+        }
+        function generateBoard(pieces) {
+            const b = Array.from({length:ROWS+HIDDEN_ROWS},()=>Array(COLS).fill(0));
+            for (const p of pieces) { p.shape.forEach((r,y)=>r.forEach((v,x) => { if(v>0){ const bx=p.x+x, by=p.y+y; if(by>=0&&by<b.length&&bx>=0&&bx<COLS) b[by][bx]=p.shapeKey; } })); } return b;
+        }
+        function isValidPosition(p, cX=p.x, cY=p.y) {
+            const boardData = generateBoard(lockedPieces);
+            for (let y=0; y<p.shape.length; y++) for (let x=0; x<p.shape[y].length; x++) if (p.shape[y][x]>0) { const bx=cX+x, by=cY+y; if (bx<0||bx>=COLS||by>=boardData.length||(boardData[by]&&boardData[by][bx]!==0)) return false; } return true;
+        }
+        function move(dir) { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x+dir, currentPiece.y)) { currentPiece.x+=dir; soundManager.playMove(); } }
+        function rotate(dir='right') {
+            if (!currentPiece||isProcessingPhysics) return; const o=currentPiece.shape;
+            let r; if (dir==='right') r=o[0].map((_,i)=>o.map(row=>row[i]).reverse()); else if(dir==='left') r=o[0].map((_,i)=>o.map(row=>row[i])).reverse(); else r=o.map(row=>row.slice().reverse()).reverse();
+            currentPiece.shape=r; for(const k of [0,1,-1,2,-2]) { if(isValidPosition(currentPiece, currentPiece.x+k, currentPiece.y)) { currentPiece.x+=k; soundManager.playRotate(); return; } } currentPiece.shape=o;
+        }
+        function softDrop() { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x, currentPiece.y+1)) { currentPiece.y++; score+=level; dropCounter=0; } else lockPiece(); }
+        function hardDrop() { if(!currentPiece||isProcessingPhysics) return; let d=0; while(isValidPosition(currentPiece,currentPiece.x,currentPiece.y+1)){currentPiece.y++;d++;} score+=d*2*level; lockPiece(); }
+        function lockPiece() { if(!currentPiece) return; soundManager.playDrop(); lockedPieces.push({...currentPiece, shape:[...currentPiece.shape]}); currentPiece=null; dropCounter=0; processPhysics(); }
+        async function processPhysics() {
+            isProcessingPhysics=true; let loopActive=true;
+            while(loopActive) {
+                loopActive = false; const boardData = generateBoard(lockedPieces); const fullLines = [];
+                for(let y=boardData.length-1;y>=0;y--) if(boardData[y].every(c=>c!==0)) fullLines.push(y);
+                if(fullLines.length>0) {
+                    loopActive=true; const oldLevel=level; lines+=fullLines.length; linesUntilNextLevel-=fullLines.length;
+                    if(linesUntilNextLevel<=0){ level++; linesUntilNextLevel=10+linesUntilNextLevel; dropInterval=LEVEL_SPEEDS[Math.min(level-1, LEVEL_SPEEDS.length-1)]; soundManager.playLevelUp(); showLevelUpNotification(level); }
+                    if(oldLevel!==level) updateBackground(level);
+                    score+=(SCORE_VALUES[fullLines.length]||SCORE_VALUES[4])*level; soundManager.playLineClear(); showScorePopup((SCORE_VALUES[fullLines.length]||SCORE_VALUES[4])*level);
+                    canvas.classList.add('line-flash'); setTimeout(()=>canvas.classList.remove('line-flash'),500);
+                    fullLines.forEach(y=>{ for(let x=0;x<COLS;x++)boardData[y][x]='C'; }); board=boardData; draw(); await sleep(200);
+                    let newBoard=boardData.filter((_,y)=>!fullLines.includes(y)); while(newBoard.length<ROWS+HIDDEN_ROWS)newBoard.unshift(Array(COLS).fill(0));
+                    lockedPieces=findConnectedComponents(newBoard); continue;
+                }
+                let pieceFell = false;
+                for(const p of [...lockedPieces].sort((a,b)=>b.y-a.y)) {
+                    const others=lockedPieces.filter(op=>op!==p);
+                    while(canFall(p, others)) { p.y++; pieceFell=true; draw(); await sleep(40); }
+                }
+                if(pieceFell) loopActive=true;
+            }
+            isProcessingPhysics=false; updateStats(); spawnPiece();
+        }
+        function canFall(p, others) {
+            const boardData=generateBoard(others);
+            for(let y=0;y<p.shape.length;y++) for(let x=0;x<p.shape[y].length;x++) if(p.shape[y][x]>0) { const by=p.y+y+1, bx=p.x+x; if(by>=boardData.length||boardData[by][bx]!==0)return false;} return true;
+        }
+        function findConnectedComponents(boardData) {
+            const pieces=[], visited=Array.from({length:boardData.length},()=>Array(boardData[0].length).fill(false));
+            for(let r=0;r<boardData.length;r++) for(let c=0;c<boardData[0].length;c++) {
+                if(boardData[r][c]!==0&&!visited[r][c]) {
+                    const shapeKey=boardData[r][c], component=[], queue=[[r,c]]; visited[r][c]=true;
+                    let minR=r,maxR=r,minC=c,maxC=c;
+                    while(queue.length>0) {
+                        const [row,col]=queue.shift(); component.push({r:row,c:col});
+                        minR=Math.min(minR,row); maxR=Math.max(maxR,row); minC=Math.min(minC,col); maxC=Math.max(maxC,col);
+                        [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{ const nr=row+dr,nc=col+dc; if(nr>=0&&nr<boardData.length&&nc>=0&&nc<boardData[0].length&&!visited[nr][nc]&&boardData[nr][nc]===shapeKey){visited[nr][nc]=true;queue.push([nr,nc]);}});
+                    }
+                    const shape=Array.from({length:maxR-minR+1},()=>Array(maxC-minC+1).fill(0));
+                    component.forEach(({r,c})=>{shape[r-minR][c-minC]=1});
+                    pieces.push({x:minC, y:minR, shape, shapeKey, color:COLORS[shapeKey]});
+                }
+            }
+            return pieces;
+        }
+        function draw() {
+            if (level>=10) { canvas.style.borderColor = '#ef4444'; canvas.style.boxShadow = '0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.4)';}
+            else if (level>=5) { canvas.style.borderColor = '#fbbf24'; canvas.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.4)';}
+            else { canvas.style.borderColor = '#8b5cf6'; canvas.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)';}
+            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+            for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,0);ctx.lineTo(x*BLOCK_SIZE,canvas.height);ctx.stroke();}
+            for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*BLOCK_SIZE);ctx.lineTo(canvas.width,y*BLOCK_SIZE);ctx.stroke();}
+            const boardData=generateBoard(lockedPieces);
+            boardData.forEach((row,y)=>{ if(y<HIDDEN_ROWS)return; row.forEach((c,x)=>{ if(c!==0&&c!=='C')drawBlock(x,y-HIDDEN_ROWS,COLORS[c]); else if(c==='C')drawBlock(x,y-HIDDEN_ROWS,'#ffffff');});});
+            if(currentPiece) {
+                let ghostY=currentPiece.y; while(isValidPosition(currentPiece,currentPiece.x,ghostY+1))ghostY++;
+                currentPiece.shape.forEach((r,y)=>r.forEach((c,x)=>{ if(c>0&&ghostY+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,ghostY+y-HIDDEN_ROWS,'rgba(255,255,255,0.2)',true); if(c>0&&currentPiece.y+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,currentPiece.y+y-HIDDEN_ROWS,currentPiece.color);}));
+            }
+        }
+        function drawBlock(x,y,c,isGhost=false) {
+            ctx.fillStyle=c; ctx.fillRect(x*BLOCK_SIZE,y*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
+            if(!isGhost){ ctx.fillStyle='rgba(255,255,255,0.3)';ctx.fillRect(x*BLOCK_SIZE+2,y*BLOCK_SIZE+2,6,6); ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=2;ctx.strokeRect(x*BLOCK_SIZE+1,y*BLOCK_SIZE+1,BLOCK_SIZE-2,BLOCK_SIZE-2); }
+        }
+        function drawNextPieces() {
+            nextCanvases.forEach((canv,idx)=>{
+                const ctx2=canv.getContext('2d'); ctx2.clearRect(0,0,canv.width,canv.height);
+                if(nextPieces[idx]){
+                    const s=SHAPES[nextPieces[idx]], c=COLORS[nextPieces[idx]], bs=idx===0?12:10, ox=(canv.width-s[0].length*bs)/2, oy=(canv.height-s.length*bs)/2;
+                    s.forEach((r,y)=>r.forEach((cell,x)=>{ if(cell>0){ ctx2.fillStyle=c;ctx2.fillRect(ox+x*bs,oy+y*bs,bs,bs); if(idx===0){ctx2.fillStyle='rgba(255,255,255,0.3)';ctx2.fillRect(ox+x*bs+1,oy+y*bs+1,3,3);} ctx2.strokeStyle='rgba(0,0,0,0.5)';ctx2.lineWidth=1;ctx2.strokeRect(ox+x*bs,oy+y*bs,bs,bs);}}));
+                }
+            });
+        }
+        function updateStats() {
+            document.getElementById('score').textContent=score; document.getElementById('lines').textContent=lines;
+            const lvlEl=document.getElementById('level'); lvlEl.textContent=level; lvlEl.className='stat-value'; if(level>=10)lvlEl.classList.add('danger');else if(level>=5)lvlEl.classList.add('warning');
+            document.getElementById('next-level').textContent=linesUntilNextLevel;
+            const baseSpd=LEVEL_SPEEDS[0], currSpd=LEVEL_SPEEDS[Math.min(level-1, LEVEL_SPEEDS.length-1)], spdMult=(baseSpd/currSpd).toFixed(1);
+            const spdEl=document.getElementById('speed'); spdEl.textContent=`${spdMult}x`; spdEl.className='stat-value'; if(parseFloat(spdMult)>=20)spdEl.classList.add('danger');else if(parseFloat(spdMult)>=5)spdEl.classList.add('warning');
+            const elapsed=(Date.now()-startTime)/60000; document.getElementById('bpm').textContent=elapsed>0?~~(piecesPlaced*4/elapsed):0;
+        }
+        function showScorePopup(p) { const el=document.createElement('div'); el.className='score-popup'; el.textContent=`+${p}`; el.style.left='50%';el.style.top='50%'; const c=document.getElementById('score-popups');c.appendChild(el); setTimeout(()=>c.removeChild(el),1000); }
+        function showLevelUpNotification(lvl) {
+            const n=document.createElement('div'); n.style.cssText=`position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.8);animation:levelUp 1.5s ease-out forwards;pointer-events:none;z-index:100;`;
+            n.textContent=`LEVEL ${lvl}!`; const s=document.createElement('style'); s.textContent=`@keyframes levelUp{0%{transform:translate(-50%,-50%) scale(0.5);opacity:0;}50%{transform:translate(-50%,-50%) scale(1.2);opacity:1;}100%{transform:translate(-50%,-200%) scale(1);opacity:0;}}`;
+            document.head.appendChild(s); const c=document.getElementById('score-popups');c.appendChild(n); setTimeout(()=>{c.removeChild(n);document.head.removeChild(s);},1500);
+        }
+        function gameLoop(time) {
+            if(isGameOver)return; const delta=time-lastTime; lastTime=time;
+            if(!isProcessingPhysics&&currentPiece){ dropCounter+=delta; if(dropCounter>dropInterval)softDrop(); }
+            draw(); updateStats(); animationId=requestAnimationFrame(gameLoop);
+        }
+        function startGame() {
+            document.getElementById('start-modal').classList.remove('visible');
+            document.getElementById('game-over-modal').classList.remove('visible');
+            resetGame();
+            lastTime = performance.now();
+            if (animationId) cancelAnimationFrame(animationId);
+            if (settings.backgroundMode === 'Random') {
+                startRandomThemeChanger();
+            }
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        function gameOver() {
+            isGameOver = true;
+            stopRandomThemeChanger();
+            soundManager.playGameOver();
+            const speedMultiplier=(LEVEL_SPEEDS[0]/dropInterval).toFixed(1);
+            document.getElementById('final-stats').innerHTML=`<div style="font-size:24px;margin-bottom:10px;color:#fbbf24;">Score: ${score}</div><div style="margin-bottom:5px;">Level ${level} (${speedMultiplier}x speed)</div><div>Lines Cleared: ${lines}</div>`;
+            document.getElementById('game-over-modal').classList.add('visible');
+        }
+        function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+        function setupUI(){
+            const sm=document.getElementById('settings-modal');
+            document.getElementById('settings-btn').addEventListener('click',()=>sm.classList.add('visible'));
+            document.getElementById('close-settings').addEventListener('click',()=>sm.classList.remove('visible'));
+            document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
+            const ds=document.getElementById('das-delay'),dv=document.getElementById('das-delay-value'),is=document.getElementById('das-interval'),iv=document.getElementById('das-interval-value');
+            ds.value=settings.dasDelay;dv.textContent=settings.dasDelay; is.value=settings.dasInterval;iv.textContent=settings.dasInterval;
+            ds.addEventListener('input',(e)=>{settings.dasDelay=parseInt(e.target.value);dv.textContent=settings.dasDelay;saveSettings();});
+            is.addEventListener('input',(e)=>{settings.dasInterval=parseInt(e.target.value);iv.textContent=settings.dasInterval;saveSettings();});
+            const mt=document.getElementById('music-track');
+            mt.value=settings.musicTrack;
+            mt.addEventListener('change',(e)=>{settings.musicTrack=e.target.value;soundManager.setTrack(settings.musicTrack);saveSettings();});
+            const st=document.getElementById('sfx-set');
+            st.value=settings.soundSet;
+            st.addEventListener('change',(e)=>{settings.soundSet=e.target.value;soundManager.setSoundSet(settings.soundSet);saveSettings();});
+
+            const bgModeSelect = document.getElementById('background-mode');
+            const themeSetting = document.getElementById('theme-setting');
+            const bgThemeSelect = document.getElementById('background-theme');
+
+            function setThemeSelectorVisibility(visible) {
+                themeSetting.style.display = visible ? 'contents' : 'none';
+            }
+
+            bgModeSelect.value = settings.backgroundMode;
+            bgThemeSelect.value = settings.backgroundTheme;
+            setThemeSelectorVisibility(settings.backgroundMode === 'Specific');
+
+            bgModeSelect.addEventListener('change', (e) => {
+                settings.backgroundMode = e.target.value;
+                stopRandomThemeChanger();
+                if (settings.backgroundMode === 'Specific') {
+                    setThemeSelectorVisibility(true);
+                    setBackground(settings.backgroundTheme);
+                } else {
+                    setThemeSelectorVisibility(false);
+                    if (settings.backgroundMode === 'Random' && !isGameOver) {
+                        startRandomThemeChanger();
+                    } else { // Level mode
+                        updateBackground(level);
+                    }
+                }
+                saveSettings();
+            });
+
+            bgThemeSelect.addEventListener('change', (e) => {
+                settings.backgroundTheme = e.target.value;
+                if (settings.backgroundMode === 'Specific') {
+                    setBackground(settings.backgroundTheme);
+                }
+                saveSettings();
+            });
+
+            document.querySelectorAll('.key-input').forEach(el=>{ const a=el.id.substring(4);el.textContent=settings.keyBindings[a];el.addEventListener('click',()=>listenForKey(el));el.addEventListener('keydown',(e)=>handleKeybinding(e,el)); });
+            updateControlsDisplay();
+        }
+        function listenForKey(el) { document.querySelectorAll('.key-input').forEach(e=>e.classList.remove('listening')); el.classList.add('listening'); el.textContent='Press a key...'; }
+        function handleKeybinding(e,el){ e.preventDefault(); const a=el.id.substring(4), k=e.key===' '?'Space':e.key; if(Object.values(settings.keyBindings).includes(k)&&settings.keyBindings[a]!==k){ el.textContent=settings.keyBindings[a];el.classList.remove('listening');return; } settings.keyBindings[a]=k; el.textContent=k; el.classList.remove('listening'); saveSettings(); updateControlsDisplay(); }
+        function saveSettings(){localStorage.setItem('quadraSettings',JSON.stringify(settings));}
+        function loadSettings(){ const s=localStorage.getItem('quadraSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; }
+        function updateControlsDisplay(){ const l=document.getElementById('controls-list');l.innerHTML=''; const o=['moveLeft','moveRight','rotateRight','rotateLeft','flip','softDrop','hardDrop','toggleMusic']; o.forEach(a=>{if(settings.keyBindings[a]){const t=a.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase());l.innerHTML+=`<div>${t}: ${settings.keyBindings[a]}</div>`;}}); }
+        let keyMap={};
+        document.addEventListener('keydown',(e)=>{
+            if(document.activeElement.classList.contains('key-input'))return;
+            if(document.getElementById('start-modal').classList.contains('visible')||document.getElementById('game-over-modal').classList.contains('visible')){startGame();return;}
+            if(isGameOver)return; const k=e.key===' '?'Space':e.key, a=Object.keys(settings.keyBindings).find(key=>settings.keyBindings[key]===k);
+            if(!a||keyMap[a])return; keyMap[a]=true;
+            if(isProcessingPhysics){ if(!inputQueue&&(a==='moveLeft'||a==='moveRight'||a.startsWith('rotate')||a==='flip')){inputQueue={type:a.startsWith('rotate')||a==='flip'?'rotate':'move',dir:a==='moveLeft'?-1:(a==='moveRight'?1:(a==='rotateLeft'?'left':(a==='flip'?'flip':'right')))};}return;}
+            switch(a){
+                case'moveLeft':move(-1);dasTimer=setTimeout(()=>{dasIntervalTimer=setInterval(()=>move(-1),settings.dasInterval);},settings.dasDelay);break;
+                case'moveRight':move(1);dasTimer=setTimeout(()=>{dasIntervalTimer=setInterval(()=>move(1),settings.dasInterval);},settings.dasDelay);break;
+                case'softDrop':softDrop();break; case'rotateRight':rotate('right');break; case'rotateLeft':rotate('left');break; case'flip':rotate('flip');break;
+                case'hardDrop':e.preventDefault();hardDrop();break;
+                case'toggleMusic':const m=soundManager.toggleMute();document.getElementById('sound-toggle').textContent=m?'🔇':'🔊';break;
+            }
+        });
+        document.addEventListener('keyup',(e)=>{
+            const k=e.key===' '?'Space':e.key, a=Object.keys(settings.keyBindings).find(key=>settings.keyBindings[key]===k);
+            if(a)keyMap[a]=false; if(a==='moveLeft'||a==='moveRight'){clearTimeout(dasTimer);clearInterval(dasIntervalTimer);dasIntervalTimer=null;dasIntervalTimer=null;}
+        });
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
+
