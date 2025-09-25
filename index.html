@@ -771,7 +771,8 @@
             toggleMute() { this.isMuted = !this.isMuted; this.isMuted ? this.stopBackgroundMusic() : this.startBackgroundMusic(); return this.isMuted; }
         }
 
-        const COLS = 10, ROWS = 20, BLOCK_SIZE = 30, HIDDEN_ROWS = 4;
+        const COLS = 10, ROWS = 20, HIDDEN_ROWS = 4;
+        let BLOCK_SIZE = 30;
         const COLORS = { I: '#00ff00', O: '#ff9900', T: '#0000ff', S: '#00ffff', Z: '#ff0000', J: '#ffff00', L: '#cc00cc' };
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
@@ -787,10 +788,54 @@
         let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
         const soundManager = new SoundManager();
 
+        function resizeGame() {
+            const margin = 0.95;
+            const availableHeight = window.innerHeight * margin;
+            const availableWidth = window.innerWidth * margin;
+
+            // Roughly 5 rows for the 'next' pieces container and other UI elements
+            let blockSizeFromHeight = availableHeight / (ROWS + 5);
+
+            let blockSizeFromWidth;
+            // Consider sidebar width in desktop mode
+            if (window.innerWidth > 768) {
+                const sidebarWidth = 180; // As defined in CSS for .panel
+                const gap = 30; // As defined in CSS for .game-container
+                blockSizeFromWidth = (availableWidth - sidebarWidth - gap) / COLS;
+            } else {
+                blockSizeFromWidth = availableWidth / COLS;
+            }
+
+            BLOCK_SIZE = Math.floor(Math.min(blockSizeFromHeight, blockSizeFromWidth));
+
+            canvas.width = COLS * BLOCK_SIZE;
+            canvas.height = ROWS * BLOCK_SIZE;
+
+            // Maintain aspect ratio of next piece canvases relative to new BLOCK_SIZE
+            // Original BLOCK_SIZE=30, next-0 is 60x50, others are 50x40
+            if (nextCanvases && nextCanvases.length > 0) {
+                nextCanvases[0].width = BLOCK_SIZE * 2;
+                nextCanvases[0].height = BLOCK_SIZE * (50/30);
+                for (let i = 1; i < 5; i++) {
+                    nextCanvases[i].width = BLOCK_SIZE * (50/30);
+                    nextCanvases[i].height = BLOCK_SIZE * (40/30);
+                }
+            }
+
+            // Redraw the game with new sizes if the game is active
+            if (!isGameOver && currentPiece) {
+                draw();
+                drawNextPieces();
+            }
+        }
+
         function init() {
             canvas = document.getElementById('game-canvas'); ctx = canvas.getContext('2d');
-            canvas.width = COLS * BLOCK_SIZE; canvas.height = ROWS * BLOCK_SIZE;
             nextCanvases = Array.from({length: 5}, (_, i) => document.getElementById(`next-${i}`));
+
+            resizeGame();
+            window.addEventListener('resize', resizeGame);
+
             createParticles(); loadSettings(); setupUI();
             document.addEventListener('click', initSound, { once: true });
             document.addEventListener('keydown', initSound, { once: true });
@@ -974,14 +1019,38 @@
         }
         function drawBlock(x,y,c,isGhost=false) {
             ctx.fillStyle=c; ctx.fillRect(x*BLOCK_SIZE,y*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
-            if(!isGhost){ ctx.fillStyle='rgba(255,255,255,0.3)';ctx.fillRect(x*BLOCK_SIZE+2,y*BLOCK_SIZE+2,6,6); ctx.strokeStyle='rgba(0,0,0,0.5)';ctx.lineWidth=2;ctx.strokeRect(x*BLOCK_SIZE+1,y*BLOCK_SIZE+1,BLOCK_SIZE-2,BLOCK_SIZE-2); }
+            if(!isGhost){
+                const highlightSize = Math.max(1, BLOCK_SIZE / 5);
+                const highlightOffset = Math.max(1, BLOCK_SIZE / 15);
+                ctx.fillStyle='rgba(255,255,255,0.3)';
+                ctx.fillRect(x*BLOCK_SIZE+highlightOffset,y*BLOCK_SIZE+highlightOffset,highlightSize,highlightSize);
+
+                const borderOffset = Math.max(0.5, BLOCK_SIZE / 30);
+                ctx.strokeStyle='rgba(0,0,0,0.5)';
+                ctx.lineWidth= Math.max(1, BLOCK_SIZE / 15);
+                ctx.strokeRect(x*BLOCK_SIZE+borderOffset,y*BLOCK_SIZE+borderOffset,BLOCK_SIZE-(2*borderOffset),BLOCK_SIZE-(2*borderOffset));
+            }
         }
         function drawNextPieces() {
             nextCanvases.forEach((canv,idx)=>{
                 const ctx2=canv.getContext('2d'); ctx2.clearRect(0,0,canv.width,canv.height);
                 if(nextPieces[idx]){
-                    const s=SHAPES[nextPieces[idx]], c=COLORS[nextPieces[idx]], bs=idx===0?12:10, ox=(canv.width-s[0].length*bs)/2, oy=(canv.height-s.length*bs)/2;
-                    s.forEach((r,y)=>r.forEach((cell,x)=>{ if(cell>0){ ctx2.fillStyle=c;ctx2.fillRect(ox+x*bs,oy+y*bs,bs,bs); if(idx===0){ctx2.fillStyle='rgba(255,255,255,0.3)';ctx2.fillRect(ox+x*bs+1,oy+y*bs+1,3,3);} ctx2.strokeStyle='rgba(0,0,0,0.5)';ctx2.lineWidth=1;ctx2.strokeRect(ox+x*bs,oy+y*bs,bs,bs);}}));
+                    const s=SHAPES[nextPieces[idx]], c=COLORS[nextPieces[idx]], bs = BLOCK_SIZE * (idx === 0 ? 0.4 : 0.33), ox=(canv.width-s[0].length*bs)/2, oy=(canv.height-s.length*bs)/2;
+                    s.forEach((r,y)=>r.forEach((cell,x)=>{
+                        if(cell>0){
+                            ctx2.fillStyle=c;
+                            ctx2.fillRect(ox+x*bs,oy+y*bs,bs,bs);
+                            if(idx===0){
+                                const highlightSize = Math.max(1, bs/4);
+                                const highlightOffset = Math.max(1, bs/12);
+                                ctx2.fillStyle='rgba(255,255,255,0.3)';
+                                ctx2.fillRect(ox+x*bs+highlightOffset,oy+y*bs+highlightOffset,highlightSize,highlightSize);
+                            }
+                            ctx2.strokeStyle='rgba(0,0,0,0.5)';
+                            ctx2.lineWidth=Math.max(0.5, bs/12);
+                            ctx2.strokeRect(ox+x*bs,oy+y*bs,bs,bs);
+                        }
+                    }));
                 }
             });
         }
