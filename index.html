@@ -124,7 +124,7 @@
 
         /* --- Ocean Theme --- */
         #ocean-theme {
-            background: linear-gradient(to top, #000408, #021B39, #083361);
+            background: linear-gradient(to top, #010810, #021B39, #0A4882);
             overflow: hidden;
         }
         .ocean-parallax {
@@ -134,9 +134,26 @@
             background-repeat: repeat-x;
             background-position: 0 bottom;
         }
-        #ocean-floor-bg { animation: slide 220s linear infinite; z-index: 1; opacity: 0.8; }
-        #ocean-floor-mid { animation: slide 160s linear infinite; z-index: 3; opacity: 0.9; }
-        #ocean-floor-fg { animation: slide 100s linear infinite; z-index: 5; }
+        #ocean-floor-bg { animation: slide 320s linear infinite; z-index: 1; filter: brightness(0.7); }
+        #ocean-floor-mid { animation: slide 240s linear infinite; z-index: 4; filter: brightness(0.85); }
+        #ocean-floor-fg { animation: slide 160s linear infinite; z-index: 7; }
+
+        .ocean-god-rays {
+            position: absolute; top: -10%; left: -10%;
+            width: 120%; height: 120%;
+            transform-origin: center;
+            animation: ocean-ray-anim 90s ease-in-out infinite alternate;
+            z-index: 3;
+        }
+        .ocean-god-ray {
+            position: absolute; top: 0;
+            background: linear-gradient(to bottom, rgba(173, 216, 230, 0.15) 0%, rgba(173, 216, 230, 0) 70%);
+            transform-origin: top center;
+        }
+        @keyframes ocean-ray-anim {
+            from { transform: rotate(-20deg); }
+            to { transform: rotate(20deg); }
+        }
 
         .caustics-container {
             position: absolute; top: 0; left: 0;
@@ -144,49 +161,83 @@
             transform-origin: center;
             animation: slow-pan 120s linear infinite alternate;
             z-index: 2;
+            mix-blend-mode: screen;
         }
         @keyframes slow-pan {
-            from { transform: translateX(-10%) scale(1.2); }
-            to { transform: translateX(10%) scale(1.2); }
+            from { transform: translateX(-5%) scale(1.1); }
+            to { transform: translateX(5%) scale(1.1); }
         }
         .caustic-light {
             position: absolute;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="w"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="5"/><feDiffuseLighting in="w" lighting-color="white" surfaceScale="10"><feDistantLight azimuth="45" elevation="60"/></feDiffuseLighting></filter><rect width="200" height="200" fill="rgba(200,225,255,0.1)" filter="url(%23w)"/></svg>');
-            background-size: 400% 400%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><filter id="w"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="4" seed="8"/><feDiffuseLighting in="w" lighting-color="white" surfaceScale="8"><feDistantLight azimuth="45" elevation="50"/></feDiffuseLighting></filter><rect width="300" height="300" fill="rgba(200,225,255,0.1)" filter="url(%23w)"/></svg>');
+            background-size: 300% 300%;
             width: 100%; height: 100%;
-            animation: caustics-anim 30s ease-in-out infinite alternate;
+            animation: caustics-anim 25s ease-in-out infinite alternate;
         }
         @keyframes caustics-anim {
             from { background-position: 0% 0%; }
             to { background-position: 100% 100%; }
         }
 
-        .sea-creature-container {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
+        .jellyfish {
+            position: absolute;
+            animation: swim-jellyfish 20s ease-in-out infinite;
+            z-index: 6;
+        }
+        .jelly-body {
+            width: 50px; height: 30px;
+            background: radial-gradient(ellipse at top, rgba(100, 200, 255, 0.7), rgba(50, 150, 255, 0.3));
+            border-radius: 50% 50% 20% 20%;
+            animation: pulse-jelly 4s ease-in-out infinite;
+        }
+        .jelly-tentacles {
+            position: absolute; top: 25px; left: 25px;
+        }
+        .tentacle {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, rgba(100, 200, 255, 0.6), transparent);
+            animation: wave-tentacle 4s ease-in-out infinite;
+        }
+        @keyframes swim-jellyfish {
+            from { transform: translate(var(--x-start), var(--y-start)) rotate(-10deg); }
+            to { transform: translate(var(--x-end), var(--y-end)) rotate(10deg); }
+        }
+        @keyframes pulse-jelly {
+            0%, 100% { transform: scale(1, 1); }
+            50% { transform: scale(1.1, 0.9); }
+        }
+        @keyframes wave-tentacle {
+            0%, 100% { transform: rotate(-10deg) scaleY(1); }
+            50% { transform: rotate(10deg) scaleY(1.2); }
+        }
+
+        .ocean-plankton {
+            position: absolute;
+            background: rgba(173, 216, 230, 0.7);
+            border-radius: 50%;
+            animation: drift-plankton 10s ease-in-out infinite alternate;
             z-index: 0;
         }
-        .sea-creature {
-            position: absolute;
-            width: 600px; height: 300px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300"><path d="M 0 150 C 75 30, 225 0, 300 75 C 375 150, 525 120, 600 180 L 600 270 C 525 330, 375 300, 300 225 C 225 150, 75 270, 0 150 Z" fill="rgba(2, 10, 20, 0.4)"/></svg>');
-            animation: creature-swim 250s linear infinite;
-            opacity: 0;
-            filter: blur(3px);
-        }
-        @keyframes creature-swim {
-            0% { transform: translateX(-650px) translateY(50vh) scale(1.2) rotate(-5deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateX(110vw) translateY(20vh) scale(1.5) rotate(5deg); opacity: 0; }
+        @keyframes drift-plankton {
+            from {
+                transform: translate(var(--x-start), var(--y-start));
+                opacity: 0;
+            }
+            50% { opacity: 0.5; }
+            to {
+                transform: translate(var(--x-end), var(--y-end));
+                opacity: 0;
+            }
         }
 
         .bubble {
             position: absolute;
-            background: rgba(173, 216, 230, 0.2);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(173, 216, 230, 0.15);
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 50%;
             animation: rise-deep ease-in-out infinite;
+            z-index: 5;
         }
         @keyframes rise-deep {
             0% {
@@ -204,7 +255,7 @@
                  transform: translateX(calc(var(--x-drift) * 1.2)) scale(1.1);
             }
             99% {
-                opacity: 0.2;
+                opacity: 0.1;
             }
             100% {
                 bottom: 105vh;
@@ -221,14 +272,15 @@
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: linear-gradient(to top, #f3904f, #f7b267, #e67e22, #d35400, #a04000);
             animation: sky-color-change 150s ease-in-out infinite;
             z-index: 1;
         }
         @keyframes sky-color-change {
-            0% { background: linear-gradient(to top, #89c2d9 0%, #a7c957 30%, #f7b267 60%, #f3904f 80%, #e67e22 100%); }
-            50% { background: linear-gradient(to top, #f3904f 0%, #e67e22 25%, #d35400 50%, #a04000 75%, #3b3270 100%); }
-            100% { background: linear-gradient(to top, #3b3270 0%, #1a1225 50%, #0c0a1a 80%, #000 100%); }
+            0% { background: linear-gradient(to top, #6DD5FA, #2980B9); } /* Daytime Blue */
+            25% { background: linear-gradient(to top, #F7B733, #FC4A1A); } /* Golden Hour */
+            50% { background: linear-gradient(to top, #EC008C, #FC6767); } /* Vibrant Sunset */
+            75% { background: linear-gradient(to top, #485563, #29323C); } /* Twilight */
+            100% { background: linear-gradient(to top, #0C1440, #000000); } /* Night */
         }
         .sun {
             position: absolute;
@@ -236,39 +288,91 @@
             width: 150px; height: 150px;
             background: radial-gradient(circle, #fff, #ffd700, #ff8c00);
             border-radius: 50%;
-            box-shadow: 0 0 80px #ff8c00, 0 0 160px #ffd700;
-            animation: sunset-path 150s linear infinite;
+            animation: sunset-path 150s ease-in-out infinite, sun-pulse 8s ease-in-out infinite;
+        }
+        @keyframes sun-pulse {
+            from { box-shadow: 0 0 70px #ff8c00, 0 0 140px #ffd700; }
+            to { box-shadow: 0 0 90px #ff8c00, 0 0 180px #ffd700; }
         }
         @keyframes sunset-path {
-            0% { transform: translate(-50%, -15vh) scale(1.1); }
-            100% { transform: translate(-50%, 90vh) scale(0.7); }
+            0% { transform: translate(-50%, -20vh) scale(1.1); }
+            50% { transform: translate(-50%, 50vh) scale(1); }
+            100% { transform: translate(-50%, 110vh) scale(0.6); }
         }
         .lens-flare {
             position: absolute;
             top: 50%; left: 50%;
             width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(255,255,220,0.25) 0%, rgba(255,255,220,0) 50%);
+            background: radial-gradient(circle, rgba(255,255,220,0.2) 0%, rgba(255,255,220,0) 40%);
             border-radius: 50%;
-            animation: sunset-path 150s linear infinite; /* Same as sun */
-            opacity: 0.7;
+            animation: sunset-path 150s ease-in-out infinite; /* Same as sun */
+            opacity: 0;
+            animation-name: sunset-path, lens-flare-fade;
+        }
+        @keyframes lens-flare-fade {
+            0% { opacity: 0.8; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0; }
         }
         .sunset-clouds {
             position: absolute;
             top: 0; left: 0;
+            width: 200%; height: 100%;
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+        #sunset-clouds-back { animation-name: slide-sunset; animation-duration: 280s; z-index: 2; opacity: 0.4; }
+        #sunset-clouds-mid { animation-name: slide-sunset; animation-duration: 200s; animation-direction: reverse; z-index: 4; opacity: 0.6; }
+        #sunset-clouds-front { animation-name: slide-sunset; animation-duration: 120s; z-index: 6; opacity: 0.8; }
+        @keyframes slide-sunset {
+            from { transform: translateX(0%); }
+            to { transform: translateX(-50%); }
+        }
+
+        .sunset-god-rays {
+            position: absolute;
+            top: 0; left: 0;
             width: 100%; height: 100%;
-            background-repeat: repeat;
+            z-index: 3;
+            animation: sunset-path 150s ease-in-out infinite, sunset-ray-fade 150s linear infinite;
+            transform-origin: 50% 0;
         }
-        #sunset-clouds-back {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000"><filter id="c"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="10"/><feDisplacementMap in="SourceGraphic" scale="120" /></filter><rect width="1000" height="1000" fill="rgba(220,180,180,0.3)" mask="url(%23m)"/><mask id="m"><rect width="1000" height="1000" fill="white" filter="url(%23c)"/></mask></svg>');
-            animation: slide 250s linear infinite; z-index: 2; opacity: 0.4;
+        .sunset-god-ray {
+            position: absolute;
+            top: -10%; left: 50%;
+            width: 2px;
+            height: 120%;
+            background: linear-gradient(to bottom, rgba(255, 220, 180, 0.25), transparent);
+            transform-origin: top center;
         }
-        #sunset-clouds-mid {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><filter id="c"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="4" seed="20"/><feDisplacementMap in="SourceGraphic" scale="100" /></filter><rect width="800" height="800" fill="rgba(240,220,200,0.5)" mask="url(%23m)"/><mask id="m"><rect width="800" height="800" fill="white" filter="url(%23c)"/></mask></svg>');
-            animation: slide 180s linear infinite; z-index: 4; opacity: 0.6;
+        @keyframes sunset-ray-fade {
+            0% { opacity: 1; }
+            40% { opacity: 1; }
+            80% { opacity: 0; }
+            100% { opacity: 0; }
         }
-        #sunset-clouds-front {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><filter id="c"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="5" seed="30"/><feDisplacementMap in="SourceGraphic" scale="80" /></filter><rect width="600" height="600" fill="rgba(255,255,240,0.7)" mask="url(%23m)"/><mask id="m"><rect width="600" height="600" fill="white" filter="url(%23c)"/></mask></svg>');
-            animation: slide 110s linear infinite; z-index: 6; opacity: 0.8;
+        .mountain-silhouette {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 25%;
+            z-index: 5;
+        }
+        .sunset-heat-haze {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="haze"><feTurbulence type="turbulence" baseFrequency="0.01 0.03" numOctaves="1" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter><rect width="200" height="200" fill="transparent" filter="url(%23haze)"/></svg>');
+            background-size: 200px 200px;
+            animation: heat-haze-anim 8s linear infinite alternate;
+            opacity: 0;
+            z-index: 10;
+        }
+        @keyframes heat-haze-anim {
+            0% { background-position: 0% 0%; opacity: 0; }
+            40% { opacity: 0.1; }
+            60% { opacity: 0.1; }
+            100% { background-position: 100% 100%; opacity: 0; }
         }
 
         .dust-mote {
@@ -290,6 +394,68 @@
                 transform: translate(var(--x-end), var(--y-end));
                 opacity: 0;
             }
+        }
+
+        /* --- Mountain Theme --- */
+        #mountain-theme {
+            background: linear-gradient(to bottom, #87CEEB 0%, #F0E68C 100%);
+            overflow: hidden;
+        }
+        .mountain-sky {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to bottom, #2c3e50, #4a69bd, #f7b733, #e67e22);
+            animation: mountain-sky-cycle 240s linear infinite;
+            z-index: 1;
+        }
+        @keyframes mountain-sky-cycle {
+            0% { background: linear-gradient(to bottom, #141E30, #243B55); } /* Night */
+            25% { background: linear-gradient(to bottom, #764BA2, #667EEA); } /* Dawn */
+            50% { background: linear-gradient(to bottom, #87CEEB, #FFFFFF); } /* Day */
+            75% { background: linear-gradient(to bottom, #F7B733, #FC4A1A); } /* Dusk */
+            100% { background: linear-gradient(to bottom, #141E30, #243B55); } /* Night */
+        }
+        .mountain-range {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 200%; height: 100%;
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+            animation: slide-mountain linear infinite;
+        }
+        #mountain-range-back { animation-duration: 400s; z-index: 2; filter: brightness(0.6); }
+        #mountain-range-mid { animation-duration: 280s; z-index: 4; filter: brightness(0.8); }
+        #mountain-range-front { animation-duration: 160s; z-index: 6; }
+
+        .mountain-clouds {
+            position: absolute; top: 10%; left: 0;
+            width: 200%; height: 30%;
+            animation: slide-mountain 100s linear infinite reverse;
+            z-index: 3;
+        }
+        .mountain-fog {
+            position: absolute; bottom: 0; left: 0;
+            width: 200%; height: 20%;
+            background: linear-gradient(to top, rgba(180, 190, 200, 0.25) 0%, transparent 100%);
+            animation: slide-mountain 80s linear infinite;
+            z-index: 5;
+        }
+
+        .mountain-star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle-mountain 10s ease-in-out infinite;
+            opacity: 0;
+        }
+        @keyframes twinkle-mountain {
+            0%, 100% { opacity: var(--start-op); }
+            50% { opacity: var(--end-op); }
+        }
+
+        @keyframes slide-mountain {
+            from { transform: translateX(0%); }
+            to { transform: translateX(-50%); }
         }
 
         /* --- Zen Theme --- */
@@ -320,11 +486,11 @@
             border: 1px solid rgba(200, 220, 240, 0.5);
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            animation: zen-ripple-effect 6s ease-out infinite;
+            animation: zen-ripple-effect 6s ease-out;
         }
         @keyframes zen-ripple-effect {
             from { width: 0; height: 0; opacity: 1; }
-            to { width: 200px; height: 200px; opacity: 0; }
+            to { width: 250px; height: 250px; opacity: 0; }
         }
 
         .petal {
@@ -332,13 +498,22 @@
             width: 18px; height: 18px;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 105, 180, 0.8)"/></svg>');
             background-size: contain;
-            animation: fall-petal-zen 12s ease-in-out infinite;
+            animation: fall-petal-zen linear infinite;
             z-index: 10;
         }
         @keyframes fall-petal-zen {
             0% {
                 transform: translateY(-10vh) translateX(0) rotate(var(--r-start));
                 opacity: 1;
+            }
+             25% {
+                transform: translateY(25vh) translateX(calc(var(--x-drift) * 0.4)) rotate(calc(var(--r-start) + 180deg));
+            }
+            50% {
+                transform: translateY(50vh) translateX(calc(var(--x-drift) * 0.8)) rotate(calc(var(--r-start) + 360deg));
+            }
+            75% {
+                 transform: translateY(80vh) translateX(calc(var(--x-drift) * 1.1)) rotate(calc(var(--r-start) + 540deg));
             }
             100% {
                 transform: translateY(110vh) translateX(var(--x-drift)) rotate(var(--r-end));
@@ -1284,22 +1459,36 @@
             <div id="enchanted-forest-front" class="enchanted-forest-layer"></div>
         </div>
         <div id="ocean-theme" class="theme-container">
+            <div id="ocean-plankton-layer" style="z-index: 0;"></div>
             <div class="caustics-container"></div>
-            <div class="sea-creature-container"></div>
+            <div class="ocean-god-rays"></div>
             <div id="ocean-floor-bg" class="ocean-parallax"></div>
             <div id="ocean-floor-mid" class="ocean-parallax"></div>
-            <div id="ocean-floor-fg" class="ocean-parallax"></div>
             <div id="bubbles"></div>
+            <div id="jellyfish-layer" style="z-index: 6;"></div>
+            <div id="ocean-floor-fg" class="ocean-parallax"></div>
         </div>
         <div id="sunset-theme" class="theme-container">
             <div class="sun-and-sky">
                 <div class="sun"></div>
                 <div class="lens-flare"></div>
+                <div class="sunset-god-rays"></div>
             </div>
             <div id="sunset-clouds-back" class="sunset-clouds"></div>
             <div id="sunset-clouds-mid" class="sunset-clouds"></div>
             <div id="dust-motes"></div>
+            <div class="mountain-silhouette"></div>
             <div id="sunset-clouds-front" class="sunset-clouds"></div>
+            <div class="sunset-heat-haze"></div>
+        </div>
+        <div id="mountain-theme" class="theme-container">
+            <div class="mountain-sky"></div>
+            <div id="mountain-stars"></div>
+            <div id="mountain-range-back" class="mountain-range"></div>
+            <div class="mountain-clouds"></div>
+            <div id="mountain-range-mid" class="mountain-range"></div>
+            <div class="mountain-fog"></div>
+            <div id="mountain-range-front" class="mountain-range"></div>
         </div>
         <div id="zen-theme" class="theme-container">
             <div class="raked-sand"></div>
@@ -1508,6 +1697,7 @@
                         <option value="forest">Forest</option>
                         <option value="ocean">Ocean</option>
                         <option value="sunset">Sunset</option>
+                        <option value="mountain">Mountain</option>
                         <option value="zen">Zen</option>
                         <option value="winter">Winter</option>
                         <option value="fall">Fall</option>
@@ -1781,7 +1971,7 @@
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -1846,6 +2036,62 @@
                     mote.style.animationDelay = `-${Math.random() * 15}s`;
                     motesContainer.appendChild(mote);
                 }
+            }
+        }
+        function createZenScene() {
+            // Raked Sand Shimmer
+            const sand = document.querySelector('#zen-theme .raked-sand');
+            if (sand && sand.children.length === 0) {
+                const shimmer = document.createElement('div');
+                shimmer.style.cssText = `
+                    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                    background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+                    background-size: 200% 100%;
+                    animation: sand-shimmer 25s ease-in-out infinite;
+                `;
+                const keyframes = `
+                    @keyframes sand-shimmer {
+                        from { background-position: 150% 0; }
+                        to { background-position: -50% 0; }
+                    }
+                `;
+                const styleSheet = document.createElement("style");
+                styleSheet.innerText = keyframes;
+                document.head.appendChild(styleSheet);
+                sand.appendChild(shimmer);
+            }
+
+            // Petals
+            const petalsContainer = document.getElementById('petals');
+            if (petalsContainer && petalsContainer.children.length === 0) {
+                 for (let i = 0; i < 25; i++) {
+                    let petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.style.left = `${Math.random() * 110 - 5}%`;
+                    petal.style.setProperty('--r-start', `${Math.random() * 360}deg`);
+                    petal.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+                    petal.style.setProperty('--x-drift', `${Math.random() * 40 - 20}vw`);
+                    petal.style.animationDelay = `-${Math.random() * 12}s`;
+                    petal.style.animationDuration = `${Math.random() * 5 + 7}s`;
+                    petalsContainer.appendChild(petal);
+                }
+            }
+
+            // Water Ripple
+            const rippleContainer = document.querySelector('#zen-theme .water-feature');
+            if (rippleContainer && rippleContainer.children.length === 0) {
+                const createRipple = () => {
+                    if (activeTheme !== 'zen') return;
+                    let ripple = document.createElement('div');
+                    ripple.className = 'zen-ripple';
+                    ripple.style.animationDelay = `${Math.random() * 2}s`;
+                    ripple.addEventListener('animationend', () => {
+                        ripple.remove();
+                    }, { once: true });
+                    rippleContainer.appendChild(ripple);
+                    setTimeout(createRipple, Math.random() * 6000 + 4000);
+                }
+                createRipple();
             }
         }
         function createBioluminescenceScene() {
@@ -2640,41 +2886,89 @@
             });
         }
         function createSunset() {
-            // Volumetric Clouds
+            // Procedurally generate clouds
             const cloudLayers = [
-                { el: document.getElementById('sunset-clouds-back'), count: 20, color1: 'rgba(255, 255, 255, 0.1)', color2: 'rgba(230, 200, 200, 0.1)', height: 300},
-                { el: document.getElementById('sunset-clouds-mid'), count: 15, color1: 'rgba(255, 240, 220, 0.3)', color2: 'rgba(255, 210, 180, 0.4)', height: 250},
-                { el: document.getElementById('sunset-clouds-front'), count: 10, color1: 'rgba(255, 255, 240, 0.6)', color2: 'rgba(255, 220, 200, 0.7)', height: 200}
+                { el: document.getElementById('sunset-clouds-back'), count: 10, color: 'rgba(255, 255, 255, 0.2)', height: 300, width: 800 },
+                { el: document.getElementById('sunset-clouds-mid'), count: 8, color: 'rgba(255, 230, 200, 0.5)', height: 250, width: 600 },
+                { el: document.getElementById('sunset-clouds-front'), count: 6, color: 'rgba(255, 240, 220, 0.8)', height: 200, width: 400 }
             ];
 
             cloudLayers.forEach(layer => {
                 if (layer.el && !layer.el.style.backgroundImage) {
-                    const C_WIDTH = 400;
                     let canvas = document.createElement('canvas');
-                    canvas.width = layer.count * C_WIDTH;
+                    canvas.width = layer.count * layer.width;
                     canvas.height = layer.height;
                     let ctx = canvas.getContext('2d');
 
                     for (let i = 0; i < layer.count; i++) {
-                        const x = i * C_WIDTH + Math.random() * (C_WIDTH / 2);
-                        const y = Math.random() * (canvas.height / 2);
-                        const radiusX = (Math.random() * 0.4 + 0.8) * C_WIDTH / 2;
-                        const radiusY = (Math.random() * 0.3 + 0.3) * layer.height;
+                        const x = i * layer.width + Math.random() * (layer.width / 2);
+                        const y = Math.random() * (canvas.height * 0.4) + canvas.height * 0.1;
+                        const w = layer.width * (0.6 + Math.random() * 0.4);
+                        const h = layer.height * (0.4 + Math.random() * 0.3);
+                        ctx.fillStyle = layer.color;
+                        ctx.filter = `blur(${Math.random() * 10 + 5}px)`;
 
-                        const gradient = ctx.createRadialGradient(x, y, 0, x, y, Math.max(radiusX, radiusY));
-                        gradient.addColorStop(0, layer.color2);
-                        gradient.addColorStop(1, layer.color1);
-
-                        ctx.fillStyle = gradient;
-                        ctx.beginPath();
-                        ctx.ellipse(x, y, radiusX, radiusY, 0, 0, 2 * Math.PI);
-                        ctx.fill();
+                        for(let j=0; j<8; j++) {
+                            const puffX = x + (Math.random() - 0.5) * w;
+                            const puffY = y + (Math.random() - 0.5) * h;
+                            const puffR = Math.random() * (w/4) + (w/8);
+                            ctx.beginPath();
+                            ctx.arc(puffX, puffY, puffR, 0, 2 * Math.PI);
+                            ctx.fill();
+                        }
                     }
                     layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
                     layer.el.style.backgroundSize = `${canvas.width}px 100%`;
-                    layer.el.style.top = `${Math.random() * 30}%`;
+                    layer.el.style.top = `${Math.random() * 20}%`;
                 }
             });
+
+            // Procedurally generate mountain silhouette
+            const mountainContainer = document.querySelector('.mountain-silhouette');
+            if (mountainContainer && mountainContainer.children.length === 0) {
+                let canvas = document.createElement('canvas');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight * 0.25;
+                let ctx = canvas.getContext('2d');
+
+                const drawMountainRange = (color, startY, amplitude, peaks) => {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(0, canvas.height);
+                    let x = 0;
+                    while (x < canvas.width) {
+                        const peakWidth = canvas.width / peaks;
+                        const step = peakWidth / 20;
+                        for (let i = 0; i < 20; i++) {
+                            const y = startY + Math.sin((x / peakWidth) * Math.PI * 2) * amplitude * Math.sin((x/canvas.width)*Math.PI);
+                            ctx.lineTo(x, y);
+                            x += step;
+                        }
+                    }
+                    ctx.lineTo(canvas.width, canvas.height);
+                    ctx.closePath();
+                    ctx.fill();
+                };
+
+                drawMountainRange('rgba(20, 20, 40, 0.6)', canvas.height * 0.7, canvas.height * 0.4, 3);
+                drawMountainRange('rgba(40, 40, 60, 0.8)', canvas.height * 0.8, canvas.height * 0.3, 5);
+                drawMountainRange('rgba(60, 60, 80, 1.0)', canvas.height * 0.9, canvas.height * 0.2, 8);
+
+                mountainContainer.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                mountainContainer.style.backgroundSize = '100% 100%';
+            }
+
+
+            // God Rays
+            const godRayContainer = document.querySelector('.sunset-god-rays');
+            if (godRayContainer && godRayContainer.children.length === 0) {
+                for (let i = 0; i < 30; i++) {
+                    let ray = document.createElement('div');
+                    ray.className = 'sunset-god-ray';
+                    ray.style.transform = `rotate(${i * 12 + Math.random() * 4 - 2}deg)`;
+                    godRayContainer.appendChild(ray);
+                }
+            }
 
             // Dust Motes
             const dustContainer = document.getElementById('dust-motes');
@@ -2689,9 +2983,96 @@
                     mote.style.setProperty('--y-start', `${Math.random() * 100}vh`);
                     mote.style.setProperty('--x-end', `${Math.random() * 100}vw`);
                     mote.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                    mote.style.animationDelay = `${Math.random() * 15}s`;
+                    mote.style.animationDelay = `-${Math.random() * 15}s`;
                     dustContainer.appendChild(mote);
                 }
+            }
+        }
+        function createMountainScene() {
+            // Stars
+            const starsContainer = document.getElementById('mountain-stars');
+            if (starsContainer && starsContainer.children.length === 0) {
+                for (let i = 0; i < 150; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'mountain-star';
+                    const size = Math.random() * 2 + 1;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 50}%`;
+                    const dayNightCycle = document.querySelector('.mountain-sky').style.animation;
+                    // This is a simplified way; a better implementation would use JS to track animation progress
+                    star.style.setProperty('--start-op', 0);
+                    star.style.setProperty('--end-op', Math.random() * 0.8);
+                    star.style.animationDelay = `${Math.random() * 10}s`;
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            // Mountain Ranges
+            const mountainLayers = [
+                { el: document.getElementById('mountain-range-back'), color: '#3E517A', height: 0.6, peaks: 5, jaggedness: 0.4 },
+                { el: document.getElementById('mountain-range-mid'), color: '#2C3E50', height: 0.7, peaks: 7, jaggedness: 0.6 },
+                { el: document.getElementById('mountain-range-front'), color: '#1B2631', height: 0.8, peaks: 9, jaggedness: 0.8 }
+            ];
+            mountainLayers.forEach(layer => {
+                if (layer.el && !layer.el.style.backgroundImage) {
+                    const canvas = document.createElement('canvas');
+                    const C_WIDTH = 2048;
+                    canvas.width = C_WIDTH * 2;
+                    canvas.height = window.innerHeight;
+                    const ctx = canvas.getContext('2d');
+
+                    ctx.fillStyle = layer.color;
+                    ctx.beginPath();
+                    ctx.moveTo(0, canvas.height);
+                    let y = canvas.height * layer.height;
+                    let x = 0;
+                    while (x < canvas.width) {
+                        const peakWidth = canvas.width / (layer.peaks * 2);
+                        const step = peakWidth / 20;
+                        for (let i = 0; i < 20; i++) {
+                            const sineX = (x / peakWidth) * Math.PI;
+                            const sineY = Math.sin(sineX) * (peakWidth/3) * (0.5 + Math.sin(x*0.01)*0.5);
+                            const noise = (Math.random() - 0.5) * layer.jaggedness * step;
+                            ctx.lineTo(x, y - sineY + noise);
+                            x += step;
+                        }
+                    }
+                    ctx.lineTo(canvas.width, canvas.height);
+                    ctx.closePath();
+                    ctx.fill();
+                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                    layer.el.style.backgroundSize = `${canvas.width}px 100%`;
+                }
+            });
+
+            // Clouds
+            const cloudContainer = document.querySelector('.mountain-clouds');
+            if (cloudContainer && !cloudContainer.style.backgroundImage) {
+                 let canvas = document.createElement('canvas');
+                 canvas.width = 4096;
+                 canvas.height = 300;
+                 let ctx = canvas.getContext('2d');
+
+                 for (let i = 0; i < 15; i++) {
+                     const x = Math.random() * canvas.width;
+                     const y = Math.random() * (canvas.height * 0.5) + (canvas.height * 0.1);
+                     const w = 600 * (0.6 + Math.random() * 0.4);
+                     const h = 150 * (0.4 + Math.random() * 0.3);
+                     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                     ctx.filter = `blur(${Math.random() * 8 + 4}px)`;
+                     for(let j=0; j<10; j++) {
+                         const puffX = x + (Math.random() - 0.5) * w;
+                         const puffY = y + (Math.random() - 0.5) * h;
+                         const puffR = Math.random() * (w/5) + (w/10);
+                         ctx.beginPath();
+                         ctx.arc(puffX, puffY, puffR, 0, 2 * Math.PI);
+                         ctx.fill();
+                     }
+                 }
+                 cloudContainer.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                 cloudContainer.style.backgroundSize = `${canvas.width}px 100%`;
             }
         }
         function createDeepOcean() {
@@ -2703,13 +3084,73 @@
                 causticsContainer.appendChild(light);
             }
 
-            // Sea Creature
-            const creatureContainer = document.querySelector('#ocean-theme .sea-creature-container');
-            if (creatureContainer && creatureContainer.children.length === 0) {
-                const creature = document.createElement('div');
-                creature.className = 'sea-creature';
-                creature.style.animationDelay = `${Math.random() * 200 + 50}s`;
-                creatureContainer.appendChild(creature);
+            // God Rays
+            const godRayContainer = document.querySelector('.ocean-god-rays');
+            if (godRayContainer && godRayContainer.children.length === 0) {
+                for (let i = 0; i < 15; i++) {
+                    let ray = document.createElement('div');
+                    ray.className = 'ocean-god-ray';
+                    ray.style.left = `${Math.random() * 120 - 10}%`;
+                    ray.style.top = '0px';
+                    ray.style.width = `${Math.random() * 3 + 1}px`;
+                    ray.style.height = '120%';
+                    ray.style.transform = `rotate(${Math.random() * 20 - 10}deg)`;
+                    ray.style.opacity = `${Math.random() * 0.1 + 0.05}`;
+                    godRayContainer.appendChild(ray);
+                }
+            }
+
+            // Plankton
+            const planktonContainer = document.getElementById('ocean-plankton-layer');
+            if (planktonContainer && planktonContainer.children.length === 0) {
+                for (let i = 0; i < 100; i++) {
+                    let particle = document.createElement('div');
+                    particle.className = 'ocean-plankton';
+                    const size = Math.random() * 1.5 + 0.5;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                    particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+                    particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                    particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+                    particle.style.animationDelay = `-${Math.random() * 10}s`;
+                    planktonContainer.appendChild(particle);
+                }
+            }
+
+            // Jellyfish
+            const jellyfishContainer = document.getElementById('jellyfish-layer');
+            if (jellyfishContainer && jellyfishContainer.children.length === 0) {
+                for (let i = 0; i < 8; i++) {
+                    let fish = document.createElement('div');
+                    fish.className = 'jellyfish';
+                    let body = document.createElement('div');
+                    body.className = 'jelly-body';
+                    let tentacles = document.createElement('div');
+                    tentacles.className = 'jelly-tentacles';
+
+                    for (let j = 0; j < 5; j++) {
+                        let tentacle = document.createElement('div');
+                        tentacle.className = 'tentacle';
+                        tentacle.style.height = `${Math.random() * 40 + 30}px`;
+                        tentacle.style.left = `${Math.random() * 40 - 20}px`;
+                        tentacle.style.animationDelay = `-${Math.random() * 4}s`;
+                        tentacles.appendChild(tentacle);
+                    }
+
+                    fish.appendChild(body);
+                    fish.appendChild(tentacles);
+
+                    fish.style.setProperty('--x-start', `${-10 + Math.random() * 120}vw`);
+                    fish.style.setProperty('--y-start', `${110}vh`);
+                    fish.style.setProperty('--x-end', `${-10 + Math.random() * 120}vw`);
+                    fish.style.setProperty('--y-end', `${-20}vh`);
+                    fish.style.animationDuration = `${Math.random() * 20 + 15}s`;
+                    fish.style.animationDelay = `-${Math.random() * 35}s`;
+                    body.style.animationDelay = `-${Math.random() * 4}s`;
+
+                    jellyfishContainer.appendChild(fish);
+                }
             }
 
             // Ocean floor layers
@@ -2731,35 +3172,49 @@
                     ctx.fillStyle = layer.color;
                     ctx.beginPath();
                     ctx.moveTo(0, canvas.height);
+                    let y = canvas.height * 0.9;
                     for (let i = 0; i < canvas.width; i++) {
-                        ctx.lineTo(i, canvas.height * (0.85 + Math.sin(i * 0.005) * 0.1));
+                        y += (Math.random() - 0.5) * 0.5;
+                        y = Math.max(canvas.height * 0.7, Math.min(canvas.height, y));
+                        ctx.lineTo(i, y);
                     }
                     ctx.lineTo(canvas.width, canvas.height);
                     ctx.closePath();
                     ctx.fill();
 
-                    // Draw seaweed & coral
-                    for (let i = 0; i < layer.count; i++) {
-                        const x = i * C_WIDTH + Math.random() * C_WIDTH;
-                        const y = canvas.height * (0.85 + Math.sin(x * 0.005) * 0.1);
-
-                        if (Math.random() > 0.4) { // Seaweed
-                            ctx.strokeStyle = layer.color;
-                            const h = (Math.random() * 0.6 + 0.4) * layer.height;
-                            ctx.beginPath();
-                            ctx.moveTo(x, y);
-                            ctx.bezierCurveTo(x + (Math.random()-0.5)*40, y - h*0.3, x + (Math.random()-0.5)*40, y - h*0.7, x + (Math.random()-0.5)*20, y-h);
-                            ctx.lineWidth = Math.random() * 2 + 1;
-                            ctx.stroke();
-                        } else { // Coral
-                            ctx.fillStyle = `rgba(${parseInt(layer.color.slice(5,-1).split(',')[0]) - 5}, ${parseInt(layer.color.slice(5,-1).split(',')[1]) - 5}, ${parseInt(layer.color.slice(5,-1).split(',')[2]) - 5}, ${parseFloat(layer.color.slice(5,-1).split(',')[3])})`;
-                            const h = (Math.random() * 0.3 + 0.1) * layer.height;
-                            const w = (Math.random() * 0.5 + 0.3) * C_WIDTH / 3;
-                            for (let j=0; j<5; j++) {
-                                ctx.beginPath();
-                                ctx.arc(x + (Math.random()-0.5)*w, y - Math.random()*h, Math.random() * 10 + 5, 0, Math.PI * 2);
-                                ctx.fill();
+                    // Draw flora
+                    for (let i = 0; i < layer.count * 1.5; i++) {
+                        const x = Math.random() * canvas.width;
+                        let groundY = 0;
+                        // Find ground Y at this x (approximate)
+                        for (let j = 0; j < canvas.height; j++) {
+                            if (ctx.getImageData(x, j, 1, 1).data[3] > 0) {
+                                groundY = j;
+                                break;
                             }
+                        }
+                        if (groundY === 0) continue;
+
+
+                        if (Math.random() > 0.3) { // Seaweed
+                            ctx.strokeStyle = `rgba(${parseInt(layer.color.slice(5,-1).split(',')[0]) + 10}, ${parseInt(layer.color.slice(5,-1).split(',')[1]) + 10}, ${parseInt(layer.color.slice(5,-1).split(',')[2]) + 10}, ${parseFloat(layer.color.slice(5,-1).split(',')[3]) * 1.2})`;
+                            const h = (Math.random() * 0.8 + 0.2) * layer.height;
+                            ctx.beginPath();
+                            ctx.moveTo(x, groundY);
+                            ctx.bezierCurveTo(x + (Math.random()-0.5)*50, groundY - h*0.3, x + (Math.random()-0.5)*50, groundY - h*0.7, x + (Math.random()-0.5)*30, groundY-h);
+                            ctx.lineWidth = Math.random() * 3 + 1;
+                            ctx.stroke();
+                        } else { // Coral Fan
+                            ctx.fillStyle = `rgba(${parseInt(layer.color.slice(5,-1).split(',')[0]) - 5}, ${parseInt(layer.color.slice(5,-1).split(',')[1]) + 5}, ${parseInt(layer.color.slice(5,-1).split(',')[2]) + 5}, ${parseFloat(layer.color.slice(5,-1).split(',')[3])})`;
+                            const h = (Math.random() * 0.2 + 0.1) * layer.height;
+                            const w = (Math.random() * 0.4 + 0.2) * C_WIDTH / 4;
+                            ctx.beginPath();
+                            ctx.moveTo(x, groundY);
+                            for (let j=0; j<5; j++) {
+                                ctx.lineTo(x + (Math.random() - 0.5) * w, groundY - Math.random() * h);
+                            }
+                            ctx.closePath();
+                            ctx.fill();
                         }
                     }
                     layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
@@ -2844,6 +3299,12 @@
                     }
                     if (themeName === 'sunset') {
                         createSunset();
+                    }
+                    if (themeName === 'mountain') {
+                        createMountainScene();
+                    }
+                    if (themeName === 'zen') {
+                        createZenScene();
                     }
                     if (themeName === 'forest') {
                         createEnchantedForest();
