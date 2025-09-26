@@ -64,483 +64,913 @@
         
         /* --- Forest Theme --- */
         #forest-theme {
-             background: linear-gradient(to top, #0c0a1a, #1f1a3a);
+            background: linear-gradient(to top, #0a0e1a, #1a223a, #2a3a5a);
+            overflow: hidden;
         }
-        .forest-layer {
+        .enchanted-forest-layer {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            bottom: 0; left: 0;
+            width: 200%; height: 100%;
             background-repeat: repeat-x;
             background-position: 0 bottom;
         }
-        #forest-1 {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200"><path d="M0 200 L0 150 C50 120, 100 180, 150 150 C200 120, 250 180, 300 150 C350 120, 400 180, 450 150 C500 120, 550 180, 600 150 C650 120, 700 180, 750 150 L800 150 L800 200 Z" fill="rgba(19, 28, 51, 0.8)" /></svg>');
-            animation: slide 120s linear infinite;
-            height: 40%;
+        #enchanted-forest-back { animation: slide 280s linear infinite; z-index: 1; filter: brightness(0.6); }
+        #enchanted-forest-mid { animation: slide 200s linear infinite; z-index: 4; filter: brightness(0.8); }
+        #enchanted-forest-front { animation: slide 120s linear infinite; z-index: 7; }
+
+        .forest-moon {
+            position: absolute;
+            top: 10%; left: 0;
+            width: 80px; height: 80px;
+            background: radial-gradient(circle, #f0f0f0, #d0d0e0);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #d0d0e0, 0 0 80px #f0f0f0;
+            animation: moon-path 180s linear infinite;
+            z-index: 2;
         }
-        #forest-2 {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 250"><path d="M-10 250 V180 C50 140 100 200 160 180 S280 140 340 180 S460 140 520 180 S640 140 700 180 S820 140 880 180 V250 Z" fill="rgba(33, 44, 73, 0.7)"/></svg>');
-            animation: slide 80s linear infinite;
-            height: 50%;
+        @keyframes moon-path {
+            from { transform: translate(-10vw, 0); }
+            to { transform: translate(110vw, 20vh); }
         }
-        #forest-3 {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300"><path d="M0 300 V200 C60 150 120 230 180 200 S300 150 360 200 S480 150 540 200 S660 150 720 200 L800 200 V300 Z" fill="rgba(48, 63, 102, 0.6)"/></svg>');
-            animation: slide 60s linear infinite;
-            height: 60%;
+
+        .forest-mist {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 200%; height: 30%;
+            background: linear-gradient(to top, rgba(180, 190, 200, 0.15) 0%, rgba(180, 190, 200, 0) 100%);
+            animation: mist-anim 100s linear infinite alternate;
+            z-index: 3;
         }
+
         .firefly {
             position: absolute;
-            width: 4px; height: 4px;
-            background-color: #ffeeaa;
+            width: 5px; height: 5px;
+            background-color: #f0f0aa;
             border-radius: 50%;
-            box-shadow: 0 0 8px #ffeeaa, 0 0 12px #ffeeaa;
-            animation: fly 20s ease-in-out infinite;
+            box-shadow: 0 0 12px #f0f0aa, 0 0 20px #f0f0aa;
+            animation: fly-enchanted 15s ease-in-out infinite;
+            z-index: 6;
         }
-        @keyframes fly {
-            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
-            25% { transform: translate(var(--tx1), var(--ty1)) scale(0.9); opacity: 0.6; }
-            50% { transform: translate(var(--tx2), var(--ty2)) scale(1.1); opacity: 1; }
-            75% { transform: translate(var(--tx3), var(--ty3)) scale(0.8); opacity: 0.7; }
+        @keyframes fly-enchanted {
+            0%, 100% {
+                transform: translate(var(--x-start), var(--y-start)) scale(0.8);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(var(--x-end), var(--y-end)) scale(1.2);
+                opacity: 1;
+            }
         }
 
         /* --- Ocean Theme --- */
         #ocean-theme {
-            background: linear-gradient(to top, #021B39, #083361, #005A8D);
+            background: linear-gradient(to top, #000408, #021B39, #083361);
+            overflow: hidden;
         }
+        .ocean-parallax {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 200%; height: 100%;
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+        }
+        #ocean-floor-bg { animation: slide 220s linear infinite; z-index: 1; opacity: 0.8; }
+        #ocean-floor-mid { animation: slide 160s linear infinite; z-index: 3; opacity: 0.9; }
+        #ocean-floor-fg { animation: slide 100s linear infinite; z-index: 5; }
+
+        .caustics-container {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            transform-origin: center;
+            animation: slow-pan 120s linear infinite alternate;
+            z-index: 2;
+        }
+        @keyframes slow-pan {
+            from { transform: translateX(-10%) scale(1.2); }
+            to { transform: translateX(10%) scale(1.2); }
+        }
+        .caustic-light {
+            position: absolute;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="w"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="5"/><feDiffuseLighting in="w" lighting-color="white" surfaceScale="10"><feDistantLight azimuth="45" elevation="60"/></feDiffuseLighting></filter><rect width="200" height="200" fill="rgba(200,225,255,0.1)" filter="url(%23w)"/></svg>');
+            background-size: 400% 400%;
+            width: 100%; height: 100%;
+            animation: caustics-anim 30s ease-in-out infinite alternate;
+        }
+        @keyframes caustics-anim {
+            from { background-position: 0% 0%; }
+            to { background-position: 100% 100%; }
+        }
+
+        .sea-creature-container {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
+        .sea-creature {
+            position: absolute;
+            width: 400px; height: 200px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><path d="M 0 100 C 50 20, 150 0, 200 50 C 250 100, 350 80, 400 120 L 400 180 C 350 220, 250 200, 200 150 C 150 100, 50 180, 0 100 Z" fill="rgba(2, 10, 20, 0.5)"/></svg>');
+            animation: creature-swim 150s linear infinite;
+            opacity: 0;
+        }
+        @keyframes creature-swim {
+            0% { transform: translateX(-450px) translateY(40vh) scale(1); opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { transform: translateX(110vw) translateY(30vh) scale(1.2); opacity: 0; }
+        }
+
         .bubble {
             position: absolute;
             background: rgba(173, 216, 230, 0.3);
             border-radius: 50%;
-            animation: rise ease-in-out infinite;
+            animation: rise-deep ease-in-out infinite;
         }
-        @keyframes rise {
+        @keyframes rise-deep {
             0% {
                 bottom: -20px;
-                transform: translateX(0);
+                transform: translateX(0) scale(1);
+                opacity: 1;
             }
             50% {
-                transform: translateX(var(--x-drift));
+                transform: translateX(var(--x-drift)) scale(1.1);
+            }
+            99% {
+                opacity: 1;
             }
             100% {
                 bottom: 105vh;
-                transform: translateX(0);
+                transform: translateX(var(--x-drift-end)) scale(0.8);
+                opacity: 0;
             }
-        }
-        .ocean-wave {
-            position: absolute;
-            bottom: 0; left: 0; width: 200%; height: 25%;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 200"><path d="M0 200 V100 C200 0, 600 200, 800 100 S1400 0, 1600 100 V200 Z" fill="rgba(8, 51, 97, 0.5)"></path></svg>');
-            background-size: 800px 200px;
-        }
-        #wave1 { animation: wave 30s linear infinite; z-index: 3; opacity: 0.8; }
-        #wave2 { animation: wave 25s linear infinite reverse; z-index: 2; opacity: 0.6; bottom: 5%; }
-        #wave3 { animation: wave 20s linear infinite; z-index: 1; opacity: 0.4; bottom: 10%; }
-        @keyframes wave {
-            from { transform: translateX(0); }
-            to { transform: translateX(-800px); }
         }
         
         /* --- Sunset Theme --- */
         #sunset-theme {
-            background: linear-gradient(to top, #F9A870, #E85A4F, #3B3270);
-            animation: sky-shift 120s ease-in-out infinite alternate;
+            overflow: hidden;
         }
-        @keyframes sky-shift {
-             from { background-position-y: 0; } to { background-position-y: 100%; }
+        .sun-and-sky {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to top, #f3904f, #f7b267, #e67e22, #d35400, #a04000);
+            animation: sky-color-change 120s ease-in-out infinite;
+            z-index: 1;
+        }
+        @keyframes sky-color-change {
+            0% { background: linear-gradient(to top, #89c2d9, #a7c957, #f7b267, #f3904f, #e67e22); }
+            50% { background: linear-gradient(to top, #f3904f, #e67e22, #d35400, #a04000, #3b3270); }
+            100% { background: linear-gradient(to top, #3b3270, #1a1225, #0c0a1a, #000); }
         }
         .sun {
             position: absolute;
-            top: 70%; left: 50%;
+            top: 50%; left: 50%;
             width: 150px; height: 150px;
-            background: #FFD700;
+            background: radial-gradient(circle, #fff, #ffd700, #ff8c00);
             border-radius: 50%;
-            box-shadow: 0 0 50px #FFD700, 0 0 100px #FFD700, 0 0 150px #FF8C00;
-            transform: translateX(-50%);
-            animation: sunset 120s linear infinite;
+            box-shadow: 0 0 80px #ff8c00, 0 0 160px #ffd700;
+            animation: sunset-path 120s linear infinite;
         }
-        @keyframes sunset {
-            from { top: 60%; opacity: 1; }
-            to { top: 110%; opacity: 0.8; }
+        @keyframes sunset-path {
+            0% { transform: translate(-50%, -10vh) scale(1.2); }
+            100% { transform: translate(-50%, 80vh) scale(0.8); }
         }
-        .cloud {
+        .lens-flare {
             position: absolute;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60"><path d="M 10 30 C -10 30, 0 10, 30 10 C 50 -10, 90 -10, 110 10 C 140 10, 150 30, 130 30 Z" fill="rgba(255,255,255,0.2)"/></svg>');
-            background-size: contain;
-            background-repeat: no-repeat;
-            width: 200px;
-            height: 60px;
-            animation: drift linear infinite;
+            top: 50%; left: 50%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255,255,220,0.3) 0%, rgba(255,255,220,0) 60%);
+            border-radius: 50%;
+            animation: sunset-path 120s linear infinite; /* Same as sun */
+            opacity: 0.5;
         }
-        @keyframes drift {
-            0% {
-                transform: translateX(-250px) translateY(0);
-                opacity: 0.8;
+        .sunset-clouds {
+            position: absolute;
+            top: 0; left: 0;
+            width: 200%; height: 100%;
+            background-repeat: repeat-x;
+        }
+        #sunset-clouds-back { animation: slide 200s linear infinite; z-index: 2; opacity: 0.5; }
+        #sunset-clouds-mid { animation: slide 150s linear infinite; z-index: 4; opacity: 0.7; }
+        #sunset-clouds-front { animation: slide 100s linear infinite; z-index: 6; opacity: 1; }
+
+        .dust-mote {
+            position: absolute;
+            background: rgba(255, 220, 180, 0.7);
+            border-radius: 50%;
+            animation: mote-drift 15s ease-in-out infinite alternate;
+            z-index: 3;
+        }
+        @keyframes mote-drift {
+            from {
+                transform: translate(var(--x-start), var(--y-start));
+                opacity: 0;
             }
             50% {
-                transform: translateX(calc(50vw - 100px)) translateY(-10px);
-                opacity: 1;
-            }
-            100% {
-                transform: translateX(100vw) translateY(0);
                 opacity: 0.8;
+            }
+            to {
+                transform: translate(var(--x-end), var(--y-end));
+                opacity: 0;
             }
         }
 
         /* --- Zen Theme --- */
         #zen-theme {
-            background: radial-gradient(circle at 50% 100%, #2a223d, #1a1225 60%);
+            background-color: #d8c8b8;
+            overflow: hidden;
         }
+        .raked-sand {
+            position: absolute;
+            width: 100%; height: 100%;
+            background-image:
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,0.02) 35px, rgba(0,0,0,0.02) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,0.02) 35px, rgba(0,0,0,0.02) 70px);
+            filter: blur(1px);
+        }
+        .water-feature {
+            position: absolute;
+            bottom: 2%; right: 2%;
+            width: 25%; height: 20%;
+            background-color: #3a4a5a;
+            border-radius: 45% 55% 40% 60% / 60% 50% 50% 40%;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+        .zen-ripple {
+            position: absolute;
+            top: 50%; left: 50%;
+            border: 1px solid rgba(200, 220, 240, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: zen-ripple-effect 6s ease-out infinite;
+        }
+        @keyframes zen-ripple-effect {
+            from { width: 0; height: 0; opacity: 1; }
+            to { width: 200px; height: 200px; opacity: 0; }
+        }
+
         .petal {
             position: absolute;
-            width: 15px; height: 15px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 182, 193, 0.7)"/></svg>');
+            width: 18px; height: 18px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 105, 180, 0.8)"/></svg>');
             background-size: contain;
-            animation: fall-petal ease-in-out infinite;
+            animation: fall-petal-zen 12s ease-in-out infinite;
+            z-index: 10;
         }
-        @keyframes fall-petal {
+        @keyframes fall-petal-zen {
             0% {
-                transform: translateY(-10vh) translateX(0) rotate(0);
+                transform: translateY(-10vh) translateX(0) rotate(var(--r-start));
                 opacity: 1;
             }
-            25% {
-                transform: translateY(25vh) translateX(15px) rotate(calc(var(--r-end) * 0.25));
-            }
-            50% {
-                transform: translateY(50vh) translateX(-15px) rotate(calc(var(--r-end) * 0.5));
-            }
-            75% {
-                transform: translateY(75vh) translateX(15px) rotate(calc(var(--r-end) * 0.75));
-            }
             100% {
-                transform: translateY(105vh) translateX(0) rotate(var(--r-end));
+                transform: translateY(110vh) translateX(var(--x-drift)) rotate(var(--r-end));
                 opacity: 0;
             }
         }
 
         /* --- Winter Theme --- */
         #winter-theme {
-            background: linear-gradient(to top, #3a5a7e, #8699aa, #ffffff);
+            background: linear-gradient(to top, #e0e8f0, #a0b0c0, #607080);
+            overflow: hidden;
         }
+        .snowflakes-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+        #snowflakes-back { filter: blur(2px) brightness(0.8); z-index: 1; }
+        #snowflakes-mid { z-index: 3; }
+        #snowflakes-front { filter: blur(0) brightness(1.2); z-index: 5; }
+
         .snowflake {
             position: absolute;
             color: white;
-            font-size: 1rem;
-            animation: fall-snow ease-in-out infinite;
+            font-family: 'Arial', sans-serif;
+            animation: fall-snow linear infinite;
         }
         @keyframes fall-snow {
-            0% {
-                transform: translateY(-10vh) translateX(0) rotate(0);
-                opacity: 1;
-            }
-            25% {
-                transform: translateY(25vh) translateX(calc(var(--x-drift) * 0.5)) rotate(calc(var(--r-end) * 0.25));
+             from { transform: translateY(-10vh) translateX(var(--x-start)) rotate(0deg); }
+             to { transform: translateY(110vh) translateX(var(--x-end)) rotate(var(--r-end)); }
+        }
+
+        .window-pane {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .frost-overlay {
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 60%, rgba(255,255,255,0.1));
+            box-shadow: inset 0 0 80px rgba(230,240,255,0.3);
+        }
+        .ice-crystal {
+            position: absolute;
+            width: 0; height: 0;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 0 15px white, 0 0 25px white;
+            animation: form-crystal 40s ease-out infinite;
+        }
+        @keyframes form-crystal {
+            from {
+                transform: scale(0);
+                opacity: 0;
             }
             50% {
-                transform: translateY(50vh) translateX(calc(var(--x-drift) * 0.25)) rotate(calc(var(--r-end) * 0.5));
+                opacity: 0.2;
             }
-            75% {
-                transform: translateY(75vh) translateX(calc(var(--x-drift) * 0.75)) rotate(calc(var(--r-end) * 0.75));
-            }
-            100% {
-                transform: translateY(105vh) translateX(var(--x-drift)) rotate(var(--r-end));
+            to {
+                transform: scale(1);
                 opacity: 0;
             }
         }
         
         /* --- Fall Theme --- */
         #fall-theme {
-             background: linear-gradient(to top, #4d3d3f, #c86b53, #f7b267);
+            background: linear-gradient(to top, #a26e49, #c88c53, #f7b267);
+            overflow: hidden;
         }
+        .fall-bg {
+            position: absolute; width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="f"><feGaussianBlur stdDeviation="3"/></filter><rect width="100" height="100" fill="%238d5524"/><g filter="url(%23f)"><circle cx="20" cy="80" r="30" fill="%23c86b53"/><circle cx="80" cy="70" r="40" fill="%23a26e49"/><circle cx="50" cy="30" r="25" fill="%23f7b267"/></g></svg>');
+            background-size: cover;
+            filter: blur(5px);
+            transform: scale(1.1);
+            z-index: 1;
+        }
+        .fall-leaves-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+        #fall-leaves-back { z-index: 2; transform: scale(0.7); filter: blur(1px) brightness(0.9); }
+        #fall-leaves-mid { z-index: 4; }
+        #fall-leaves-front { z-index: 6; transform: scale(1.3); filter: blur(0) brightness(1.1); }
+
         .leaf {
             position: absolute;
-            width: 20px; height: 20px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C0 5, 5 15, 10 20 C15 15, 20 5, 10 0 Z" fill="rgba(200, 76, 15, 0.8)"/></svg>');
             background-size: contain;
-            animation: fall-leaf ease-in-out infinite;
+            background-repeat: no-repeat;
+            animation: fall-leaf-gust linear infinite;
         }
-         @keyframes fall-leaf {
-            0% {
-                transform: translateY(-10vh) translateX(0) rotate(0);
-                opacity: 1;
-            }
-            25% {
-                transform: translateY(25vh) translateX(20px) rotate(calc(var(--r-end) * 0.25));
-            }
-            50% {
-                transform: translateY(50vh) translateX(-20px) rotate(calc(var(--r-end) * 0.5));
-            }
-            75% {
-                transform: translateY(75vh) translateX(20px) rotate(calc(var(--r-end) * 0.75));
-            }
-            100% {
-                transform: translateY(105vh) translateX(0) rotate(var(--r-end));
-                opacity: 0;
-            }
+        @keyframes fall-leaf-gust {
+            0% { transform: translate(var(--x-start), -10vh) rotate(var(--r-start)); opacity: 1; }
+            20% { transform: translate(calc(var(--x-start) + var(--x-gust1)), 20vh) rotate(calc(var(--r-start) + 200deg)); }
+            40% { transform: translate(calc(var(--x-start) + var(--x-gust2)), 40vh) rotate(calc(var(--r-start) + 400deg)); }
+            60% { transform: translate(calc(var(--x-start) + var(--x-gust3)), 60vh) rotate(calc(var(--r-start) + 600deg)); }
+            80% { transform: translate(calc(var(--x-start) + var(--x-gust4)), 80vh) rotate(calc(var(--r-start) + 800deg)); }
+            100% { transform: translate(var(--x-end), 110vh) rotate(var(--r-end)); opacity: 0; }
+        }
+        .ground-leaves {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 5%;
+            background-size: 200px 100%;
+            z-index: 5;
+            animation: rustle 10s ease-in-out infinite alternate;
+        }
+        @keyframes rustle {
+            from { transform: translateX(-2%); }
+            to { transform: translateX(2%); }
         }
         
         /* --- Summer Theme --- */
         #summer-theme {
-            background: linear-gradient(to top, #fceabb, #f8b500);
+            background-color: #ffefd5;
+            overflow: hidden;
         }
-        .sun-ray {
+        .summer-sky {
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(to top, #fceabb, #f8b500, #ffdd77);
+            z-index: 1;
+        }
+        .god-rays-summer {
+            position: absolute; top: -20%; left: -20%;
+            width: 140%; height: 140%;
+            transform-origin: center;
+            animation: summer-god-ray-anim 80s ease-in-out infinite alternate;
+            z-index: 2;
+        }
+        .summer-god-ray {
             position: absolute;
-            background: linear-gradient(to top, rgba(255,255,255,0), rgba(255,255,255,0.4));
+            top: 0;
+            background: linear-gradient(to bottom, rgba(255, 250, 220, 0.25) 0%, rgba(255, 250, 220, 0) 60%);
             transform-origin: top center;
-            animation: shine 12s ease-in-out infinite alternate;
         }
-        @keyframes shine {
-            from {
-                opacity: 0.1;
-                transform: scaleY(1) rotate(var(--r-start));
-            }
-            to {
-                opacity: 0.25;
-                transform: scaleY(1.05) rotate(var(--r-end));
-            }
+        @keyframes summer-god-ray-anim {
+            from { transform: rotate(-15deg); }
+            to { transform: rotate(15deg); }
         }
-        .sparkle {
+        .dandelion-seed {
             position: absolute;
-            width: 3px; height: 3px;
-            background-color: white;
-            border-radius: 50%;
-            animation: sparkle-anim 2s infinite;
+            width: 20px;
+            height: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.8)"/><line x1="10" y1="10" x2="5" y2="5" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/><line x1="10" y1="10" x2="15" y2="5" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/><line x1="10" y1="10" x2="5" y2="15" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/><line x1="10" y1="10" x2="15" y2="15" stroke="rgba(255,255,255,0.8)" stroke-width="0.5"/></svg>');
+            background-size: contain;
+            animation: float-seed 20s ease-in-out infinite;
+            z-index: 4;
         }
-        @keyframes sparkle-anim {
-            0%, 100% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1.2); }
+        @keyframes float-seed {
+            0% { transform: translate(var(--x-start), var(--y-start)) rotate(0deg); opacity: 0; }
+            25% { opacity: 1; }
+            75% { opacity: 1; }
+            100% { transform: translate(var(--x-end), var(--y-end)) rotate(360deg); opacity: 0; }
+        }
+        .heat-haze {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="haze"><feTurbulence type="turbulence" baseFrequency="0.01 0.03" numOctaves="1" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter><rect width="200" height="200" fill="transparent" filter="url(%23haze)"/></svg>');
+            background-size: 200px 200px;
+            animation: heat-haze-anim 10s linear infinite alternate;
+            opacity: 0.3;
+            z-index: 5;
+        }
+        @keyframes heat-haze-anim {
+            from { background-position: 0% 0%; }
+            to { background-position: 100% 100%; }
         }
         
         /* --- Spring Theme --- */
         #spring-theme {
-             background: linear-gradient(to top, #a8e6cf, #dcedc1, #ffd3b6);
+            background: linear-gradient(to top, #b0c4de, #dcedc1, #e0f0e8);
+            overflow: hidden;
+        }
+        .spring-rain {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
+        }
+        .spring-raindrop {
+            position: absolute; bottom: 100%; width: 1px; height: 50px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(200,220,240,0.6));
+            animation: spring-rain-fall linear infinite;
+        }
+        @keyframes spring-rain-fall {
+            to { transform: translateY(calc(100vh + 50px)); }
+        }
+        .spring-ground {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 10%;
+            background: linear-gradient(to top, #6a994e, #89c2d9);
+            z-index: 1;
+        }
+        #sprouts-container {
+            position: absolute; bottom: 8%; left: 0; width: 100%; height: 20%; z-index: 3;
         }
         .sprout {
-            position: absolute;
-            width: 15px; height: 15px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 20 C5 15, 5 5, 10 0 C15 5, 15 15, 10 20 Z" fill="rgba(119, 221, 119, 0.7)"/></svg>');
-            background-size: contain;
-            animation: float-sprout ease-in-out infinite;
+            position: absolute; bottom: 0; width: 20px; height: 40px;
+            transform-origin: bottom center;
+            animation: unfurl 15s ease-in-out infinite;
         }
-        @keyframes float-sprout {
-            0% {
-                transform: translateY(0) rotate(0);
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-10vh) rotate(var(--r-end));
-                opacity: 0;
-            }
+        .sprout > div { /* Leaf container */
+            position: absolute; bottom: 0; width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 40"><path d="M 10 40 C 0 30, 0 10, 10 0 C 20 10, 20 30, 10 40 Z" fill="rgba(119, 221, 119, 0.9)"/></svg>');
+            background-size: contain; background-repeat: no-repeat;
+            transform-origin: bottom center;
+        }
+        .sprout .left { transform: rotate(-15deg); }
+        .sprout .right { transform: rotate(15deg); }
+
+        @keyframes unfurl {
+            0% { transform: scaleY(0); }
+            20% { transform: scaleY(1); }
+            80% { transform: scaleY(1); }
+            100% { transform: scaleY(0); }
+        }
+        .sprout::after { /* Dewdrop */
+            content: '';
+            position: absolute; top: 30%; left: 45%;
+            width: 5px; height: 5px;
+            background-color: rgba(220, 230, 255, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(220, 230, 255, 1);
+            animation: glisten 4s ease-in-out infinite alternate;
+            opacity: 0;
+            animation-delay: inherit; /* Inherit delay from parent .sprout */
+        }
+        @keyframes glisten {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         /* --- Aurora Theme --- */
         #aurora-theme {
-            background-color: #000;
+            background-color: #00020c;
+            overflow: hidden;
         }
-        .aurora {
+        #aurora-stars {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .aurora-star {
             position: absolute;
-            width: 100%; height: 100%;
-            background: radial-gradient(ellipse at center, rgba(0, 255, 150, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
-            animation: aurora-flow 25s ease-in-out infinite alternate;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 10s ease-in-out infinite;
         }
-        @keyframes aurora-flow {
-            from {
-                transform: translateY(-15%) scale(1.6) rotate(-5deg);
-                opacity: 0.9;
+        .aurora-curtain {
+            position: absolute;
+            top: -50%; left: -25%;
+            width: 150%; height: 200%;
+            transform-origin: center;
+            mix-blend-mode: screen;
+            animation: aurora-curtain-flow 30s ease-in-out infinite alternate;
+        }
+        #aurora-layer-1 {
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 40%, #00ff99 100%);
+            animation-duration: 25s;
+            z-index: 2;
+        }
+        #aurora-layer-2 {
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 40%, #66ccff 100%);
+            animation-duration: 20s;
+            animation-direction: alternate-reverse;
+            z-index: 3;
+        }
+        #aurora-layer-3 {
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 40%, #ff66cc 100%);
+            animation-duration: 35s;
+            z-index: 1;
+        }
+        @keyframes aurora-curtain-flow {
+            0% {
+                transform: rotate(0deg) scale(1) skewX(0deg) translateY(0%);
+                filter: blur(5px) brightness(1);
             }
-            to {
-                transform: translateY(15%) scale(1.9) rotate(5deg);
-                opacity: 1;
+            50% {
+                transform: rotate(10deg) scale(1.2) skewX(15deg) translateY(10%);
+                filter: blur(10px) brightness(1.5);
+            }
+            100% {
+                transform: rotate(-5deg) scale(0.9) skewX(-10deg) translateY(-5%);
+                filter: blur(8px) brightness(1.2);
             }
         }
         
         /* --- Galaxy Theme --- */
         #galaxy-theme {
-            background-color: #000010;
+            background-color: #000005;
+            overflow: hidden;
+            perspective: 800px;
+        }
+        #galaxy-stars-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .galaxy-star-bg {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 15s ease-in-out infinite;
+        }
+        .nebula-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100vmin; height: 100vmin;
+            transform-style: preserve-3d;
+            animation: slow-rotate-3d 240s linear infinite;
+        }
+        @keyframes slow-rotate-3d {
+            from { transform: translate(-50%, -50%) rotateY(0deg) rotateX(10deg); }
+            to { transform: translate(-50%, -50%) rotateY(360deg) rotateX(10deg); }
         }
         .nebula {
             position: absolute;
-            width: 80vmin; height: 80vmin;
-            background: radial-gradient(circle, #ff00ff 0%, #0000ff 50%, #000010 70%);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             border-radius: 50%;
-            filter: blur(50px);
-            animation: rotate-nebula 160s ease-in-out infinite alternate;
+            mix-blend-mode: screen;
+            filter: blur(40px);
         }
-        @keyframes rotate-nebula { from { transform: rotate(0deg) scale(1.2); } to { transform: rotate(360deg) scale(1.5); } }
-
-        .galaxy-star {
+        #nebula-layer-1 {
+            background: radial-gradient(circle, #ff33cc 0%, #ff33cc 10%, rgba(0,0,0,0) 60%);
+            transform: translateZ(-100px) rotateY(60deg);
+            animation: nebula-pulse 20s ease-in-out infinite alternate;
+        }
+        #nebula-layer-2 {
+            background: radial-gradient(circle, #33ccff 0%, #33ccff 10%, rgba(0,0,0,0) 50%);
+            transform: translateZ(50px) rotateY(-40deg) scale(0.8);
+            animation: nebula-pulse 25s ease-in-out infinite alternate-reverse;
+        }
+        #nebula-layer-3 {
+            background: radial-gradient(circle, #9933ff 0%, #9933ff 10%, rgba(0,0,0,0) 70%);
+            transform: translateZ(150px) rotateY(20deg) scale(1.2);
+            animation: nebula-pulse 30s ease-in-out infinite alternate;
+        }
+        @keyframes nebula-pulse {
+            from { opacity: 0.7; transform: scale(1); }
+            to { opacity: 1; transform: scale(1.1); }
+        }
+        #shooting-stars {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            transform: rotate(20deg);
+            z-index: 10;
+        }
+        .shooting-star {
             position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: galaxy-twinkle 8s infinite ease-in-out;
+            height: 1px;
+            background: linear-gradient(to right, white, transparent);
+            animation: shoot 10s linear infinite;
         }
-
-        @keyframes galaxy-twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(0.7); }
-            50% { opacity: 0.8; transform: scale(1); }
+        @keyframes shoot {
+            from { left: -50%; transform: scaleX(0.5); opacity: 1; }
+            70% { opacity: 1; }
+            to { left: 150%; transform: scaleX(1); opacity: 0; }
         }
 
         /* --- Rainy Window Theme --- */
         #rainy-window-theme {
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="b"><feGaussianBlur stdDeviation="5"/></filter><rect width="100" height="100" fill="%234a4a4a" filter="url(%23b)"/></svg>') center/cover;
+            background-color: #2c3e50;
+            overflow: hidden;
         }
-        .raindrop {
+        .rainy-bg {
             position: absolute;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.5));
-            animation: rain-fall linear infinite;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><filter id="g"><feGaussianBlur stdDeviation="5"/></filter><g filter="url(%23g)"><rect x="0" y="400" width="800" height="200" fill="%2334495e"/><path d="M 100 400 L 150 200 L 200 400 Z" fill="%232c3e50"/><path d="M 300 400 L 320 300 L 340 400 Z" fill="%232c3e50"/><path d="M 500 400 L 550 100 L 600 400 Z" fill="%232c3e50"/></g></svg>');
+            background-size: cover;
+            filter: blur(4px);
+            transform: scale(1.05);
+            z-index: 1;
         }
-        @keyframes rain-fall {
-            0% {
-                transform: translateY(-20vh) translateX(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.7;
-            }
-            90% {
-                opacity: 0.7;
-            }
-            100% {
-                transform: translateY(120vh) translateX(var(--x-drift-rain));
-                opacity: 0;
-            }
+        #rain-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+        }
+        .lightning-flash {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: white;
+            opacity: 0;
+            z-index: 3;
+            pointer-events: none;
+            animation: flash-lightning 10s linear infinite;
+        }
+        @keyframes flash-lightning {
+            0% { opacity: 0; }
+            49% { opacity: 0; }
+            50% { opacity: 0.7; }
+            50.5% { opacity: 0.2; }
+            51% { opacity: 1; }
+            52% { opacity: 0; }
+            100% { opacity: 0; }
         }
         
         /* --- Koi Pond Theme --- */
         #koi-pond-theme {
             background-color: #3b5249;
+            overflow: hidden;
+        }
+        .water-surface {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(175deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 5%);
+            animation: shimmer-water 15s ease-in-out infinite alternate;
+            z-index: 2;
+        }
+        @keyframes shimmer-water {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+        #lily-pads {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3;
+        }
+        .lily-pad {
+            position: absolute;
+            width: 100px; height: 100px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M 50 50 C 20 100, 80 100, 50 50 M 50 50 C 0 20, 0 80, 50 50 M 50 50 C 80 0, 20 0, 50 50" fill="%232d6a4f" stroke="%231b4332" stroke-width="2"/></svg>');
+            animation: float-gently 20s ease-in-out infinite alternate;
+        }
+        @keyframes float-gently {
+            from { transform: translate(var(--x-pos), var(--y-pos)) rotate(-2deg); }
+            to { transform: translate(var(--x-pos), var(--y-pos)) rotate(2deg); }
+        }
+        #koi-fish {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4;
         }
         .koi {
             position: absolute;
-            width: 80px; height: 30px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M50 0 C20 0, 0 20, 0 20 S20 40, 50 40 C80 40, 100 20, 100 20 S80 0, 50 0 Z" fill="orange"/><circle cx="30" cy="15" r="5" fill="red"/><circle cx="70" cy="25" r="3" fill="white"/></svg>') no-repeat center/contain;
-            animation: swim 35s ease-in-out infinite;
+            width: 100px; height: 40px;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            animation: swim-koi 25s ease-in-out infinite;
         }
-        @keyframes swim {
-            0%, 100% { transform: translate(var(--x1), var(--y1)) rotate(var(--r1)); }
-            12.5% { transform: translate(var(--x2), var(--y2)) rotate(var(--r2)); }
-            25% { transform: translate(var(--x3), var(--y3)) rotate(var(--r3)); }
-            37.5% { transform: translate(var(--x4), var(--y4)) rotate(var(--r4)); }
-            50% { transform: translate(var(--x5), var(--y5)) rotate(var(--r5)); }
-            62.5% { transform: translate(var(--x6), var(--y6)) rotate(var(--r6)); }
-            75% { transform: translate(var(--x7), var(--y7)) rotate(var(--r7)); }
-            87.5% { transform: translate(var(--x8), var(--y8)) rotate(var(--r8)); }
+        @keyframes swim-koi {
+            0%   { transform: translate(var(--x1), var(--y1)) rotate(var(--r1)); }
+            20%  { transform: translate(var(--x2), var(--y2)) rotate(var(--r2)); }
+            40%  { transform: translate(var(--x3), var(--y3)) rotate(var(--r3)); }
+            60%  { transform: translate(var(--x4), var(--y4)) rotate(var(--r4)); }
+            80%  { transform: translate(var(--x5), var(--y5)) rotate(var(--r5)); }
+            100% { transform: translate(var(--x1), var(--y1)) rotate(var(--r1)); }
+        }
+        #koi-ripples {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5;
+        }
+        .koi-ripple {
+            position: absolute;
+            border: 1px solid rgba(200, 220, 240, 0.3);
+            border-radius: 50%;
+            animation: expand-ripple 3s ease-out;
+            transform-origin: center;
+        }
+        @keyframes expand-ripple {
+            from { transform: scale(0); opacity: 1; }
+            to { transform: scale(1); opacity: 0; }
         }
 
         /* --- Meadow Theme --- */
         #meadow-theme {
-             background: linear-gradient(to top, #6a994e, #a7c957, #89c2d9);
+            background: linear-gradient(to top, #89c2d9, #a7c957, #6a994e);
+            overflow: hidden;
         }
-        .pollen {
+        .meadow-sky {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, #dcedc1, #a8e6cf);
+            z-index: 1;
+        }
+        .meadow-grass {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 20%;
+            z-index: 5;
+        }
+        .grass-blade {
+            position: absolute; bottom: 0;
+            width: 3px;
+            background: linear-gradient(to top, #4d7c3d, #6a994e);
+            border-radius: 3px 3px 0 0;
+            transform-origin: bottom center;
+            animation: sway 5s ease-in-out infinite alternate;
+        }
+        @keyframes sway {
+            from { transform: rotate(-5deg); }
+            to { transform: rotate(5deg); }
+        }
+        #meadow-pollen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4;
+        }
+        .pollen-particle {
             position: absolute;
             width: 4px; height: 4px;
             background-color: #f2e8cf;
             border-radius: 50%;
-            animation: float-pollen 8s ease-in-out infinite;
+            animation: pollen-gust 10s ease-in-out infinite;
         }
-        @keyframes float-pollen {
-            0%, 100% {
-                transform: translate(0, 0) scale(1);
-                opacity: 0.9;
-            }
-            25% {
-                transform: translate(calc(var(--x) * 0.25), calc(var(--y) * 0.25)) translateX(10px);
-            }
-            50% {
-                transform: translate(calc(var(--x) * 0.5), calc(var(--y) * 0.5)) translateX(-10px);
-                opacity: 0.3;
-            }
-            75% {
-                transform: translate(calc(var(--x) * 0.75), calc(var(--y) * 0.75)) translateX(10px);
-            }
+        @keyframes pollen-gust {
+            0% { transform: translate(var(--x-start), var(--y-start)) scale(1); opacity: 0; }
+            25% { transform: translate(calc(var(--x-start) + var(--x-gust1)), calc(var(--y-start) - 30vh)) scale(0.8); opacity: 1; }
+            50% { transform: translate(calc(var(--x-start) + var(--x-gust2)), calc(var(--y-start) - 60vh)) scale(1); opacity: 1; }
+            75% { transform: translate(calc(var(--x-start) + var(--x-gust3)), calc(var(--y-start) - 90vh)) scale(0.7); opacity: 1; }
+            100% { transform: translate(var(--x-end), -20vh) scale(0.5); opacity: 0; }
+        }
+        #meadow-butterflies {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3;
         }
         .butterfly {
             position: absolute;
-            width: 25px; height: 25px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="M15 15 C0 0, 0 30, 15 15 M15 15 C30 0, 30 30, 15 15" stroke="gold" fill="rgba(255,215,0,0.5)" stroke-width="2"/></svg>');
-            animation: flutter 15s ease-in-out infinite;
+            width: 30px; height: 30px;
+            animation: butterfly-path 20s linear infinite;
         }
-        @keyframes flutter {
-            0%, 100% { transform: translate(var(--x1), var(--y1)) rotate(0deg); }
-            12.5% { transform: translate(var(--x2), var(--y2)) rotate(20deg); }
-            25% { transform: translate(var(--x3), var(--y3)) rotate(-20deg); }
-            37.5% { transform: translate(var(--x4), var(--y4)) rotate(0deg); }
-            50% { transform: translate(var(--x5), var(--y5)) rotate(20deg); }
-            62.5% { transform: translate(var(--x6), var(--y6)) rotate(-20deg); }
-            75% { transform: translate(var(--x7), var(--y7)) rotate(0deg); }
-            87.5% { transform: translate(var(--x8), var(--y8)) rotate(20deg); }
+        .butterfly-wing {
+            position: absolute;
+            width: 50%; height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 30"><path d="M 15 15 C 0 0, 0 30, 15 15" stroke="gold" fill="rgba(255,215,0,0.7)" stroke-width="2"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transform-origin: right center;
+        }
+        .butterfly-wing.left {
+            left: 0;
+            animation: flap-left 0.5s ease-in-out infinite alternate;
+        }
+        .butterfly-wing.right {
+            right: 0;
+            transform: scaleX(-1); /* Mirror the right wing */
+            animation: flap-right 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes butterfly-path {
+            0% { transform: translate(var(--x1), var(--y1)) rotate(0deg); }
+            25% { transform: translate(var(--x2), var(--y2)) rotate(15deg); }
+            50% { transform: translate(var(--x3), var(--y3)) rotate(-15deg); }
+            75% { transform: translate(var(--x4), var(--y4)) rotate(0deg); }
+            100% { transform: translate(var(--x1), var(--y1)) rotate(0deg); }
+        }
+        @keyframes flap-left {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(-70deg); }
+        }
+        @keyframes flap-right {
+            from { transform: scaleX(-1) rotateY(0deg); }
+            to { transform: scaleX(-1) rotateY(-70deg); }
         }
 
         /* --- Cosmic Chimes Theme --- */
         #cosmic-chimes-theme {
             background-color: #0c0a1a;
+            overflow: hidden;
+        }
+        .chime-nebula {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 50% 50%, rgba(100, 150, 200, 0.2) 0%, rgba(0,0,0,0) 60%);
+            animation: slow-rotate-3d 180s linear infinite;
+        }
+        #space-dust { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+        .dust-particle {
+            position: absolute;
+            background-color: #aaddff;
+            border-radius: 50%;
+            animation: dust-float 30s ease-in-out infinite alternate;
+        }
+        @keyframes dust-float {
+            from { transform: translate(var(--x-start), var(--y-start)); opacity: 0; }
+            50% { opacity: 0.5; }
+            to { transform: translate(var(--x-end), var(--y-end)); opacity: 0; }
         }
         .chime {
             position: absolute;
             width: 3px;
-            height: 80px;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(173, 216, 230, 0.7), rgba(255, 255, 255, 0));
-            animation: shimmer 10s ease-in-out infinite;
+            height: 120px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(173, 216, 230, 0.9), rgba(255, 255, 255, 0));
+            animation: shimmer-chime 12s ease-in-out infinite;
+            z-index: 3;
         }
-        @keyframes shimmer {
-            0%, 100% {
-                opacity: 0;
-                transform: scaleY(0.8);
-            }
-            50% {
-                opacity: 1;
-                transform: scaleY(1);
-                box-shadow: 0 0 15px #ade6e6, 0 0 25px #ade6e6;
-            }
+        @keyframes shimmer-chime {
+            0%, 100% { opacity: 0; transform: scaleY(0.8) rotate(var(--r-start)); }
+            50% { opacity: 1; transform: scaleY(1) rotate(var(--r-end)); box-shadow: 0 0 20px #ade6e6, 0 0 35px #ade6e6; }
         }
 
         /* --- Singing Bowl Theme --- */
         #singing-bowl-theme {
             background: radial-gradient(circle at 50% 50%, #1a1225, #0c0a1a 70%);
+            overflow: hidden;
         }
-        .ripple {
+        #singing-bowl-glow {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vmin; height: 80vmin;
+            background: radial-gradient(circle, rgba(180, 160, 220, 0.1) 0%, rgba(0,0,0,0) 70%);
+            animation: slow-pulse 10s ease-in-out infinite alternate;
+        }
+        .singing-bowl-silhouette {
+            position: absolute; bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 60vmin; height: 30vmin;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><path d="M 0 100 L 200 100 L 180 20 C 150 0, 50 0, 20 20 Z" fill="rgba(0,0,0,0.4)"/></svg>');
+            background-size: 100% 100%;
+            z-index: 2;
+        }
+        #bowl-ripples { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; }
+        .bowl-ripple {
             position: absolute;
-            border: 2px solid rgba(200, 180, 220, 0.4);
+            border: 2px solid rgba(200, 180, 220, 0.6);
             border-radius: 50%;
-            animation: ripple-effect 8s ease-out infinite;
+            animation: bowl-ripple-effect 8s ease-out infinite;
         }
-        @keyframes ripple-effect {
-            from {
-                width: 0;
-                height: 0;
-                opacity: 1;
-            }
-            to {
-                width: 100vmin;
-                height: 100vmin;
-                opacity: 0;
-            }
+        @keyframes bowl-ripple-effect {
+            from { top: 60%; width: 0; height: 0; opacity: 1; }
+            to { top: 40%; width: 100vmin; height: 100vmin; opacity: 0; }
         }
+        #bowl-motes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; }
+        .bowl-mote {
+            position: absolute;
+            background-color: rgba(220, 200, 240, 0.8);
+            border-radius: 50%;
+            animation: mote-rise 15s ease-in infinite;
+        }
+        @keyframes mote-rise {
+            from { transform: translateY(80vh) scale(1); opacity: 1; }
+            to { transform: translateY(30vh) scale(0.5); opacity: 0; }
+        }
+
 
         /* --- Starlight Theme --- */
         #starlight-theme {
             background-color: #0c0a1a;
+            overflow: hidden;
         }
+        #starlight-nebula {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at 50% 50%, rgba(100, 120, 180, 0.15) 0%, rgba(0,0,0,0) 70%);
+            animation: slow-rotate-3d 300s linear infinite;
+        }
+        .starlight-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #starlights-back { transform: translateZ(-200px) scale(1.5); filter: blur(1px); opacity: 0.7; }
+        #starlights-mid { transform: translateZ(-100px) scale(1.2); }
+        #starlights-front { transform: translateZ(0px) scale(1); }
         .starlight {
             position: absolute;
             background: white;
             border-radius: 50%;
-            animation: starlight-pulse 6s ease-in-out infinite alternate;
+            animation: starlight-pulse-deep 8s ease-in-out infinite alternate;
         }
-        @keyframes starlight-pulse {
+        @keyframes starlight-pulse-deep {
             from {
-                opacity: 0.4;
+                opacity: 0.5;
                 transform: scale(0.8);
-                box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff;
+                box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #adc8ff;
             }
             to {
                 opacity: 1;
-                transform: scale(1.2);
-                box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+                transform: scale(1.1);
+                box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #adc8ff;
             }
         }
 
@@ -742,25 +1172,115 @@
     <div class="background-container">
         <div id="stars"></div>
         
-        <div id="forest-theme" class="theme-container"><div id="fireflies"></div></div>
+        <div id="forest-theme" class="theme-container">
+            <div class="forest-moon"></div>
+            <div id="enchanted-forest-back" class="enchanted-forest-layer"></div>
+            <div class="forest-mist"></div>
+            <div id="enchanted-forest-mid" class="enchanted-forest-layer"></div>
+            <div id="fireflies"></div>
+            <div id="enchanted-forest-front" class="enchanted-forest-layer"></div>
+        </div>
         <div id="ocean-theme" class="theme-container">
-            <div id="wave1" class="ocean-wave"></div><div id="wave2" class="ocean-wave"></div><div id="wave3" class="ocean-wave"></div>
+            <div class="caustics-container"></div>
+            <div class="sea-creature-container"></div>
+            <div id="ocean-floor-bg" class="ocean-parallax"></div>
+            <div id="ocean-floor-mid" class="ocean-parallax"></div>
+            <div id="ocean-floor-fg" class="ocean-parallax"></div>
             <div id="bubbles"></div>
         </div>
-        <div id="sunset-theme" class="theme-container"><div class="sun"></div><div id="clouds"></div></div>
-        <div id="zen-theme" class="theme-container"><div id="petals"></div></div>
-        <div id="winter-theme" class="theme-container"><div id="snowflakes"></div></div>
-        <div id="fall-theme" class="theme-container"><div id="leaves"></div></div>
-        <div id="summer-theme" class="theme-container"><div id="sun-rays"></div><div id="sparkles"></div></div>
-        <div id="spring-theme" class="theme-container"><div id="sprouts"></div></div>
-        <div id="aurora-theme" class="theme-container"><div class="aurora"></div></div>
-        <div id="galaxy-theme" class="theme-container"><div class="nebula"></div><div id="galaxy-stars"></div></div>
-        <div id="rainy-window-theme" class="theme-container"><div id="raindrops"></div></div>
-        <div id="koi-pond-theme" class="theme-container"><div id="koi-fish"></div></div>
-        <div id="meadow-theme" class="theme-container"><div id="pollen"></div><div id="butterflies"></div></div>
-        <div id="cosmic-chimes-theme" class="theme-container"><div id="chimes"></div></div>
-        <div id="singing-bowl-theme" class="theme-container"><div id="ripples"></div></div>
-        <div id="starlight-theme" class="theme-container"><div id="starlights"></div></div>
+        <div id="sunset-theme" class="theme-container">
+            <div class="sun-and-sky">
+                <div class="sun"></div>
+                <div class="lens-flare"></div>
+            </div>
+            <div id="sunset-clouds-back" class="sunset-clouds"></div>
+            <div id="sunset-clouds-mid" class="sunset-clouds"></div>
+            <div id="dust-motes"></div>
+            <div id="sunset-clouds-front" class="sunset-clouds"></div>
+        </div>
+        <div id="zen-theme" class="theme-container">
+            <div class="raked-sand"></div>
+            <div class="water-feature">
+                <div class="zen-ripple"></div>
+            </div>
+            <div id="petals"></div>
+        </div>
+        <div id="winter-theme" class="theme-container">
+            <div id="snowflakes-back" class="snowflakes-layer"></div>
+            <div id="snowflakes-mid" class="snowflakes-layer"></div>
+            <div id="snowflakes-front" class="snowflakes-layer"></div>
+            <div class="window-pane">
+                <div class="frost-overlay"></div>
+                <div class="ice-crystals"></div>
+            </div>
+        </div>
+        <div id="fall-theme" class="theme-container">
+            <div class="fall-bg"></div>
+            <div id="fall-leaves-back" class="fall-leaves-layer"></div>
+            <div id="fall-leaves-mid" class="fall-leaves-layer"></div>
+            <div id="fall-leaves-front" class="fall-leaves-layer"></div>
+            <div class="ground-leaves"></div>
+        </div>
+        <div id="summer-theme" class="theme-container">
+            <div class="summer-sky"></div>
+            <div class="god-rays-summer"></div>
+            <div id="dandelion-seeds"></div>
+            <div class="heat-haze"></div>
+        </div>
+        <div id="spring-theme" class="theme-container">
+            <div id="spring-rain"></div>
+            <div class="spring-ground"></div>
+            <div id="sprouts-container"></div>
+        </div>
+        <div id="aurora-theme" class="theme-container">
+            <div id="aurora-stars"></div>
+            <div class="aurora-curtain" id="aurora-layer-1"></div>
+            <div class="aurora-curtain" id="aurora-layer-2"></div>
+            <div class="aurora-curtain" id="aurora-layer-3"></div>
+        </div>
+        <div id="galaxy-theme" class="theme-container">
+            <div id="galaxy-stars-bg"></div>
+            <div class="nebula-container">
+                <div class="nebula" id="nebula-layer-1"></div>
+                <div class="nebula" id="nebula-layer-2"></div>
+                <div class="nebula" id="nebula-layer-3"></div>
+            </div>
+            <div id="shooting-stars"></div>
+        </div>
+        <div id="rainy-window-theme" class="theme-container">
+            <div class="rainy-bg"></div>
+            <canvas id="rain-canvas"></canvas>
+            <div class="lightning-flash"></div>
+        </div>
+        <div id="koi-pond-theme" class="theme-container">
+            <div class="water-surface"></div>
+            <div id="lily-pads"></div>
+            <div id="koi-fish"></div>
+            <div id="koi-ripples"></div>
+        </div>
+        <div id="meadow-theme" class="theme-container">
+            <div class="meadow-sky"></div>
+            <div id="meadow-pollen"></div>
+            <div id="meadow-butterflies"></div>
+            <div class="meadow-grass"></div>
+        </div>
+        <div id="cosmic-chimes-theme" class="theme-container">
+            <div class="chime-nebula"></div>
+            <div id="space-dust"></div>
+            <div id="chimes"></div>
+        </div>
+        <div id="singing-bowl-theme" class="theme-container">
+            <div id="singing-bowl-glow"></div>
+            <div class="singing-bowl-silhouette"></div>
+            <div id="bowl-ripples"></div>
+            <div id="bowl-motes"></div>
+        </div>
+        <div id="starlight-theme" class="theme-container">
+            <div id="starlight-nebula"></div>
+            <div id="starlights-back" class="starlight-layer"></div>
+            <div id="starlights-mid" class="starlight-layer"></div>
+            <div id="starlights-front" class="starlight-layer"></div>
+        </div>
         <div id="swedish-forest-theme" class="theme-container">
             <div id="sf-layer-1" class="sf-parallax"></div>
             <div class="god-ray-container"></div>
@@ -1159,11 +1679,286 @@
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
         let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false;
         let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null;
-        let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null;
+        let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null;
         
         let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
         const soundManager = new SoundManager();
 
+        function createCosmicChimesScene() {
+            const dustContainer = document.getElementById('space-dust');
+            if (dustContainer && dustContainer.children.length === 0) {
+                for (let i = 0; i < 70; i++) {
+                    let particle = document.createElement('div');
+                    particle.className = 'dust-particle';
+                    const size = Math.random() * 2 + 1;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                    particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+                    particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                    particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+                    particle.style.animationDelay = `-${Math.random() * 30}s`;
+                    dustContainer.appendChild(particle);
+                }
+            }
+            const chimesContainer = document.getElementById('chimes');
+            if (chimesContainer && chimesContainer.children.length === 0) {
+                 for (let i = 0; i < 12; i++) {
+                    let chime = document.createElement('div');
+                    chime.className = 'chime';
+                    chime.style.left = `${5 + Math.random() * 90}%`;
+                    chime.style.top = `${-10 + Math.random() * 30}%`;
+                    chime.style.setProperty('--r-start', `${Math.random() * 10 - 5}deg`);
+                    chime.style.setProperty('--r-end', `${Math.random() * 10 - 5}deg`);
+                    chime.style.animationDelay = `-${Math.random() * 12}s`;
+                    chimesContainer.appendChild(chime);
+                }
+            }
+        }
+        function createSingingBowlScene() {
+            const ripplesContainer = document.getElementById('bowl-ripples');
+            if (ripplesContainer && ripplesContainer.children.length === 0) {
+                for (let i=0; i<3; i++) {
+                    let ripple = document.createElement('div');
+                    ripple.className = 'bowl-ripple';
+                    ripple.style.animationDelay = `${i * 2.6}s`;
+                    ripplesContainer.appendChild(ripple);
+                }
+            }
+            const motesContainer = document.getElementById('bowl-motes');
+            if (motesContainer && motesContainer.children.length === 0) {
+                for (let i=0; i<30; i++) {
+                    let mote = document.createElement('div');
+                    mote.className = 'bowl-mote';
+                    const size = Math.random() * 3 + 1;
+                    mote.style.width = `${size}px`;
+                    mote.style.height = `${size}px`;
+                    mote.style.left = `${Math.random() * 100}%`;
+                    mote.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                    mote.style.animationDelay = `-${Math.random() * 15}s`;
+                    motesContainer.appendChild(mote);
+                }
+            }
+        }
+        function createStarlightScene() {
+             const layers = [
+                { container: document.getElementById('starlights-back'), count: 80, minSize: 0.5, maxSize: 1.5 },
+                { container: document.getElementById('starlights-mid'), count: 60, minSize: 1, maxSize: 2 },
+                { container: document.getElementById('starlights-front'), count: 40, minSize: 1.5, maxSize: 2.5 }
+            ];
+            layers.forEach(layer => {
+                if (layer.container && layer.container.children.length === 0) {
+                    for (let i = 0; i < layer.count; i++) {
+                        let star = document.createElement('div');
+                        star.className = 'starlight';
+                        const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
+                        star.style.width = `${size}px`;
+                        star.style.height = `${size}px`;
+                        star.style.left = `${Math.random() * 100}%`;
+                        star.style.top = `${Math.random() * 100}%`;
+                        star.style.animationDelay = `-${Math.random() * 8}s`;
+                        layer.container.appendChild(star);
+                    }
+                }
+            });
+        }
+        function createMeadowScene() {
+            // Swaying Grass
+            const grassContainer = document.querySelector('.meadow-grass');
+            if (grassContainer && grassContainer.children.length === 0) {
+                for (let i = 0; i < 100; i++) {
+                    let blade = document.createElement('div');
+                    blade.className = 'grass-blade';
+                    blade.style.left = `${i}%`;
+                    blade.style.height = `${Math.random() * 50 + 50}px`;
+                    blade.style.animationDelay = `-${Math.random() * 5}s`;
+                    blade.style.filter = `brightness(${Math.random() * 0.4 + 0.8})`;
+                    grassContainer.appendChild(blade);
+                }
+            }
+            // Pollen
+            const pollenContainer = document.getElementById('meadow-pollen');
+            if (pollenContainer && pollenContainer.children.length === 0) {
+                for (let i = 0; i < 70; i++) {
+                    let particle = document.createElement('div');
+                    particle.className = 'pollen-particle';
+                    particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                    particle.style.setProperty('--y-start', `${100 + Math.random() * 30}vh`);
+                    particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                    for(let j = 1; j <= 3; j++) {
+                        particle.style.setProperty(`--x-gust${j}`, `${Math.random() * 40 - 20}vw`);
+                    }
+                    particle.style.animationDelay = `${Math.random() * 10}s`;
+                    pollenContainer.appendChild(particle);
+                }
+            }
+            // Butterflies
+            const butterflyContainer = document.getElementById('meadow-butterflies');
+            if (butterflyContainer && butterflyContainer.children.length === 0) {
+                for (let i = 0; i < 8; i++) {
+                    let butterfly = document.createElement('div');
+                    butterfly.className = 'butterfly';
+                    const wingLeft = document.createElement('div');
+                    wingLeft.className = 'butterfly-wing left';
+                    const wingRight = document.createElement('div');
+                    wingRight.className = 'butterfly-wing right';
+                    butterfly.appendChild(wingLeft);
+                    butterfly.appendChild(wingRight);
+
+                    for(let j=1; j<=4; j++){
+                        butterfly.style.setProperty(`--x${j}`, `${Math.random() * 90}vw`);
+                        butterfly.style.setProperty(`--y${j}`, `${Math.random() * 80}vh`);
+                    }
+                    butterfly.style.animationDelay = `-${Math.random() * 20}s`;
+                    const flapSpeed = Math.random() * 0.3 + 0.3;
+                    wingLeft.style.animationDuration = `${flapSpeed}s`;
+                    wingRight.style.animationDuration = `${flapSpeed}s`;
+
+                    butterflyContainer.appendChild(butterfly);
+                }
+            }
+        }
+        function createKoiPondScene() {
+            // 1. Lily Pads
+            const lilyPadContainer = document.getElementById('lily-pads');
+            if (lilyPadContainer && lilyPadContainer.children.length === 0) {
+                const numPads = 5;
+                for (let i = 0; i < numPads; i++) {
+                    let pad = document.createElement('div');
+                    pad.className = 'lily-pad';
+                    pad.style.setProperty('--x-pos', `${10 + Math.random() * 80}vw`);
+                    pad.style.setProperty('--y-pos', `${10 + Math.random() * 80}vh`);
+                    pad.style.animationDelay = `-${Math.random() * 20}s`;
+                    lilyPadContainer.appendChild(pad);
+                }
+            }
+
+            // 2. Koi Fish & Ripples
+            const koiContainer = document.getElementById('koi-fish');
+            const rippleContainer = document.getElementById('koi-ripples');
+            const koiInstances = [];
+
+            if (koiContainer && koiContainer.children.length === 0) {
+                const numKoi = 7;
+                const koiColors = [
+                    { base: '#f08c28', spots: ['#000', '#fff'] },
+                    { base: '#fff', spots: ['#d44d2d', '#000'] },
+                    { base: '#333', spots: ['#f08c28', '#fff'] }
+                ];
+
+                for (let i = 0; i < numKoi; i++) {
+                    let koi = document.createElement('div');
+                    koi.className = 'koi';
+
+                    const colors = koiColors[Math.floor(Math.random() * koiColors.length)];
+                    let spotsSvg = '';
+                    for(let j=0; j<3; j++){
+                        spotsSvg += `<circle cx="${Math.random()*80+10}" cy="${Math.random()*20+10}" r="${Math.random()*5+3}" fill="${colors.spots[Math.floor(Math.random()*colors.spots.length)]}" opacity="0.8"/>`;
+                    }
+                    const koiSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40"><path d="M50 0 C20 0, 0 20, 0 20 S20 40, 50 40 C80 40, 100 20, 100 20 S80 0, 50 0 Z" fill="${colors.base}"/>${spotsSvg}</svg>`;
+                    koi.style.backgroundImage = `url('data:image/svg+xml;utf8,${encodeURIComponent(koiSvg)}')`;
+
+                    for(let j=1; j<=5; j++){
+                        koi.style.setProperty(`--x${j}`, `${Math.random() * 90}vw`);
+                        koi.style.setProperty(`--y${j}`, `${Math.random() * 90}vh`);
+                        koi.style.setProperty(`--r${j}`, `${Math.random() * 360}deg`);
+                    }
+                    koi.style.animationDelay = `-${Math.random() * 25}s`;
+
+                    koiContainer.appendChild(koi);
+                    koiInstances.push(koi);
+                }
+
+                let lastRippleTime = 0;
+                function rippleLoop(timestamp) {
+                    if (activeTheme !== 'koi-pond') return;
+                    if (timestamp - lastRippleTime > 800) {
+                         lastRippleTime = timestamp;
+                         koiInstances.forEach(koi => {
+                            if (Math.random() > 0.6) {
+                                const rect = koi.getBoundingClientRect();
+                                if (rect.top > 0 && rect.left > 0) {
+                                    let ripple = document.createElement('div');
+                                    ripple.className = 'koi-ripple';
+                                    ripple.style.left = `${rect.left + rect.width / 2}px`;
+                                    ripple.style.top = `${rect.top + rect.height / 2}px`;
+                                    ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+                                    rippleContainer.appendChild(ripple);
+                                }
+                            }
+                        });
+                    }
+                    activeThemeAnimationId = requestAnimationFrame(rippleLoop);
+                }
+                rippleLoop(0);
+            }
+        }
+        function createRainyWindow() {
+            const canvas = document.getElementById('rain-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            function resizeCanvas() {
+                if (!canvas) return;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas, false);
+            resizeCanvas();
+
+            let drops = [];
+            function createDrop(isInitial) {
+                return {
+                    x: Math.random() * canvas.width,
+                    y: isInitial ? Math.random() * canvas.height : -50,
+                    r: Math.random() * 1.5 + 1,
+                    vy: Math.random() * 3 + 2,
+                    isStreaking: false
+                };
+            }
+            for(let i=0; i<150; i++){ drops.push(createDrop(true)); }
+
+            function animate() {
+                if (activeTheme !== 'rainy-window') {
+                    return;
+                }
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if(Math.random() > 0.8) drops.push(createDrop(false));
+
+                for (let i = drops.length - 1; i >= 0; i--) {
+                    let drop = drops[i];
+                    if (drop.r > 3.5) drop.isStreaking = true;
+                    drop.y += drop.vy;
+                    if (drop.isStreaking) {
+                        ctx.beginPath();
+                        ctx.moveTo(drop.x, drop.y - drop.r * 4);
+                        ctx.lineTo(drop.x, drop.y);
+                        ctx.strokeStyle = `rgba(220, 230, 255, 0.3)`;
+                        ctx.lineWidth = drop.r * 0.6;
+                        ctx.stroke();
+                    }
+                    ctx.beginPath();
+                    ctx.arc(drop.x, drop.y, drop.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(220, 230, 255, 0.6)`;
+                    ctx.fill();
+
+                    for (let j = i - 1; j >= 0; j--) {
+                        let other = drops[j];
+                        let dx = drop.x - other.x;
+                        let dy = drop.y - other.y;
+                        if (Math.sqrt(dx*dx + dy*dy) < drop.r + other.r) {
+                            drop.r = Math.min(Math.sqrt(Math.pow(drop.r, 2) + Math.pow(other.r, 2)), 15);
+                            drops.splice(j, 1);
+                            i--;
+                            break;
+                        }
+                    }
+                    if (drop.y > canvas.height + 50) drops.splice(i, 1);
+                }
+                activeThemeAnimationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
         function resizeGame() {
             const margin = 0.95;
             const availableHeight = window.innerHeight * margin;
@@ -1287,19 +2082,488 @@
                 }
             }
         }
+        function createGalaxyScene() {
+            // Background Stars
+            const starsContainer = document.getElementById('galaxy-stars-bg');
+            if (starsContainer && starsContainer.children.length === 0) {
+                for (let i = 0; i < 200; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'galaxy-star-bg';
+                    const size = Math.random() * 2 + 0.5;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 100}%`;
+                    star.style.animationDelay = `${Math.random() * 15}s`;
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            // Shooting Stars
+            const shootingStarContainer = document.getElementById('shooting-stars');
+            if (shootingStarContainer && shootingStarContainer.children.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'shooting-star';
+                    star.style.top = `${Math.random() * 100}%`;
+                    const duration = Math.random() * 5 + 5;
+                    star.style.animationDuration = `${duration}s`;
+                    star.style.animationDelay = `${Math.random() * 20}s`;
+                    star.style.width = `${Math.random() * 100 + 100}px`;
+                    shootingStarContainer.appendChild(star);
+                }
+            }
+        }
+        function createAuroraScene() {
+            // Faint, twinkling stars
+            const starsContainer = document.getElementById('aurora-stars');
+            if (starsContainer && starsContainer.children.length === 0) {
+                for (let i = 0; i < 150; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'aurora-star';
+                    const size = Math.random() * 1.5 + 0.5;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 100}%`;
+                    star.style.animationDelay = `${Math.random() * 10}s`;
+                    starsContainer.appendChild(star);
+                }
+            }
+        }
+        function createSpringScene() {
+            // Gentle Rain
+            const rainContainer = document.getElementById('spring-rain');
+            if (rainContainer && rainContainer.children.length === 0) {
+                for (let i = 0; i < 60; i++) {
+                    let drop = document.createElement('div');
+                    drop.className = 'spring-raindrop';
+                    drop.style.left = `${Math.random() * 100}%`;
+                    const duration = Math.random() * 0.5 + 0.5;
+                    drop.style.animationDuration = `${duration}s`;
+                    drop.style.animationDelay = `-${Math.random() * duration}s`;
+                    rainContainer.appendChild(drop);
+                }
+            }
+
+            // Unfurling Sprouts
+            const sproutsContainer = document.getElementById('sprouts-container');
+            if (sproutsContainer && sproutsContainer.children.length === 0) {
+                for (let i = 0; i < 20; i++) {
+                    let sprout = document.createElement('div');
+                    sprout.className = 'sprout';
+                    sprout.style.left = `${5 + Math.random() * 90}%`;
+                    sprout.style.animationDelay = `${Math.random() * 15}s`;
+
+                    const leftLeaf = document.createElement('div');
+                    leftLeaf.className = 'left';
+                    const rightLeaf = document.createElement('div');
+                    rightLeaf.className = 'right';
+
+                    sprout.appendChild(leftLeaf);
+                    sprout.appendChild(rightLeaf);
+                    sproutsContainer.appendChild(sprout);
+                }
+            }
+        }
+        function createRainyWindow() {
+            const canvas = document.getElementById('rain-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            function resizeCanvas() {
+                if (!canvas) return;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas, false);
+            resizeCanvas();
+
+            let drops = [];
+            function createDrop(isInitial) {
+                return {
+                    x: Math.random() * canvas.width,
+                    y: isInitial ? Math.random() * canvas.height : -50,
+                    r: Math.random() * 1.5 + 1,
+                    vy: Math.random() * 3 + 2,
+                    isStreaking: false
+                };
+            }
+            for(let i=0; i<150; i++){ drops.push(createDrop(true)); }
+
+            function animate() {
+                if (activeTheme !== 'rainy-window') {
+                    return;
+                }
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if(Math.random() > 0.8) drops.push(createDrop(false));
+
+                for (let i = drops.length - 1; i >= 0; i--) {
+                    let drop = drops[i];
+                    if (drop.r > 3.5) drop.isStreaking = true;
+                    drop.y += drop.vy;
+                    if (drop.isStreaking) {
+                        ctx.beginPath();
+                        ctx.moveTo(drop.x, drop.y - drop.r * 4);
+                        ctx.lineTo(drop.x, drop.y);
+                        ctx.strokeStyle = `rgba(220, 230, 255, 0.3)`;
+                        ctx.lineWidth = drop.r * 0.6;
+                        ctx.stroke();
+                    }
+                    ctx.beginPath();
+                    ctx.arc(drop.x, drop.y, drop.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(220, 230, 255, 0.6)`;
+                    ctx.fill();
+
+                    for (let j = i - 1; j >= 0; j--) {
+                        let other = drops[j];
+                        let dx = drop.x - other.x;
+                        let dy = drop.y - other.y;
+                        if (Math.sqrt(dx*dx + dy*dy) < drop.r + other.r) {
+                            drop.r = Math.min(Math.sqrt(Math.pow(drop.r, 2) + Math.pow(other.r, 2)), 15);
+                            drops.splice(j, 1);
+                            i--;
+                            break;
+                        }
+                    }
+                    if (drop.y > canvas.height + 50) drops.splice(i, 1);
+                }
+                activeThemeAnimationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        function createSummerScene() {
+            // God Rays
+            const godRayContainer = document.querySelector('.god-rays-summer');
+            if (godRayContainer && godRayContainer.children.length === 0) {
+                for (let i = 0; i < 15; i++) {
+                    let ray = document.createElement('div');
+                    ray.className = 'summer-god-ray';
+                    ray.style.left = `${Math.random() * 140 - 20}%`;
+                    ray.style.top = '0px';
+                    ray.style.width = `${Math.random() * 5 + 2}px`;
+                    ray.style.height = '120%';
+                    ray.style.transform = `rotate(${Math.random() * 40 - 20}deg)`;
+                    ray.style.opacity = `${Math.random() * 0.1 + 0.1}`;
+                    godRayContainer.appendChild(ray);
+                }
+            }
+
+            // Dandelion Seeds
+            const seedContainer = document.getElementById('dandelion-seeds');
+            if (seedContainer && seedContainer.children.length === 0) {
+                for (let i = 0; i < 40; i++) {
+                    let seed = document.createElement('div');
+                    seed.className = 'dandelion-seed';
+                    seed.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                    seed.style.setProperty('--y-start', `${100 + Math.random() * 20}vh`);
+                    seed.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                    seed.style.setProperty('--y-end', `${-20 + Math.random() * -20}vh`);
+                    seed.style.animationDuration = `${Math.random() * 10 + 15}s`;
+                    seed.style.animationDelay = `${Math.random() * 20}s`;
+                    seedContainer.appendChild(seed);
+                }
+            }
+        }
+        function createAutumnScene() {
+            // Define leaf shapes and colors
+            const leafShapes = [
+                'M15 0 C0 5, 5 25, 15 30 C25 25, 30 5, 15 0 Z', // Simple teardrop
+                'M15 0 L17 10 L30 12 L18 18 L22 30 L15 25 L8 30 L12 18 L0 12 L13 10 Z', // Maple-like
+                'M15 0 C 0 10, 0 20, 5 30 C 10 25, 20 25, 25 30 C 30 20, 30 10, 15 0 Z' // Oak-like
+            ];
+            const leafColors = ['#d44d2d', '#f7a156', '#a26e49', '#6d4c3c'];
+
+            // Multi-layered falling leaves
+            const leafLayers = [
+                { container: document.getElementById('fall-leaves-back'), count: 20, minSize: 15, maxSize: 25, minDuration: 15, maxDuration: 20 },
+                { container: document.getElementById('fall-leaves-mid'), count: 15, minSize: 20, maxSize: 35, minDuration: 10, maxDuration: 15 },
+                { container: document.getElementById('fall-leaves-front'), count: 10, minSize: 25, maxSize: 45, minDuration: 7, maxDuration: 12 }
+            ];
+
+            leafLayers.forEach(layer => {
+                if (layer.container && layer.container.children.length === 0) {
+                    for (let i = 0; i < layer.count; i++) {
+                        let leaf = document.createElement('div');
+                        leaf.className = 'leaf';
+                        const shape = leafShapes[Math.floor(Math.random() * leafShapes.length)];
+                        const color = leafColors[Math.floor(Math.random() * leafColors.length)];
+                        leaf.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="${shape}" fill="${encodeURIComponent(color)}"/></svg>')`;
+                        const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
+                        leaf.style.width = `${size}px`;
+                        leaf.style.height = `${size}px`;
+
+                        leaf.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                        leaf.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                        leaf.style.setProperty('--r-start', `${Math.random() * 360}deg`);
+                        leaf.style.setProperty('--r-end', `${Math.random() * 1440 - 720}deg`);
+                        for(let j = 1; j <= 4; j++) {
+                            leaf.style.setProperty(`--x-gust${j}`, `${Math.random() * 20 - 10}vw`);
+                        }
+
+                        const duration = Math.random() * (layer.maxDuration - layer.minDuration) + layer.minDuration;
+                        leaf.style.animationDuration = `${duration}s`;
+                        leaf.style.animationDelay = `-${Math.random() * duration}s`;
+                        layer.container.appendChild(leaf);
+                    }
+                }
+            });
+
+            // Ground leaves
+            const groundContainer = document.querySelector('.ground-leaves');
+            if (groundContainer && !groundContainer.style.backgroundImage) {
+                let canvas = document.createElement('canvas');
+                canvas.width = 400; canvas.height = 50;
+                let ctx = canvas.getContext('2d');
+                for(let i=0; i < 80; i++) {
+                    const shape = leafShapes[Math.floor(Math.random() * leafShapes.length)];
+                    const color = leafColors[Math.floor(Math.random() * leafColors.length)];
+                    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="${shape}" fill="${color}"/></svg>`;
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.save();
+                        ctx.translate(Math.random() * canvas.width, Math.random() * canvas.height);
+                        ctx.rotate((Math.random() - 0.5) * Math.PI);
+                        const size = Math.random() * 20 + 15;
+                        ctx.globalAlpha = Math.random() * 0.5 + 0.5;
+                        ctx.drawImage(img, -size/2, -size/2, size, size);
+                        ctx.restore();
+                        groundContainer.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                    };
+                    img.src = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+                }
+            }
+        }
+        function createWinterScene() {
+            // Multi-layered snowfall
+            const snowflakeLayers = [
+                { container: document.getElementById('snowflakes-back'), count: 50, minSize: 0.5, maxSize: 1.5, minDuration: 20, maxDuration: 30 },
+                { container: document.getElementById('snowflakes-mid'), count: 40, minSize: 1, maxSize: 2.5, minDuration: 10, maxDuration: 15 },
+                { container: document.getElementById('snowflakes-front'), count: 30, minSize: 2, maxSize: 4, minDuration: 5, maxDuration: 8 }
+            ];
+
+            snowflakeLayers.forEach(layer => {
+                if (layer.container && layer.container.children.length === 0) {
+                    for (let i = 0; i < layer.count; i++) {
+                        let flake = document.createElement('div');
+                        flake.className = 'snowflake';
+                        flake.textContent = '•';
+                        const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
+                        flake.style.fontSize = `${size}rem`;
+                        const xStart = Math.random() * 120 - 10;
+                        flake.style.setProperty('--x-start', `${xStart}vw`);
+                        flake.style.setProperty('--x-end', `${xStart + (Math.random() * 20 - 10)}vw`);
+                        flake.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+                        const duration = Math.random() * (layer.maxDuration - layer.minDuration) + layer.minDuration;
+                        flake.style.animationDuration = `${duration}s`;
+                        flake.style.animationDelay = `-${Math.random() * duration}s`;
+                        layer.container.appendChild(flake);
+                    }
+                }
+            });
+
+            // Ice crystal generation
+            const crystalContainer = document.querySelector('.ice-crystals');
+            if (crystalContainer && crystalContainer.children.length === 0) {
+                for (let i = 0; i < 25; i++) {
+                    let crystal = document.createElement('div');
+                    crystal.className = 'ice-crystal';
+
+                    if (Math.random() > 0.5) {
+                        crystal.style.left = `${Math.random() * 100}%`;
+                        crystal.style.top = Math.random() > 0.5 ? `${Math.random() * 15}%` : `${85 + Math.random() * 15}%`;
+                    } else {
+                        crystal.style.top = `${Math.random() * 100}%`;
+                        crystal.style.left = Math.random() > 0.5 ? `${Math.random() * 15}%` : `${85 + Math.random() * 15}%`;
+                    }
+                    const size = Math.random() * 100 + 50;
+                    crystal.style.width = `${size}px`;
+                    crystal.style.height = `${size}px`;
+                    crystal.style.animationDelay = `${Math.random() * 40}s`;
+                    crystalContainer.appendChild(crystal);
+                }
+            }
+        }
+        function createEnchantedForest() {
+            // Tree generation for parallax layers
+            const layers = [
+                { el: document.getElementById('enchanted-forest-back'), count: 40, color: 'rgba(10, 15, 25, 0.7)', height: 250 },
+                { el: document.getElementById('enchanted-forest-mid'), count: 30, color: 'rgba(20, 30, 50, 0.8)', height: 350 },
+                { el: document.getElementById('enchanted-forest-front'), count: 20, color: 'rgba(30, 45, 75, 0.9)', height: 500 }
+            ];
+
+            layers.forEach(layer => {
+                if(layer.el && !layer.el.style.backgroundImage) {
+                    const T_WIDTH = 150;
+                    let canvas = document.createElement('canvas');
+                    canvas.width = layer.count * T_WIDTH;
+                    canvas.height = layer.height;
+                    let ctx = canvas.getContext('2d');
+                    ctx.fillStyle = layer.color;
+                    ctx.strokeStyle = layer.color;
+
+                    for(let i = 0; i < layer.count; i++) {
+                        const x = i * T_WIDTH + Math.random() * (T_WIDTH / 2);
+                        const h = layer.height * (0.7 + Math.random() * 0.3);
+                        const trunkWidth = 10 + Math.random() * 10;
+
+                        // Draw trunk
+                        ctx.beginPath();
+                        ctx.moveTo(x, canvas.height);
+                        ctx.lineTo(x + trunkWidth / 4, canvas.height - h / 2);
+                        ctx.lineTo(x - trunkWidth / 4, canvas.height - h);
+                        ctx.lineWidth = trunkWidth;
+                        ctx.stroke();
+
+                        // Draw branches
+                        for(let j = 0; j < 5; j++) {
+                            const branchY = canvas.height - h + (Math.random() * (h/2));
+                            const branchLen = Math.random() * 40 + 20;
+                            const angle = (Math.random() - 0.5) * Math.PI;
+                            ctx.beginPath();
+                            ctx.moveTo(x - trunkWidth / 4, branchY);
+                            ctx.lineTo(x - trunkWidth / 4 + Math.cos(angle) * branchLen, branchY + Math.sin(angle) * branchLen);
+                            ctx.lineWidth = Math.random() * 3 + 1;
+                            ctx.stroke();
+                        }
+                    }
+                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                    layer.el.style.backgroundSize = `${canvas.width}px ${canvas.height}px`;
+                }
+            });
+        }
+        function createSunset() {
+            // Volumetric Clouds
+            const cloudLayers = [
+                { el: document.getElementById('sunset-clouds-back'), count: 20, color1: 'rgba(255, 255, 255, 0.1)', color2: 'rgba(230, 200, 200, 0.1)', height: 300},
+                { el: document.getElementById('sunset-clouds-mid'), count: 15, color1: 'rgba(255, 240, 220, 0.3)', color2: 'rgba(255, 210, 180, 0.4)', height: 250},
+                { el: document.getElementById('sunset-clouds-front'), count: 10, color1: 'rgba(255, 255, 240, 0.6)', color2: 'rgba(255, 220, 200, 0.7)', height: 200}
+            ];
+
+            cloudLayers.forEach(layer => {
+                if (layer.el && !layer.el.style.backgroundImage) {
+                    const C_WIDTH = 400;
+                    let canvas = document.createElement('canvas');
+                    canvas.width = layer.count * C_WIDTH;
+                    canvas.height = layer.height;
+                    let ctx = canvas.getContext('2d');
+
+                    for (let i = 0; i < layer.count; i++) {
+                        const x = i * C_WIDTH + Math.random() * (C_WIDTH / 2);
+                        const y = Math.random() * (canvas.height / 2);
+                        const radiusX = (Math.random() * 0.4 + 0.8) * C_WIDTH / 2;
+                        const radiusY = (Math.random() * 0.3 + 0.3) * layer.height;
+
+                        const gradient = ctx.createRadialGradient(x, y, 0, x, y, Math.max(radiusX, radiusY));
+                        gradient.addColorStop(0, layer.color2);
+                        gradient.addColorStop(1, layer.color1);
+
+                        ctx.fillStyle = gradient;
+                        ctx.beginPath();
+                        ctx.ellipse(x, y, radiusX, radiusY, 0, 0, 2 * Math.PI);
+                        ctx.fill();
+                    }
+                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                    layer.el.style.backgroundSize = `${canvas.width}px 100%`;
+                    layer.el.style.top = `${Math.random() * 30}%`;
+                }
+            });
+
+            // Dust Motes
+            const dustContainer = document.getElementById('dust-motes');
+            if (dustContainer && dustContainer.children.length === 0) {
+                for (let i = 0; i < 50; i++) {
+                    let mote = document.createElement('div');
+                    mote.className = 'dust-mote';
+                    const size = Math.random() * 2 + 1;
+                    mote.style.width = `${size}px`;
+                    mote.style.height = `${size}px`;
+                    mote.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                    mote.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+                    mote.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                    mote.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+                    mote.style.animationDelay = `${Math.random() * 15}s`;
+                    dustContainer.appendChild(mote);
+                }
+            }
+        }
+        function createDeepOcean() {
+            // Caustics
+            const causticsContainer = document.querySelector('#ocean-theme .caustics-container');
+            if (causticsContainer && causticsContainer.children.length === 0) {
+                const light = document.createElement('div');
+                light.className = 'caustic-light';
+                causticsContainer.appendChild(light);
+            }
+
+            // Sea Creature
+            const creatureContainer = document.querySelector('#ocean-theme .sea-creature-container');
+            if (creatureContainer && creatureContainer.children.length === 0) {
+                const creature = document.createElement('div');
+                creature.className = 'sea-creature';
+                creature.style.animationDelay = `${Math.random() * 100}s`;
+                creatureContainer.appendChild(creature);
+            }
+
+            // Ocean floor layers
+            const layers = [
+                { el: document.getElementById('ocean-floor-bg'), count: 60, color: 'rgba(5, 30, 50, 0.6)', height: 100 },
+                { el: document.getElementById('ocean-floor-mid'), count: 40, color: 'rgba(10, 40, 65, 0.8)', height: 150 },
+                { el: document.getElementById('ocean-floor-fg'), count: 20, color: 'rgba(15, 50, 80, 1.0)', height: 200 }
+            ];
+
+            layers.forEach(layer => {
+                if (layer.el && !layer.el.style.backgroundImage) {
+                    const C_WIDTH = 200;
+                    let canvas = document.createElement('canvas');
+                    canvas.width = layer.count * C_WIDTH;
+                    canvas.height = layer.height;
+                    let ctx = canvas.getContext('2d');
+                    ctx.strokeStyle = layer.color;
+                    ctx.fillStyle = layer.color;
+
+                    // Draw ground
+                    ctx.beginPath();
+                    ctx.moveTo(0, canvas.height);
+                    for (let i = 0; i < canvas.width; i++) {
+                        ctx.lineTo(i, canvas.height * (0.8 + Math.sin(i * 0.01) * 0.1));
+                    }
+                    ctx.lineTo(canvas.width, canvas.height);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Draw seaweed & coral
+                    for (let i = 0; i < layer.count; i++) {
+                        const x = i * C_WIDTH + Math.random() * C_WIDTH;
+                        const y = canvas.height * (0.8 + Math.sin(x * 0.01) * 0.1);
+
+                        if (Math.random() > 0.3) { // Seaweed
+                            const h = (Math.random() * 0.5 + 0.3) * layer.height;
+                            ctx.beginPath();
+                            ctx.moveTo(x, y);
+                            ctx.bezierCurveTo(x + (Math.random()-0.5)*20, y - h*0.5, x + (Math.random()-0.5)*20, y - h*0.5, x + (Math.random()-0.5)*10, y-h);
+                            ctx.lineWidth = Math.random() * 2 + 2;
+                            ctx.stroke();
+                        } else { // Coral
+                            const h = (Math.random() * 0.2 + 0.1) * layer.height;
+                            const w = (Math.random() * 0.3 + 0.2) * C_WIDTH;
+                            ctx.beginPath();
+                            ctx.moveTo(x,y);
+                            ctx.bezierCurveTo(x - w/2, y-h/2, x - w/4, y-h, x, y-h);
+                            ctx.bezierCurveTo(x + w/4, y-h, x + w/2, y-h/2, x, y);
+                            ctx.fill();
+                        }
+                    }
+                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                    layer.el.style.backgroundSize = `${canvas.width}px ${canvas.height}px`;
+                }
+            });
+        }
         function createParticles() {
             const containers = {
                 stars: { count: 100, el: 'stars' }, fireflies: { count: 20, el: 'fireflies' },
                 bubbles: { count: 30, el: 'bubbles' }, clouds: { count: 5, el: 'clouds' },
-                petals: { count: 25, el: 'petals' }, snowflakes: { count: 100, el: 'snowflakes' },
-                leaves: { count: 30, el: 'leaves' }, sunRays: { count: 15, el: 'sun-rays' },
-                sparkles: { count: 50, el: 'sparkles' }, sprouts: { count: 40, el: 'sprouts' },
-                raindrops: { count: 50, el: 'raindrops'}, koi: { count: 10, el: 'koi-fish' },
-                pollen: { count: 50, el: 'pollen' }, butterflies: { count: 8, el: 'butterflies' },
-                galaxyStars: { count: 150, el: 'galaxy-stars' },
-                chimes: { count: 12, el: 'chimes' },
-                ripples: { count: 5, el: 'ripples' },
-                starlights: { count: 80, el: 'starlights' },
+                petals: { count: 25, el: 'petals' },
                 forestSpirits: { count: 10, el: 'forest-spirits' }
             };
 
@@ -1310,10 +2574,10 @@
                         let el = document.createElement('div');
                         switch(key) {
                             case 'stars': el.className = 'star'; el.style.width = `${Math.random()*2+1}px`; el.style.height=el.style.width; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; el.style.animationDelay = `${Math.random()*5}s`; break;
-                            case 'fireflies': el.className = 'firefly'; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; ['--tx1','--ty1','--tx2','--ty2','--tx3','--ty3'].forEach(v => el.style.setProperty(v, `${Math.random()*100-50}px`)); el.style.animationDelay = `${Math.random()*10}s`; break;
-                            case 'bubbles': el.className = 'bubble'; const size = Math.random()*15+5; el.style.width=`${size}px`; el.style.height=`${size}px`; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+10}s`; el.style.animationDelay=`${Math.random()*15}s`; el.style.setProperty('--x-drift', `${Math.random()*4-2}vw`); break;
+                            case 'fireflies': el.className = 'firefly'; el.style.setProperty('--x-start', `${Math.random() * 100}vw`); el.style.setProperty('--y-start', `${Math.random() * 100}vh`); el.style.setProperty('--x-end', `${Math.random() * 100}vw`); el.style.setProperty('--y-end', `${Math.random() * 100}vh`); el.style.animationDelay = `${Math.random() * 15}s`; break;
+                            case 'bubbles': el.className = 'bubble'; const size = Math.random()*15+5; el.style.width=`${size}px`; el.style.height=`${size}px`; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+10}s`; el.style.animationDelay=`${Math.random()*15}s`; el.style.setProperty('--x-drift', `${Math.random()*4-2}vw`); el.style.setProperty('--x-drift-end', `${Math.random()*4-2}vw`); break;
                             case 'clouds': el.className='cloud'; el.style.top=`${Math.random()*40+5}%`; el.style.transform=`scale(${Math.random()*0.5+0.5})`; el.style.animationDuration=`${Math.random()*40+30}s`; el.style.animationDelay=`${Math.random()*30}s`; break;
-                            case 'petals': el.className='petal'; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*5+5}s`; el.style.animationDelay=`${Math.random()*10}s`; el.style.setProperty('--r-end', `${Math.random()*720-360}deg`); break;
+                            case 'petals': el.className='petal'; el.style.left=`${Math.random()*100}%`; el.style.setProperty('--r-start', `${Math.random()*360}deg`); el.style.setProperty('--r-end', `${Math.random()*720-360}deg`); el.style.setProperty('--x-drift', `${Math.random()*40-20}vw`); el.style.animationDelay = `${Math.random()*12}s`; break;
                             case 'snowflakes': el.className = 'snowflake'; el.textContent = '❄'; const snowSize = Math.random() * 0.8 + 0.4; el.style.fontSize = `${snowSize}rem`; el.style.left = `${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+8}s`; el.style.animationDelay=`${Math.random()*10}s`; el.style.setProperty('--x-drift', `${Math.random()*6-3}vw`); el.style.setProperty('--r-end', `${Math.random()*360-180}deg`); break;
                             case 'leaves': el.className = 'leaf'; const leafColor = ['#c84c0f', '#e67e22', '#f1c40f'][Math.floor(Math.random() * 3)]; el.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C0 5, 5 15, 10 20 C15 15, 20 5, 10 0 Z" fill="${encodeURIComponent(leafColor)}"/></svg>')`; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*8+7}s`; el.style.animationDelay=`${Math.random()*10}s`; el.style.setProperty('--x-drift', `${Math.random()*20-10}vw`); el.style.setProperty('--r-end', `${Math.random()*1080-540}deg`); break;
                             case 'sunRays': el.className = 'sun-ray'; el.style.height = `${Math.random()*400+300}px`; el.style.width = `${Math.random()*30+20}px`; el.style.top = '0'; el.style.left = `${Math.random()*100-25}%`; el.style.setProperty('--r-start', `${Math.random()*10-5}deg`); el.style.setProperty('--r-end', `${Math.random()*10-5}deg`); el.style.animationDelay = `${Math.random()*5}s`; break;
@@ -1336,6 +2600,10 @@
         }
         
         function setBackground(themeName) {
+            if (activeThemeAnimationId) {
+                cancelAnimationFrame(activeThemeAnimationId);
+                activeThemeAnimationId = null;
+            }
             if (!THEMES.includes(themeName) || activeTheme === themeName) return;
             activeTheme = themeName;
             document.querySelectorAll('.theme-container').forEach(el => {
@@ -1343,6 +2611,51 @@
                     el.classList.add('active');
                     if (themeName === 'swedish-forest') {
                         createSwedishForest();
+                    }
+                    if (themeName === 'ocean') {
+                        createDeepOcean();
+                    }
+                    if (themeName === 'sunset') {
+                        createSunset();
+                    }
+                    if (themeName === 'forest') {
+                        createEnchantedForest();
+                    }
+                    if (themeName === 'winter') {
+                        createWinterScene();
+                    }
+                    if (themeName === 'fall') {
+                        createAutumnScene();
+                    }
+                    if (themeName === 'summer') {
+                        createSummerScene();
+                    }
+                    if (themeName === 'spring') {
+                        createSpringScene();
+                    }
+                    if (themeName === 'aurora') {
+                        createAuroraScene();
+                    }
+                    if (themeName === 'galaxy') {
+                        createGalaxyScene();
+                    }
+                    if (themeName === 'rainy-window') {
+                        createRainyWindow();
+                    }
+                    if (themeName === 'koi-pond') {
+                        createKoiPondScene();
+                    }
+                    if (themeName === 'meadow') {
+                        createMeadowScene();
+                    }
+                    if (themeName === 'cosmic-chimes') {
+                        createCosmicChimesScene();
+                    }
+                    if (themeName === 'singing-bowl') {
+                        createSingingBowlScene();
+                    }
+                    if (themeName === 'starlight') {
+                        createStarlightScene();
                     }
                 } else {
                     el.classList.remove('active');
