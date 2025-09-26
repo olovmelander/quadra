@@ -7,7 +7,7 @@
         body {
             font-family: 'Space Mono', monospace;
             background-color: #0c0a1a;
-            min-height: 100vh;
+            min-height: 100dvh; /* Use dynamic viewport height */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1726,6 +1726,7 @@
                 overflow-y: auto;
                 align-items: flex-start;
                 padding: 10px;
+                padding-bottom: env(safe-area-inset-bottom); /* Add safe area padding */
             }
 
             .game-container {
