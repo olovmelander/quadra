@@ -393,7 +393,7 @@ class Firefly {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -1980,10 +1980,136 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     if (themeName === 'bioluminescence') {
                         createBioluminescenceScene();
                     }
+                    if (themeName === 'desert-oasis') {
+                        createDesertOasisScene();
+                    }
+                    if (themeName === 'bamboo-grove') {
+                        createBambooGroveScene();
+                    }
                 } else {
                     el.classList.remove('active');
                 }
             });
+        }
+
+        function createDesertOasisScene() {
+            // 1. Twinkling Stars
+            const starsContainer = document.getElementById('desert-stars');
+            if (starsContainer && starsContainer.children.length === 0) {
+                for (let i = 0; i < 150; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'desert-star';
+                    const size = Math.random() * 1.5 + 0.5;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 60}%`; // Only in the upper part of the sky
+                    star.style.animationDelay = `-${Math.random() * 10}s`;
+                    starsContainer.appendChild(star);
+                }
+            }
+
+            // 2. Drifting Sand Particles
+            const sandContainer = document.getElementById('desert-sand-particles');
+            if (sandContainer && sandContainer.children.length === 0) {
+                for (let i = 0; i < 80; i++) {
+                    let particle = document.createElement('div');
+                    particle.className = 'sand-particle';
+                    particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                    particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+                    particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                    particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+                    const duration = Math.random() * 20 + 15;
+                    particle.style.animationDuration = `${duration}s`;
+                    particle.style.animationDelay = `-${Math.random() * duration}s`;
+                    sandContainer.appendChild(particle);
+                }
+            }
+
+            // 3. Desert Fauna
+            const faunaContainer = document.getElementById('desert-fauna');
+            if (faunaContainer && faunaContainer.children.length === 0) {
+                // Lizards
+                for (let i = 0; i < 2; i++) {
+                    let lizard = document.createElement('div');
+                    lizard.className = 'desert-lizard';
+                    lizard.style.left = `${10 + Math.random() * 80}%`;
+                    lizard.style.animationDelay = `-${Math.random() * 30}s`;
+                    faunaContainer.appendChild(lizard);
+                }
+            }
+
+            // 4. Desert Flora (procedurally drawn cacti and palms)
+            const floraContainer = document.getElementById('desert-flora');
+            if (floraContainer && floraContainer.children.length === 0) {
+                 for (let i = 0; i < 8; i++) { // Cacti
+                    let cactus = document.createElement('div');
+                    cactus.className = 'cactus';
+                    cactus.style.left = `${5 + Math.random() * 90}%`;
+                    cactus.style.bottom = `${Math.random() * 10}%`;
+                    cactus.style.height = `${Math.random() * 40 + 30}px`;
+                    floraContainer.appendChild(cactus);
+                 }
+                 for (let i = 0; i < 3; i++) { // Palm trees in the oasis area
+                    let palm = document.createElement('div');
+                    palm.className = 'palm-tree';
+                    palm.style.left = `${40 + Math.random() * 20}%`; // Centered for oasis
+                    palm.style.bottom = `${5 + Math.random() * 10}%`;
+                    palm.style.height = `${Math.random() * 60 + 80}px`;
+                    floraContainer.appendChild(palm);
+                 }
+            }
+        }
+
+        function createBambooGroveScene() {
+            // 1. Sun Dapples
+            const dappleContainer = document.getElementById('bamboo-sun-dapples');
+            if (dappleContainer && dappleContainer.children.length === 0) {
+                for (let i = 0; i < 30; i++) {
+                    let dapple = document.createElement('div');
+                    dapple.className = 'sun-dapple';
+                    dapple.style.left = `${Math.random() * 100}%`;
+                    dapple.style.top = `${Math.random() * 100}%`;
+                    const size = Math.random() * 100 + 50;
+                    dapple.style.width = `${size}px`;
+                    dapple.style.height = `${size}px`;
+                    dapple.style.animationDelay = `-${Math.random() * 15}s`;
+                    dappleContainer.appendChild(dapple);
+                }
+            }
+
+            // 2. Falling Leaves
+            const leafContainer = document.getElementById('bamboo-leaves');
+            if (leafContainer && leafContainer.children.length === 0) {
+                for (let i = 0; i < 20; i++) {
+                    let leaf = document.createElement('div');
+                    leaf.className = 'bamboo-leaf';
+                    leaf.style.left = `${Math.random() * 100}%`;
+                    leaf.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+                    leaf.style.setProperty('--x-drift', `${Math.random() * 10 - 5}vw`);
+                    const duration = Math.random() * 8 + 10;
+                    leaf.style.animationDuration = `${duration}s`;
+                    leaf.style.animationDelay = `-${Math.random() * duration}s`;
+                    leafContainer.appendChild(leaf);
+                }
+            }
+
+            // 3. Fauna (Dragonflies)
+            const faunaContainer = document.getElementById('bamboo-fauna');
+            if (faunaContainer && faunaContainer.children.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    let dragonfly = document.createElement('div');
+                    dragonfly.className = 'dragonfly';
+                    for(let j=1; j<=6; j++){
+                        dragonfly.style.setProperty(`--x${j}`, `${Math.random() * 90}vw`);
+                        dragonfly.style.setProperty(`--y${j}`, `${Math.random() * 80}vh`);
+                    }
+                    const duration = Math.random() * 10 + 12;
+                    dragonfly.style.animationDuration = `${duration}s`;
+                    dragonfly.style.animationDelay = `-${Math.random() * duration}s`;
+                    faunaContainer.appendChild(dragonfly);
+                }
+            }
         }
 
         function startRandomThemeChanger() {
