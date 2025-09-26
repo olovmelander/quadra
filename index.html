@@ -512,10 +512,21 @@
         .raked-sand {
             position: absolute;
             width: 100%; height: 100%;
+            background-color: #d8c8b8; /* Base color */
             background-image:
+                /* The raked lines pattern */
                 repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,0.02) 35px, rgba(0,0,0,0.02) 70px),
-                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,0.02) 35px, rgba(0,0,0,0.02) 70px);
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,0.02) 35px, rgba(0,0,0,0.02) 70px),
+                /* The new animated shimmer overlay */
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><filter id="sand-shimmer"><feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="2" seed="1" result="turbulence"><animate attributeName="seed" values="1;10;1" dur="25s" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="turbulence" scale="5" xChannelSelector="R" yChannelSelector="G"/></filter><rect width="400" height="400" fill="rgba(255,255,255,0.1)" filter="url(%23sand-shimmer)"/></svg>');
+            background-size: auto, auto, 150% 150%;
+            animation: sand-shimmer-pan 30s ease-in-out infinite alternate;
             filter: blur(1px);
+        }
+
+        @keyframes sand-shimmer-pan {
+            from { background-position: 0% 0%, 0% 0%, 0% 0%; }
+            to { background-position: 0% 0%, 0% 0%, 100% 100%; }
         }
         .water-feature {
             position: absolute;
@@ -528,41 +539,49 @@
         }
         .zen-ripple {
             position: absolute;
-            top: 50%; left: 50%;
-            border: 1px solid rgba(200, 220, 240, 0.5);
+            border: 1px solid rgba(200, 220, 240, 0.6);
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            animation: zen-ripple-effect 6s ease-out;
+            animation: zen-ripple-effect 5s ease-out;
+            pointer-events: none;
         }
         @keyframes zen-ripple-effect {
-            from { width: 0; height: 0; opacity: 1; }
-            to { width: 250px; height: 250px; opacity: 0; }
+            from {
+                width: 0;
+                height: 0;
+                opacity: 0.8;
+            }
+            to {
+                width: 200%;
+                height: 200%;
+                opacity: 0;
+            }
         }
 
         .petal {
             position: absolute;
-            width: 18px; height: 18px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 105, 180, 0.8)"/></svg>');
             background-size: contain;
-            animation: fall-petal-zen linear infinite;
+            background-repeat: no-repeat;
+            animation: fall-petal-flutter linear infinite;
             z-index: 10;
+            will-change: transform, opacity;
         }
-        @keyframes fall-petal-zen {
+        @keyframes fall-petal-flutter {
             0% {
-                transform: translateY(-10vh) translateX(0) rotate(var(--r-start));
+                transform: translateY(-10vh) translateX(0) rotateX(0) rotateY(0) rotateZ(var(--r-start));
                 opacity: 1;
             }
-             25% {
-                transform: translateY(25vh) translateX(calc(var(--x-drift) * 0.4)) rotate(calc(var(--r-start) + 180deg));
+            25% {
+                transform: translateY(25vh) translateX(var(--x-drift-1)) rotateX(180deg) rotateY(90deg) rotateZ(var(--r-start));
             }
             50% {
-                transform: translateY(50vh) translateX(calc(var(--x-drift) * 0.8)) rotate(calc(var(--r-start) + 360deg));
+                transform: translateY(50vh) translateX(var(--x-drift-2)) rotateX(360deg) rotateY(180deg) rotateZ(var(--r-mid));
             }
             75% {
-                 transform: translateY(80vh) translateX(calc(var(--x-drift) * 1.1)) rotate(calc(var(--r-start) + 540deg));
+                transform: translateY(80vh) translateX(var(--x-drift-3)) rotateX(540deg) rotateY(270deg) rotateZ(var(--r-mid));
             }
             100% {
-                transform: translateY(110vh) translateX(var(--x-drift)) rotate(var(--r-end));
+                transform: translateY(110vh) translateX(var(--x-drift-4)) rotateX(720deg) rotateY(360deg) rotateZ(var(--r-end));
                 opacity: 0;
             }
         }
@@ -2350,40 +2369,44 @@
             }
         }
         function createZenScene() {
-            // Raked Sand Shimmer
-            const sand = document.querySelector('#zen-theme .raked-sand');
-            if (sand && sand.children.length === 0) {
-                const shimmer = document.createElement('div');
-                shimmer.style.cssText = `
-                    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                    background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
-                    background-size: 200% 100%;
-                    animation: sand-shimmer 25s ease-in-out infinite;
-                `;
-                const keyframes = `
-                    @keyframes sand-shimmer {
-                        from { background-position: 150% 0; }
-                        to { background-position: -50% 0; }
-                    }
-                `;
-                const styleSheet = document.createElement("style");
-                styleSheet.innerText = keyframes;
-                document.head.appendChild(styleSheet);
-                sand.appendChild(shimmer);
-            }
-
             // Petals
             const petalsContainer = document.getElementById('petals');
             if (petalsContainer && petalsContainer.children.length === 0) {
-                 for (let i = 0; i < 25; i++) {
+                const petalShapes = [
+                    'M10 20 C0 10, 0 5, 10 0 C20 5, 20 10, 10 20Z',
+                    'M10 20 C5 15, 0 5, 10 0 C20 5, 15 15, 10 20Z',
+                    'M10 20 C0 15, 5 0, 10 0 C15 0, 20 15, 10 20Z'
+                ];
+                const petalColors = ['#ffb6c1', '#ff69b4', '#ffc0cb', '#f8dcdc'];
+
+                 for (let i = 0; i < 30; i++) { // Increased count
                     let petal = document.createElement('div');
                     petal.className = 'petal';
+
+                    const shape = petalShapes[Math.floor(Math.random() * petalShapes.length)];
+                    const color = petalColors[Math.floor(Math.random() * petalColors.length)];
+                    const size = Math.random() * 8 + 12; // 12px to 20px
+                    petal.style.width = `${size}px`;
+                    petal.style.height = `${size}px`;
+                    petal.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="${shape}" fill="${encodeURIComponent(color)}"/></svg>')`;
+
                     petal.style.left = `${Math.random() * 110 - 5}%`;
+
+                    // Set variables for complex animation
+                    const duration = Math.random() * 7 + 8; // 8-15s duration
+                    petal.style.animationDuration = `${duration}s`;
+                    petal.style.animationDelay = `-${Math.random() * duration}s`;
+
                     petal.style.setProperty('--r-start', `${Math.random() * 360}deg`);
-                    petal.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
-                    petal.style.setProperty('--x-drift', `${Math.random() * 40 - 20}vw`);
-                    petal.style.animationDelay = `-${Math.random() * 12}s`;
-                    petal.style.animationDuration = `${Math.random() * 5 + 7}s`;
+                    petal.style.setProperty('--r-mid', `${Math.random() * 360}deg`);
+                    petal.style.setProperty('--r-end', `${Math.random() * 720}deg`);
+
+                    const xDriftBase = Math.random() * 30 - 15;
+                    petal.style.setProperty('--x-drift-1', `${xDriftBase + (Math.random() - 0.5) * 10}vw`);
+                    petal.style.setProperty('--x-drift-2', `${xDriftBase + (Math.random() - 0.5) * 10}vw`);
+                    petal.style.setProperty('--x-drift-3', `${xDriftBase + (Math.random() - 0.5) * 10}vw`);
+                    petal.style.setProperty('--x-drift-4', `${xDriftBase + (Math.random() - 0.5) * 10}vw`);
+
                     petalsContainer.appendChild(petal);
                 }
             }
@@ -2392,15 +2415,28 @@
             const rippleContainer = document.querySelector('#zen-theme .water-feature');
             if (rippleContainer && rippleContainer.children.length === 0) {
                 const createRipple = () => {
-                    if (activeTheme !== 'zen') return;
+                    if (activeTheme !== 'zen' || document.hidden) {
+                        setTimeout(createRipple, 4000); // Check again later
+                        return;
+                    }
+
                     let ripple = document.createElement('div');
                     ripple.className = 'zen-ripple';
-                    ripple.style.animationDelay = `${Math.random() * 2}s`;
+
+                    // Randomize position for a more natural feel
+                    ripple.style.left = `${Math.random() * 60 + 20}%`; // 20% to 80%
+                    ripple.style.top = `${Math.random() * 60 + 20}%`; // 20% to 80%
+
+                    // Randomize animation duration
+                    ripple.style.animationDuration = `${Math.random() * 2 + 4}s`; // 4-6s
+
                     ripple.addEventListener('animationend', () => {
                         ripple.remove();
                     }, { once: true });
                     rippleContainer.appendChild(ripple);
-                    setTimeout(createRipple, Math.random() * 6000 + 4000);
+
+                    // Schedule the next ripple
+                    setTimeout(createRipple, Math.random() * 5000 + 3000); // 3-8s interval
                 }
                 createRipple();
             }
