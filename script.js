@@ -1956,7 +1956,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 let newTheme;
                 do { newTheme = THEMES[Math.floor(Math.random() * THEMES.length)]; } while (newTheme === activeTheme);
                 setBackground(newTheme);
-            }, 30000);
+            }, 60000);
         }
 
         function stopRandomThemeChanger() {
