@@ -1547,7 +1547,7 @@
                 this.musicTrack = 'Ambient'; this.soundSet = 'Zen';
                 this.currentTrackId = null;
                 this.trackNames = [
-                    'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Classic', 'Aurora',
+                    'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
                     'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest'
                 ];
@@ -1609,7 +1609,7 @@
                 this.currentTrackId = Symbol();
                 const trackId = this.currentTrackId;
                 const tracks = {
-                    Classic: () => this.startClassicMusic(trackId), Ambient: () => this.startAmbientMusic(trackId),
+                    Ambient: () => this.startAmbientMusic(trackId),
                     Decay: () => this.startDecayMusic(trackId), Nostalgia: () => this.startNostalgiaMusic(trackId),
                     Zen: () => this.startZenMusic(trackId), Nebula: () => this.startNebulaMusic(trackId),
                     Aurora: () => this.startAuroraMusic(trackId), Galaxy: () => this.startGalaxyMusic(trackId),
@@ -1628,11 +1628,7 @@
                 const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(b[bi++ % b.length], 0.4, 'triangle', 0.1); if (bi % 2 === 0) this.createTone(m[mi++ % m.length], 0.2, 'sine', 0.15); }, 250);
                 this.musicInterval = interval;
             }
-            startClassicMusic(trackId) {
-                const m=[659, 494, 523, 587, 523, 494, 440, 440, 523, 659, 587, 523, 494, 494, 523, 587, 659, 523, 440, 440], h=[220, 261, 329]; let mi=0, hi=0;
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(m[mi++ % m.length], 0.15, 'square', 0.2); if(mi%2===0)this.createTone(h[hi++%h.length],0.15,'sawtooth',0.05);}, 150);
-                this.musicInterval = interval;
-            }
+
             startAmbientMusic(trackId) {
                 const s=[261, 311, 349, 392, 466], d=130;
                 const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(s[~~(Math.random()*s.length)], 0.8, 'sine', 0.15); if(Math.random()>0.7)this.createTone(s[~~(Math.random()*s.length)]/2,1.2,'sine',0.1); if(Math.random()>0.9)this.createTone(d,2.5,'sine',0.08); }, 900);
