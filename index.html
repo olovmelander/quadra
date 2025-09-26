@@ -1315,8 +1315,14 @@
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             width: 80vmin; height: 80vmin;
-            background: radial-gradient(circle, rgba(180, 160, 220, 0.1) 0%, rgba(0,0,0,0) 70%);
-            animation: slow-pulse 10s ease-in-out infinite alternate;
+            background:
+                radial-gradient(circle, rgba(180, 160, 220, 0.15) 0%, rgba(0,0,0,0) 60%),
+                radial-gradient(circle, rgba(160, 220, 200, 0.1) 20%, rgba(0,0,0,0) 70%);
+            animation: slow-pulse-color 12s ease-in-out infinite alternate;
+        }
+        @keyframes slow-pulse-color {
+            from { transform: translate(-50%, -50%) scale(0.95); filter: brightness(1) saturate(1); }
+            to { transform: translate(-50%, -50%) scale(1.05); filter: brightness(1.2) saturate(1.5) hue-rotate(45deg); }
         }
         .singing-bowl-silhouette {
             position: absolute; bottom: 0; left: 50%;
@@ -1325,28 +1331,62 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100"><path d="M 0 100 L 200 100 L 180 20 C 150 0, 50 0, 20 20 Z" fill="rgba(0,0,0,0.4)"/></svg>');
             background-size: 100% 100%;
             z-index: 2;
+            animation: bowl-vibrate 10s ease-in-out infinite alternate;
         }
-        #bowl-ripples { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; }
+        @keyframes bowl-vibrate {
+            0%, 100% { transform: translateX(-50%) translateY(0) rotate(0); }
+            50% { transform: translateX(-50.1%) translateY(-1px) rotate(-0.1deg); }
+        }
+        #bowl-ripples {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 3;
+            perspective: 500px;
+        }
         .bowl-ripple {
             position: absolute;
-            border: 2px solid rgba(200, 180, 220, 0.6);
+            left: 50%;
+            bottom: 30vmin; /* Start from just above the bowl's base */
+            border: 2px solid rgba(200, 180, 220, 0.7);
             border-radius: 50%;
-            animation: bowl-ripple-effect 8s ease-out infinite;
+            animation: bowl-ripple-effect ease-out infinite;
+            transform: translateX(-50%);
         }
         @keyframes bowl-ripple-effect {
-            from { top: 60%; width: 0; height: 0; opacity: 1; }
-            to { top: 40%; width: 100vmin; height: 100vmin; opacity: 0; }
+            from {
+                width: 10vmin;
+                height: 5vmin; /* Elliptical start */
+                opacity: 1;
+                transform: translateX(-50%) rotateX(60deg) scale(0.1);
+            }
+            to {
+                width: 150vmin;
+                height: 75vmin; /* Elliptical end */
+                opacity: 0;
+                transform: translateX(-50%) rotateX(60deg) scale(1);
+            }
         }
         #bowl-motes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; }
         .bowl-mote {
             position: absolute;
             background-color: rgba(220, 200, 240, 0.8);
             border-radius: 50%;
-            animation: mote-rise 15s ease-in infinite;
+            animation: mote-weave 15s ease-in-out infinite;
+            box-shadow: 0 0 8px rgba(220, 200, 240, 0.5);
         }
-        @keyframes mote-rise {
-            from { transform: translateY(80vh) scale(1); opacity: 1; }
-            to { transform: translateY(30vh) scale(0.5); opacity: 0; }
+        @keyframes mote-weave {
+            0% {
+                transform: translateY(80vh) translateX(0) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(55vh) translateX(var(--x-drift)) scale(0.8);
+            }
+            100% {
+                transform: translateY(30vh) translateX(0) scale(0.5);
+                opacity: 0;
+            }
         }
 
 
@@ -1854,6 +1894,7 @@
         </div>
     </div>
 
+    <script src="themes.js"></script>
     <div class="game-container">
         <div class="sidebar">
             <div class="panel">
@@ -2279,24 +2320,31 @@
         function createSingingBowlScene() {
             const ripplesContainer = document.getElementById('bowl-ripples');
             if (ripplesContainer && ripplesContainer.children.length === 0) {
-                for (let i=0; i<3; i++) {
+                for (let i=0; i<5; i++) { // Increased ripple count
                     let ripple = document.createElement('div');
                     ripple.className = 'bowl-ripple';
-                    ripple.style.animationDelay = `${i * 2.6}s`;
+                    const duration = Math.random() * 4 + 6; // 6-10s duration
+                    ripple.style.animationDuration = `${duration}s`;
+                    ripple.style.animationDelay = `-${Math.random() * duration}s`;
+                    // Vary opacity slightly for a layered look
+                    ripple.style.opacity = Math.random() * 0.4 + 0.6;
                     ripplesContainer.appendChild(ripple);
                 }
             }
             const motesContainer = document.getElementById('bowl-motes');
             if (motesContainer && motesContainer.children.length === 0) {
-                for (let i=0; i<30; i++) {
+                for (let i=0; i<40; i++) { // Increased mote count
                     let mote = document.createElement('div');
                     mote.className = 'bowl-mote';
-                    const size = Math.random() * 3 + 1;
+                    const size = Math.random() * 4 + 1; // Varied size
                     mote.style.width = `${size}px`;
                     mote.style.height = `${size}px`;
-                    mote.style.left = `${Math.random() * 100}%`;
-                    mote.style.animationDuration = `${Math.random() * 10 + 10}s`;
-                    mote.style.animationDelay = `-${Math.random() * 15}s`;
+                    // Spawn motes from within the bowl area
+                    mote.style.left = `${Math.random() * 40 + 30}%`;
+                    mote.style.animationDuration = `${Math.random() * 8 + 12}s`; // 12-20s duration
+                    mote.style.animationDelay = `-${Math.random() * 20}s`;
+                    // Set random horizontal drift for the weave animation
+                    mote.style.setProperty('--x-drift', `${Math.random() * 10 - 5}vw`);
                     motesContainer.appendChild(mote);
                 }
             }
@@ -3711,6 +3759,11 @@
                 cancelAnimationFrame(activeThemeAnimationId);
                 activeThemeAnimationId = null;
             }
+            // Stop any running JS-based animations from the previous theme
+            if (activeTheme === 'forest' && typeof stopForestAnimations === 'function') {
+                stopForestAnimations();
+            }
+
             if (!THEMES.includes(themeName) || activeTheme === themeName) return;
             activeTheme = themeName;
             document.querySelectorAll('.theme-container').forEach(el => {
@@ -3733,6 +3786,9 @@
                     }
                     if (themeName === 'forest') {
                         createEnchantedForest();
+                        if (typeof startForestAnimations === 'function') {
+                            startForestAnimations();
+                        }
                     }
                     if (themeName === 'winter') {
                         createWinterScene();
