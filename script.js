@@ -123,7 +123,8 @@ class Firefly {
                 this.trackNames = [
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
-                    'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath'
+                    'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath',
+                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -194,7 +195,10 @@ class Firefly {
                     SingingBowl: () => this.startSingingBowlMusic(trackId),
                     Starlight: () => this.startStarlightMusic(trackId),
                     SwedishForest: () => this.startSwedishForestMusic(trackId),
-                    GongBath: () => this.startGongBathMusic(trackId)
+                    GongBath: () => this.startGongBathMusic(trackId),
+                    BreathOfStillness: () => this.startBreathOfStillnessMusic(trackId),
+                    SacredJourney: () => this.startSacredJourneyMusic(trackId),
+                    ReturnToLight: () => this.startReturnToLightMusic(trackId)
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
             }
@@ -375,6 +379,126 @@ class Firefly {
                 playDrone();
                 playWind();
                 playTones();
+            }
+
+            startBreathOfStillnessMusic(trackId) {
+                const droneFreq = 55; // A1, a very grounding frequency
+                const playDrone = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    this.createTone(droneFreq, 25, 'sine', 0.15, playDrone); // Long, soft drone
+                    this.createTone(droneFreq * 2, 25, 'sine', 0.05); // Add a subtle harmonic
+                };
+
+                // "Wind" - multiple, slightly detuned high-frequency sines
+                const playWind = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    for (let i = 0; i < 6; i++) {
+                        this.createTone(1000 + random(-200, 200), random(5, 10), 'sine', random(0.001, 0.005));
+                    }
+                    setTimeout(playWind, random(4000, 7000));
+                };
+
+                // "Flowing Water" / spacious pads - gentle, evolving mid-range tones
+                const playPads = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const scale = [220, 277, 330, 370]; // A3, C#4, E4, F#4
+                    const note = scale[~~(Math.random() * scale.length)];
+                    this.createTone(note, random(10, 15), 'sine', random(0.05, 0.1));
+                    setTimeout(playPads, random(8000, 12000));
+                };
+
+                playDrone();
+                setTimeout(playWind, 1000);
+                setTimeout(playPads, 3000);
+            }
+
+            startSacredJourneyMusic(trackId) {
+                // Frame Drum
+                const playDrum = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    // A low, soft thump using a sawtooth wave for a bit of attack
+                    this.createTone(70, 0.4, 'sawtooth', 0.15);
+                    this.createTone(65, 0.5, 'sine', 0.1);
+                    setTimeout(playDrum, random(4000, 6000)); // Slow, spacious rhythm
+                };
+
+                // Rattle/Shaker
+                const playRattle = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    // Simulate a rattle with very short bursts of noise-like triangle waves
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => {
+                           this.createTone(random(800, 1200), 0.05, 'triangle', random(0.01, 0.03));
+                        }, i * random(30, 60));
+                    }
+                    setTimeout(playRattle, random(5000, 9000));
+                };
+
+                // Throat-singing drone
+                const playDrone = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const baseFreq = 65; // C2
+                    this.createTone(baseFreq, 12, 'sawtooth', 0.08);
+                    // Add harmonics to create a richer, throat-like texture
+                    this.createTone(baseFreq * 3, 12, 'sine', 0.04);
+                    this.createTone(baseFreq * 5, 12, 'sine', 0.02);
+                    setTimeout(playDrone, random(15000, 20000));
+                };
+
+                // Distant Flute
+                const playFlute = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const scale = [261, 329, 392, 440]; // Minor pentatonic feel
+                    const note = scale[~~(Math.random() * scale.length)];
+                    this.createTone(note, random(3, 5), 'sine', 0.07);
+                    setTimeout(playFlute, random(10000, 15000));
+                };
+
+                playDrum();
+                setTimeout(playRattle, 2000);
+                setTimeout(playDrone, 5000);
+                setTimeout(playFlute, 8000);
+            }
+
+            startReturnToLightMusic(trackId) {
+                // Heartbeat Pulse
+                const playHeartbeat = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    this.createTone(45, 0.15, 'sine', 0.2); // First beat
+                    setTimeout(() => {
+                        if (this.isMuted || trackId !== this.currentTrackId) return;
+                        this.createTone(45, 0.1, 'sine', 0.15); // Second beat, slightly softer
+                    }, 350);
+                    setTimeout(playHeartbeat, 1200); // ~50 BPM
+                };
+
+                // Uplifting Chimes and Bells
+                const playChimes = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const scale = [523.25, 659.25, 783.99, 987.77, 1046.50]; // C5, E5, G5, B5, C6
+                    const note = scale[~~(Math.random() * scale.length)];
+                    // Use triangle for a softer, bell-like tone
+                    this.createTone(note, random(4, 6), 'triangle', random(0.05, 0.1));
+                    // Add a higher, shimmering harmonic
+                     if (Math.random() > 0.6) {
+                        this.createTone(note * 2, random(3, 5), 'sine', random(0.02, 0.04));
+                    }
+                    setTimeout(playChimes, random(3000, 5000));
+                };
+
+                 // Airy Textures
+                const playAiryPads = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const baseFreq = 261.63; // C4
+                    this.createTone(baseFreq, 15, 'sine', 0.06);
+                    this.createTone(baseFreq * 1.5, 15, 'sine', 0.04); // Perfect fifth for harmony
+                    this.createTone(baseFreq * 2, 15, 'sine', 0.03); // Octave
+                    setTimeout(playAiryPads, random(18000, 25000));
+                };
+
+                playHeartbeat();
+                setTimeout(playChimes, 1500);
+                setTimeout(playAiryPads, 5000);
             }
 
             stopBackgroundMusic() {
