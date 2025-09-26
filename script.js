@@ -123,7 +123,7 @@ class Firefly {
                 this.trackNames = [
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
-                    'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest'
+                    'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -193,9 +193,45 @@ class Firefly {
                     CosmicChimes: () => this.startCosmicChimesMusic(trackId),
                     SingingBowl: () => this.startSingingBowlMusic(trackId),
                     Starlight: () => this.startStarlightMusic(trackId),
-                    SwedishForest: () => this.startSwedishForestMusic(trackId)
+                    SwedishForest: () => this.startSwedishForestMusic(trackId),
+                    GongBath: () => this.startGongBathMusic(trackId)
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
+            }
+            startGongBathMusic(trackId) {
+                const baseNotes = [41.20, 48.99, 55.00, 61.74]; // E1, G1, A1, B1
+
+                const playGong = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+
+                    const baseFreq = baseNotes[~~(Math.random() * baseNotes.length)];
+                    const duration = random(12, 18);
+                    const mainVolume = random(0.08, 0.15);
+
+                    // Main gong tone - sawtooth for rich harmonics
+                    this.createTone(baseFreq, duration, 'sawtooth', mainVolume);
+
+                    // Subtle lower octave sine for fundamental depth
+                    this.createTone(baseFreq / 2, duration, 'sine', mainVolume * 0.5);
+
+                    // Harmonic overtones
+                    for (let i = 2; i < 7; i++) {
+                        if (Math.random() > 0.4) { // Not every overtone plays every time
+                            const overtoneFreq = baseFreq * i;
+                            const overtoneVolume = mainVolume / (i * 1.5) * (random(0.8, 1.2));
+                            const overtoneDuration = duration * random(0.5, 0.9);
+                             setTimeout(() => {
+                                if (this.isMuted || trackId !== this.currentTrackId) return;
+                                this.createTone(overtoneFreq, overtoneDuration, 'sine', overtoneVolume);
+                            }, random(50, 200)); // Stagger the overtones slightly
+                        }
+                    }
+
+                    const nextGongIn = random(8000, 15000);
+                    setTimeout(playGong, nextGongIn);
+                };
+
+                playGong();
             }
             startNebulaMusic(trackId) {
                 const b = [65, 73, 82, 73], m = [262, 294, 330, 349, 392, 440, 494, 523]; let bi=0, mi=0;
