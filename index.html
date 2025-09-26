@@ -1408,18 +1408,17 @@
             position: absolute;
             background: white;
             border-radius: 50%;
+            box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #adc8ff;
             animation: starlight-pulse-deep 8s ease-in-out infinite alternate;
         }
         @keyframes starlight-pulse-deep {
             from {
                 opacity: 0.5;
                 transform: scale(0.8);
-                box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #adc8ff;
             }
             to {
                 opacity: 1;
                 transform: scale(1.1);
-                box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #adc8ff;
             }
         }
 
@@ -2518,27 +2517,12 @@
                     }
                 }
             });
-
-            // Add shooting stars
-            const shootingStarContainer = document.getElementById('starlight-shooting-stars');
-            if (shootingStarContainer && shootingStarContainer.children.length === 0) {
-                for (let i = 0; i < 5; i++) {
-                    let star = document.createElement('div');
-                    star.className = 'shooting-star-starlight';
-                    star.style.top = `${Math.random() * 100}%`;
-                    const duration = Math.random() * 4 + 3; // 3-7 seconds
-                    star.style.animationDuration = `${duration}s`;
-                    star.style.animationDelay = `-${Math.random() * 20}s`; // Staggered start times
-                    star.style.width = `${Math.random() * 100 + 150}px`;
-                    shootingStarContainer.appendChild(star);
-                }
-            }
         }
         function createStarlightScene() {
              const layers = [
-                { container: document.getElementById('starlights-back'), count: 80, minSize: 0.5, maxSize: 1.5 },
-                { container: document.getElementById('starlights-mid'), count: 60, minSize: 1, maxSize: 2 },
-                { container: document.getElementById('starlights-front'), count: 40, minSize: 1.5, maxSize: 2.5 }
+                { container: document.getElementById('starlights-back'), count: 40, minSize: 0.5, maxSize: 1.5 },
+                { container: document.getElementById('starlights-mid'), count: 30, minSize: 1, maxSize: 2 },
+                { container: document.getElementById('starlights-front'), count: 20, minSize: 1.5, maxSize: 2.5 }
             ];
             layers.forEach(layer => {
                 if (layer.container && layer.container.children.length === 0) {
@@ -2555,6 +2539,21 @@
                     }
                 }
             });
+
+            // Add shooting stars
+            const shootingStarContainer = document.getElementById('starlight-shooting-stars');
+            if (shootingStarContainer && shootingStarContainer.children.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'shooting-star-starlight';
+                    star.style.top = `${Math.random() * 100}%`;
+                    const duration = Math.random() * 4 + 3; // 3-7 seconds
+                    star.style.animationDuration = `${duration}s`;
+                    star.style.animationDelay = `-${Math.random() * 20}s`; // Staggered start times
+                    star.style.width = `${Math.random() * 100 + 150}px`;
+                    shootingStarContainer.appendChild(star);
+                }
+            }
         }
         function createMeadowScene() {
             // 1. Swaying Grass (120+ blades)
