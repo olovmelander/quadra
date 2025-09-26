@@ -2293,7 +2293,28 @@
                 overflow-y: auto; /* Enable vertical scrolling */
                 flex-grow: 1; /* Allow container to fill available space */
                 margin: 20px 0;
-                padding-right: 10px; /* Add space for scrollbar */
+                padding-right: 15px; /* Add space for scrollbar */
+                 -webkit-overflow-scrolling: touch; /* Momentum scrolling for iOS */
+            }
+
+            /* Custom Scrollbar for Webkit browsers */
+            .settings-scroll-container::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .settings-scroll-container::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 4px;
+            }
+
+            .settings-scroll-container::-webkit-scrollbar-thumb {
+                background: #8b5cf6;
+                border-radius: 4px;
+                border: 1px solid rgba(0,0,0,0.5);
+            }
+
+            .settings-scroll-container::-webkit-scrollbar-thumb:hover {
+                background: #7c3aed;
             }
 
             #settings-modal .action-btn {
