@@ -891,21 +891,46 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             animate();
         }
         function resizeGame() {
-            const margin = 0.95;
-            const availableHeight = window.innerHeight * margin;
-            const availableWidth = window.innerWidth * margin;
-
-            // Roughly 5 rows for the 'next' pieces container and other UI elements
-            let blockSizeFromHeight = availableHeight / (ROWS + 5);
-
+            let blockSizeFromHeight;
             let blockSizeFromWidth;
-            // Consider sidebar width in desktop mode
-            if (window.innerWidth > 768) {
-                const sidebarWidth = 180; // As defined in CSS for .panel
-                const gap = 30; // As defined in CSS for .game-container
+            const bodyStyle = window.getComputedStyle(document.body);
+
+            if (window.innerWidth > 768) { // Desktop Mode
+                const margin = 0.95;
+                const availableHeight = window.innerHeight * margin;
+                const availableWidth = window.innerWidth * margin;
+
+                blockSizeFromHeight = availableHeight / (ROWS + 5); // Original estimation is fine here
+
+                const sidebarWidth = 180;
+                const gap = 30;
                 blockSizeFromWidth = (availableWidth - sidebarWidth - gap) / COLS;
-            } else {
+            } else { // Mobile Mode
+                const bodyHPadding = parseFloat(bodyStyle.paddingLeft) + parseFloat(bodyStyle.paddingRight);
+                const availableWidth = window.innerWidth - bodyHPadding;
                 blockSizeFromWidth = availableWidth / COLS;
+
+                // Precise height calculation
+                const nextPiecesContainer = document.querySelector('.next-pieces-container');
+                const sidebar = document.querySelector('.sidebar');
+                const gameContainer = document.querySelector('.game-container');
+                const gameArea = document.querySelector('.game-area');
+
+                const gameContainerGap = parseFloat(window.getComputedStyle(gameContainer).gap) || 0;
+                const gameAreaGap = parseFloat(window.getComputedStyle(gameArea).gap) || 0;
+
+                const otherElementsHeight =
+                    nextPiecesContainer.offsetHeight +
+                    sidebar.offsetHeight +
+                    gameContainerGap +
+                    gameAreaGap;
+
+                const bodyVPadding = parseFloat(bodyStyle.paddingTop) + parseFloat(bodyStyle.paddingBottom);
+                const totalAvailableHeight = window.innerHeight - bodyVPadding;
+
+                const canvasAvailableHeight = totalAvailableHeight - otherElementsHeight;
+
+                blockSizeFromHeight = canvasAvailableHeight / ROWS;
             }
 
             BLOCK_SIZE = Math.floor(Math.min(blockSizeFromHeight, blockSizeFromWidth));
@@ -914,7 +939,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             canvas.height = ROWS * BLOCK_SIZE;
 
             // Maintain aspect ratio of next piece canvases relative to new BLOCK_SIZE
-            // Original BLOCK_SIZE=30, next-0 is 60x50, others are 50x40
             if (nextCanvases && nextCanvases.length > 0) {
                 nextCanvases[0].width = BLOCK_SIZE * 2;
                 nextCanvases[0].height = BLOCK_SIZE * (50/30);
