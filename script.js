@@ -123,8 +123,7 @@ class Firefly {
                 this.trackNames = [
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
-                    'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath',
-                    'Breath of Stillness', 'Sacred Journey', 'Return to Light'
+                    'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -195,10 +194,7 @@ class Firefly {
                     SingingBowl: () => this.startSingingBowlMusic(trackId),
                     Starlight: () => this.startStarlightMusic(trackId),
                     SwedishForest: () => this.startSwedishForestMusic(trackId),
-                    GongBath: () => this.startGongBathMusic(trackId),
-                    'Breath of Stillness': () => this.startBreathOfStillnessMusic(trackId),
-                    'Sacred Journey': () => this.startSacredJourneyMusic(trackId),
-                    'Return to Light': () => this.startReturnToLightMusic(trackId)
+                    GongBath: () => this.startGongBathMusic(trackId)
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
             }
@@ -238,209 +234,6 @@ class Firefly {
 
                 playGong();
             }
-
-            startBreathOfStillnessMusic(trackId) {
-                const baseFreq = 54; // A1 at 432Hz tuning is ~54Hz
-
-                const playDrone = () => {
-                    if (this.isMuted || trackId !== this.currentTrackId) return;
-                    const duration = random(20, 30);
-                    const volume = random(0.08, 0.12);
-
-                    // Main drone
-                    this.createTone(baseFreq, duration, 'sine', volume);
-                    // Fifth harmonic for spaciousness
-                    this.createTone(baseFreq * 1.5, duration, 'sine', volume * 0.7);
-                    // Octave higher for airiness
-                    this.createTone(baseFreq * 2, duration, 'sine', volume * 0.5);
-
-                    setTimeout(playDrone, random(15000, 25000));
-                };
-
-                const playWind = () => {
-                    if (!this.audioContext || this.isMuted || trackId !== this.currentTrackId) return;
-                    const noise = this.audioContext.createBufferSource();
-                    const bufferSize = this.audioContext.sampleRate * 10; // 10 seconds of noise
-                    const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-                    let data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) {
-                        data[i] = Math.random() * 2 - 1;
-                    }
-                    noise.buffer = buffer;
-                    noise.loop = true;
-
-                    const filter = this.audioContext.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.setValueAtTime(300, this.audioContext.currentTime);
-
-                    const gain = this.audioContext.createGain();
-                    gain.gain.setValueAtTime(0.01, this.audioContext.currentTime);
-
-                    // LFO for wind gusting effect
-                    const lfo = this.audioContext.createOscillator();
-                    lfo.type = 'sine';
-                    lfo.frequency.setValueAtTime(0.05, this.audioContext.currentTime); // Very slow gusting
-                    const lfoGain = this.audioContext.createGain();
-                    lfoGain.gain.setValueAtTime(150, this.audioContext.currentTime);
-
-                    lfo.connect(lfoGain);
-                    lfoGain.connect(filter.frequency);
-                    noise.connect(filter);
-                    filter.connect(gain);
-                    gain.connect(this.audioContext.destination);
-
-                    lfo.start();
-                    noise.start();
-
-                    // This sound will loop until the track changes
-                    const checkLoop = setInterval(() => {
-                        if (this.isMuted || trackId !== this.currentTrackId) {
-                            noise.stop();
-                            lfo.stop();
-                            clearInterval(checkLoop);
-                        }
-                    }, 1000);
-                };
-
-                playDrone();
-                playWind();
-            }
-
-            startSacredJourneyMusic(trackId) {
-                const playDrum = () => {
-                    if (this.isMuted || trackId !== this.currentTrackId) return;
-                    // Frame drum sound
-                    const drumOsc = this.audioContext.createOscillator();
-                    drumOsc.type = 'sine';
-                    drumOsc.frequency.setValueAtTime(80, this.audioContext.currentTime); // Deep tone
-                    drumOsc.frequency.exponentialRampToValueAtTime(60, this.audioContext.currentTime + 0.3);
-
-                    const drumGain = this.audioContext.createGain();
-                    drumGain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                    drumGain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.5);
-
-                    drumOsc.connect(drumGain);
-                    drumGain.connect(this.audioContext.destination);
-                    drumOsc.start();
-                    drumOsc.stop(this.audioContext.currentTime + 0.5);
-
-                    // Rattle sound
-                    const rattle = this.audioContext.createBufferSource();
-                    const bufferSize = this.audioContext.sampleRate * 0.1;
-                    const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-                    let data = buffer.getChannelData(0);
-                    for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-                    rattle.buffer = buffer;
-
-                    const rattleFilter = this.audioContext.createBiquadFilter();
-                    rattleFilter.type = 'bandpass';
-                    rattleFilter.frequency.setValueAtTime(1500, this.audioContext.currentTime);
-                    rattleFilter.Q.value = 1;
-
-                    const rattleGain = this.audioContext.createGain();
-                    rattleGain.gain.setValueAtTime(0.05, this.audioContext.currentTime);
-                    rattleGain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.1);
-
-                    rattle.connect(rattleFilter);
-                    rattleFilter.connect(rattleGain);
-                    rattleGain.connect(this.audioContext.destination);
-                    rattle.start(this.audioContext.currentTime + 0.25); // Offset from drum hit
-
-                    setTimeout(playDrum, random(4000, 6000)); // Spacious rhythm
-                };
-
-                const playThroatDrone = () => {
-                    if (this.isMuted || trackId !== this.currentTrackId) return;
-                    const baseFreq = 73.42; // D2
-                    const duration = 15;
-                    const mainVolume = 0.1;
-                    // Create a richer tone with multiple oscillators
-                    for(let i=0; i<3; i++) {
-                        this.createTone(baseFreq + (i * 0.2), duration, 'sawtooth', mainVolume / (i+1));
-                    }
-                    setTimeout(playThroatDrone, random(12000, 18000));
-                };
-
-                const playFlute = () => {
-                    if (this.isMuted || trackId !== this.currentTrackId) return;
-                    const scale = [293.66, 329.63, 369.99, 440.00]; // D4, E4, F#4, A4
-                    const note = scale[Math.floor(Math.random() * scale.length)];
-                    this.createTone(note, random(3, 5), 'sine', 0.08);
-                    setTimeout(playFlute, random(8000, 12000));
-                };
-
-                playDrum();
-                playThroatDrone();
-                playFlute();
-            }
-
-            startReturnToLightMusic(trackId) {
-                const playBells = () => {
-                    if (this.isMuted || trackId !== this.currentTrackId) return;
-                    const scale = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 (440Hz tuning)
-                    const note = scale[Math.floor(Math.random() * scale.length)];
-                    const duration = random(2, 4);
-                    const volume = random(0.05, 0.1);
-
-                    // Bell sound using a main oscillator and a harmonic
-                    const osc1 = this.audioContext.createOscillator();
-                    osc1.type = 'sine';
-                    osc1.frequency.setValueAtTime(note, this.audioContext.currentTime);
-
-                    const osc2 = this.audioContext.createOscillator();
-                    osc2.type = 'triangle';
-                    osc2.frequency.setValueAtTime(note * 2, this.audioContext.currentTime);
-
-                    const gain = this.audioContext.createGain();
-                    gain.gain.setValueAtTime(volume, this.audioContext.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
-
-                    osc1.connect(gain);
-                    osc2.connect(gain).connect(this.audioContext.destination);
-                    gain.connect(this.audioContext.destination);
-
-                    osc1.start();
-                    osc2.start();
-                    osc1.stop(this.audioContext.currentTime + duration);
-                    osc2.stop(this.audioContext.currentTime + duration);
-
-                    setTimeout(playBells, random(5000, 8000));
-                };
-
-                const playHeartbeat = () => {
-                    if (this.isMuted || trackId !== this.currentTrackId) return;
-
-                    const createBeat = (time, vol) => {
-                        const noise = this.audioContext.createBufferSource();
-                        const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate * 0.2, this.audioContext.sampleRate);
-                        let data = buffer.getChannelData(0);
-                        for (let i = 0; i < data.length; i++) { data[i] = Math.random() * 2 - 1;}
-                        noise.buffer = buffer;
-
-                        const filter = this.audioContext.createBiquadFilter();
-                        filter.type = 'lowpass';
-                        filter.frequency.value = 80;
-
-                        const gain = this.audioContext.createGain();
-                        gain.gain.setValueAtTime(vol, this.audioContext.currentTime + time);
-                        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + time + 0.2);
-
-                        noise.connect(filter);
-                        filter.connect(gain);
-                        gain.connect(this.audioContext.destination);
-                        noise.start(this.audioContext.currentTime + time);
-                    };
-
-                    createBeat(0, 0.04);      // First beat
-                    createBeat(0.3, 0.02); // Second, softer beat
-
-                    setTimeout(playHeartbeat, 1500); // ~40 BPM heartbeat
-                };
-
-                playBells();
-                playHeartbeat();
-            }
-
             startNebulaMusic(trackId) {
                 const b = [65, 73, 82, 73], m = [262, 294, 330, 349, 392, 440, 494, 523]; let bi=0, mi=0;
                 const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(b[bi++ % b.length], 0.4, 'triangle', 0.1); if (bi % 2 === 0) this.createTone(m[mi++ % m.length], 0.2, 'sine', 0.15); }, 250);
@@ -2206,62 +1999,20 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
         }
 
 function createWavesScene() {
-    // 1. Enhanced Sea Spray with more realistic physics
-    const sprayContainer = document.getElementById('waves-sea-spray');
-    if (sprayContainer && sprayContainer.children.length === 0) {
-        for (let i = 0; i < 60; i++) { // Increased particle count
+    const particleContainer = document.getElementById('waves-particles');
+    if (particleContainer && particleContainer.children.length === 0) {
+        for (let i = 0; i < 30; i++) {
             let particle = document.createElement('div');
-            particle.className = 'sea-spray-particle';
-            const size = Math.random() * 2 + 1;
+            particle.className = 'wave-particle';
+            const size = Math.random() * 2.5 + 1;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
-
-            // Start particles from near the crest of the frontmost waves
             particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-            particle.style.setProperty('--y-start', `${80 + Math.random() * 15}vh`);
-
-            // End position determined by the arc animation in CSS
-            particle.style.setProperty('--x-end', `calc(var(--x-start) + ${Math.random() * 40 - 20}vw)`);
-            particle.style.setProperty('--y-end', `calc(var(--y-start) + 10vh)`);
-
-            const duration = Math.random() * 1.5 + 1; // Faster, shorter lifespan
-            particle.style.animationDuration = `${duration}s`;
-            particle.style.animationDelay = `-${Math.random() * 5}s`;
-            sprayContainer.appendChild(particle);
-        }
-    }
-
-    // 2. Enhanced Seabirds
-    const birdContainer = document.getElementById('waves-birds');
-    if (birdContainer && birdContainer.children.length === 0) {
-        for (let i = 0; i < 7; i++) { // More birds
-            let bird = document.createElement('div');
-            bird.className = 'seabird';
-            // Set initial vertical position and let CSS handle the rest
-            bird.style.setProperty('--y-pos', `${40 + Math.random() * 20}vh`);
-            const duration = Math.random() * 25 + 20; // Varied flight times
-            bird.style.animationDuration = `${duration}s`; // CSS will handle sub-animations
-            bird.style.animationDelay = `-${Math.random() * duration}s`;
-            birdContainer.appendChild(bird);
-        }
-    }
-
-    // 3. Enhanced Floating Driftwood
-    const driftwoodContainer = document.getElementById('waves-driftwood');
-    if (driftwoodContainer && driftwoodContainer.children.length === 0) {
-        for (let i = 0; i < 2; i++) { // Fewer, more subtle pieces
-            let wood = document.createElement('div');
-            wood.className = 'driftwood';
-            // Start anywhere horizontally, but on the water
-            wood.style.setProperty('--x-start', `${-10 + Math.random() * 120}vw`);
-            wood.style.setProperty('--y-pos', `${85 + Math.random() * 10}vh`);
-            // Set start and end rotation for the bobbing animation
-            wood.style.setProperty('--r-start', `${Math.random() * 20 - 10}deg`);
-            wood.style.setProperty('--r-end', `${Math.random() * 20 - 10}deg`);
-            const duration = Math.random() * 25 + 35; // Slow drift
-            wood.style.animationDuration = `${duration}s`;
-            wood.style.animationDelay = `-${Math.random() * duration}s`;
-            driftwoodContainer.appendChild(wood);
+            particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+            particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+            particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+            particle.style.animationDelay = `-${Math.random() * 15}s`;
+            particleContainer.appendChild(particle);
         }
     }
 }
