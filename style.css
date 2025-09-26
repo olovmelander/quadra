@@ -2282,6 +2282,7 @@
                 max-height: 85dvh;
                 display: flex;
                 flex-direction: column;
+                overflow: hidden; /* Prevent the container itself from overflowing */
             }
 
             .modal h1 {
