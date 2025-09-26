@@ -96,13 +96,13 @@
             background-color: #ffeeaa;
             border-radius: 50%;
             box-shadow: 0 0 8px #ffeeaa, 0 0 12px #ffeeaa;
-            animation: fly 10s linear infinite;
+            animation: fly 20s ease-in-out infinite;
         }
         @keyframes fly {
             0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
-            25% { transform: translate(var(--tx1), var(--ty1)) scale(0.8); opacity: 0.5; }
-            50% { transform: translate(var(--tx2), var(--ty2)) scale(1.2); opacity: 1; }
-            75% { transform: translate(var(--tx3), var(--ty3)) scale(0.9); opacity: 0.6; }
+            25% { transform: translate(var(--tx1), var(--ty1)) scale(0.9); opacity: 0.6; }
+            50% { transform: translate(var(--tx2), var(--ty2)) scale(1.1); opacity: 1; }
+            75% { transform: translate(var(--tx3), var(--ty3)) scale(0.8); opacity: 0.7; }
         }
 
         /* --- Ocean Theme --- */
@@ -113,11 +113,20 @@
             position: absolute;
             background: rgba(173, 216, 230, 0.3);
             border-radius: 50%;
-            animation: rise linear infinite;
+            animation: rise ease-in-out infinite;
         }
         @keyframes rise {
-            from { bottom: -20px; transform: translateX(0vw); }
-            to { bottom: 105vh; transform: translateX(var(--x-drift)); }
+            0% {
+                bottom: -20px;
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(var(--x-drift));
+            }
+            100% {
+                bottom: 105vh;
+                transform: translateX(0);
+            }
         }
         .ocean-wave {
             position: absolute;
@@ -165,8 +174,18 @@
             animation: drift linear infinite;
         }
         @keyframes drift {
-            from { transform: translateX(-250px); }
-            to { transform: translateX(100vw); }
+            0% {
+                transform: translateX(-250px) translateY(0);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateX(calc(50vw - 100px)) translateY(-10px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100vw) translateY(0);
+                opacity: 0.8;
+            }
         }
 
         /* --- Zen Theme --- */
@@ -178,11 +197,24 @@
             width: 15px; height: 15px;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 182, 193, 0.7)"/></svg>');
             background-size: contain;
-            animation: fall-petal linear infinite;
+            animation: fall-petal ease-in-out infinite;
         }
         @keyframes fall-petal {
-            to {
-                transform: translateY(105vh) rotate(var(--r-end));
+            0% {
+                transform: translateY(-10vh) translateX(0) rotate(0);
+                opacity: 1;
+            }
+            25% {
+                transform: translateY(25vh) translateX(15px) rotate(calc(var(--r-end) * 0.25));
+            }
+            50% {
+                transform: translateY(50vh) translateX(-15px) rotate(calc(var(--r-end) * 0.5));
+            }
+            75% {
+                transform: translateY(75vh) translateX(15px) rotate(calc(var(--r-end) * 0.75));
+            }
+            100% {
+                transform: translateY(105vh) translateX(0) rotate(var(--r-end));
                 opacity: 0;
             }
         }
@@ -195,10 +227,26 @@
             position: absolute;
             color: white;
             font-size: 1rem;
-            animation: fall-snow linear infinite;
+            animation: fall-snow ease-in-out infinite;
         }
         @keyframes fall-snow {
-             to { transform: translateY(105vh) translateX(var(--x-drift)) rotate(var(--r-end)); opacity: 0; }
+            0% {
+                transform: translateY(-10vh) translateX(0) rotate(0);
+                opacity: 1;
+            }
+            25% {
+                transform: translateY(25vh) translateX(calc(var(--x-drift) * 0.5)) rotate(calc(var(--r-end) * 0.25));
+            }
+            50% {
+                transform: translateY(50vh) translateX(calc(var(--x-drift) * 0.25)) rotate(calc(var(--r-end) * 0.5));
+            }
+            75% {
+                transform: translateY(75vh) translateX(calc(var(--x-drift) * 0.75)) rotate(calc(var(--r-end) * 0.75));
+            }
+            100% {
+                transform: translateY(105vh) translateX(var(--x-drift)) rotate(var(--r-end));
+                opacity: 0;
+            }
         }
         
         /* --- Fall Theme --- */
