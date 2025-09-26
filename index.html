@@ -475,6 +475,75 @@
             87.5% { transform: translate(var(--x8), var(--y8)) rotate(20deg); }
         }
 
+        /* --- Cosmic Chimes Theme --- */
+        #cosmic-chimes-theme {
+            background-color: #0c0a1a;
+        }
+        .chime {
+            position: absolute;
+            width: 3px;
+            height: 80px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(173, 216, 230, 0.7), rgba(255, 255, 255, 0));
+            animation: shimmer 10s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+            0%, 100% {
+                opacity: 0;
+                transform: scaleY(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: scaleY(1);
+                box-shadow: 0 0 15px #ade6e6, 0 0 25px #ade6e6;
+            }
+        }
+
+        /* --- Singing Bowl Theme --- */
+        #singing-bowl-theme {
+            background: radial-gradient(circle at 50% 50%, #1a1225, #0c0a1a 70%);
+        }
+        .ripple {
+            position: absolute;
+            border: 2px solid rgba(200, 180, 220, 0.4);
+            border-radius: 50%;
+            animation: ripple-effect 8s ease-out infinite;
+        }
+        @keyframes ripple-effect {
+            from {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            to {
+                width: 100vmin;
+                height: 100vmin;
+                opacity: 0;
+            }
+        }
+
+        /* --- Starlight Theme --- */
+        #starlight-theme {
+            background-color: #0c0a1a;
+        }
+        .starlight {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: starlight-pulse 6s ease-in-out infinite alternate;
+        }
+        @keyframes starlight-pulse {
+            from {
+                opacity: 0.4;
+                transform: scale(0.8);
+                box-shadow: 0 0 5px #ffffff, 0 0 10px #ffffff;
+            }
+            to {
+                opacity: 1;
+                transform: scale(1.2);
+                box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+            }
+        }
+
 
         @keyframes slide {
             from { background-position-x: 0; }
@@ -621,6 +690,9 @@
         <div id="rainy-window-theme" class="theme-container"><div id="raindrops"></div></div>
         <div id="koi-pond-theme" class="theme-container"><div id="koi-fish"></div></div>
         <div id="meadow-theme" class="theme-container"><div id="pollen"></div><div id="butterflies"></div></div>
+        <div id="cosmic-chimes-theme" class="theme-container"><div id="chimes"></div></div>
+        <div id="singing-bowl-theme" class="theme-container"><div id="ripples"></div></div>
+        <div id="starlight-theme" class="theme-container"><div id="starlights"></div></div>
     </div>
 
     <div class="game-container">
@@ -739,6 +811,9 @@
                         <option value="rainy-window">Rainy Window</option>
                         <option value="koi-pond">Koi Pond</option>
                         <option value="meadow">Meadow</option>
+                        <option value="cosmic-chimes">Cosmic Chimes</option>
+                        <option value="singing-bowl">Singing Bowl</option>
+                        <option value="starlight">Starlight</option>
                     </select>
                 </div>
                 <div class="setting"><label>Move Left:</label> <div id="key-moveLeft" class="key-input" tabindex="0">ArrowLeft</div></div>
@@ -968,7 +1043,7 @@
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -1046,7 +1121,10 @@
                 sparkles: { count: 50, el: 'sparkles' }, sprouts: { count: 40, el: 'sprouts' },
                 raindrops: { count: 50, el: 'raindrops'}, koi: { count: 10, el: 'koi-fish' },
                 pollen: { count: 50, el: 'pollen' }, butterflies: { count: 8, el: 'butterflies' },
-                galaxyStars: { count: 150, el: 'galaxy-stars' }
+                galaxyStars: { count: 150, el: 'galaxy-stars' },
+                chimes: { count: 12, el: 'chimes' },
+                ripples: { count: 5, el: 'ripples' },
+                starlights: { count: 80, el: 'starlights' }
             };
 
             for (const key in containers) {
@@ -1070,6 +1148,9 @@
                             case 'pollen': el.className = 'pollen'; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; el.style.setProperty('--x', `${Math.random()*100-50}px`); el.style.setProperty('--y', `${Math.random()*100-50}px`); el.style.animationDelay = `${Math.random()*8}s`; break;
                             case 'butterflies': el.className = 'butterfly'; ['--x1','--y1','--x2','--y2','--x3','--y3','--x4','--y4', '--x5', '--y5', '--x6', '--y6', '--x7', '--y7', '--x8', '--y8'].forEach(v => el.style.setProperty(v, `${Math.random()*80+10}vw`)); el.style.animationDelay = `${Math.random()*15}s`; break;
                             case 'galaxyStars': el.className = 'galaxy-star'; el.style.width = `${Math.random()*2+1}px`; el.style.height=el.style.width; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; el.style.animationDelay = `${Math.random()*8}s`; break;
+                            case 'chimes': el.className = 'chime'; el.style.left = `${Math.random() * 95}%`; el.style.top = `${Math.random() * 30 + 35}%`; el.style.transform = `rotate(${Math.random() * 20 - 10}deg) scaleY(${Math.random() * 0.3 + 0.8})`; el.style.animationDelay = `${Math.random() * 10}s`; break;
+                            case 'ripples': el.className = 'ripple'; el.style.left = '50%'; el.style.top = '50%'; el.style.transform = 'translate(-50%, -50%)'; el.style.animationDelay = `${i * 1.6}s`; break;
+                            case 'starlights': el.className = 'starlight'; const starlightSize = Math.random() * 2.5 + 1; el.style.width = `${starlightSize}px`; el.style.height = `${starlightSize}px`; el.style.left = `${Math.random() * 100}%`; el.style.top = `${Math.random() * 100}%`; el.style.animationDelay = `${Math.random() * 6}s`; break;
                         }
                         container.appendChild(el);
                     }
