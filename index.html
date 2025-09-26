@@ -8,6 +8,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <filter id="gooey-blobs">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+        </defs>
+    </svg>
     <div class="background-container">
         <div id="stars"></div>
         
@@ -209,6 +218,13 @@
             <div id="waves-layer-mid" class="wave-layer"></div>
             <div id="waves-layer-front" class="wave-layer"></div>
         </div>
+        <div id="fluid-dreams-theme" class="theme-container">
+            <div id="liquid-mercury"></div>
+            <div id="morphing-blobs"></div>
+            <div id="iridescent-bubbles"></div>
+            <div id="ribbon-streams"></div>
+            <div class="dimensional-warp"></div>
+        </div>
     </div>
 
     <div class="game-container">
@@ -343,6 +359,7 @@
                             <option value="bamboo-grove">Bamboo Grove</option>
                             <option value="misty-lake">Misty Mountain Lake</option>
                             <option value="waves">Waves</option>
+                            <option value="fluid-dreams">Fluid Dreams</option>
                         </select>
                     </div>
                     <div class="setting"><label>Move Left:</label> <div id="key-moveLeft" class="key-input" tabindex="0">ArrowLeft</div></div>
