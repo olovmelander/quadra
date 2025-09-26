@@ -681,13 +681,18 @@
             position: absolute;
             bottom: 0; left: 0;
             width: 100%; height: 5%;
-            background-size: 200px 100%;
             z-index: 5;
-            animation: rustle 10s ease-in-out infinite alternate;
+            pointer-events: none;
         }
-        @keyframes rustle {
-            from { transform: translateX(-2%); }
-            to { transform: translateX(2%); }
+        .ground-leaf {
+            position: absolute;
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: rustle-leaf ease-in-out infinite alternate;
+        }
+        @keyframes rustle-leaf {
+            from { transform: rotate(var(--r1)) translateX(-2px); }
+            to { transform: rotate(var(--r2)) translateX(2px); }
         }
 
         .fall-wind-particle {
@@ -1378,6 +1383,25 @@
             }
         }
 
+        #starlight-shooting-stars {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            transform: rotate(15deg);
+            z-index: 5;
+        }
+        .shooting-star-starlight {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(to right, white, transparent);
+            animation: shoot-starlight linear infinite;
+        }
+        @keyframes shoot-starlight {
+            from { left: -50%; transform: scaleX(0.3); opacity: 1; }
+            70% { opacity: 1; }
+            to { left: 150%; transform: scaleX(1.5); opacity: 0; }
+        }
+
         /* --- Geode Theme --- */
         #geode-theme {
             background: radial-gradient(circle, #2c2a3e, #1a182a 80%);
@@ -1388,6 +1412,7 @@
             background-size: contain;
             background-repeat: no-repeat;
             animation: grow-crystal 40s ease-in-out infinite alternate;
+            z-index: 1;
         }
         @keyframes grow-crystal {
             from { transform: scale(0.95) rotate(var(--r-start)); opacity: 0.8; }
@@ -1397,23 +1422,32 @@
             position: absolute;
             width: 100%; height: 100%;
             background: inherit;
-            filter: blur(15px);
             opacity: 0.7;
             animation: pulse-glow 8s ease-in-out infinite alternate;
         }
         @keyframes pulse-glow {
-            from { opacity: 0.5; transform: scale(0.98); }
-            to { opacity: 0.8; transform: scale(1); }
+            0%, 100% { opacity: 0.6; transform: scale(0.98); filter: blur(15px) brightness(1); }
+            50% { opacity: 0.9; transform: scale(1.02); filter: blur(20px) brightness(1.5); }
         }
+
+        #geode-dust-back, #geode-dust-mid, #geode-dust-front {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+        #geode-dust-back { z-index: 0; transform: scale(0.8); filter: blur(1px); }
+        #geode-dust-mid { z-index: 2; }
+        #geode-dust-front { z-index: 4; transform: scale(1.2); }
+
         .geode-dust-particle {
             position: absolute;
             background-color: #e0e0ff;
             border-radius: 50%;
-            animation: geode-dust-drift 25s ease-in-out infinite;
+            animation: geode-dust-drift ease-in-out infinite;
         }
         @keyframes geode-dust-drift {
             0% { transform: translate(var(--x-start), var(--y-start)); opacity: 0; }
-            50% { opacity: 0.6; }
+            50% { opacity: var(--opacity); }
             100% { transform: translate(var(--x-end), var(--y-end)); opacity: 0; }
         }
 
@@ -1798,10 +1832,13 @@
             <div id="starlights-back" class="starlight-layer"></div>
             <div id="starlights-mid" class="starlight-layer"></div>
             <div id="starlights-front" class="starlight-layer"></div>
+            <div id="starlight-shooting-stars"></div>
         </div>
         <div id="geode-theme" class="theme-container">
+            <div id="geode-dust-back"></div>
             <div id="geode-crystals"></div>
-            <div id="geode-dust"></div>
+            <div id="geode-dust-mid"></div>
+            <div id="geode-dust-front"></div>
         </div>
         <div id="bioluminescence-theme" class="theme-container">
             <div id="bio-mushrooms"></div>
@@ -2360,37 +2397,41 @@
             }
         }
         function createGeodeScene() {
+            // 1. Varied Crystals
             const crystalContainer = document.getElementById('geode-crystals');
             if (crystalContainer && crystalContainer.children.length === 0) {
                 const crystalPalettes = [
-                    ['#a29bfe', '#74b9ff', '#d6a2e8'],
-                    ['#ff7675', '#fab1a0', '#fdcb6e'],
-                    ['#55efc4', '#81ecec', '#74b9ff']
+                    ['#a29bfe', '#74b9ff', '#d6a2e8'], // Amethyst/Fluorite
+                    ['#ff7675', '#fab1a0', '#fdcb6e'], // Rose Quartz/Citrine
+                    ['#55efc4', '#81ecec', '#74b9ff'], // Aquamarine/Celestite
+                    ['#fffe7a', '#ffb5b5', '#b5ffe7']  // Opal/Iridescent
                 ];
-                const numCrystals = 15;
+                 const crystalShapes = [
+                    'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)', // Classic crystal
+                    'polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%)',    // Shard
+                    'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)', // Octagon
+                    'polygon(50% 0%, 90% 20%, 100% 60%, 50% 100%, 0% 60%, 10% 20%)' // Pointed
+                ];
+                const numCrystals = 18;
                 for (let i = 0; i < numCrystals; i++) {
                     const crystal = document.createElement('div');
                     crystal.className = 'crystal';
                     const palette = crystalPalettes[Math.floor(Math.random() * crystalPalettes.length)];
-                    const color1 = palette[0];
-                    const color2 = palette[1];
-                    const color3 = palette[2];
+                    const shape = crystalShapes[Math.floor(Math.random() * crystalShapes.length)];
 
                     const size = Math.random() * 80 + 50;
                     crystal.style.width = `${size}px`;
-                    crystal.style.height = `${size}px`;
+                    crystal.style.height = `${size * (Math.random() * 0.5 + 0.8)}px`;
                     crystal.style.left = `${Math.random() * 90}%`;
                     crystal.style.top = `${Math.random() * 80}%`;
-
-                    const points = Array.from({length: 6}, () => `${Math.random()*100}% ${Math.random()*100}%`).join(',');
-                    crystal.style.clipPath = `polygon(${points})`;
+                    crystal.style.clipPath = shape;
 
                     const glow = document.createElement('div');
                     glow.className = 'crystal-glow';
-                    glow.style.clipPath = `polygon(${points})`;
+                    glow.style.clipPath = shape;
 
-                    crystal.style.background = `linear-gradient(${Math.random()*360}deg, ${color1}, ${color2}, ${color3})`;
-                    glow.style.background = `linear-gradient(${Math.random()*360}deg, ${color1}, ${color2}, ${color3})`;
+                    crystal.style.background = `linear-gradient(${Math.random()*360}deg, ${palette.join(', ')})`;
+                    glow.style.background = `linear-gradient(${Math.random()*360}deg, ${palette.join(', ')})`;
 
                     crystal.style.setProperty('--r-start', `${Math.random() * 10 - 5}deg`);
                     crystal.style.setProperty('--r-end', `${Math.random() * 10 - 5}deg`);
@@ -2402,20 +2443,46 @@
                 }
             }
 
-            const dustContainer = document.getElementById('geode-dust');
-            if (dustContainer && dustContainer.children.length === 0) {
-                for (let i = 0; i < 60; i++) {
-                    let particle = document.createElement('div');
-                    particle.className = 'geode-dust-particle';
-                    const size = Math.random() * 1.5 + 0.5;
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-                    particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-                    particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-                    particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-                    particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                    particle.style.animationDelay = `-${Math.random() * 25}s`;
-                    dustContainer.appendChild(particle);
+            // 2. Layered Geode Dust
+            const dustLayers = [
+                { container: document.getElementById('geode-dust-back'), count: 40, minSize: 0.5, maxSize: 1.5, minDuration: 30, maxDuration: 40, opacity: 0.4 },
+                { container: document.getElementById('geode-dust-mid'), count: 30, minSize: 1, maxSize: 2, minDuration: 20, maxDuration: 30, opacity: 0.6 },
+                { container: document.getElementById('geode-dust-front'), count: 20, minSize: 1.5, maxSize: 2.5, minDuration: 15, maxDuration: 25, opacity: 0.8 }
+            ];
+
+            dustLayers.forEach(layer => {
+                if (layer.container && layer.container.children.length === 0) {
+                    for (let i = 0; i < layer.count; i++) {
+                        let particle = document.createElement('div');
+                        particle.className = 'geode-dust-particle';
+                        const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
+                        particle.style.width = `${size}px`;
+                        particle.style.height = `${size}px`;
+                        particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                        particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+                        particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                        particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+                        particle.style.setProperty('--opacity', layer.opacity);
+                        const duration = Math.random() * (layer.maxDuration - layer.minDuration) + layer.minDuration;
+                        particle.style.animationDuration = `${duration}s`;
+                        particle.style.animationDelay = `-${Math.random() * duration}s`;
+                        layer.container.appendChild(particle);
+                    }
+                }
+            });
+
+            // Add shooting stars
+            const shootingStarContainer = document.getElementById('starlight-shooting-stars');
+            if (shootingStarContainer && shootingStarContainer.children.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'shooting-star-starlight';
+                    star.style.top = `${Math.random() * 100}%`;
+                    const duration = Math.random() * 4 + 3; // 3-7 seconds
+                    star.style.animationDuration = `${duration}s`;
+                    star.style.animationDelay = `-${Math.random() * 20}s`; // Staggered start times
+                    star.style.width = `${Math.random() * 100 + 150}px`;
+                    shootingStarContainer.appendChild(star);
                 }
             }
         }
@@ -3095,28 +3162,30 @@
                 }
             });
 
-            // Ground leaves
+            // Dynamic Ground leaves
             const groundContainer = document.querySelector('.ground-leaves');
-            if (groundContainer && !groundContainer.style.backgroundImage) {
-                let canvas = document.createElement('canvas');
-                canvas.width = 400; canvas.height = 50;
-                let ctx = canvas.getContext('2d');
-                for(let i=0; i < 80; i++) {
+            if (groundContainer && groundContainer.children.length === 0) {
+                groundContainer.style.backgroundImage = ''; // Clear any old canvas
+                for (let i = 0; i < 80; i++) {
+                    let leaf = document.createElement('div');
+                    leaf.className = 'ground-leaf';
                     const shape = leafShapes[Math.floor(Math.random() * leafShapes.length)];
                     const color = leafColors[Math.floor(Math.random() * leafColors.length)];
-                    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="${shape}" fill="${color}"/></svg>`;
-                    const img = new Image();
-                    img.onload = () => {
-                        ctx.save();
-                        ctx.translate(Math.random() * canvas.width, Math.random() * canvas.height);
-                        ctx.rotate((Math.random() - 0.5) * Math.PI);
-                        const size = Math.random() * 20 + 15;
-                        ctx.globalAlpha = Math.random() * 0.5 + 0.5;
-                        ctx.drawImage(img, -size/2, -size/2, size, size);
-                        ctx.restore();
-                        groundContainer.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                    };
-                    img.src = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+                    leaf.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><path d="${shape}" fill="${encodeURIComponent(color)}"/></svg>')`;
+
+                    const size = Math.random() * 25 + 20;
+                    leaf.style.width = `${size}px`;
+                    leaf.style.height = `${size}px`;
+                    leaf.style.left = `${Math.random() * 100}%`;
+                    leaf.style.bottom = `${Math.random() * 40 - 10}px`; // Stagger vertically
+                    leaf.style.opacity = Math.random() * 0.5 + 0.5;
+
+                    leaf.style.setProperty('--r1', `${Math.random() * 20 - 10}deg`);
+                    leaf.style.setProperty('--r2', `${Math.random() * 20 - 10}deg`);
+                    leaf.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                    leaf.style.animationDelay = `-${Math.random() * 10}s`;
+
+                    groundContainer.appendChild(leaf);
                 }
             }
 
