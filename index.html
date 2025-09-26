@@ -544,6 +544,74 @@
             }
         }
 
+        /* --- Swedish Forest Theme --- */
+        #swedish-forest-theme {
+            background: linear-gradient(to top, #0a141a, #1a2a3a);
+            overflow: hidden;
+        }
+        .sf-parallax {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 200%; height: 100%;
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+        }
+        #sf-layer-1 { animation: slide 240s linear infinite; z-index: 1; }
+        #sf-layer-2 { animation: slide 180s linear infinite; z-index: 3; }
+        #sf-layer-3 { animation: slide 120s linear infinite; z-index: 5; }
+
+        .god-ray-container {
+            position: absolute; top: -10%; left: 0;
+            width: 100%; height: 110%;
+            animation: god-ray-anim 60s ease-in-out infinite alternate;
+            transform-origin: center top;
+            z-index: 2;
+        }
+        .god-ray {
+            position: absolute; top: 0;
+            background: linear-gradient(to bottom, rgba(255, 255, 220, 0.15) 0%, rgba(255, 255, 220, 0) 70%);
+            transform-origin: top center;
+        }
+        @keyframes god-ray-anim {
+            from { transform: rotate(-10deg); }
+            to { transform: rotate(10deg); }
+        }
+
+        .mist {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 200%; height: 25%;
+            background: linear-gradient(to top, rgba(150, 160, 170, 0.2) 0%, rgba(150, 160, 170, 0) 100%);
+            animation: mist-anim 90s linear infinite;
+            z-index: 4;
+        }
+        @keyframes mist-anim {
+            from { transform: translateX(0%); }
+            to { transform: translateX(-50%); }
+        }
+
+        .forest-spirit {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: rgba(180, 220, 255, 0.5);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(180, 220, 255, 0.7), 0 0 20px rgba(180, 220, 255, 0.5);
+            animation: spirit-drift 25s ease-in-out infinite alternate;
+            z-index: 6;
+        }
+
+        @keyframes spirit-drift {
+            from {
+                transform: translate(var(--x-start), var(--y-start)) scale(1);
+                opacity: 0.7;
+            }
+            to {
+                transform: translate(var(--x-end), var(--y-end)) scale(1.2);
+                opacity: 0.9;
+            }
+        }
+
 
         @keyframes slide {
             from { background-position-x: 0; }
@@ -693,6 +761,14 @@
         <div id="cosmic-chimes-theme" class="theme-container"><div id="chimes"></div></div>
         <div id="singing-bowl-theme" class="theme-container"><div id="ripples"></div></div>
         <div id="starlight-theme" class="theme-container"><div id="starlights"></div></div>
+        <div id="swedish-forest-theme" class="theme-container">
+            <div id="sf-layer-1" class="sf-parallax"></div>
+            <div class="god-ray-container"></div>
+            <div id="sf-layer-2" class="sf-parallax"></div>
+            <div class="mist"></div>
+            <div id="sf-layer-3" class="sf-parallax"></div>
+            <div id="forest-spirits"></div>
+        </div>
     </div>
 
     <div class="game-container">
@@ -778,6 +854,7 @@
                         <option value="CosmicChimes">Cosmic Chimes (Ethereal)</option>
                         <option value="SingingBowl">Singing Bowl (Deep)</option>
                         <option value="Starlight">Starlight (Gentle)</option>
+                        <option value="SwedishForest">Swedish Forest (Deep)</option>
                     </select>
                 </div>
                 <div class="setting">
@@ -814,6 +891,7 @@
                         <option value="cosmic-chimes">Cosmic Chimes</option>
                         <option value="singing-bowl">Singing Bowl</option>
                         <option value="starlight">Starlight</option>
+                        <option value="swedish-forest">Swedish Forest</option>
                     </select>
                 </div>
                 <div class="setting"><label>Move Left:</label> <div id="key-moveLeft" class="key-input" tabindex="0">ArrowLeft</div></div>
@@ -838,7 +916,7 @@
                 this.trackNames = [
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Classic', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
-                    'CosmicChimes', 'SingingBowl', 'Starlight'
+                    'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -907,7 +985,8 @@
                     HealingDrone: () => this.startHealingDroneMusic(trackId),
                     CosmicChimes: () => this.startCosmicChimesMusic(trackId),
                     SingingBowl: () => this.startSingingBowlMusic(trackId),
-                    Starlight: () => this.startStarlightMusic(trackId)
+                    Starlight: () => this.startStarlightMusic(trackId),
+                    SwedishForest: () => this.startSwedishForestMusic(trackId)
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
             }
@@ -1027,6 +1106,37 @@
                 playNote();
             }
 
+            startSwedishForestMusic(trackId) {
+                const droneFreq = 60;
+                const playDrone = () => {
+                    if(this.isMuted || trackId !== this.currentTrackId) return;
+                    this.createTone(droneFreq, 20, 'sawtooth', 0.04, playDrone);
+                };
+
+                const playWind = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    for (let i = 0; i < 5; i++) {
+                        this.createTone(80 + Math.random() * 40, 2 + Math.random() * 3, 'sine', 0.005 + Math.random() * 0.01);
+                    }
+                    setTimeout(playWind, Math.random() * 4000 + 2000);
+                };
+
+                const scale = [392.00, 440.00, 587.33, 659.25];
+                const playTones = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    if (Math.random() > 0.6) {
+                        const note = scale[~~(Math.random() * scale.length)];
+                        this.createTone(note, 5, 'triangle', 0.08);
+                        if (Math.random() > 0.5) { this.createTone(note/2, 5, 'sine', 0.04); }
+                    }
+                    setTimeout(playTones, Math.random() * 8000 + 5000);
+                };
+
+                playDrone();
+                playWind();
+                playTones();
+            }
+
             stopBackgroundMusic() { 
                 this.currentTrackId = null;
                 if (this.musicInterval) {
@@ -1043,7 +1153,7 @@
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -1112,6 +1222,71 @@
             resetGame();
         }
         
+        function createSwedishForest() {
+            // Pine tree generation for parallax layers
+            const layers = [
+                { el: document.getElementById('sf-layer-1'), count: 80, height: 150, color: 'rgba(20, 40, 50, 0.7)' },
+                { el: document.getElementById('sf-layer-2'), count: 60, height: 250, color: 'rgba(30, 55, 70, 0.8)' },
+                { el: document.getElementById('sf-layer-3'), count: 40, height: 400, color: 'rgba(40, 70, 90, 0.9)' }
+            ];
+
+            layers.forEach(layer => {
+                if(layer.el && !layer.el.style.backgroundImage) {
+                    const T_WIDTH = 100;
+                    let canvas = document.createElement('canvas');
+                    canvas.width = layer.count * T_WIDTH;
+                    canvas.height = layer.height;
+                    let ctx = canvas.getContext('2d');
+
+                    for(let i = 0; i < layer.count; i++) {
+                        const h = layer.height * (0.6 + Math.random() * 0.4);
+                        const tH = h * (0.1 + Math.random() * 0.05);
+                        const x = i * T_WIDTH + (Math.random() - 0.5) * 20;
+
+                        // Draw trunk
+                        ctx.fillStyle = layer.color;
+                        ctx.fillRect(x + T_WIDTH/2 - 5, canvas.height - tH, 10, tH);
+
+                        // Draw foliage
+                        let y = canvas.height - tH;
+                        let w = T_WIDTH * 0.9;
+                        let numLayers = 5 + Math.floor(Math.random() * 3);
+                        let layerHeight = y / numLayers;
+
+                        for (let j = 0; j < numLayers; j++) {
+                            let cY = y - (j * layerHeight);
+                            let cW = w * ((numLayers - j) / numLayers) * (1 + (Math.random() - 0.5) * 0.2);
+                            let sway = (Math.random() - 0.5) * 10;
+
+                            ctx.beginPath();
+                            ctx.moveTo(x + T_WIDTH/2 + sway, cY - layerHeight);
+                            ctx.lineTo(x + T_WIDTH/2 - cW/2, cY);
+                            ctx.lineTo(x + T_WIDTH/2 + cW/2, cY);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                    }
+                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                    layer.el.style.backgroundSize = `${canvas.width}px ${canvas.height}px`;
+                }
+            });
+
+            // God ray generation
+            const godRayContainer = document.querySelector('.god-ray-container');
+            if (godRayContainer && godRayContainer.children.length === 0) {
+                for (let i = 0; i < 15; i++) {
+                    let ray = document.createElement('div');
+                    ray.className = 'god-ray';
+                    ray.style.left = `${Math.random() * 120 - 10}%`;
+                    ray.style.top = '0px';
+                    ray.style.width = `${Math.random() * 4 + 2}px`;
+                    ray.style.height = '120%';
+                    ray.style.transform = `rotate(${Math.random() * 20 - 10}deg)`;
+                    ray.style.opacity = `${Math.random() * 0.1 + 0.05}`;
+                    godRayContainer.appendChild(ray);
+                }
+            }
+        }
         function createParticles() {
             const containers = {
                 stars: { count: 100, el: 'stars' }, fireflies: { count: 20, el: 'fireflies' },
@@ -1124,7 +1299,8 @@
                 galaxyStars: { count: 150, el: 'galaxy-stars' },
                 chimes: { count: 12, el: 'chimes' },
                 ripples: { count: 5, el: 'ripples' },
-                starlights: { count: 80, el: 'starlights' }
+                starlights: { count: 80, el: 'starlights' },
+                forestSpirits: { count: 10, el: 'forest-spirits' }
             };
 
             for (const key in containers) {
@@ -1151,6 +1327,7 @@
                             case 'chimes': el.className = 'chime'; el.style.left = `${Math.random() * 95}%`; el.style.top = `${Math.random() * 30 + 35}%`; el.style.transform = `rotate(${Math.random() * 20 - 10}deg) scaleY(${Math.random() * 0.3 + 0.8})`; el.style.animationDelay = `${Math.random() * 10}s`; break;
                             case 'ripples': el.className = 'ripple'; el.style.left = '50%'; el.style.top = '50%'; el.style.transform = 'translate(-50%, -50%)'; el.style.animationDelay = `${i * 1.6}s`; break;
                             case 'starlights': el.className = 'starlight'; const starlightSize = Math.random() * 2.5 + 1; el.style.width = `${starlightSize}px`; el.style.height = `${starlightSize}px`; el.style.left = `${Math.random() * 100}%`; el.style.top = `${Math.random() * 100}%`; el.style.animationDelay = `${Math.random() * 6}s`; break;
+                            case 'forestSpirits': el.className = 'forest-spirit'; el.style.setProperty('--x-start', `${Math.random() * 80 + 10}vw`); el.style.setProperty('--y-start', `${Math.random() * 30 + 60}vh`); el.style.setProperty('--x-end', `${Math.random() * 80 + 10}vw`); el.style.setProperty('--y-end', `${Math.random() * 30 + 30}vh`); el.style.animationDelay = `${Math.random() * 25}s`; break;
                         }
                         container.appendChild(el);
                     }
@@ -1164,6 +1341,9 @@
             document.querySelectorAll('.theme-container').forEach(el => {
                 if (el.id === `${themeName}-theme`) {
                     el.classList.add('active');
+                    if (themeName === 'swedish-forest') {
+                        createSwedishForest();
+                    }
                 } else {
                     el.classList.remove('active');
                 }
