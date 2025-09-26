@@ -3052,20 +3052,28 @@
             if (cloudContainer && !cloudContainer.style.backgroundImage) {
                  let canvas = document.createElement('canvas');
                  canvas.width = 4096;
-                 canvas.height = 300;
+                 canvas.height = 400; // Increased height for more vertical variation
                  let ctx = canvas.getContext('2d');
+                 ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
 
-                 for (let i = 0; i < 15; i++) {
-                     const x = Math.random() * canvas.width;
-                     const y = Math.random() * (canvas.height * 0.5) + (canvas.height * 0.1);
-                     const w = 600 * (0.6 + Math.random() * 0.4);
-                     const h = 150 * (0.4 + Math.random() * 0.3);
-                     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-                     ctx.filter = `blur(${Math.random() * 8 + 4}px)`;
-                     for(let j=0; j<10; j++) {
-                         const puffX = x + (Math.random() - 0.5) * w;
-                         const puffY = y + (Math.random() - 0.5) * h;
-                         const puffR = Math.random() * (w/5) + (w/10);
+                 for (let i = 0; i < 15; i++) { // Generate 15 cloud clusters
+                     const startX = Math.random() * canvas.width;
+                     const startY = Math.random() * (canvas.height * 0.6) + (canvas.height * 0.1);
+                     const cloudLength = Math.random() * 400 + 200; // Make clouds longer
+                     const puffCount = 20;
+
+                     ctx.filter = `blur(${Math.random() * 10 + 8}px)`;
+
+                     for(let j = 0; j < puffCount; j++) {
+                         const progress = j / puffCount;
+                         // Distribute puffs along the length, with some randomness
+                         const puffX = startX + progress * cloudLength + (Math.random() - 0.5) * 50;
+                         // Create a gentle arc for the cloud shape
+                         const puffY = startY + Math.sin(progress * Math.PI) * 40 + (Math.random() - 0.5) * 30;
+                         // Puffs are smaller at the edges
+                         const maxRadius = Math.sin(progress * Math.PI) * 60 + 20;
+                         const puffR = Math.random() * maxRadius;
+
                          ctx.beginPath();
                          ctx.arc(puffX, puffY, puffR, 0, 2 * Math.PI);
                          ctx.fill();
