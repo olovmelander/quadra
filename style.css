@@ -1865,6 +1865,132 @@
             z-index: 8;
         }
 
+        /* --- Misty Mountain Lake Theme --- */
+        #misty-lake-theme {
+            background-color: #a8b2c2; /* Fallback color */
+            overflow: hidden;
+        }
+        .misty-sky {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 50%;
+            background: linear-gradient(to top, #b4c5dd, #94a8c2, #7a8fa8);
+            z-index: 1;
+        }
+        #misty-lake-reflection {
+            position: absolute; bottom: 0; left: 0;
+            width: 100%; height: 50%;
+            background: linear-gradient(to bottom, #b4c5dd, #94a8c2, #7a8fa8);
+            transform: scaleY(-1);
+            z-index: 1;
+        }
+        .misty-mountains {
+            position: absolute; top: 0; left: 0;
+            width: 200%; height: 50%;
+            background-repeat: repeat-x;
+            background-position: 0 bottom;
+            animation: slide-misty-lake linear infinite;
+            will-change: transform;
+        }
+        .misty-mountains::after { /* Reflection */
+            content: '';
+            position: absolute; top: 100%; left: 0;
+            width: 100%; height: 100%;
+            background-image: var(--reflection-bg);
+            background-size: 100% 100%;
+            filter: blur(2px) brightness(0.9);
+            opacity: 0.8;
+        }
+        #misty-mountains-back { animation-duration: 300s; z-index: 2; }
+        #misty-mountains-mid { animation-duration: 220s; z-index: 3; }
+        #misty-mountains-front { animation-duration: 160s; z-index: 4; }
+
+        @keyframes slide-misty-lake {
+            from { transform: translateX(0%); }
+            to { transform: translateX(-50%); }
+        }
+
+        #misty-lake-mist {
+            position: absolute; bottom: 45%; left: 0;
+            width: 100%; height: 15%;
+            z-index: 5;
+        }
+        .mist-column {
+            position: absolute;
+            bottom: 0;
+            width: 5vw;
+            height: 100%;
+            background: linear-gradient(to top, rgba(180, 190, 200, 0.4) 0%, transparent 100%);
+            animation: rise-mist 40s ease-in-out infinite;
+            filter: blur(10px);
+        }
+        @keyframes rise-mist {
+            from { transform: translateY(20%) scaleY(1); opacity: 0; }
+            50% { opacity: 0.6; }
+            to { transform: translateY(-100%) scaleY(1.5); opacity: 0; }
+        }
+
+        .bird-formation {
+            position: absolute;
+            width: 100%; height: 100%;
+            transform: scale(0.3);
+            animation: fly-across-sky 80s linear infinite;
+        }
+        .bird-formation::before {
+            content: 'V';
+            position: absolute;
+            font-size: 50px;
+            color: #2c3e50;
+            text-shadow: 0 0 5px #2c3e50;
+        }
+        @keyframes fly-across-sky {
+            from { transform: translate(-10vw, var(--y-pos)) scale(0.3) rotate(-5deg); }
+            to { transform: translate(110vw, calc(var(--y-pos) - 5vh)) scale(0.3) rotate(5deg); }
+        }
+
+        .fish-ripple {
+            position: absolute;
+            border: 1px solid rgba(200, 210, 220, 0.5);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: expand-fish-ripple ease-out;
+        }
+        @keyframes expand-fish-ripple {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; width: 100px; height: 30px; }
+        }
+        #misty-lake-surface {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 6;
+        }
+
+        .lake-reed {
+            position: absolute;
+            width: 3px; height: 50px;
+            background: linear-gradient(to top, #4a5a40, #607858);
+            border-radius: 2px 2px 0 0;
+            transform-origin: bottom center;
+            animation: sway-reed 8s ease-in-out infinite alternate;
+        }
+        .lake-reed::after { /* Reflection */
+            content: '';
+            position: absolute; top: 100%; left: 0;
+            width: 100%; height: 80%;
+            background: inherit;
+            transform: scaleY(-1);
+            filter: blur(1px) brightness(0.8);
+            opacity: 0.7;
+        }
+        @keyframes sway-reed {
+            from { transform: rotate(-2deg); }
+            to { transform: rotate(2deg); }
+        }
+        #misty-lake-flora {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 7;
+        }
+
 
         @keyframes slide {
             from { transform: translateX(0%); }
