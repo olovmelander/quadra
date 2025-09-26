@@ -364,7 +364,7 @@ class Firefly {
         let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null;
         let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null;
 
-        let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
+        let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
         const soundManager = new SoundManager();
 let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, touchLastX = null, touchLastY = null;
 
@@ -2209,6 +2209,14 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 saveSettings();
             });
 
+            const cs = document.getElementById('control-scheme');
+            cs.value = settings.controlScheme;
+            cs.addEventListener('change', (e) => {
+                settings.controlScheme = e.target.value;
+                saveSettings();
+                updateControlsDisplay();
+            });
+
             document.querySelectorAll('.key-input').forEach(el=>{ const a=el.id.substring(4);el.textContent=settings.keyBindings[a];el.addEventListener('click',()=>listenForKey(el));el.addEventListener('keydown',(e)=>handleKeybinding(e,el)); });
             updateControlsDisplay();
         }
@@ -2216,9 +2224,26 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
         function handleKeybinding(e,el){ e.preventDefault(); const a=el.id.substring(4), k=e.key===' '?'Space':e.key; if(Object.values(settings.keyBindings).includes(k)&&settings.keyBindings[a]!==k){ el.textContent=settings.keyBindings[a];el.classList.remove('listening');return; } settings.keyBindings[a]=k; el.textContent=k; el.classList.remove('listening'); saveSettings(); updateControlsDisplay(); }
         function saveSettings(){localStorage.setItem('quadraSettings',JSON.stringify(settings));}
         function loadSettings(){ const s=localStorage.getItem('quadraSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; }
-        function updateControlsDisplay(){ const l=document.getElementById('controls-list');l.innerHTML=''; const o=['moveLeft','moveRight','rotateRight','rotateLeft','flip','softDrop','hardDrop','toggleMusic']; o.forEach(a=>{if(settings.keyBindings[a]){const t=a.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase());l.innerHTML+=`<div>${t}: ${settings.keyBindings[a]}</div>`;}}); }
+        function updateControlsDisplay() {
+            const l = document.getElementById('controls-list');
+            l.innerHTML = '';
+            const o = ['moveLeft', 'moveRight', 'rotateRight', 'rotateLeft', 'flip', 'softDrop', 'hardDrop', 'toggleMusic'];
+            if (settings.controlScheme === 'Keyboard') {
+                document.querySelectorAll('.key-input').forEach(el => el.parentElement.style.display = 'contents');
+                o.forEach(a => {
+                    if (settings.keyBindings[a]) {
+                        const t = a.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+                        l.innerHTML += `<div>${t}: ${settings.keyBindings[a]}</div>`;
+                    }
+                });
+            } else {
+                 document.querySelectorAll('.key-input').forEach(el => el.parentElement.style.display = 'none');
+                 l.innerHTML = '<div>Swipe to move</div><div>Tap to rotate</div><div>Flick down to drop</div>';
+            }
+        }
 
         function handleTouchStart(e) {
+            if (settings.controlScheme !== 'Touch') return;
             if (e.target.tagName === 'BUTTON' || e.target.classList.contains('key-input') || e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
             e.preventDefault();
             const touch = e.touches[0];
@@ -2230,24 +2255,21 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
         }
 
         function handleTouchMove(e) {
-            if (!touchStartX) return;
+            if (!touchStartX || settings.controlScheme !== 'Touch') return;
             e.preventDefault();
-            const touch = e.touches[0];
-            const deltaX = touch.clientX - touchLastX;
-            const deltaY = touch.clientY - touchLastY;
 
-            if (Math.abs(deltaX) > BLOCK_SIZE) {
-                move(deltaX > 0 ? 1 : -1);
-                touchLastX = touch.clientX;
-                touchLastY = touch.clientY; // Reset Y to prevent simultaneous drop
-            } else if (deltaY > BLOCK_SIZE) {
+            const touch = e.touches[0];
+            const deltaY = touch.clientY - touchLastY;
+            const softDropThreshold = BLOCK_SIZE / 2;
+
+            if (deltaY > softDropThreshold) {
                 softDrop();
                 touchLastY = touch.clientY;
             }
         }
 
         function handleTouchEnd(e) {
-            if (!touchStartX) return;
+            if (!touchStartX || settings.controlScheme !== 'Touch') return;
             e.preventDefault();
 
             if (document.getElementById('start-modal').classList.contains('visible') || document.getElementById('game-over-modal').classList.contains('visible')) {
@@ -2261,18 +2283,30 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const deltaY = touch.clientY - touchStartY;
             const deltaTime = Date.now() - touchStartTime;
 
-            if (deltaTime < 250) { // Fast tap or flick
-                if (Math.abs(deltaX) < 20 && Math.abs(deltaY) < 20) { // Tap
-                    const now = Date.now();
-                    if (now - lastTap < 300) {
-                        rotate('flip');
-                        lastTap = 0; // Prevent triple tap issues
-                    } else {
-                        rotate('right');
-                        lastTap = now;
-                    }
-                } else if (deltaY > BLOCK_SIZE * 2 && Math.abs(deltaX) < BLOCK_SIZE * 2) { // Flick down
+            const tapThreshold = 25;
+            const flickTime = 300;
+            const flickDistY = 60;
+            const flickDistX = 50;
+
+            // It's a tap if the finger moved less than the threshold and the touch was short
+            if (deltaTime < flickTime && Math.abs(deltaX) < tapThreshold && Math.abs(deltaY) < tapThreshold) {
+                const canvasRect = canvas.getBoundingClientRect();
+                const touchXonCanvas = touch.clientX - canvasRect.left;
+                if (touchXonCanvas < canvas.width / 2) {
+                    rotate('left');
+                } else {
+                    rotate('right');
+                }
+            }
+            // It's a flick if the touch was short and moved a significant distance
+            else if (deltaTime < flickTime) {
+                // Prioritize vertical flick (hard drop) over horizontal
+                if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > flickDistY) {
                     hardDrop();
+                }
+                // Horizontal flick (move)
+                else if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > flickDistX) {
+                    move(deltaX > 0 ? 1 : -1);
                 }
             }
 
