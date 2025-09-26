@@ -366,6 +366,7 @@ class Firefly {
 
         let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
         const soundManager = new SoundManager();
+let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, touchLastX = null, touchLastY = null;
 
         function createCosmicChimesScene() {
             const dustContainer = document.getElementById('space-dust');
@@ -944,6 +945,12 @@ class Firefly {
                 const fullscreenBtn = document.getElementById('fullscreen-toggle');
                 fullscreenBtn.textContent = document.fullscreenElement ? '><' : '⛶';
             });
+
+            const gameContainer = document.querySelector('.game-container');
+            gameContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+            gameContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+            gameContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
+
             resetGame();
         }
 
@@ -2187,6 +2194,72 @@ class Firefly {
         function saveSettings(){localStorage.setItem('quadraSettings',JSON.stringify(settings));}
         function loadSettings(){ const s=localStorage.getItem('quadraSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; }
         function updateControlsDisplay(){ const l=document.getElementById('controls-list');l.innerHTML=''; const o=['moveLeft','moveRight','rotateRight','rotateLeft','flip','softDrop','hardDrop','toggleMusic']; o.forEach(a=>{if(settings.keyBindings[a]){const t=a.replace(/([A-Z])/g,' $1').replace(/^./,s=>s.toUpperCase());l.innerHTML+=`<div>${t}: ${settings.keyBindings[a]}</div>`;}}); }
+
+        function handleTouchStart(e) {
+            if (e.target.tagName === 'BUTTON' || e.target.classList.contains('key-input') || e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchLastX = touch.clientX;
+            touchLastY = touch.clientY;
+            touchStartTime = Date.now();
+        }
+
+        function handleTouchMove(e) {
+            if (!touchStartX) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchLastX;
+            const deltaY = touch.clientY - touchLastY;
+
+            if (Math.abs(deltaX) > BLOCK_SIZE) {
+                move(deltaX > 0 ? 1 : -1);
+                touchLastX = touch.clientX;
+                touchLastY = touch.clientY; // Reset Y to prevent simultaneous drop
+            } else if (deltaY > BLOCK_SIZE) {
+                softDrop();
+                touchLastY = touch.clientY;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchStartX) return;
+            e.preventDefault();
+
+            if (document.getElementById('start-modal').classList.contains('visible') || document.getElementById('game-over-modal').classList.contains('visible')) {
+                startGame();
+                touchStartX = null; touchStartY = null; touchStartTime = null; lastTap = 0; touchLastX = null; touchLastY = null;
+                return;
+            }
+
+            const touch = e.changedTouches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+            const deltaTime = Date.now() - touchStartTime;
+
+            if (deltaTime < 250) { // Fast tap or flick
+                if (Math.abs(deltaX) < 20 && Math.abs(deltaY) < 20) { // Tap
+                    const now = Date.now();
+                    if (now - lastTap < 300) {
+                        rotate('flip');
+                        lastTap = 0; // Prevent triple tap issues
+                    } else {
+                        rotate('right');
+                        lastTap = now;
+                    }
+                } else if (deltaY > BLOCK_SIZE * 2 && Math.abs(deltaX) < BLOCK_SIZE * 2) { // Flick down
+                    hardDrop();
+                }
+            }
+
+            touchStartX = null;
+            touchStartY = null;
+            touchStartTime = null;
+            touchLastX = null;
+            touchLastY = null;
+        }
+
         let keyMap={};
         document.addEventListener('keydown',(e)=>{
             if(document.activeElement.classList.contains('key-input'))return;
