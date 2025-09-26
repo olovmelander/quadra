@@ -946,10 +946,9 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 fullscreenBtn.textContent = document.fullscreenElement ? '><' : '⛶';
             });
 
-            const gameContainer = document.querySelector('.game-container');
-            gameContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
-            gameContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
-            gameContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
+            window.addEventListener('touchstart', handleTouchStart, { passive: false });
+            window.addEventListener('touchmove', handleTouchMove, { passive: false });
+            window.addEventListener('touchend', handleTouchEnd, { passive: false });
 
             resetGame();
         }
