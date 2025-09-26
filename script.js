@@ -1999,65 +1999,62 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
         }
 
 function createWavesScene() {
-    // 1. Sea Spray
+    // 1. Enhanced Sea Spray with more realistic physics
     const sprayContainer = document.getElementById('waves-sea-spray');
     if (sprayContainer && sprayContainer.children.length === 0) {
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 60; i++) { // Increased particle count
             let particle = document.createElement('div');
             particle.className = 'sea-spray-particle';
+            const size = Math.random() * 2 + 1;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+
+            // Start particles from near the crest of the frontmost waves
             particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-            particle.style.setProperty('--y-start', `${60 + Math.random() * 15}vh`);
-            particle.style.setProperty('--x-end', `calc(var(--x-start) + ${Math.random() * 60 - 30}vw)`);
-            particle.style.setProperty('--y-end', `${50 + Math.random() * 10}vh`);
-            const duration = Math.random() * 2 + 1.5;
+            particle.style.setProperty('--y-start', `${80 + Math.random() * 15}vh`);
+
+            // End position determined by the arc animation in CSS
+            particle.style.setProperty('--x-end', `calc(var(--x-start) + ${Math.random() * 40 - 20}vw)`);
+            particle.style.setProperty('--y-end', `calc(var(--y-start) + 10vh)`);
+
+            const duration = Math.random() * 1.5 + 1; // Faster, shorter lifespan
             particle.style.animationDuration = `${duration}s`;
-            particle.style.animationDelay = `-${Math.random() * duration}s`;
+            particle.style.animationDelay = `-${Math.random() * 5}s`;
             sprayContainer.appendChild(particle);
         }
     }
 
-    // 2. Seabirds
+    // 2. Enhanced Seabirds
     const birdContainer = document.getElementById('waves-birds');
     if (birdContainer && birdContainer.children.length === 0) {
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 7; i++) { // More birds
             let bird = document.createElement('div');
             bird.className = 'seabird';
-            bird.style.setProperty('--y-pos', `${30 + Math.random() * 20}vh`);
-            const duration = Math.random() * 20 + 30;
-            bird.style.animationDuration = `${duration}s`;
+            // Set initial vertical position and let CSS handle the rest
+            bird.style.setProperty('--y-pos', `${40 + Math.random() * 20}vh`);
+            const duration = Math.random() * 25 + 20; // Varied flight times
+            bird.style.animationDuration = `${duration}s`; // CSS will handle sub-animations
             bird.style.animationDelay = `-${Math.random() * duration}s`;
             birdContainer.appendChild(bird);
         }
     }
 
-    // 3. Floating Driftwood
+    // 3. Enhanced Floating Driftwood
     const driftwoodContainer = document.getElementById('waves-driftwood');
     if (driftwoodContainer && driftwoodContainer.children.length === 0) {
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 2; i++) { // Fewer, more subtle pieces
             let wood = document.createElement('div');
             wood.className = 'driftwood';
-            wood.style.setProperty('--x-start', `${-20 + Math.random() * 140}vw`);
-            wood.style.setProperty('--y-pos', `${70 + Math.random() * 15}vh`);
-            wood.style.setProperty('--r-start', `${Math.random() * 360}deg`);
-            wood.style.setProperty('--r-end', `${Math.random() * 360}deg`);
-            const duration = Math.random() * 30 + 40;
+            // Start anywhere horizontally, but on the water
+            wood.style.setProperty('--x-start', `${-10 + Math.random() * 120}vw`);
+            wood.style.setProperty('--y-pos', `${85 + Math.random() * 10}vh`);
+            // Set start and end rotation for the bobbing animation
+            wood.style.setProperty('--r-start', `${Math.random() * 20 - 10}deg`);
+            wood.style.setProperty('--r-end', `${Math.random() * 20 - 10}deg`);
+            const duration = Math.random() * 25 + 35; // Slow drift
             wood.style.animationDuration = `${duration}s`;
             wood.style.animationDelay = `-${Math.random() * duration}s`;
             driftwoodContainer.appendChild(wood);
-        }
-    }
-
-    // 4. Tidal Pools
-    const tidalPoolContainer = document.getElementById('waves-tidal-pools');
-    if (tidalPoolContainer && tidalPoolContainer.children.length === 0) {
-        for (let i = 0; i < 4; i++) {
-            let pool = document.createElement('div');
-            pool.className = 'tidal-pool';
-            pool.style.left = `${10 + Math.random() * 80}%`;
-            pool.style.bottom = `${2 + Math.random() * 8}%`;
-            pool.style.transform = `rotate(${Math.random() * 180}deg) scale(${Math.random() * 0.5 + 0.5})`;
-            pool.style.animationDelay = `-${Math.random() * 15}s`;
-            tidalPoolContainer.appendChild(pool);
         }
     }
 }
