@@ -2259,9 +2259,19 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             e.preventDefault();
 
             const touch = e.touches[0];
+            const deltaX = touch.clientX - touchLastX;
             const deltaY = touch.clientY - touchLastY;
+
+            const moveThreshold = BLOCK_SIZE;
             const softDropThreshold = BLOCK_SIZE / 2;
 
+            // Horizontal movement check
+            if (Math.abs(deltaX) > moveThreshold) {
+                move(deltaX > 0 ? 1 : -1);
+                touchLastX = touch.clientX;
+            }
+
+            // Vertical movement check
             if (deltaY > softDropThreshold) {
                 softDrop();
                 touchLastY = touch.clientY;
@@ -2286,7 +2296,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const tapThreshold = 25;
             const flickTime = 300;
             const flickDistY = 60;
-            const flickDistX = 50;
 
             // It's a tap if the finger moved less than the threshold and the touch was short
             if (deltaTime < flickTime && Math.abs(deltaX) < tapThreshold && Math.abs(deltaY) < tapThreshold) {
@@ -2300,13 +2309,9 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
             // It's a flick if the touch was short and moved a significant distance
             else if (deltaTime < flickTime) {
-                // Prioritize vertical flick (hard drop) over horizontal
+                // Vertical flick for hard drop
                 if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > flickDistY) {
                     hardDrop();
-                }
-                // Horizontal flick (move)
-                else if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > flickDistX) {
-                    move(deltaX > 0 ? 1 : -1);
                 }
             }
 
