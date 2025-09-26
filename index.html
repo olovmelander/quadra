@@ -639,6 +639,7 @@
                 <div class="controls-info"><div id="controls-list"></div></div>
             </div>
             <button id="sound-toggle" class="action-btn">🔊</button>
+            <button id="next-track-btn" class="action-btn">🎵</button>
             <button id="fullscreen-toggle" class="action-btn">⛶</button>
             <button id="settings-btn" class="action-btn">⚙️</button>
         </div>
@@ -702,6 +703,9 @@
                         <option value="Meadow">Meadow</option>
                         <option value="MiracleTone">Miracle Tone (528Hz)</option>
                         <option value="HealingDrone">Healing Drone (174Hz)</option>
+                        <option value="CosmicChimes">Cosmic Chimes (Ethereal)</option>
+                        <option value="SingingBowl">Singing Bowl (Deep)</option>
+                        <option value="Starlight">Starlight (Gentle)</option>
                     </select>
                 </div>
                 <div class="setting">
@@ -755,7 +759,12 @@
             constructor() {
                 this.audioContext = null; this.isMuted = false; this.musicInterval = null;
                 this.musicTrack = 'Ambient'; this.soundSet = 'Zen';
-                this.currentTrackId = null; 
+                this.currentTrackId = null;
+                this.trackNames = [
+                    'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Classic', 'Aurora',
+                    'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
+                    'CosmicChimes', 'SingingBowl', 'Starlight'
+                ];
                 this.soundSets = {
                     Retro: {
                         move: () => this.createTone(200, 0.05, 'square', 0.2),
@@ -787,10 +796,19 @@
                 if (onended) osc.onended = onended;
             }
             setTrack(trackName) {
-                if (this.musicTrack === trackName && this.currentTrackId !== null) return;
+                if (!this.trackNames.includes(trackName)) return;
                 this.musicTrack = trackName;
+                settings.musicTrack = trackName;
+                saveSettings();
+                document.getElementById('music-track').value = trackName;
                 this.stopBackgroundMusic();
                 if (!this.isMuted) this.startBackgroundMusic();
+            }
+
+            nextTrack() {
+                const currentIndex = this.trackNames.indexOf(this.musicTrack);
+                const nextIndex = (currentIndex + 1) % this.trackNames.length;
+                this.setTrack(this.trackNames[nextIndex]);
             }
             setSoundSet(setName) { this.soundSet = setName; }
             playMove() { this.soundSets[this.soundSet].move(); }
@@ -811,7 +829,10 @@
                     Aurora: () => this.startAuroraMusic(trackId), Galaxy: () => this.startGalaxyMusic(trackId),
                     Rainfall: () => this.startRainfallMusic(trackId), Koi: () => this.startKoiMusic(trackId),
                     Meadow: () => this.startMeadowMusic(trackId), MiracleTone: () => this.startMiracleToneMusic(trackId),
-                    HealingDrone: () => this.startHealingDroneMusic(trackId)
+                    HealingDrone: () => this.startHealingDroneMusic(trackId),
+                    CosmicChimes: () => this.startCosmicChimesMusic(trackId),
+                    SingingBowl: () => this.startSingingBowlMusic(trackId),
+                    Starlight: () => this.startStarlightMusic(trackId)
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
             }
@@ -887,6 +908,48 @@
             startHealingDroneMusic(trackId) {
                 const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(174, 15, 'sine', 0.15, play); };
                 play();
+            }
+
+            startCosmicChimesMusic(trackId) {
+                const scale = [880, 932.33, 1046.50, 1174.66, 1318.51];
+                const playChime = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const freq = scale[~~(Math.random() * scale.length)];
+                    this.createTone(freq, 4, 'triangle', Math.random() * 0.08 + 0.02);
+                    setTimeout(playChime, Math.random() * 5000 + 3000);
+                };
+                playChime();
+            }
+
+            startSingingBowlMusic(trackId) {
+                const drone = 82.41;
+                const strikeNote = 329.63;
+                const playDrone = () => {
+                    if(this.isMuted || trackId !== this.currentTrackId) return;
+                    this.createTone(drone, 15, 'sine', 0.1, playDrone);
+                };
+                const playStrike = () => {
+                    if(this.isMuted || trackId !== this.currentTrackId) return;
+                    this.createTone(strikeNote, 8, 'sine', 0.1);
+                    this.createTone(strikeNote * 2, 8, 'sine', 0.05);
+                    setTimeout(playStrike, Math.random() * 15000 + 10000);
+                };
+                playDrone();
+                playStrike();
+            }
+
+            startStarlightMusic(trackId) {
+                const scale = [1046.50, 1174.66, 1318.51, 1396.91, 1567.98];
+                const playNote = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const note = scale[~~(Math.random() * scale.length)];
+                    this.createTone(note, 2, 'triangle', Math.random() * 0.1 + 0.05);
+                    if (Math.random() > 0.8) {
+                        this.createTone(note / 2, 3, 'sine', 0.05);
+                    }
+                    setTimeout(playNote, Math.random() * 3000 + 1500);
+                };
+                playNote();
             }
 
             stopBackgroundMusic() { 
@@ -1237,6 +1300,7 @@
             document.getElementById('settings-btn').addEventListener('click',()=>sm.classList.add('visible'));
             document.getElementById('close-settings').addEventListener('click',()=>sm.classList.remove('visible'));
             document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
+            document.getElementById('next-track-btn').addEventListener('click', () => soundManager.nextTrack());
             const ds=document.getElementById('das-delay'),dv=document.getElementById('das-delay-value'),is=document.getElementById('das-interval'),iv=document.getElementById('das-interval-value');
             ds.value=settings.dasDelay;dv.textContent=settings.dasDelay; is.value=settings.dasInterval;iv.textContent=settings.dasInterval;
             ds.addEventListener('input',(e)=>{settings.dasDelay=parseInt(e.target.value);dv.textContent=settings.dasDelay;saveSettings();});
