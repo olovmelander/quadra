@@ -393,7 +393,7 @@ class Firefly {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -1989,11 +1989,78 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     if (themeName === 'misty-lake') {
                         createMistyLakeScene();
                     }
+            if (themeName === 'waves') {
+                createWavesScene();
+            }
                 } else {
                     el.classList.remove('active');
                 }
             });
         }
+
+function createWavesScene() {
+    // 1. Sea Spray
+    const sprayContainer = document.getElementById('waves-sea-spray');
+    if (sprayContainer && sprayContainer.children.length === 0) {
+        for (let i = 0; i < 40; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'sea-spray-particle';
+            particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+            particle.style.setProperty('--y-start', `${60 + Math.random() * 15}vh`);
+            particle.style.setProperty('--x-end', `calc(var(--x-start) + ${Math.random() * 60 - 30}vw)`);
+            particle.style.setProperty('--y-end', `${50 + Math.random() * 10}vh`);
+            const duration = Math.random() * 2 + 1.5;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `-${Math.random() * duration}s`;
+            sprayContainer.appendChild(particle);
+        }
+    }
+
+    // 2. Seabirds
+    const birdContainer = document.getElementById('waves-birds');
+    if (birdContainer && birdContainer.children.length === 0) {
+        for (let i = 0; i < 5; i++) {
+            let bird = document.createElement('div');
+            bird.className = 'seabird';
+            bird.style.setProperty('--y-pos', `${30 + Math.random() * 20}vh`);
+            const duration = Math.random() * 20 + 30;
+            bird.style.animationDuration = `${duration}s`;
+            bird.style.animationDelay = `-${Math.random() * duration}s`;
+            birdContainer.appendChild(bird);
+        }
+    }
+
+    // 3. Floating Driftwood
+    const driftwoodContainer = document.getElementById('waves-driftwood');
+    if (driftwoodContainer && driftwoodContainer.children.length === 0) {
+        for (let i = 0; i < 3; i++) {
+            let wood = document.createElement('div');
+            wood.className = 'driftwood';
+            wood.style.setProperty('--x-start', `${-20 + Math.random() * 140}vw`);
+            wood.style.setProperty('--y-pos', `${70 + Math.random() * 15}vh`);
+            wood.style.setProperty('--r-start', `${Math.random() * 360}deg`);
+            wood.style.setProperty('--r-end', `${Math.random() * 360}deg`);
+            const duration = Math.random() * 30 + 40;
+            wood.style.animationDuration = `${duration}s`;
+            wood.style.animationDelay = `-${Math.random() * duration}s`;
+            driftwoodContainer.appendChild(wood);
+        }
+    }
+
+    // 4. Tidal Pools
+    const tidalPoolContainer = document.getElementById('waves-tidal-pools');
+    if (tidalPoolContainer && tidalPoolContainer.children.length === 0) {
+        for (let i = 0; i < 4; i++) {
+            let pool = document.createElement('div');
+            pool.className = 'tidal-pool';
+            pool.style.left = `${10 + Math.random() * 80}%`;
+            pool.style.bottom = `${2 + Math.random() * 8}%`;
+            pool.style.transform = `rotate(${Math.random() * 180}deg) scale(${Math.random() * 0.5 + 0.5})`;
+            pool.style.animationDelay = `-${Math.random() * 15}s`;
+            tidalPoolContainer.appendChild(pool);
+        }
+    }
+}
 
         function createDesertOasisScene() {
             // 1. Twinkling Stars

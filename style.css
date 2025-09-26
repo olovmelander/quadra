@@ -1991,6 +1991,165 @@
             z-index: 7;
         }
 
+        /* --- Waves Theme --- */
+        #waves-theme {
+            background-color: #a8b2c2;
+            overflow: hidden;
+        }
+        .waves-sky {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 60%; /* Sky takes up the top 60% */
+            background: linear-gradient(to top, #6dd5ed, #2193b0, #0f2027);
+            animation: waves-sky-cycle 180s ease-in-out infinite;
+            z-index: 1;
+        }
+        @keyframes waves-sky-cycle {
+            0% { background: linear-gradient(to top, #f2994a, #f2c94c); } /* Sunrise */
+            25% { background: linear-gradient(to top, #6dd5ed, #2193b0); } /* Midday */
+            50% { background: linear-gradient(to top, #ff512f, #f09819); } /* Sunset */
+            75% { background: linear-gradient(to top, #0f2027, #203a43, #2c5364); } /* Twilight */
+            100% { background: linear-gradient(to top, #f2994a, #f2c94c); } /* Sunrise */
+        }
+
+        .waves-horizon {
+            position: absolute; top: 60%; left: 0;
+            width: 100%; height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 2;
+        }
+
+        .waves-layer {
+            position: absolute; left: 0;
+            width: 300%; height: 100%;
+            background-repeat: repeat-x;
+            background-size: 100% auto;
+            animation: wave-roll linear infinite;
+            will-change: transform;
+        }
+
+        #waves-layer-far {
+            bottom: 25%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 100"><path d="M0 50 C200 20, 400 80, 600 50 S1000 20, 1200 50" fill="none" stroke="rgba(100,150,200,0.4)" stroke-width="3"/></svg>');
+            animation-duration: 25s;
+            z-index: 3;
+            filter: blur(2px);
+        }
+        #waves-layer-mid {
+            bottom: 15%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M0 60 C250 10, 350 110, 600 60 S850 10, 1200 60" fill="none" stroke="rgba(120,180,220,0.6)" stroke-width="4"/></svg>');
+            animation-duration: 18s;
+            z-index: 5;
+            filter: blur(1px);
+        }
+        #waves-layer-near {
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 150"><path d="M0 80 C300 -20, 400 170, 600 80 S900 -20, 1200 80" fill="none" stroke="rgba(150,200,240,0.8)" stroke-width="5"/></svg>');
+            animation-duration: 10s;
+            z-index: 8;
+        }
+
+        .waves-layer::before { /* Foam */
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 150"><path d="M0 80 C300 -20, 400 170, 600 80 S900 -20, 1200 80" fill="none" stroke="rgba(255,255,255,1)" stroke-width="2" stroke-dasharray="1 10" stroke-linecap="round"/></svg>');
+            -webkit-mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+            animation: foam-form 8s ease-in-out infinite;
+        }
+         #waves-layer-mid::before { animation-duration: 6s; }
+         #waves-layer-far::before { animation-duration: 10s; opacity: 0.7; }
+
+
+        @keyframes wave-roll {
+            from { background-position-x: 0; }
+            to { background-position-x: -2400px; } /* Twice the SVG width */
+        }
+
+        @keyframes foam-form {
+            0%, 100% { opacity: 0; transform: translateY(5px); }
+            50% { opacity: 0.8; transform: translateY(0); }
+        }
+
+        .waves-shoreline {
+            position: absolute; bottom: 0; left: 0;
+            width: 100%; height: 15%;
+            background: linear-gradient(to top, #d2b48c, #c1a57b, transparent);
+            z-index: 7;
+        }
+        .waves-shoreline::after { /* Wet sand effect */
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(100,80,60,0.2), transparent 40%);
+            animation: shoreline-wash 10s ease-in-out infinite;
+        }
+
+        @keyframes shoreline-wash {
+            0% { transform: translateY(0) scaleY(1); opacity: 0.8; }
+            50% { transform: translateY(-30%) scaleY(0.4); opacity: 0.5; }
+            100% { transform: translateY(0) scaleY(1); opacity: 0.8; }
+        }
+
+        #waves-sea-spray { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9; pointer-events: none; }
+        .sea-spray-particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            animation: spray-arc linear infinite;
+        }
+        @keyframes spray-arc {
+            0% { transform: translate(var(--x-start), var(--y-start)); opacity: 1; }
+            100% { transform: translate(var(--x-end), var(--y-end)); opacity: 0; }
+        }
+
+        .seabird {
+            position: absolute;
+            width: 25px; height: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 20"><path d="M0 10 C5 0, 10 0, 12.5 5 C15 0, 20 0, 25 10" fill="none" stroke="black" stroke-width="2"/></svg>');
+            animation: fly-seabird linear infinite, glide-seabird 4s ease-in-out infinite alternate;
+            z-index: 4;
+        }
+        @keyframes fly-seabird {
+            from { transform: translateX(-5vw); }
+            to { transform: translateX(105vw); }
+        }
+        @keyframes glide-seabird {
+            from { transform: translateY(-5px); }
+            to { transform: translateY(5px); }
+        }
+
+        .driftwood {
+            position: absolute;
+            width: 80px; height: 15px;
+            background-color: #8b5a2b;
+            border-radius: 30%;
+            filter: brightness(0.8);
+            animation: bob-driftwood linear infinite;
+            z-index: 6;
+        }
+        @keyframes bob-driftwood {
+             0% { transform: translate(var(--x-start), var(--y-pos)) rotate(var(--r-start)); }
+             100% { transform: translate(calc(var(--x-start) + 10vw), var(--y-pos)) rotate(var(--r-end)); }
+        }
+
+        .tidal-pool {
+            position: absolute;
+            width: 15vw; height: 5vh;
+            background: linear-gradient(to top, #6dd5ed, #2193b0);
+            border-radius: 45% 55% 40% 60% / 60% 50% 50% 40%;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+            opacity: 0;
+            animation: tidal-pool-fade 15s ease-in-out infinite;
+            z-index: 8;
+        }
+        @keyframes tidal-pool-fade {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.6; }
+        }
+
 
         @keyframes slide {
             from { transform: translateX(0%); }
