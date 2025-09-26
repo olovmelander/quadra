@@ -2037,6 +2037,17 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     lizard.style.animationDelay = `-${Math.random() * 30}s`;
                     faunaContainer.appendChild(lizard);
                 }
+                // Moths
+                for (let i = 0; i < 7; i++) {
+                    let moth = document.createElement('div');
+                    moth.className = 'desert-moth';
+                    moth.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                    moth.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+                    moth.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                    moth.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+                    moth.style.animationDelay = `-${Math.random() * 20}s`;
+                    faunaContainer.appendChild(moth);
+                }
             }
 
             // 4. Desert Flora (procedurally drawn cacti and palms)
@@ -2050,6 +2061,14 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     cactus.style.height = `${Math.random() * 40 + 30}px`;
                     floraContainer.appendChild(cactus);
                  }
+                for (let i = 0; i < 5; i++) { // Desert Flowers
+                    let flower = document.createElement('div');
+                    flower.className = 'desert-flower';
+                    flower.style.left = `${5 + Math.random() * 90}%`;
+                    flower.style.bottom = `${Math.random() * 5}%`;
+                    flower.style.animationDelay = `-${Math.random() * 15}s`;
+                    floraContainer.appendChild(flower);
+                }
                  for (let i = 0; i < 3; i++) { // Palm trees in the oasis area
                     let palm = document.createElement('div');
                     palm.className = 'palm-tree';
