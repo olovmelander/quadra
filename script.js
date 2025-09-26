@@ -205,29 +205,30 @@ class Firefly {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
 
                     const baseFreq = baseNotes[~~(Math.random() * baseNotes.length)];
-                    const duration = random(12, 18);
-                    const mainVolume = random(0.08, 0.15);
+                    const duration = random(15, 20);
+                    const mainVolume = random(0.1, 0.2);
 
-                    // Main gong tone - sawtooth for rich harmonics
-                    this.createTone(baseFreq, duration, 'sawtooth', mainVolume);
+                    // Main gong tone - sine for a smoother fundamental
+                    this.createTone(baseFreq, duration, 'sine', mainVolume);
 
                     // Subtle lower octave sine for fundamental depth
-                    this.createTone(baseFreq / 2, duration, 'sine', mainVolume * 0.5);
+                    this.createTone(baseFreq / 2, duration * 1.1, 'sine', mainVolume * 0.6);
 
-                    // Harmonic overtones
-                    for (let i = 2; i < 7; i++) {
-                        if (Math.random() > 0.4) { // Not every overtone plays every time
-                            const overtoneFreq = baseFreq * i;
-                            const overtoneVolume = mainVolume / (i * 1.5) * (random(0.8, 1.2));
-                            const overtoneDuration = duration * random(0.5, 0.9);
+                    // Inharmonic overtones for shimmer
+                    for (let i = 2; i < 9; i++) {
+                        if (Math.random() > 0.65) { // Make overtones more sparse
+                            // Use non-integer multiples for a more gong-like inharmonic sound
+                            const overtoneFreq = baseFreq * (i + random(-0.1, 0.1));
+                            const overtoneVolume = mainVolume / (i * 2) * (random(0.5, 1.0));
+                            const overtoneDuration = duration * random(0.7, 1.1);
                              setTimeout(() => {
                                 if (this.isMuted || trackId !== this.currentTrackId) return;
                                 this.createTone(overtoneFreq, overtoneDuration, 'sine', overtoneVolume);
-                            }, random(50, 200)); // Stagger the overtones slightly
+                            }, random(100, 400)); // Stagger the overtones more
                         }
                     }
 
-                    const nextGongIn = random(8000, 15000);
+                    const nextGongIn = random(10000, 18000);
                     setTimeout(playGong, nextGongIn);
                 };
 
