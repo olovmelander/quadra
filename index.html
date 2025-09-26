@@ -134,16 +134,16 @@
             background-repeat: repeat-x;
             background-position: 0 bottom;
         }
-        #ocean-floor-bg { animation: slide 320s linear infinite; z-index: 1; filter: brightness(0.7); }
-        #ocean-floor-mid { animation: slide 240s linear infinite; z-index: 4; filter: brightness(0.85); }
-        #ocean-floor-fg { animation: slide 160s linear infinite; z-index: 7; }
+        #ocean-floor-bg { animation: slide 320s linear infinite; z-index: 3; filter: brightness(0.7); }
+        #ocean-floor-mid { animation: slide 240s linear infinite; z-index: 5; filter: brightness(0.85); }
+        #ocean-floor-fg { animation: slide 160s linear infinite; z-index: 8; }
 
         .ocean-god-rays {
             position: absolute; top: -10%; left: -10%;
             width: 120%; height: 120%;
             transform-origin: center;
             animation: ocean-ray-anim 90s ease-in-out infinite alternate;
-            z-index: 3;
+            z-index: 4;
         }
         .ocean-god-ray {
             position: absolute; top: 0;
@@ -160,7 +160,7 @@
             width: 100%; height: 100%;
             transform-origin: center;
             animation: slow-pan 120s linear infinite alternate;
-            z-index: 2;
+            z-index: 1;
             mix-blend-mode: screen;
         }
         @keyframes slow-pan {
@@ -182,7 +182,7 @@
         .jellyfish {
             position: absolute;
             animation: swim-jellyfish 20s ease-in-out infinite;
-            z-index: 6;
+            z-index: 7;
         }
         .jelly-body {
             width: 50px; height: 30px;
@@ -217,7 +217,7 @@
             background: rgba(173, 216, 230, 0.7);
             border-radius: 50%;
             animation: drift-plankton 10s ease-in-out infinite alternate;
-            z-index: 0;
+            z-index: 2;
         }
         @keyframes drift-plankton {
             from {
@@ -237,7 +237,7 @@
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 50%;
             animation: rise-deep ease-in-out infinite;
-            z-index: 5;
+            z-index: 6;
         }
         @keyframes rise-deep {
             0% {
@@ -1459,13 +1459,13 @@
             <div id="enchanted-forest-front" class="enchanted-forest-layer"></div>
         </div>
         <div id="ocean-theme" class="theme-container">
-            <div id="ocean-plankton-layer" style="z-index: 0;"></div>
             <div class="caustics-container"></div>
-            <div class="ocean-god-rays"></div>
+            <div id="ocean-plankton-layer" style="z-index: 2;"></div>
             <div id="ocean-floor-bg" class="ocean-parallax"></div>
+            <div class="ocean-god-rays"></div>
             <div id="ocean-floor-mid" class="ocean-parallax"></div>
             <div id="bubbles"></div>
-            <div id="jellyfish-layer" style="z-index: 6;"></div>
+            <div id="jellyfish-layer" style="z-index: 7;"></div>
             <div id="ocean-floor-fg" class="ocean-parallax"></div>
         </div>
         <div id="sunset-theme" class="theme-container">
