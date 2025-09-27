@@ -16,51 +16,74 @@ let forestAnimationFrameId = null;
 function startForestAnimations() {
     if (forestAnimationFrameId) cancelAnimationFrame(forestAnimationFrameId);
 
-    const themeContainer = document.getElementById('forest-theme');
-    const firefliesContainer = document.getElementById('fireflies');
-    const particleContainer = document.getElementById('forest-particles');
-
-    if (!themeContainer || !firefliesContainer || !particleContainer) {
-        console.error("Forest theme containers not found for animation!");
+    const canvas = document.getElementById('forest-canvas');
+    if (!canvas) {
+        console.error("Forest canvas not found!");
         return;
     }
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     const fireflies = [];
-    firefliesContainer.innerHTML = '';
     for (let i = 0; i < 25; i++) {
-        const el = document.createElement('div');
-        el.className = 'firefly';
-        firefliesContainer.appendChild(el);
-        fireflies.push(new Firefly(el, themeContainer.offsetWidth, themeContainer.offsetHeight));
+        fireflies.push(new Firefly(canvas.width, canvas.height));
     }
 
-    // This check prevents re-populating particles on theme re-entry
-    if (particleContainer.children.length === 0) {
-        for (let i = 0; i < 50; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'forest-particle';
-            const size = random(1, 3);
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.setProperty('--x-start', `${random(0, 100)}vw`);
-            particle.style.setProperty('--y-start', `${random(0, 100)}vh`);
-            particle.style.setProperty('--x-end', `${random(0, 100)}vw`);
-            particle.style.setProperty('--y-end', `${random(0, 100)}vh`);
-            particle.style.animationDuration = `${random(15, 30)}s`;
-            particle.style.animationDelay = `-${random(0, 30)}s`;
-            particleContainer.appendChild(particle);
-        }
+    const particles = [];
+    for (let i = 0; i < 50; i++) {
+        particles.push({
+            x: random(0, canvas.width),
+            y: random(0, canvas.height),
+            vx: random(-0.2, 0.2),
+            vy: random(-0.2, 0.2),
+            radius: random(1, 2.5),
+            alpha: random(0.1, 0.5)
+        });
     }
 
     function animateForest() {
-        if (document.getElementById('forest-theme')?.classList.contains('active')) {
-            fireflies.forEach(f => f.update());
-            forestAnimationFrameId = requestAnimationFrame(animateForest);
-        } else {
+        if (!document.getElementById('forest-theme')?.classList.contains('active')) {
             stopForestAnimations();
+            return;
         }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Update and draw particles
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(200, 220, 255, ${p.alpha})`;
+            ctx.fill();
+        });
+
+        // Update and draw fireflies
+        fireflies.forEach(f => {
+            f.update();
+            f.draw(ctx);
+        });
+
+        forestAnimationFrameId = requestAnimationFrame(animateForest);
     }
     animateForest();
+
+    // Ensure canvas resizes with window
+    const resizeHandler = () => {
+        if (!canvas) return;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resizeHandler);
+
+    // Store resize handler on the canvas element to remove it later
+    canvas.resizeHandler = resizeHandler;
 }
 
 function stopForestAnimations() {
@@ -68,27 +91,28 @@ function stopForestAnimations() {
         cancelAnimationFrame(forestAnimationFrameId);
         forestAnimationFrameId = null;
     }
+    const canvas = document.getElementById('forest-canvas');
+    if (canvas && canvas.resizeHandler) {
+        window.removeEventListener('resize', canvas.resizeHandler);
+        canvas.resizeHandler = null;
+    }
 }
 
 class Firefly {
-    constructor(element, boundsX, boundsY) {
-        this.element = element; this.boundsX = boundsX; this.boundsY = boundsY;
-        this.x = random(0, this.boundsX || window.innerWidth);
-        this.y = random(0, this.boundsY || window.innerHeight);
-        this.vx = 0; this.vy = 0; this.wanderAngle = random(0, Math.PI * 2);
+    constructor(boundsX, boundsY) {
+        this.boundsX = boundsX; this.boundsY = boundsY;
+        this.x = random(0, this.boundsX);
+        this.y = random(0, this.boundsY);
+        this.vx = 0; this.vy = 0;
+        this.wanderAngle = random(0, Math.PI * 2);
         this.lastBlink = Date.now();
         this.blinkDuration = random(100, 300);
         this.nextBlink = random(2000, 5000);
+        this.isBlinking = false;
+        this.radius = 2.5;
     }
+
     update() {
-        if (this.boundsX === 0) { // Check if bounds are not set yet
-            const container = this.element.parentElement?.parentElement;
-            if (container && container.offsetWidth > 0) {
-                this.boundsX = container.offsetWidth;
-                this.boundsY = container.offsetHeight;
-            }
-            return; // Skip first frame if bounds are not ready
-        }
         this.wanderAngle += random(-0.4, 0.4);
         this.vx += Math.cos(this.wanderAngle) * 0.08;
         this.vy += Math.sin(this.wanderAngle) * 0.08;
@@ -102,17 +126,30 @@ class Firefly {
 
         const now = Date.now();
         if (now - this.lastBlink > this.nextBlink) {
-            this.element.style.opacity = '1';
-            this.element.style.boxShadow = '0 0 18px #f0f0aa, 0 0 28px #f0f0aa';
+            this.isBlinking = true;
             setTimeout(() => {
-                this.element.style.opacity = '0.5';
-                this.element.style.boxShadow = '0 0 12px #f0f0aa, 0 0 20px #f0f0aa';
+                this.isBlinking = false;
             }, this.blinkDuration);
             this.lastBlink = now;
             this.nextBlink = random(2000, 8000);
         }
+    }
 
-        this.element.style.transform = `translate(${this.x}px, ${this.y}px)`;
+    draw(ctx) {
+        const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 4);
+        if (this.isBlinking) {
+            grad.addColorStop(0, 'rgba(240, 240, 170, 1)');
+            grad.addColorStop(0.2, 'rgba(240, 240, 170, 0.7)');
+            grad.addColorStop(1, 'rgba(240, 240, 170, 0)');
+        } else {
+            grad.addColorStop(0, 'rgba(240, 240, 170, 0.6)');
+            grad.addColorStop(0.3, 'rgba(240, 240, 170, 0.3)');
+            grad.addColorStop(1, 'rgba(240, 240, 170, 0)');
+        }
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius * 4, 0, Math.PI * 2);
+        ctx.fill();
     }
 }
         class SoundManager {
@@ -1147,7 +1184,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             ];
 
             layers.forEach(layer => {
-                if(layer.el && !layer.el.style.backgroundImage) {
+                if(layer.el && layer.el.children.length === 0) {
                     const T_WIDTH = 100;
                     let canvas = document.createElement('canvas');
                     canvas.width = layer.count * T_WIDTH;
@@ -1182,8 +1219,12 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                             ctx.fill();
                         }
                     }
-                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                    layer.el.style.backgroundSize = `${canvas.width}px ${canvas.height}px`;
+                    canvas.style.position = 'absolute';
+                    canvas.style.left = '0';
+                    canvas.style.bottom = '0';
+                    canvas.style.width = `${canvas.width}px`;
+                    canvas.style.height = `${canvas.height}px`;
+                    layer.el.appendChild(canvas);
                 }
             });
 
@@ -1583,7 +1624,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             ];
 
             layers.forEach(layer => {
-                if(layer.el && !layer.el.style.backgroundImage) {
+                if(layer.el && layer.el.children.length === 0) {
                     const T_WIDTH = 150;
                     let canvas = document.createElement('canvas');
                     canvas.width = layer.count * T_WIDTH;
@@ -1617,8 +1658,12 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                             ctx.stroke();
                         }
                     }
-                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                    layer.el.style.backgroundSize = `${canvas.width}px ${canvas.height}px`;
+                    canvas.style.position = 'absolute';
+                    canvas.style.left = '0';
+                    canvas.style.bottom = '0';
+                    canvas.style.width = `${canvas.width}px`;
+                    canvas.style.height = `${canvas.height}px`;
+                    layer.el.appendChild(canvas);
                 }
             });
         }
@@ -1631,7 +1676,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             ];
 
             cloudLayers.forEach(layer => {
-                if (layer.el && !layer.el.style.backgroundImage) {
+                if (layer.el && layer.el.children.length === 0) {
                     let canvas = document.createElement('canvas');
                     canvas.width = layer.count * layer.width;
                     canvas.height = layer.height;
@@ -1654,9 +1699,12 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                             ctx.fill();
                         }
                     }
-                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                    layer.el.style.backgroundSize = `${canvas.width}px 100%`;
-                    layer.el.style.top = `${Math.random() * 20}%`;
+                    canvas.style.position = 'absolute';
+                    canvas.style.left = '0';
+                    canvas.style.top = `${Math.random() * 20}%`;
+                    canvas.style.width = `${canvas.width}px`;
+                    canvas.style.height = `100%`;
+                    layer.el.appendChild(canvas);
                 }
             });
 
@@ -1691,8 +1739,12 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 drawMountainRange('rgba(40, 40, 60, 0.8)', canvas.height * 0.8, canvas.height * 0.3, 5);
                 drawMountainRange('rgba(60, 60, 80, 1.0)', canvas.height * 0.9, canvas.height * 0.2, 8);
 
-                mountainContainer.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                mountainContainer.style.backgroundSize = '100% 100%';
+                canvas.style.position = 'absolute';
+                canvas.style.left = '0';
+                canvas.style.bottom = '0';
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                mountainContainer.appendChild(canvas);
             }
 
 
@@ -1753,7 +1805,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 { el: document.getElementById('mountain-range-front'), color: '#1B2631', height: 0.8, peaks: 9, jaggedness: 0.8 }
             ];
             mountainLayers.forEach(layer => {
-                if (layer.el && !layer.el.style.backgroundImage) {
+                if (layer.el && layer.el.children.length === 0) {
                     const canvas = document.createElement('canvas');
                     const C_WIDTH = 2048;
                     canvas.width = C_WIDTH * 2;
@@ -1779,14 +1831,18 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     ctx.lineTo(canvas.width, canvas.height);
                     ctx.closePath();
                     ctx.fill();
-                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                    layer.el.style.backgroundSize = `${canvas.width}px 100%`;
+                    canvas.style.position = 'absolute';
+                    canvas.style.left = '0';
+                    canvas.style.bottom = '0';
+                    canvas.style.width = `${canvas.width}px`;
+                    canvas.style.height = `100%`;
+                    layer.el.appendChild(canvas);
                 }
             });
 
             // Clouds
             const cloudContainer = document.querySelector('.mountain-clouds');
-            if (cloudContainer && !cloudContainer.style.backgroundImage) {
+            if (cloudContainer && cloudContainer.children.length === 0) {
                  let canvas = document.createElement('canvas');
                  canvas.width = 4096;
                  canvas.height = 400; // Increased height for more vertical variation
@@ -1816,8 +1872,12 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                          ctx.fill();
                      }
                  }
-                 cloudContainer.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                 cloudContainer.style.backgroundSize = `${canvas.width}px 100%`;
+                 canvas.style.position = 'absolute';
+                 canvas.style.left = '0';
+                 canvas.style.top = '0';
+                 canvas.style.width = `${canvas.width}px`;
+                 canvas.style.height = `100%`;
+                 cloudContainer.appendChild(canvas);
             }
         }
         function createDeepOcean() {
@@ -1906,7 +1966,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             ];
 
             layers.forEach(layer => {
-                if (layer.el && !layer.el.style.backgroundImage) {
+                if (layer.el && layer.el.children.length === 0) {
                     const C_WIDTH = 250;
                     let canvas = document.createElement('canvas');
                     canvas.width = layer.count * C_WIDTH;
@@ -1962,8 +2022,12 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                             ctx.fill();
                         }
                     }
-                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                    layer.el.style.backgroundSize = `${canvas.width}px ${canvas.height}px`;
+                    canvas.style.position = 'absolute';
+                    canvas.style.left = '0';
+                    canvas.style.bottom = '0';
+                    canvas.style.width = `${canvas.width}px`;
+                    canvas.style.height = `${canvas.height}px`;
+                    layer.el.appendChild(canvas);
                 }
             });
         }
@@ -2369,7 +2433,7 @@ function createWavesScene() {
             ];
 
             mountainLayers.forEach(layer => {
-                if (layer.el && !layer.el.style.backgroundImage) {
+                if (layer.el && layer.el.children.length === 0) {
                     const canvas = document.createElement('canvas');
                     const C_WIDTH = 2048;
                     canvas.width = C_WIDTH;
@@ -2397,6 +2461,13 @@ function createWavesScene() {
                     ctx.closePath();
                     ctx.fill();
 
+                    canvas.style.position = 'absolute';
+                    canvas.style.top = '0';
+                    canvas.style.left = '0';
+                    canvas.style.width = '100%';
+                    canvas.style.height = '100%';
+                    layer.el.appendChild(canvas);
+
                     // Add a flipped version for reflection
                     const reflectionCanvas = document.createElement('canvas');
                     reflectionCanvas.width = canvas.width;
@@ -2406,10 +2477,8 @@ function createWavesScene() {
                     reflectCtx.scale(1, -1);
                     reflectCtx.drawImage(canvas, 0, 0);
 
-                    // Set bg for mountain and its reflection
-                    layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
-                    layer.el.style.setProperty('--reflection-bg', `url(${reflectionCanvas.toDataURL()})`);
-                    layer.el.style.backgroundSize = `100% 100%`;
+                    reflectionCanvas.className = 'misty-mountain-reflection';
+                    layer.el.appendChild(reflectionCanvas);
                 }
             });
         }
@@ -2526,29 +2595,91 @@ function createWavesScene() {
         function softDrop() { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x, currentPiece.y+1)) { currentPiece.y++; score+=level; dropCounter=0; } else lockPiece(); }
         function hardDrop() { if(!currentPiece||isProcessingPhysics) return; let d=0; while(isValidPosition(currentPiece,currentPiece.x,currentPiece.y+1)){currentPiece.y++;d++;} score+=d*2*level; lockPiece(); }
         function lockPiece() { if(!currentPiece) return; soundManager.playDrop(); lockedPieces.push({...currentPiece, shape:[...currentPiece.shape]}); currentPiece=null; dropCounter=0; processPhysics(); }
-        async function processPhysics() {
-            isProcessingPhysics=true; let loopActive=true;
-            while(loopActive) {
-                loopActive = false; const boardData = generateBoard(lockedPieces); const fullLines = [];
-                for(let y=boardData.length-1;y>=0;y--) if(boardData[y].every(c=>c!==0)) fullLines.push(y);
-                if(fullLines.length>0) {
-                    loopActive=true; const oldLevel=level; lines+=fullLines.length; linesUntilNextLevel-=fullLines.length;
-                    if(linesUntilNextLevel<=0){ level++; linesUntilNextLevel=10+linesUntilNextLevel; dropInterval=LEVEL_SPEEDS[Math.min(level-1, LEVEL_SPEEDS.length-1)]; soundManager.playLevelUp(); showLevelUpNotification(level); }
-                    if(oldLevel!==level) updateBackground(level);
-                    score+=(SCORE_VALUES[fullLines.length]||SCORE_VALUES[4])*level; soundManager.playLineClear(); showScorePopup((SCORE_VALUES[fullLines.length]||SCORE_VALUES[4])*level);
-                    canvas.classList.add('line-flash'); setTimeout(()=>canvas.classList.remove('line-flash'),500);
-                    fullLines.forEach(y=>{ for(let x=0;x<COLS;x++)boardData[y][x]='C'; }); board=boardData; draw(); await sleep(200);
-                    let newBoard=boardData.filter((_,y)=>!fullLines.includes(y)); while(newBoard.length<ROWS+HIDDEN_ROWS)newBoard.unshift(Array(COLS).fill(0));
-                    lockedPieces=findConnectedComponents(newBoard); continue;
+function processPhysics() {
+    isProcessingPhysics = true;
+    // Start the physics chain by checking for line clears.
+    checkLines();
+}
+
+function checkLines() {
+    const boardData = generateBoard(lockedPieces);
+    const fullLines = [];
+    for (let y = boardData.length - 1; y >= 0; y--) {
+        if (boardData[y].every(c => c !== 0)) {
+            fullLines.push(y);
                 }
-                let pieceFell = false;
-                for(const p of [...lockedPieces].sort((a,b)=>b.y-a.y)) {
-                    const others=lockedPieces.filter(op=>op!==p);
-                    while(canFall(p, others)) { p.y++; pieceFell=true; draw(); await sleep(40); }
+    }
+
+    if (fullLines.length > 0) {
+        const oldLevel = level;
+        lines += fullLines.length;
+        linesUntilNextLevel -= fullLines.length;
+        if (linesUntilNextLevel <= 0) {
+            level++;
+            linesUntilNextLevel = 10 + linesUntilNextLevel;
+            dropInterval = LEVEL_SPEEDS[Math.min(level - 1, LEVEL_SPEEDS.length - 1)];
+            soundManager.playLevelUp();
+            showLevelUpNotification(level);
                 }
-                if(pieceFell) loopActive=true;
+        if (oldLevel !== level) updateBackground(level);
+        score += (SCORE_VALUES[fullLines.length] || SCORE_VALUES[4]) * level;
+        soundManager.playLineClear();
+        showScorePopup((SCORE_VALUES[fullLines.length] || SCORE_VALUES[4]) * level);
+
+        // Animate the line flash
+        canvas.classList.add('line-flash');
+        setTimeout(() => canvas.classList.remove('line-flash'), 500);
+
+        // Mark lines for clearing and redraw
+        fullLines.forEach(y => { for (let x = 0; x < COLS; x++) boardData[y][x] = 'C'; });
+        board = boardData;
+        draw();
+
+        // After a delay, remove the lines and check for gravity
+        setTimeout(() => {
+            let newBoard = boardData.filter((_, y) => !fullLines.includes(y));
+            while (newBoard.length < ROWS + HIDDEN_ROWS) newBoard.unshift(Array(COLS).fill(0));
+            lockedPieces = findConnectedComponents(newBoard);
+            checkGravity(); // Next step in the physics chain
+        }, 200);
+    } else {
+        // No lines to clear, move to checking gravity
+        checkGravity();
+    }
+}
+
+function checkGravity() {
+    let sortedPieces = [...lockedPieces].sort((a, b) => b.y - a.y);
+    applyGravityToPiece(sortedPieces, 0, false);
+}
+
+function applyGravityToPiece(pieces, index, anyPieceFell) {
+    if (index >= pieces.length) {
+        // Finished checking all pieces for this gravity pass.
+        if (anyPieceFell) {
+            // If something fell, we must re-check for line clears.
+            checkLines();
+        } else {
+            // Nothing fell, physics are stable. End processing.
+            isProcessingPhysics = false;
+            updateStats();
+            spawnPiece();
+        }
+        return;
+    }
+
+    const p = pieces[index];
+    const others = lockedPieces.filter(op => op !== p);
+
+    if (canFall(p, others)) {
+        p.y++;
+        draw();
+        // Keep checking the same piece after a delay, marking that a piece has fallen.
+        setTimeout(() => applyGravityToPiece(pieces, index, true), 40);
+    } else {
+        // This piece can't fall. Move to the next piece.
+        applyGravityToPiece(pieces, index + 1, anyPieceFell);
             }
-            isProcessingPhysics=false; updateStats(); spawnPiece();
         }
         function canFall(p, others) {
             const boardData=generateBoard(others);
@@ -2661,7 +2792,6 @@ function createWavesScene() {
             document.getElementById('final-stats').innerHTML=`<div style="font-size:24px;margin-bottom:10px;color:#fbbf24;">Score: ${score}</div><div style="margin-bottom:5px;">Level ${level} (${speedMultiplier}x speed)</div><div>Lines Cleared: ${lines}</div>`;
             document.getElementById('game-over-modal').classList.add('visible');
         }
-        function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
