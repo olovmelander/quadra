@@ -554,7 +554,7 @@ class Firefly {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -2183,11 +2183,117 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             if (themeName === 'fluid-dreams') {
                 createFluidDreamsScene();
             }
+            if (themeName === 'lantern-festival') {
+                createLanternFestivalScene();
+            }
                 } else {
                     el.classList.remove('active');
                 }
             });
         }
+
+function createLanternFestivalScene() {
+    // 1. Lanterns
+    const lanternLayers = [
+        { container: document.getElementById('lanterns-back'), count: 20, minSize: 20, maxSize: 40, minDuration: 40, maxDuration: 60 },
+        { container: document.getElementById('lanterns-mid'), count: 15, minSize: 40, maxSize: 60, minDuration: 30, maxDuration: 50 },
+        { container: document.getElementById('lanterns-front'), count: 10, minSize: 60, maxSize: 80, minDuration: 20, maxDuration: 40 }
+    ];
+
+    const lanternShapes = [
+        // Classic round
+        '<path d="M10 80 C 10 80, 0 60, 0 40 C 0 20, 10 0, 10 0 L 40 0 C 40 0, 50 20, 50 40 C 50 60, 40 80, 40 80 Z" />',
+        // Cylinder
+        '<path d="M0 10 C0 -10, 50 -10, 50 10 L 50 70 C 50 90, 0 90, 0 70 Z" />',
+        // Diamond
+        '<path d="M25 0 L50 40 L25 80 L0 40 Z" />'
+    ];
+    const lanternColors = ['#ff7675', '#feca57', '#ff9f43', '#ee5253', '#ab54c5'];
+
+    const waterContainer = document.getElementById('lantern-water');
+
+    lanternLayers.forEach(layer => {
+        if (layer.container && layer.container.children.length === 0) {
+            for (let i = 0; i < layer.count; i++) {
+                const lantern = document.createElement('div');
+                lantern.className = 'lantern';
+
+                const color = lanternColors[Math.floor(Math.random() * lanternColors.length)];
+                const shape = lanternShapes[Math.floor(Math.random() * lanternShapes.length)];
+                lantern.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 80"><g fill="${encodeURIComponent(color)}" opacity="0.9">${shape}</g></svg>')`;
+
+                const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
+                lantern.style.width = `${size}px`;
+                lantern.style.height = `${size * 1.2}px`;
+
+                const xPos = Math.random() * 100;
+                lantern.style.left = `${xPos}%`;
+
+                const duration = Math.random() * (layer.maxDuration - layer.minDuration) + layer.minDuration;
+                lantern.style.animationDuration = `${duration}s`;
+                lantern.style.animationDelay = `-${Math.random() * duration}s`;
+
+                lantern.style.setProperty('--x-sway1', `${(Math.random() - 0.5) * 10}vw`);
+                lantern.style.setProperty('--x-sway2', `${(Math.random() - 0.5) * 10}vw`);
+                lantern.style.setProperty('--start-opacity', `${Math.random() * 0.5 + 0.5}`);
+
+                layer.container.appendChild(lantern);
+
+                // Add reflection for front lanterns
+                if (layer.container.id === 'lanterns-front' && waterContainer) {
+                    const reflection = document.createElement('div');
+                    reflection.className = 'lantern-reflection';
+                    reflection.style.width = `${size}px`;
+                    reflection.style.height = `${size}px`;
+                    reflection.style.left = `${xPos}%`;
+
+                    // Match animation properties
+                    reflection.style.animationDuration = `${duration}s, 4s`;
+                    reflection.style.animationDelay = `-${Math.random() * duration}s, -${Math.random() * 4}s`;
+                    reflection.style.setProperty('--x-sway1', `${(Math.random() - 0.5) * 10}vw`);
+                    reflection.style.setProperty('--x-sway2', `${(Math.random() - 0.5) * 10}vw`);
+                    reflection.style.setProperty('--start-opacity', `0.4`); // Reflections are fainter
+
+                    waterContainer.appendChild(reflection);
+                }
+            }
+        }
+    });
+
+    // 2. Petals
+    const petalContainer = document.getElementById('lantern-petals');
+    if (petalContainer && petalContainer.children.length === 0) {
+        for (let i = 0; i < 20; i++) {
+            let petal = document.createElement('div');
+            petal.className = 'lantern-petal';
+            petal.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+            petal.style.setProperty('--y-start', `-10vh`);
+            petal.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+            petal.style.setProperty('--y-end', `110vh`);
+            petal.style.setProperty('--r-start', `${Math.random() * 360}deg`);
+            petal.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+            const duration = Math.random() * 10 + 15;
+            petal.style.animationDuration = `${duration}s`;
+            petal.style.animationDelay = `-${Math.random() * duration}s`;
+            petalContainer.appendChild(petal);
+        }
+    }
+
+    // 3. Embers
+    const emberContainer = document.getElementById('lantern-embers');
+    if (emberContainer && emberContainer.children.length === 0) {
+        for (let i = 0; i < 40; i++) {
+            let ember = document.createElement('div');
+            ember.className = 'lantern-ember';
+            ember.style.left = `${Math.random() * 100}%`;
+            ember.style.bottom = `-${Math.random() * 20}vh`; // Start from below or near bottom
+            const duration = Math.random() * 8 + 6;
+            ember.style.animationDuration = `${duration}s`;
+            ember.style.animationDelay = `-${Math.random() * duration}s`;
+            emberContainer.appendChild(ember);
+        }
+    }
+}
 
 function createFluidDreamsScene() {
     // 1. Morphing Blobs for Gooey Effect
