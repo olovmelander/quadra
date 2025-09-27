@@ -98,6 +98,615 @@ function stopForestAnimations() {
     }
 }
 
+function createHimalayanPeakScene() {
+    // 1. Procedural Peaks
+    const peakLayers = [
+        { el: document.getElementById('himalayan-peaks-back'), color: 'rgba(60, 70, 90, 0.7)', jaggedness: 0.3, snowLine: 0.4 },
+        { el: document.getElementById('himalayan-peaks-mid'), color: 'rgba(80, 90, 110, 0.8)', jaggedness: 0.5, snowLine: 0.3 },
+        { el: document.getElementById('himalayan-peaks-front'), color: 'rgba(100, 110, 130, 0.9)', jaggedness: 0.7, snowLine: 0.2 }
+    ];
+
+    peakLayers.forEach(layer => {
+        if (layer.el && layer.el.children.length === 0) {
+            const canvas = document.createElement('canvas');
+            const C_WIDTH = 2048;
+            canvas.width = C_WIDTH;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = layer.color;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            let y = canvas.height * 0.8;
+            for (let x = 0; x < C_WIDTH; x++) {
+                const angle = x / C_WIDTH * Math.PI * 4;
+                y = canvas.height * 0.7 - Math.sin(angle) * 100 - Math.cos(angle * 0.5) * 50;
+                y += (Math.random() - 0.5) * layer.jaggedness * 20;
+                ctx.lineTo(x, y);
+
+                // Draw snow caps
+                if (y < canvas.height * layer.snowLine) {
+                    ctx.fillStyle = 'rgba(240, 245, 255, 0.9)';
+                    ctx.fillRect(x, y - 5, 1, 10);
+                    ctx.fillStyle = layer.color;
+                }
+            }
+            ctx.lineTo(C_WIDTH, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            canvas.style.position = 'absolute';
+            canvas.style.bottom = '0';
+            canvas.style.left = '0';
+            layer.el.appendChild(canvas);
+        }
+    });
+
+    // 2. High-altitude clouds
+    const cloudContainer = document.getElementById('himalayan-clouds');
+    if (cloudContainer && cloudContainer.children.length === 0) {
+        for (let i = 0; i < 10; i++) {
+            let cloud = document.createElement('div');
+            cloud.className = 'himalayan-cloud';
+            cloud.style.top = `${60 + Math.random() * 30}%`;
+            const duration = Math.random() * 100 + 120;
+            cloud.style.animationDuration = `${duration}s`;
+            cloud.style.animationDelay = `-${Math.random() * duration}s`;
+            cloudContainer.appendChild(cloud);
+        }
+    }
+
+    // 3. Prayer Flags
+    const flagContainer = document.getElementById('himalayan-flags');
+    if (flagContainer && flagContainer.children.length === 0) {
+        let strand = document.createElement('div');
+        strand.className = 'himalayan-prayer-strand';
+        const flagColors = ['#00a8ff', '#9c88ff', '#fbc531', '#4cd137', '#e84118'];
+        for (let i = 0; i < 15; i++) {
+            let flag = document.createElement('div');
+            flag.className = 'himalayan-prayer-flag';
+            flag.style.backgroundColor = flagColors[i % flagColors.length];
+            flag.style.left = `${5 + i * 6}%`;
+            flag.style.animationDelay = `-${i * 0.1}s`;
+            strand.appendChild(flag);
+        }
+        flagContainer.appendChild(strand);
+    }
+
+    // 4. Thin Air Particles
+    const particleContainer = document.getElementById('himalayan-particles');
+    if (particleContainer && particleContainer.children.length === 0) {
+        for (let i = 0; i < 70; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'himalayan-particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            const duration = Math.random() * 10 + 5;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `-${Math.random() * duration}s`;
+            particleContainer.appendChild(particle);
+        }
+    }
+}
+
+function createIceTempleScene() {
+    // 1. Ice Crystal Architecture (Canvas)
+    const crystalLayers = [
+        { el: document.getElementById('ice-temple-crystals-back'), count: 20, color: 'rgba(150, 180, 220, 0.3)' },
+        { el: document.getElementById('ice-temple-crystals-mid'), count: 15, color: 'rgba(180, 210, 240, 0.4)' },
+        { el: document.getElementById('ice-temple-crystals-front'), count: 10, color: 'rgba(210, 230, 255, 0.5)' }
+    ];
+
+    crystalLayers.forEach(layer => {
+        if (layer.el && layer.el.children.length === 0) {
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 0.5;
+
+            for (let i = 0; i < layer.count; i++) {
+                const x = Math.random() * canvas.width;
+                const h = Math.random() * canvas.height * 0.6 + canvas.height * 0.2;
+                const w = Math.random() * 60 + 30;
+                ctx.fillStyle = layer.color;
+
+                // Draw sharp, geometric crystals from floor and ceiling
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x - w, h * (Math.random() * 0.3 + 0.2));
+                ctx.lineTo(x + w, h * (Math.random() * 0.3 + 0.2));
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height);
+                ctx.lineTo(x - w, canvas.height - h * (Math.random() * 0.3 + 0.2));
+                ctx.lineTo(x + w, canvas.height - h * (Math.random() * 0.3 + 0.2));
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+            canvas.style.position = 'absolute';
+            canvas.style.bottom = '0';
+            canvas.style.left = '0';
+            layer.el.appendChild(canvas);
+        }
+    });
+
+    // 2. Aurora
+    const auroraContainer = document.getElementById('ice-temple-aurora');
+    if (auroraContainer && auroraContainer.children.length === 0) {
+        const colors = ['#74b9ff', '#55efc4', '#a29bfe'];
+        for (let i = 0; i < 3; i++) {
+            let curtain = document.createElement('div');
+            curtain.className = 'ice-aurora-curtain';
+            curtain.style.setProperty('--aurora-color', colors[i]);
+            curtain.style.animationDuration = `${20 + i * 5}s`;
+            if (i % 2 === 1) {
+                curtain.style.animationDirection = 'alternate-reverse';
+            }
+            auroraContainer.appendChild(curtain);
+        }
+    }
+
+    // 3. Frozen Waterfalls
+    const waterfallContainer = document.getElementById('ice-temple-waterfalls');
+    if (waterfallContainer && waterfallContainer.children.length === 0) {
+        for (let i = 0; i < 4; i++) {
+            let fall = document.createElement('div');
+            fall.className = 'frozen-waterfall';
+            fall.style.left = `${10 + i * 22 + Math.random() * 5}%`;
+            fall.style.animationDelay = `-${Math.random() * 10}s`;
+            waterfallContainer.appendChild(fall);
+        }
+    }
+
+    // 4. Snow Crystals
+    const snowContainer = document.getElementById('ice-temple-snow-crystals');
+    if (snowContainer && snowContainer.children.length === 0) {
+        for (let i = 0; i < 80; i++) {
+            let crystal = document.createElement('div');
+            crystal.className = 'snow-crystal';
+            crystal.style.left = `${Math.random() * 100}%`;
+            crystal.style.top = `${Math.random() * 100}%`;
+            const duration = Math.random() * 15 + 20;
+            crystal.style.animationDuration = `${duration}s`;
+            crystal.style.animationDelay = `-${Math.random() * duration}s`;
+            snowContainer.appendChild(crystal);
+        }
+    }
+
+    // 5. Ice Sculptures
+    const sculptureContainer = document.getElementById('ice-temple-sculptures');
+    if (sculptureContainer && sculptureContainer.children.length === 0) {
+        const sculptureSVG = [
+            'M50 0 L100 100 L0 100 Z', // Pyramid
+            'M50 0 C0 50, 100 50, 50 100 C100 50, 0 50, 50 0' // Swirl
+        ];
+        for (let i = 0; i < 2; i++) {
+            let sculpture = document.createElement('div');
+            sculpture.className = 'ice-sculpture';
+            sculpture.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="${sculptureSVG[i]}" fill="rgba(200, 220, 255, 0.3)"/></svg>')`;
+            sculpture.style.left = `${20 + i * 60}%`;
+            sculptureContainer.appendChild(sculpture);
+        }
+    }
+}
+
+function createMoonlitGreenhouseScene() {
+    // 1. Plant Silhouettes
+    const plantLayers = [
+        { el: document.getElementById('greenhouse-plants-back'), count: 15, color: 'rgba(5, 20, 15, 0.6)' },
+        { el: document.getElementById('greenhouse-plants-mid'), count: 12, color: 'rgba(10, 30, 25, 0.7)' },
+        { el: document.getElementById('greenhouse-plants-front'), count: 10, color: 'rgba(15, 40, 35, 0.8)' }
+    ];
+
+    const plantSVGs = [
+        'M 50 100 C 20 80, 20 40, 50 0 C 80 40, 80 80, 50 100', // Fern-like
+        'M 50 100 V 50 A 40 40 0 1 1 50 50', // Monstera-like leaf
+        'M 50 100 L 50 0 M 50 20 L 80 10 M 50 40 L 20 30 M 50 60 L 80 50' // Branchy
+    ];
+
+    plantLayers.forEach(layer => {
+        if (layer.el && layer.el.children.length === 0) {
+            for (let i = 0; i < layer.count; i++) {
+                let plant = document.createElement('div');
+                plant.className = 'greenhouse-plant';
+                const svg = plantSVGs[Math.floor(Math.random() * plantSVGs.length)];
+                plant.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="${svg}" fill="${layer.color}" stroke="${layer.color}" stroke-width="2"/></svg>')`;
+
+                const size = Math.random() * 150 + 100;
+                plant.style.width = `${size}px`;
+                plant.style.height = `${size}px`;
+                plant.style.left = `${Math.random() * 100}%`;
+                plant.style.bottom = `${Math.random() * 20 - 10}%`;
+                plant.style.transform = `rotate(${Math.random() * 20 - 10}deg)`;
+                plant.style.animationDelay = `-${Math.random() * 10}s`;
+                layer.el.appendChild(plant);
+            }
+        }
+    });
+
+    // 2. Dewdrops
+    const dewdropContainer = document.getElementById('greenhouse-dewdrops');
+    if (dewdropContainer && dewdropContainer.children.length === 0) {
+        for (let i = 0; i < 60; i++) {
+            let dewdrop = document.createElement('div');
+            dewdrop.className = 'dewdrop';
+            dewdrop.style.left = `${Math.random() * 100}%`;
+            dewdrop.style.top = `${Math.random() * 100}%`;
+            dewdrop.style.animationDelay = `-${Math.random() * 8}s`;
+            dewdropContainer.appendChild(dewdrop);
+        }
+    }
+
+    // 3. Moths
+    const mothContainer = document.getElementById('greenhouse-moths');
+    if (mothContainer && mothContainer.children.length === 0) {
+        for (let i = 0; i < 7; i++) {
+            let moth = document.createElement('div');
+            moth.className = 'greenhouse-moth';
+            moth.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+            moth.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+            moth.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+            moth.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+            const duration = Math.random() * 15 + 10;
+            moth.style.animationDuration = `${duration}s`;
+            moth.style.animationDelay = `-${Math.random() * duration}s`;
+            mothContainer.appendChild(moth);
+        }
+    }
+}
+
+function createMeditationTempleScene() {
+    // 1. Prayer Flags
+    const flagContainer = document.getElementById('meditation-temple-prayer-flags');
+    if (flagContainer && flagContainer.children.length === 0) {
+        const flagColors = ['#00a8ff', '#9c88ff', '#fbc531', '#4cd137', '#e84118'];
+        for (let i = 0; i < 5; i++) { // 5 strands of flags
+            let strand = document.createElement('div');
+            strand.className = 'prayer-flag-strand';
+            strand.style.left = `${10 + i * 18}%`;
+            strand.style.top = `${10 + Math.random() * 15}%`;
+            strand.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
+
+            for (let j = 0; j < 7; j++) { // 7 flags per strand
+                let flag = document.createElement('div');
+                flag.className = 'prayer-flag';
+                flag.style.backgroundColor = flagColors[j % flagColors.length];
+                flag.style.left = `${j * 15}%`;
+                flag.style.animationDelay = `-${j * 0.1 + Math.random() * 0.5}s`;
+                strand.appendChild(flag);
+            }
+            flagContainer.appendChild(strand);
+        }
+    }
+
+    // 2. Incense Smoke from Braziers
+    const incenseContainer = document.getElementById('meditation-temple-incense');
+    if (incenseContainer && incenseContainer.children.length === 0) {
+        for (let i = 0; i < 5; i++) {
+            let wisp = document.createElement('div');
+            wisp.className = 'temple-incense-wisp';
+            wisp.style.left = `${20 + Math.random() * 60}%`;
+            wisp.style.bottom = '20%'; // Start from brazier height
+            const duration = Math.random() * 25 + 20;
+            wisp.style.animationDuration = `${duration}s`;
+            wisp.style.animationDelay = `-${Math.random() * duration}s`;
+            incenseContainer.appendChild(wisp);
+        }
+    }
+
+    // 3. Ancient Trees
+    const treeContainer = document.getElementById('meditation-temple-trees');
+    if (treeContainer && treeContainer.children.length === 0) {
+        const canvas = document.createElement('canvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const ctx = canvas.getContext('2d');
+
+        // Draw a few gnarled trees
+        drawGnarledTree(ctx, canvas.width * 0.1, canvas.height, 120, -90, 12, 'rgba(40, 30, 20, 0.7)');
+        drawGnarledTree(ctx, canvas.width * 0.85, canvas.height, 150, -90, 15, 'rgba(30, 20, 10, 0.8)');
+
+        canvas.style.position = 'absolute';
+        canvas.style.bottom = '0';
+        canvas.style.left = '0';
+        treeContainer.appendChild(canvas);
+    }
+
+    function drawGnarledTree(ctx, x, y, len, angle, width, color) {
+        if (width < 0.5) return;
+        ctx.beginPath();
+        ctx.lineWidth = width;
+        ctx.strokeStyle = color;
+        ctx.moveTo(x, y);
+        const x2 = x + len * Math.cos(angle * Math.PI / 180);
+        const y2 = y + len * Math.sin(angle * Math.PI / 180);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+
+        const newLen = len * (0.6 + Math.random() * 0.1);
+        drawGnarledTree(ctx, x2, y2, newLen, angle + Math.random() * 30 + 10, width * 0.7, color);
+        drawGnarledTree(ctx, x2, y2, newLen, angle - (Math.random() * 30 + 10), width * 0.7, color);
+        if (Math.random() > 0.6) {
+            drawGnarledTree(ctx, x2, y2, newLen * 0.5, angle + Math.random() * 20 - 10, width * 0.5, color);
+        }
+    }
+
+    // 4. Bells (glints)
+    // The bells themselves are part of the temple SVG, but we can add glints
+    const templeContainer = document.getElementById('meditation-temple-main');
+    if (templeContainer && templeContainer.children.length < 2) { // Check to avoid re-adding
+        for (let i = 0; i < 3; i++) {
+            let glint = document.createElement('div');
+            glint.className = 'temple-bell-glint';
+            // Position them roughly where bells would be on the SVG
+            glint.style.left = `${30 + i * 15}%`;
+            glint.style.top = '55%';
+            glint.style.animationDelay = `-${Math.random() * 10}s`;
+            templeContainer.appendChild(glint);
+        }
+    }
+}
+
+function createFloatingIslandsScene() {
+    // 1. Floating Islands
+    const islandLayers = [
+        { el: document.getElementById('floating-islands-back'), count: 5, minSize: 100, maxSize: 200, zIndex: 2 },
+        { el: document.getElementById('floating-islands-mid'), count: 4, minSize: 150, maxSize: 300, zIndex: 4 },
+        { el: document.getElementById('floating-islands-front'), count: 3, minSize: 200, maxSize: 400, zIndex: 6 }
+    ];
+
+    const islandShapes = [
+        'M 0 50 C 20 0, 80 0, 100 50 S 80 100, 20 100 S 0 50, 0 50', // Smooth oval
+        'M 0 40 L 30 10 L 70 20 L 100 60 L 80 90 L 20 100 Z', // Jagged
+        'M 0 50 C 10 20, 40 10, 50 30 C 60 0, 90 20, 100 50 C 90 80, 60 90, 50 70 C 40 100, 10 80, 0 50' // Complex
+    ];
+
+    islandLayers.forEach(layer => {
+        if (layer.el && layer.el.children.length === 0) {
+            for (let i = 0; i < layer.count; i++) {
+                let island = document.createElement('div');
+                island.className = 'floating-island';
+                const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
+                island.style.width = `${size}px`;
+                island.style.height = `${size * (Math.random() * 0.3 + 0.4)}px`;
+
+                const shape = islandShapes[Math.floor(Math.random() * islandShapes.length)];
+                const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="${shape}" fill="%234a3a32"/></svg>`;
+                island.style.backgroundImage = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
+
+                island.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+                island.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+                island.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+                island.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+                island.style.setProperty('--r-start', `${Math.random() * 10 - 5}deg`);
+                island.style.setProperty('--r-end', `${Math.random() * 10 - 5}deg`);
+                const duration = Math.random() * 40 + 80; // Slow drift
+                island.style.animationDuration = `${duration}s`;
+                island.style.animationDelay = `-${Math.random() * duration}s`;
+
+                layer.el.appendChild(island);
+            }
+        }
+    });
+
+    // 2. Waterfalls
+    const waterfallContainer = document.getElementById('floating-islands-waterfalls');
+    if (waterfallContainer && waterfallContainer.children.length === 0) {
+        for (let i = 0; i < 7; i++) {
+            let waterfall = document.createElement('div');
+            waterfall.className = 'island-waterfall';
+            waterfall.style.left = `${Math.random() * 100}%`;
+            waterfall.style.top = `${Math.random() * 80}%`;
+            waterfall.style.height = `${Math.random() * 200 + 100}px`;
+            if (Math.random() > 0.6) { // Upward flowing
+                waterfall.style.transform = 'scaleY(-1)';
+                waterfall.style.top = `${Math.random() * 60 + 20}%`;
+            }
+            waterfall.style.animationDelay = `-${Math.random() * 5}s`;
+            waterfallContainer.appendChild(waterfall);
+        }
+    }
+
+    // 3. Magical Particles
+    const particleContainer = document.getElementById('floating-islands-particles');
+    if (particleContainer && particleContainer.children.length === 0) {
+        for (let i = 0; i < 40; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'island-particle';
+            particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+            particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+            particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+            particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+            const duration = Math.random() * 15 + 10;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `-${Math.random() * duration}s`;
+            particleContainer.appendChild(particle);
+        }
+    }
+
+    // 4. Ethereal Clouds
+    const cloudContainer = document.getElementById('floating-islands-clouds');
+    if (cloudContainer && cloudContainer.children.length === 0) {
+        for (let i = 0; i < 15; i++) {
+            let cloud = document.createElement('div');
+            cloud.className = 'ethereal-cloud';
+            cloud.style.top = `${Math.random() * 100}%`;
+            const duration = Math.random() * 80 + 100;
+            cloud.style.animationDuration = `${duration}s`;
+            cloud.style.animationDelay = `-${Math.random() * duration}s`;
+            cloudContainer.appendChild(cloud);
+        }
+    }
+}
+
+function createCherryBlossomGardenScene() {
+    // 1. Falling Petals
+    const petalContainer = document.getElementById('cherry-blossom-petals');
+    if (petalContainer && petalContainer.children.length === 0) {
+        for (let i = 0; i < 50; i++) {
+            let petal = document.createElement('div');
+            petal.className = 'cherry-blossom-petal';
+            petal.style.left = `${Math.random() * 110 - 5}%`; // Allow some overflow
+            petal.style.setProperty('--r-start', `${Math.random() * 360}deg`);
+            petal.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+            petal.style.setProperty('--x-drift', `${Math.random() * 30 - 15}vw`);
+            const duration = Math.random() * 8 + 12;
+            petal.style.animationDuration = `${duration}s`;
+            petal.style.animationDelay = `-${Math.random() * duration}s`;
+            petalContainer.appendChild(petal);
+        }
+    }
+
+    // 2. Procedural Trees
+    const treeLayers = [
+        { el: document.getElementById('cherry-blossom-trees-back'), count: 10, color: 'rgba(40, 20, 30, 0.6)', bloomColor: 'rgba(255, 220, 230, 0.7)' },
+        { el: document.getElementById('cherry-blossom-trees-front'), count: 7, color: 'rgba(60, 40, 50, 0.8)', bloomColor: 'rgba(255, 200, 210, 0.8)' }
+    ];
+
+    treeLayers.forEach(layer => {
+        if (layer.el && layer.el.children.length === 0) {
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth * 1.5;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            for (let i = 0; i < layer.count; i++) {
+                const x = Math.random() * canvas.width;
+                const y = canvas.height;
+                const length = Math.random() * 100 + 150;
+                drawBranch(ctx, x, y, length, -90, 10, layer.color, layer.bloomColor);
+            }
+            canvas.style.position = 'absolute';
+            canvas.style.left = '0';
+            canvas.style.bottom = '0';
+            canvas.style.width = `${canvas.width}px`;
+            canvas.style.height = '100%';
+            layer.el.appendChild(canvas);
+        }
+    });
+
+    function drawBranch(ctx, x1, y1, len, angle, width, color, bloomColor) {
+        if (width < 1) return;
+
+        ctx.beginPath();
+        ctx.lineWidth = width;
+        ctx.strokeStyle = color;
+        ctx.moveTo(x1, y1);
+        const x2 = x1 + len * Math.cos(angle * Math.PI / 180);
+        const y2 = y1 + len * Math.sin(angle * Math.PI / 180);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+
+        // Draw blooms
+        if (width < 5) {
+            for (let i = 0; i < 5; i++) {
+                const bloomX = x2 + (Math.random() - 0.5) * 20;
+                const bloomY = y2 + (Math.random() - 0.5) * 20;
+                const bloomRadius = Math.random() * 3 + 2;
+                ctx.beginPath();
+                ctx.arc(bloomX, bloomY, bloomRadius, 0, Math.PI * 2);
+                ctx.fillStyle = bloomColor;
+                ctx.fill();
+            }
+        }
+
+        const newLen = len * (0.7 + Math.random() * 0.1);
+        drawBranch(ctx, x2, y2, newLen, angle + Math.random() * 20 + 15, width * 0.7, color, bloomColor);
+        drawBranch(ctx, x2, y2, newLen, angle - (Math.random() * 20 + 15), width * 0.7, color, bloomColor);
+    }
+
+    // 3. Stone Lanterns
+    const lanternContainer = document.getElementById('cherry-blossom-lanterns');
+    if (lanternContainer && lanternContainer.children.length === 0) {
+        for (let i = 0; i < 3; i++) {
+            let lantern = document.createElement('div');
+            lantern.className = 'cherry-blossom-lantern';
+            lantern.style.left = `${10 + i * 30 + Math.random() * 10}%`;
+            lantern.style.bottom = `${Math.random() * 5 + 5}%`;
+            lantern.style.animationDelay = `-${Math.random() * 7}s`;
+            lanternContainer.appendChild(lantern);
+        }
+    }
+
+    // 4. Koi Stream Ripples
+    const streamContainer = document.getElementById('cherry-blossom-koi-stream');
+    if (streamContainer) {
+        const createStreamRipple = () => {
+            if (activeTheme !== 'cherry-blossom-garden') return;
+            let ripple = document.createElement('div');
+            ripple.className = 'stream-ripple';
+            ripple.style.left = `${Math.random() * 100}%`;
+            ripple.style.top = `${Math.random() * 100}%`;
+            ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+            streamContainer.appendChild(ripple);
+            setTimeout(createStreamRipple, Math.random() * 4000 + 3000);
+        };
+        setTimeout(createStreamRipple, 2000);
+    }
+}
+
+function createCandlelitMonasteryScene() {
+    // 1. Candles
+    const candleContainer = document.getElementById('monastery-candles');
+    if (candleContainer && candleContainer.children.length === 0) {
+        for (let i = 0; i < 25; i++) {
+            let candle = document.createElement('div');
+            candle.className = 'monastery-candle';
+
+            const height = Math.random() * 150 + 50;
+            candle.style.height = `${height}px`;
+            candle.style.left = `${Math.random() * 98}%`;
+            candle.style.bottom = `${Math.random() * 20 - 5}%`;
+            candle.style.animationDelay = `-${Math.random() * 5}s`;
+
+            let flame = document.createElement('div');
+            flame.className = 'candle-flame';
+            candle.appendChild(flame);
+
+            candleContainer.appendChild(candle);
+        }
+    }
+
+    // 2. Incense Smoke
+    const smokeContainer = document.getElementById('monastery-incense-smoke');
+    if (smokeContainer && smokeContainer.children.length === 0) {
+        for (let i = 0; i < 15; i++) {
+            let smokeWisp = document.createElement('div');
+            smokeWisp.className = 'incense-wisp';
+            smokeWisp.style.left = `${Math.random() * 100}%`;
+            const duration = Math.random() * 20 + 15;
+            smokeWisp.style.animationDuration = `${duration}s`;
+            smokeWisp.style.animationDelay = `-${Math.random() * duration}s`;
+            smokeContainer.appendChild(smokeWisp);
+        }
+    }
+
+    // 3. Stained Glass Light
+    const lightContainer = document.getElementById('monastery-stained-glass-light');
+    if (lightContainer && lightContainer.children.length === 0) {
+        let lightBeam = document.createElement('div');
+        lightBeam.className = 'stained-glass-beam';
+        lightContainer.appendChild(lightBeam);
+    }
+
+    // 4. Dancing Shadows
+    const shadowContainer = document.getElementById('monastery-shadows');
+    if (shadowContainer && shadowContainer.children.length === 0) {
+        for (let i = 0; i < 5; i++) {
+            let shadow = document.createElement('div');
+            shadow.className = 'dancing-shadow';
+            shadow.style.animationDelay = `-${Math.random() * 6}s`;
+            shadowContainer.appendChild(shadow);
+        }
+    }
+}
+
 class Firefly {
     constructor(boundsX, boundsY) {
         this.boundsX = boundsX; this.boundsY = boundsY;
@@ -554,7 +1163,7 @@ class Firefly {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -2186,11 +2795,172 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             if (themeName === 'lantern-festival') {
                 createLanternFestivalScene();
             }
+             if (themeName === 'crystal-cave') {
+                createCrystalCaveScene();
+            }
+            if (themeName === 'candlelit-monastery') {
+                createCandlelitMonasteryScene();
+            }
+            if (themeName === 'cherry-blossom-garden') {
+                createCherryBlossomGardenScene();
+            }
+            if (themeName === 'floating-islands') {
+                createFloatingIslandsScene();
+            }
+            if (themeName === 'meditation-temple') {
+                createMeditationTempleScene();
+            }
+            if (themeName === 'moonlit-greenhouse') {
+                createMoonlitGreenhouseScene();
+            }
+            if (themeName === 'ice-temple') {
+                createIceTempleScene();
+            }
+            if (themeName === 'himalayan-peak') {
+                createHimalayanPeakScene();
+            }
                 } else {
                     el.classList.remove('active');
                 }
             });
         }
+
+function createCrystalCaveScene() {
+    // 1. Layered Crystal Formations (Procedural Canvases)
+    const crystalLayers = [
+        { el: document.getElementById('crystal-cave-back-crystals'), count: 15, color: 'rgba(40, 60, 100, 0.5)', height: 0.7, jaggedness: 0.6 },
+        { el: document.getElementById('crystal-cave-mid-crystals'), count: 12, color: 'rgba(60, 80, 130, 0.6)', height: 0.8, jaggedness: 0.8 },
+        { el: document.getElementById('crystal-cave-front-crystals'), count: 10, color: 'rgba(80, 100, 160, 0.7)', height: 0.9, jaggedness: 1.0 }
+    ];
+
+    crystalLayers.forEach(layer => {
+        if (layer.el && layer.el.children.length === 0) {
+            const canvas = document.createElement('canvas');
+            const C_WIDTH = 2048;
+            canvas.width = C_WIDTH;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = layer.color;
+            ctx.strokeStyle = `rgba(180, 200, 255, 0.1)`;
+            ctx.lineWidth = 1;
+
+            // Draw crystals from ceiling and floor
+            for (let i = 0; i < layer.count; i++) {
+                const x = Math.random() * C_WIDTH;
+                const h = (Math.random() * 0.5 + 0.3) * canvas.height * layer.height;
+                const w = Math.random() * 80 + 40;
+
+                // Ceiling
+                ctx.beginPath();
+                ctx.moveTo(x - w / 2, 0);
+                ctx.lineTo(x, h);
+                ctx.lineTo(x + w / 2, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Floor
+                ctx.beginPath();
+                ctx.moveTo(x - w / 2, canvas.height);
+                ctx.lineTo(x, canvas.height - h);
+                ctx.lineTo(x + w / 2, canvas.height);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+            canvas.style.position = 'absolute';
+            canvas.style.left = '0';
+            canvas.style.bottom = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            layer.el.appendChild(canvas);
+        }
+    });
+
+    // 2. Glowing Crystal Clusters
+    const clusterContainer = document.getElementById('crystal-cave-glow-clusters');
+    if (clusterContainer && clusterContainer.children.length === 0) {
+        const clusterColors = ['#e67eff', '#74b9ff', '#55efc4'];
+        for (let i = 0; i < 15; i++) {
+            let cluster = document.createElement('div');
+            cluster.className = 'crystal-cluster';
+            const color = clusterColors[Math.floor(Math.random() * clusterColors.length)];
+            cluster.style.setProperty('--glow-color', color);
+            cluster.style.left = `${Math.random() * 90 + 5}%`;
+            cluster.style.top = `${Math.random() * 80 + 10}%`;
+            const size = Math.random() * 50 + 30;
+            cluster.style.width = `${size}px`;
+            cluster.style.height = `${size}px`;
+            cluster.style.animationDelay = `-${Math.random() * 8}s`;
+            clusterContainer.appendChild(cluster);
+        }
+    }
+
+    // 3. Floating Crystal Shards
+    const shardContainer = document.getElementById('crystal-cave-floating-shards');
+    if (shardContainer && shardContainer.children.length === 0) {
+        for (let i = 0; i < 25; i++) {
+            let shard = document.createElement('div');
+            shard.className = 'floating-shard';
+            shard.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+            shard.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+            shard.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+            shard.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+            shard.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+            const duration = Math.random() * 20 + 20;
+            shard.style.animationDuration = `${duration}s`;
+            shard.style.animationDelay = `-${Math.random() * duration}s`;
+            shardContainer.appendChild(shard);
+        }
+    }
+
+    // 4. Bioluminescent Moss
+    const mossContainer = document.getElementById('crystal-cave-moss');
+    if (mossContainer && mossContainer.children.length === 0) {
+        for (let i = 0; i < 10; i++) {
+            let patch = document.createElement('div');
+            patch.className = 'moss-patch';
+            patch.style.left = `${Math.random() * 100}%`;
+            patch.style.top = `${Math.random() * 100}%`;
+            const size = Math.random() * 120 + 80;
+            patch.style.width = `${size}px`;
+            patch.style.height = `${size}px`;
+            patch.style.animationDelay = `-${Math.random() * 6}s`;
+            mossContainer.appendChild(patch);
+        }
+    }
+
+    // 5. Sparkling Mineral Dust
+    const dustContainer = document.getElementById('crystal-cave-dust');
+    if (dustContainer && dustContainer.children.length === 0) {
+        for (let i = 0; i < 100; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'cave-dust-particle';
+            const size = Math.random() * 2 + 1;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            particle.style.animationDelay = `-${Math.random() * 10}s`;
+            dustContainer.appendChild(particle);
+        }
+    }
+
+    // 6. Light Refractions
+    const refractionContainer = document.getElementById('crystal-cave-refractions');
+    if (refractionContainer && refractionContainer.children.length === 0) {
+        for (let i = 0; i < 5; i++) {
+            let ray = document.createElement('div');
+            ray.className = 'refraction-ray';
+            ray.style.left = `${Math.random() * 100}%`;
+            ray.style.top = `${Math.random() * 100}%`;
+            ray.style.transform = `rotate(${Math.random() * 360}deg)`;
+            ray.style.animationDelay = `-${Math.random() * 12}s`;
+            refractionContainer.appendChild(ray);
+        }
+    }
+}
 
 function createLanternFestivalScene() {
     // 1. Lanterns

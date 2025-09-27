@@ -2057,6 +2057,430 @@
     }
 }
 
+/* --- Meditation Temple Theme --- */
+#meditation-temple-theme {
+    background-color: #f4f1de;
+    overflow: hidden;
+}
+
+#meditation-temple-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, #f6e58d, #f9d29d, #f3a683);
+    z-index: 1;
+}
+
+.meditation-temple-mountain-layer {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><path d="M 0 600 L 150 300 L 300 450 L 500 200 L 650 500 L 800 350 V 600 Z" fill="rgba(60,50,40,0.3)"/></svg>');
+    animation: slide linear infinite;
+}
+
+#meditation-temple-mountains-back { animation-duration: 250s; z-index: 2; filter: brightness(0.7); }
+#meditation-temple-mountains-mid { animation-duration: 180s; z-index: 3; filter: brightness(0.85); }
+#meditation-temple-mountains-front { animation-duration: 120s; z-index: 8; }
+
+#meditation-temple-main {
+    position: absolute;
+    bottom: 20%; left: 50%;
+    transform: translateX(-50%);
+    width: 400px; height: 300px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><path d="M 200 50 L 350 150 L 320 150 L 320 280 L 80 280 L 80 150 L 50 150 Z" fill="rgba(40,30,20,0.8)"/><path d="M 200 20 L 380 130 L 20 130 Z" fill="rgba(40,30,20,0.8)"/><rect x="180" y="180" width="40" height="100" fill="rgba(20,10,5,0.9)"/></svg>');
+    z-index: 5;
+}
+
+#meditation-temple-trees {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 6;
+}
+
+#meditation-temple-prayer-flags {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 7;
+}
+
+.prayer-flag-strand {
+    position: absolute;
+    height: 30px;
+    transform-origin: top left;
+}
+
+.prayer-flag {
+    position: absolute;
+    top: 0;
+    width: 20px; height: 25px;
+    transform-origin: top center;
+    animation: flutter-flag 4s ease-in-out infinite;
+}
+
+@keyframes flutter-flag {
+    from { transform: rotate(5deg) skewX(-10deg); }
+    to { transform: rotate(-5deg) skewX(10deg); }
+}
+
+#meditation-temple-incense {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9;
+    mix-blend-mode: screen;
+}
+
+.temple-incense-wisp {
+    position: absolute;
+    width: 3px;
+    height: 80%;
+    background: linear-gradient(to top, rgba(220, 210, 200, 0.3), transparent);
+    animation: rise-and-sway-smoke ease-in-out infinite;
+}
+
+@keyframes rise-and-sway-smoke {
+    0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(-80vh) translateX(50px) scale(3); opacity: 0; }
+}
+
+.temple-bell-glint {
+    position: absolute;
+    width: 5px; height: 5px;
+    background-color: #fbc531;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fbc531, 0 0 15px #fbc531;
+    animation: glint-bell 10s ease-in-out infinite;
+}
+
+@keyframes glint-bell {
+    0%, 100% { opacity: 0; }
+    5% { opacity: 0.8; }
+    10% { opacity: 0; }
+}
+
+/* --- Moonlit Greenhouse Theme --- */
+#moonlit-greenhouse-theme {
+    background-color: #0c141f;
+    overflow: hidden;
+}
+
+#greenhouse-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, #0d1b2a, #1b263b, #415a77);
+    z-index: 1;
+}
+
+#greenhouse-moon {
+    position: absolute;
+    top: 10%; right: 15%;
+    width: 100px; height: 100px;
+    background-color: #f7f3e3;
+    border-radius: 50%;
+    box-shadow: 0 0 40px #f7f3e3, 0 0 80px #f7f3e3;
+    animation: moon-pulse 10s ease-in-out infinite alternate;
+    z-index: 2;
+}
+
+#greenhouse-framework {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image:
+        linear-gradient(rgba(200, 210, 220, 0.1) 1px, transparent 1px),
+        linear-gradient(to right, rgba(200, 210, 220, 0.1) 1px, transparent 1px);
+    background-size: 100px 100px;
+    z-index: 5;
+    --moonbeam-x: 80%;
+    --moonbeam-y: 15%;
+}
+
+#greenhouse-framework::after { /* Moonbeam */
+    content: '';
+    position: absolute;
+    top: -50%; left: var(--moonbeam-x);
+    width: 20%;
+    height: 200%;
+    background: linear-gradient(to bottom, rgba(247, 243, 227, 0.15) 0%, transparent 80%);
+    transform: rotate(-30deg);
+    transform-origin: top center;
+    animation: moonbeam-sway 20s ease-in-out infinite alternate;
+}
+
+@keyframes moonbeam-sway {
+    from { transform: rotate(-35deg) scaleY(1); }
+    to { transform: rotate(-25deg) scaleY(1.05); }
+}
+
+.greenhouse-plant-layer {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    will-change: transform;
+}
+#greenhouse-plants-back { z-index: 3; filter: blur(1px) brightness(0.8); }
+#greenhouse-plants-mid { z-index: 6; }
+#greenhouse-plants-front { z-index: 8; filter: brightness(1.2); }
+
+.greenhouse-plant {
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    animation: plant-sway 10s ease-in-out infinite alternate;
+}
+
+@keyframes plant-sway {
+    from { transform: rotate(-2deg); }
+    to { transform: rotate(2deg); }
+}
+
+#greenhouse-dewdrops {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 7;
+}
+
+.dewdrop {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #e0fbfc;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #e0fbfc, 0 0 12px #98c1d9;
+    animation: dewdrop-glisten 8s ease-in-out infinite alternate;
+}
+
+@keyframes dewdrop-glisten {
+    from { opacity: 0.3; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+#greenhouse-mist {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 25%;
+    background: linear-gradient(to top, rgba(120, 140, 160, 0.2), transparent);
+    z-index: 4;
+    animation: mist-anim 80s linear infinite alternate;
+}
+
+#greenhouse-moths {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9;
+}
+.greenhouse-moth {
+    position: absolute;
+    width: 15px; height: 15px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M 10 10 C 0 0, 20 0, 10 10 M 10 10 C 0 20, 20 20, 10 10" fill="rgba(247, 243, 227, 0.6)"/></svg>');
+    animation: flutter-moth-greenhouse 15s ease-in-out infinite;
+}
+
+@keyframes flutter-moth-greenhouse {
+    0% { transform: translate(var(--x-start), var(--y-start)) rotate(0deg); }
+    50% { transform: translate(var(--x-end), var(--y-end)) rotate(360deg); }
+    100% { transform: translate(var(--x-start), var(--y-start)) rotate(0deg); }
+}
+
+/* --- Ice Temple Theme --- */
+#ice-temple-theme {
+    background: linear-gradient(to top, #3a7bd5, #3a6073, #16222a);
+    overflow: hidden;
+}
+
+#ice-temple-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+}
+
+#ice-temple-aurora {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    mix-blend-mode: screen;
+    opacity: 0.7;
+}
+.ice-aurora-curtain {
+    position: absolute;
+    top: -50%; left: -25%;
+    width: 150%; height: 200%;
+    background: radial-gradient(ellipse at center, transparent 0%, transparent 40%, var(--aurora-color) 100%);
+    animation: aurora-curtain-flow 30s ease-in-out infinite alternate;
+}
+
+
+.ice-temple-crystal-layer {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+}
+#ice-temple-crystals-back { z-index: 3; filter: blur(2px) brightness(0.7); }
+#ice-temple-crystals-mid { z-index: 5; filter: blur(1px); }
+#ice-temple-crystals-front { z-index: 7; }
+
+#ice-temple-waterfalls {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 4;
+}
+.frozen-waterfall {
+    position: absolute;
+    top: 0;
+    width: 80px;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(200, 220, 255, 0) 0%, rgba(200, 220, 255, 0.4) 50%, rgba(200, 220, 255, 0) 100%);
+    clip-path: polygon(20% 0, 80% 0, 100% 100%, 0% 100%);
+    animation: shimmer-ice 10s ease-in-out infinite alternate;
+}
+
+@keyframes shimmer-ice {
+    from { opacity: 0.6; }
+    to { opacity: 0.9; }
+}
+
+#ice-temple-sculptures {
+    position: absolute;
+    bottom: 5%; left: 0;
+    width: 100%; height: 30%;
+    z-index: 6;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+}
+.ice-sculpture {
+    width: 150px; height: 150px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 0 15px rgba(173, 216, 230, 0.7));
+    animation: shimmer-ice 8s ease-in-out infinite alternate-reverse;
+}
+
+
+#ice-temple-snow-crystals {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 8;
+    pointer-events: none;
+}
+
+.snow-crystal {
+    position: absolute;
+    width: 10px; height: 10px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 L10 20 M0 10 L20 10 M5 5 L15 15 M5 15 L15 5" stroke="rgba(255,255,255,0.8)" stroke-width="1"/></svg>');
+    animation: float-and-spin ease-in-out infinite;
+}
+
+@keyframes float-and-spin {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.8; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+/* --- Himalayan Peak Theme --- */
+#himalayan-peak-theme {
+    background-color: #a7c5d9;
+    overflow: hidden;
+}
+
+#himalayan-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, #74a8c3, #a7c5d9, #d3e0ea);
+    z-index: 1;
+}
+
+#himalayan-sun {
+    position: absolute;
+    top: 10%; left: 50%;
+    transform: translateX(-50%);
+    width: 150px; height: 150px;
+    background: radial-gradient(circle, #fff, #fff2d9, #ffefc4);
+    border-radius: 50%;
+    box-shadow: 0 0 80px #fff;
+    animation: sun-pulse 12s ease-in-out infinite alternate;
+    z-index: 2;
+}
+
+.himalayan-peak-layer {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    animation: slide 300s linear infinite;
+}
+#himalayan-peaks-back { z-index: 3; filter: brightness(0.8) blur(1px); animation-duration: 400s; }
+#himalayan-peaks-mid { z-index: 5; filter: brightness(0.9); animation-duration: 300s; }
+#himalayan-peaks-front { z-index: 7; filter: brightness(1); animation-duration: 200s; }
+
+#himalayan-clouds {
+    position: absolute;
+    top: 0; left: 0;
+    width: 200%; height: 100%;
+    animation: slide 150s linear infinite;
+    z-index: 4;
+}
+.himalayan-cloud {
+    position: absolute;
+    width: 400px; height: 100px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50px;
+    filter: blur(30px);
+}
+
+#himalayan-flags {
+    position: absolute;
+    top: 40%; left: 0;
+    width: 100%;
+    z-index: 6;
+}
+.himalayan-prayer-strand {
+    position: absolute;
+    width: 100%;
+    height: 30px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 2"><path d="M 0 1 C 25 2, 75 0, 100 1" fill="none" stroke="rgba(40,30,20,0.5)" stroke-width="0.5"/></svg>');
+    background-size: 100px 2px;
+}
+.himalayan-prayer-flag {
+    position: absolute;
+    top: 1px;
+    width: 15px; height: 20px;
+    transform-origin: top center;
+    animation: flutter-flag 3s ease-in-out infinite;
+}
+
+#himalayan-particles {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 8;
+}
+.himalayan-particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: air-particle-drift ease-in-out infinite;
+}
+@keyframes air-particle-drift {
+    from { transform: translate(0, 0); opacity: 0; }
+    50% { opacity: 0.7; }
+    to { transform: translate(20px, -20px); opacity: 0; }
+}
+
 
         @keyframes slide {
             from { transform: translateX(0%); }
@@ -2567,4 +2991,475 @@
 @keyframes rise-ember {
     0% { transform: translateY(0) scale(1); opacity: 1; }
     100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+}
+
+/* --- Crystal Cave Theme --- */
+#crystal-cave-theme {
+    background: linear-gradient(to top, #1a182a, #2c2a3e, #4a485e);
+    overflow: hidden;
+}
+
+.crystal-cave-layer {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    will-change: transform;
+    z-index: 1;
+}
+
+#crystal-cave-back-crystals { z-index: 2; filter: brightness(0.6); }
+#crystal-cave-mid-crystals { z-index: 5; filter: brightness(0.8); }
+#crystal-cave-front-crystals { z-index: 8; }
+
+#crystal-cave-pools {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 20%;
+    background: linear-gradient(to top, rgba(70, 90, 140, 0.5), transparent);
+    z-index: 3;
+    filter: blur(2px);
+}
+#crystal-cave-pools::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(175deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 5%);
+    animation: shimmer-water 12s ease-in-out infinite alternate;
+    transform: scaleY(-1); /* Reflect the shimmer */
+}
+
+
+#crystal-cave-moss {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 4;
+}
+.moss-patch {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(85, 239, 196, 0.3) 0%, transparent 70%);
+    box-shadow: 0 0 20px rgba(85, 239, 196, 0.2);
+    animation: moss-breathe 8s ease-in-out infinite alternate;
+}
+@keyframes moss-breathe {
+    from { transform: scale(1); opacity: 0.5; }
+    to { transform: scale(1.1); opacity: 0.7; }
+}
+
+#crystal-cave-glow-clusters {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 6;
+}
+.crystal-cluster {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--glow-color);
+    box-shadow: 0 0 30px var(--glow-color), 0 0 50px var(--glow-color);
+    animation: cluster-pulse 6s ease-in-out infinite alternate;
+}
+@keyframes cluster-pulse {
+    from { transform: scale(0.9); opacity: 0.7; }
+    to { transform: scale(1.1); opacity: 1; }
+}
+
+#crystal-cave-floating-shards {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 7;
+}
+.floating-shard {
+    position: absolute;
+    width: 10px; height: 30px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(200,200,255,0.4));
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    animation: shard-drift linear infinite;
+}
+@keyframes shard-drift {
+    from {
+        transform: translate(var(--x-start), var(--y-start)) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    to {
+        transform: translate(var(--x-end), var(--y-end)) rotate(var(--r-end));
+        opacity: 0;
+    }
+}
+
+#crystal-cave-refractions {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 9;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+.refraction-ray {
+    position: absolute;
+    width: 2px;
+    height: 300px;
+    background: linear-gradient(to bottom, transparent, red, orange, yellow, green, blue, indigo, violet, transparent);
+    animation: refraction-shimmer 12s ease-in-out infinite alternate;
+}
+@keyframes refraction-shimmer {
+    from { opacity: 0; transform: scaleY(0.5) rotate(var(--r-start)); }
+    50% { opacity: 0.2; }
+    to { opacity: 0; transform: scaleY(1) rotate(var(--r-end)); }
+}
+
+#crystal-cave-dust {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10;
+}
+.cave-dust-particle {
+    position: absolute;
+    background-color: rgba(220, 230, 255, 0.7);
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(220, 230, 255, 0.5);
+    animation: twinkle 10s ease-in-out infinite;
+}
+
+/* --- Candlelit Monastery Theme --- */
+#candlelit-monastery-theme {
+    background: linear-gradient(to top, #1a120a, #3a2a1a, #5a4a3a);
+    overflow: hidden;
+}
+
+.monastery-archway-layer {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><path d="M 100 600 C 100 300, 300 300, 300 600 Z M 500 600 C 500 300, 700 300, 700 600 Z" fill="rgba(20,10,5,0.8)"/></svg>');
+    background-repeat: repeat-x;
+    background-size: 400px 100%;
+    animation: slide linear infinite;
+    will-change: transform;
+}
+
+#monastery-archways-back { animation-duration: 180s; z-index: 2; filter: brightness(0.5); }
+#monastery-archways-mid { animation-duration: 120s; z-index: 4; filter: brightness(0.7); }
+#monastery-archways-front { animation-duration: 80s; z-index: 6; filter: brightness(0.9); }
+
+#monastery-candles {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 40%;
+    z-index: 7;
+}
+
+.monastery-candle {
+    position: absolute;
+    width: 10px;
+    background: linear-gradient(to right, #f0e0d0, #c0b0a0);
+    border-radius: 2px 2px 0 0;
+    filter: drop-shadow(0 0 5px rgba(255,165,0,0.3));
+    animation: candle-sway 6s ease-in-out infinite alternate;
+}
+
+@keyframes candle-sway {
+    from { transform: rotate(-0.5deg); }
+    to { transform: rotate(0.5deg); }
+}
+
+.candle-flame {
+    position: absolute;
+    top: -15px; left: 50%;
+    transform: translateX(-50%);
+    width: 12px; height: 18px;
+    background: radial-gradient(circle, white 20%, #ffab40 50%, transparent 70%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: flicker 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes flicker {
+    0% { transform: translateX(-50%) scaleY(1) scaleX(1) rotate(2deg); opacity: 0.9; }
+    50% { transform: translateX(-50%) scaleY(0.95) scaleX(1.05) rotate(-2deg); opacity: 1; }
+    100% { transform: translateX(-50%) scaleY(1.05) scaleX(0.95) rotate(2deg); opacity: 0.9; }
+}
+
+#monastery-incense-smoke {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 5;
+    mix-blend-mode: screen;
+}
+
+.incense-wisp {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to top, rgba(200, 190, 180, 0.2), transparent);
+    animation: rise-smoke ease-in-out infinite;
+}
+
+@keyframes rise-smoke {
+    0% { transform: translateY(0) scaleX(1); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translateY(-100vh) scaleX(5); opacity: 0; }
+}
+
+#monastery-stained-glass-light {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
+    pointer-events: none;
+    mix-blend-mode: color-dodge;
+}
+
+.stained-glass-beam {
+    position: absolute;
+    top: -10%; left: 10%;
+    width: 30%; height: 120%;
+    background: linear-gradient(45deg, rgba(255, 0, 0, 0.2), rgba(255, 255, 0, 0.2), rgba(0, 0, 255, 0.2));
+    transform: rotate(25deg);
+    animation: light-beam-pan 60s ease-in-out infinite alternate;
+}
+
+@keyframes light-beam-pan {
+    from { transform: rotate(25deg) translateX(-10vw); }
+    to { transform: rotate(20deg) translateX(10vw); }
+}
+
+#monastery-shadows {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    opacity: 0.3;
+}
+
+.dancing-shadow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.5) 100%);
+    animation: shadow-dance 6s ease-in-out infinite alternate;
+}
+
+@keyframes shadow-dance {
+    from { transform: scale(1.5); opacity: 0.8; }
+    to { transform: scale(1.6); opacity: 1; }
+}
+
+#monastery-benches {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 15%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60"><rect x="20" y="20" width="150" height="10" fill="rgba(10,5,0,0.9)"/><rect x="30" y="30" width="10" height="20" fill="rgba(10,5,0,0.9)"/><rect x="150" y="30" width="10" height="20" fill="rgba(10,5,0,0.9)"/><rect x="220" y="20" width="150" height="10" fill="rgba(10,5,0,0.9)"/><rect x="230" y="30" width="10" height="20" fill="rgba(10,5,0,0.9)"/><rect x="350" y="30" width="10" height="20" fill="rgba(10,5,0,0.9)"/></svg>');
+    animation: slide 150s linear infinite;
+    z-index: 8;
+}
+
+/* --- Cherry Blossom Garden Theme --- */
+#cherry-blossom-garden-theme {
+    background-color: #fdeff2;
+    overflow: hidden;
+}
+
+#cherry-blossom-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, #f8cdda, #fce4ec, #ffffff);
+    z-index: 1;
+}
+
+#cherry-blossom-pagodas {
+    position: absolute;
+    bottom: 30%; left: 0;
+    width: 200%; height: 25%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200"><path d="M 100 200 L 120 150 L 80 150 Z M 100 140 L 130 110 L 70 110 Z M 100 100 L 140 70 L 60 70 Z M 500 200 L 520 150 L 480 150 Z M 500 140 L 530 110 L 470 110 Z" fill="rgba(50,30,40,0.5)"/></svg>');
+    animation: slide 200s linear infinite;
+    z-index: 2;
+}
+
+.cherry-blossom-tree-layer {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 150%; height: 100%;
+    animation: sway-grove 30s ease-in-out infinite alternate;
+}
+
+#cherry-blossom-trees-back { z-index: 3; filter: brightness(0.8); }
+#cherry-blossom-trees-front { z-index: 6; }
+
+#cherry-blossom-koi-stream {
+    position: absolute;
+    bottom: 10%; left: 0;
+    width: 100%; height: 20%;
+    background: linear-gradient(to right, #a8d8ea, #d4eaf7);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    z-index: 4;
+    overflow: hidden;
+}
+
+.stream-ripple {
+    position: absolute;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    animation: expand-ripple 5s ease-out;
+}
+
+#cherry-blossom-bridge {
+    position: absolute;
+    bottom: 25%; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 100px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100"><path d="M 0 50 Q 150 -20, 300 50" fill="none" stroke="rgba(80,50,60,0.9)" stroke-width="10"/><rect x="0" y="50" width="300" height="5" fill="rgba(80,50,60,0.9)"/></svg>');
+    z-index: 5;
+}
+
+#cherry-blossom-petals {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 8;
+}
+
+.cherry-blossom-petal {
+    position: absolute;
+    width: 12px; height: 12px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 182, 193, 0.9)"/></svg>');
+    background-size: contain;
+    animation: fall-petal-zen linear infinite;
+}
+
+#cherry-blossom-lanterns {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 7;
+}
+
+.cherry-blossom-lantern {
+    position: absolute;
+    width: 40px; height: 40px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><rect x="10" y="10" width="30" height="30" fill="rgba(20,10,5,0.7)"/><rect x="15" y="15" width="20" height="20" fill="rgba(255,228,181,0.5)"/></svg>');
+    animation: lantern-glow 7s ease-in-out infinite alternate;
+}
+
+@keyframes lantern-glow {
+    from { box-shadow: 0 0 10px rgba(255,228,181,0.4); }
+    to { box-shadow: 0 0 20px rgba(255,228,181,0.8); }
+}
+
+/* --- Floating Islands Theme --- */
+#floating-islands-theme {
+    background-color: #d4eaf7;
+    overflow: hidden;
+}
+
+#floating-islands-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, #a8d8ea, #d4eaf7, #f0f8ff);
+    animation: sky-color-change-islands 120s ease-in-out infinite alternate;
+    z-index: 1;
+}
+
+@keyframes sky-color-change-islands {
+    from { background: linear-gradient(to top, #b8c6db, #f5f7fa); }
+    to { background: linear-gradient(to top, #f8cdda, #a8d8ea); }
+}
+
+.floating-island-layer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    will-change: transform;
+}
+
+#floating-islands-back { z-index: 2; filter: blur(2px) brightness(0.8); }
+#floating-islands-mid { z-index: 4; }
+#floating-islands-front { z-index: 6; filter: brightness(1.2); }
+
+.floating-island {
+    position: absolute;
+    background-size: 100% 100%;
+    filter: drop-shadow(5px 10px 10px rgba(0,0,0,0.3));
+    animation: drift-island 100s ease-in-out infinite alternate;
+}
+
+@keyframes drift-island {
+    from { transform: translate(var(--x-start), var(--y-start)) rotate(var(--r-start)); }
+    to { transform: translate(var(--x-end), var(--y-end)) rotate(var(--r-end)); }
+}
+
+#floating-islands-clouds {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 5;
+    mix-blend-mode: screen;
+}
+
+.ethereal-cloud {
+    position: absolute;
+    width: 300px; height: 150px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(20px);
+    animation: drift-cloud linear infinite;
+}
+
+#floating-islands-waterfalls {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
+}
+
+.island-waterfall {
+    position: absolute;
+    width: 5px;
+    background: linear-gradient(to bottom, rgba(173, 216, 230, 0.7), transparent);
+    animation: flow-waterfall 5s linear infinite;
+}
+
+@keyframes flow-waterfall {
+    from { background-position: 0 0; }
+    to { background-position: 0 100%; }
+}
+
+#floating-islands-particles {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 7;
+}
+
+.island-particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #fff, 0 0 15px #a8d8ea;
+    animation: particle-drift ease-in-out infinite alternate;
+}
+
+@keyframes particle-drift {
+    from {
+        transform: translate(var(--x-start), var(--y-start));
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.9;
+    }
+    to {
+        transform: translate(var(--x-end), var(--y-end));
+        opacity: 0;
+    }
 }
