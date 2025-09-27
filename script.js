@@ -2722,7 +2722,7 @@ function checkLines() {
         linesUntilNextLevel -= fullLines.length;
         if (linesUntilNextLevel <= 0) {
             level++;
-            linesUntilNextLevel = 10 + linesUntilNextLevel;
+            linesUntilNextLevel = 10;
             dropInterval = LEVEL_SPEEDS[Math.min(level - 1, LEVEL_SPEEDS.length - 1)];
             soundManager.playLevelUp();
             showLevelUpNotification(level);
