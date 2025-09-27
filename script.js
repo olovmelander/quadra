@@ -2755,38 +2755,50 @@ function checkLines() {
 }
 
 function checkGravity() {
-    let sortedPieces = [...lockedPieces].sort((a, b) => b.y - a.y);
-    applyGravityToPiece(sortedPieces, 0, false);
-}
+    let fell = true;
+    let anyPieceFell = false;
 
-function applyGravityToPiece(pieces, index, anyPieceFell) {
-    if (index >= pieces.length) {
-        // Finished checking all pieces for this gravity pass.
-        if (anyPieceFell) {
-            // If something fell, we must re-check for line clears.
-            checkLines();
-        } else {
-            // Nothing fell, physics are stable. End processing.
-            isProcessingPhysics = false;
-            updateStats();
-            spawnPiece();
-        }
-        return;
-    }
-
-    const p = pieces[index];
-    const others = lockedPieces.filter(op => op !== p);
-
-    if (canFall(p, others)) {
-        p.y++;
-        draw();
-        // Keep checking the same piece after a delay, marking that a piece has fallen.
-        setTimeout(() => applyGravityToPiece(pieces, index, true), 40);
-    } else {
-        // This piece can't fall. Move to the next piece.
-        applyGravityToPiece(pieces, index + 1, anyPieceFell);
+    const fallLoop = () => {
+        // Stop if the last pass resulted in no pieces falling.
+        if (!fell) {
+            // If any piece fell during the whole process, re-check for lines.
+            // Otherwise, the physics are stable, and we can spawn the next piece.
+            if (anyPieceFell) {
+                checkLines();
+            } else {
+                isProcessingPhysics = false;
+                updateStats();
+                spawnPiece();
             }
+            return;
         }
+
+        fell = false;
+        // Check pieces from the bottom up.
+        const sortedPieces = [...lockedPieces].sort((a, b) => b.y - a.y);
+
+        // In each pass, move every piece that can fall down by one.
+        sortedPieces.forEach(p => {
+            const others = lockedPieces.filter(op => op !== p);
+            if (canFall(p, others)) {
+                p.y++;
+                fell = true;
+                anyPieceFell = true;
+            }
+        });
+
+        // If any piece fell in this pass, redraw and check again.
+        if (fell) {
+            draw();
+            setTimeout(fallLoop, 40);
+        } else {
+            // If not, trigger the stop condition for the next loop iteration.
+            fallLoop();
+        }
+    };
+
+    fallLoop();
+}
         function canFall(p, others) {
             const boardData=generateBoard(others);
             for(let y=0;y<p.shape.length;y++) for(let x=0;x<p.shape[y].length;x++) if(p.shape[y][x]>0) { const by=p.y+y+1, bx=p.x+x; if(by>=boardData.length||boardData[by][bx]!==0)return false;} return true;
