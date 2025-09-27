@@ -2452,3 +2452,119 @@
     from { background-position: 0% 0%; }
     to { background-position: 100% 100%; }
 }
+
+/* --- Lantern Festival Theme --- */
+#lantern-festival-theme {
+    overflow: hidden;
+}
+.lantern-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, #2c1e3a, #4a3a60, #7b526f 70%, #a86c7f 100%);
+    z-index: 1;
+}
+#lantern-mountains {
+    position: absolute;
+    bottom: 10%; left: 0;
+    width: 100%; height: 25%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 120"><path d="M 0 120 Q 150 20, 400 100 T 800 80 L 800 120 L 0 120 Z" fill="rgba(10, 5, 15, 0.6)"/></svg>');
+    background-size: 100% 100%;
+    z-index: 2;
+    filter: brightness(0.8);
+}
+#lantern-silhouettes {
+    position: absolute;
+    bottom: 10%; left: 0;
+    width: 200%; height: 30%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240"><path d="M50 240 L50 180 L0 180 L25 150 L25 120 L75 120 L75 150 L100 180 L50 180 M200 240 L200 150 Q250 120 300 150 L300 240 Z M240 150 L240 120 L260 120 L260 150 Z M400 240 L380 100 L420 100 L400 240 M450 240 L450 80 L550 80 L550 240 M470 70 A30 30 0 0 1 530 70 Z M600 240 L600 180 L650 120 L700 180 L700 240 Z" fill="rgba(20, 10, 30, 0.7)"/></svg>');
+    animation: slide 250s linear infinite;
+    z-index: 3;
+}
+
+.lantern-layer {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+}
+#lanterns-back { z-index: 4; transform: scale(0.6); filter: blur(2px) brightness(0.9); }
+#lanterns-mid { z-index: 6; }
+#lanterns-front { z-index: 8; transform: scale(1.2); filter: brightness(1.1); }
+
+.lantern {
+    position: absolute;
+    bottom: -150px; /* Start below screen */
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: float-lantern ease-in-out infinite;
+}
+.lantern::after { /* The glow */
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%; height: 150%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 180, 100, 0.4) 0%, transparent 70%);
+    animation: pulse-glow 5s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+@keyframes float-lantern {
+    0% {
+        transform: translateY(0) translateX(var(--x-sway1)) rotate(-2deg);
+        opacity: var(--start-opacity);
+    }
+    100% {
+        transform: translateY(-120vh) translateX(var(--x-sway2)) rotate(2deg);
+        opacity: 0;
+    }
+}
+
+#lantern-water {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 12%;
+    background: linear-gradient(to top, rgba(44, 30, 58, 0.7), transparent);
+    z-index: 10;
+    overflow: hidden;
+}
+.lantern-reflection {
+    position: absolute;
+    bottom: 100%; /* Positioned above the water line to reflect downwards */
+    background: radial-gradient(ellipse, rgba(255, 180, 100, 0.5) 20%, transparent 70%);
+    border-radius: 50%;
+    animation: float-lantern ease-in-out infinite, shimmer-reflection 4s ease-in-out infinite alternate;
+}
+
+@keyframes shimmer-reflection {
+    from { transform: scale(1, 0.4) skewX(10deg); opacity: 0.5; }
+    to { transform: scale(1, 0.3) skewX(-10deg); opacity: 0.3; }
+}
+
+.lantern-petal {
+    position: absolute;
+    width: 15px; height: 15px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 180, 200, 0.7)"/></svg>');
+    background-size: contain;
+    animation: drift-petal linear infinite;
+    z-index: 7;
+}
+
+@keyframes drift-petal {
+    from { transform: translate(var(--x-start), var(--y-start)) rotate(var(--r-start)); }
+    to { transform: translate(var(--x-end), var(--y-end)) rotate(var(--r-end)); }
+}
+
+.lantern-ember {
+    position: absolute;
+    width: 3px; height: 3px;
+    background-color: rgba(255, 165, 0, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 165, 0, 0.6);
+    animation: rise-ember linear infinite;
+    z-index: 5;
+}
+@keyframes rise-ember {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+}
