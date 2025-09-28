@@ -3213,110 +3213,278 @@
 
 /* --- Cherry Blossom Garden Theme --- */
 #cherry-blossom-garden-theme {
-    background-color: #fdeff2;
+    background: radial-gradient(ellipse at bottom, #f9c5d1 0%, #fbdce2 40%, #fdeff5 75%);
     overflow: hidden;
+    position: relative;
 }
 
 #cherry-blossom-sky {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: linear-gradient(to top, #f8cdda, #fce4ec, #ffffff);
+    background: linear-gradient(180deg, #ffe7f4 0%, #ffd4dd 45%, #f6f6ff 100%);
+    animation: cherry-sky-shift 45s ease-in-out infinite alternate;
     z-index: 1;
+}
+
+#cherry-blossom-sun {
+    position: absolute;
+    top: 8%; left: 12%;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 239, 200, 0.9) 0%, rgba(255, 205, 178, 0.55) 40%, rgba(255, 205, 178, 0) 70%);
+    filter: blur(1px);
+    animation: cherry-sun-float 60s ease-in-out infinite;
+    z-index: 2;
+}
+
+#cherry-blossom-clouds {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.cherry-blossom-cloud {
+    position: absolute;
+    left: -20%;
+    width: 220px; height: 90px;
+    background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.15) 70%),
+                radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.1) 70%);
+    border-radius: 50%;
+    filter: blur(0.3px);
+    opacity: 0.85;
+    animation: cherry-cloud-drift var(--cloud-duration, 55s) linear infinite;
+    transform: scale(var(--cloud-scale, 1));
+}
+
+.cherry-blossom-cloud::before,
+.cherry-blossom-cloud::after {
+    content: '';
+    position: absolute;
+    width: 65%; height: 65%;
+    background: inherit;
+    border-radius: 50%;
+}
+
+.cherry-blossom-cloud::before {
+    top: -20%; left: 5%;
+}
+
+.cherry-blossom-cloud::after {
+    bottom: -15%; right: 0;
+}
+
+#cherry-blossom-hills {
+    position: absolute;
+    bottom: 28%; left: 0;
+    width: 120%; height: 40%;
+    background-image:
+        radial-gradient(160% 80% at 15% 100%, rgba(124, 74, 96, 0.45) 0%, rgba(124, 74, 96, 0) 70%),
+        radial-gradient(140% 75% at 60% 100%, rgba(143, 85, 113, 0.5) 0%, rgba(143, 85, 113, 0) 70%),
+        radial-gradient(120% 70% at 90% 100%, rgba(102, 64, 92, 0.55) 0%, rgba(102, 64, 92, 0) 70%);
+    background-repeat: no-repeat;
+    transform: translateX(-10%);
+    z-index: 2;
+    opacity: 0.85;
+    filter: blur(0.8px);
+}
+
+#cherry-blossom-haze {
+    position: absolute;
+    top: 35%; left: 0;
+    width: 100%; height: 40%;
+    background: linear-gradient(180deg, rgba(255, 244, 249, 0) 0%, rgba(255, 244, 249, 0.65) 50%, rgba(255, 244, 249, 0) 100%);
+    animation: cherry-haze-pulse 30s ease-in-out infinite;
+    z-index: 4;
+    pointer-events: none;
 }
 
 #cherry-blossom-pagodas {
     position: absolute;
-    bottom: 30%; left: 0;
-    width: 200%; height: 25%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200"><path d="M 100 200 L 120 150 L 80 150 Z M 100 140 L 130 110 L 70 110 Z M 100 100 L 140 70 L 60 70 Z M 500 200 L 520 150 L 480 150 Z M 500 140 L 530 110 L 470 110 Z" fill="rgba(50,30,40,0.5)"/></svg>');
-    animation: slide 200s linear infinite;
-    z-index: 2;
-}
-
-#cherry-blossom-koi-stream {
-    position: absolute;
-    bottom: 10%; left: 0;
-    width: 100%; height: 20%;
-    background: linear-gradient(to right, #a8d8ea, #d4eaf7);
-    border-radius: 0 0 50% 50% / 0 0 100% 100%;
-    z-index: 4;
-    overflow: hidden;
-}
-
-.stream-ripple {
-    position: absolute;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    animation: expand-ripple 5s ease-out;
-}
-
-#cherry-blossom-bridge {
-    position: absolute;
-    bottom: 25%; left: 50%;
-    transform: translateX(-50%);
-    width: 300px; height: 100px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100"><path d="M 0 50 Q 150 -20, 300 50" fill="none" stroke="rgba(80,50,60,0.9)" stroke-width="10"/><rect x="0" y="50" width="300" height="5" fill="rgba(80,50,60,0.9)"/></svg>');
+    bottom: 32%; left: 0;
+    width: 200%; height: 24%;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200"><path d="M 70 200 L 100 150 L 40 150 Z M 70 140 L 110 110 L 30 110 Z M 70 100 L 125 70 L 15 70 Z M 480 200 L 520 150 L 440 150 Z M 480 140 L 530 110 L 420 110 Z" fill="rgba(78,46,66,0.5)"/></svg>');
+    background-size: contain;
+    animation: slide 180s linear infinite;
     z-index: 5;
+    opacity: 0.7;
 }
 
 #cherry-blossom-branches {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 3;
+    z-index: 6;
     transform-origin: bottom center;
-    animation: gentle-sway 12s ease-in-out infinite alternate;
+    animation: gentle-sway 14s ease-in-out infinite alternate;
 }
 
-@keyframes gentle-sway {
-    from { transform: rotate(-0.5deg) translateX(-1%); }
-    to { transform: rotate(0.5deg) translateX(1%); }
+#cherry-blossom-ground {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 25%;
+    background: linear-gradient(180deg, rgba(214, 148, 173, 0.25) 0%, rgba(214, 148, 173, 0.4) 40%, rgba(174, 120, 140, 0.55) 100%);
+    z-index: 3;
+    overflow: hidden;
+}
+
+#cherry-blossom-ground::before {
+    content: '';
+    position: absolute;
+    bottom: 12%; left: 50%;
+    transform: translateX(-50%);
+    width: 70%; height: 60%;
+    background: radial-gradient(ellipse at center, rgba(255, 213, 220, 0.6) 0%, rgba(180, 110, 130, 0.05) 70%);
+    opacity: 0.9;
+    filter: blur(2px);
+}
+
+.stepping-stone {
+    position: absolute;
+    bottom: 15%;
+    width: 70px; height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5) 0%, rgba(173, 147, 164, 0.9) 70%);
+    box-shadow: 0 10px 15px rgba(78, 46, 66, 0.2);
+    animation: stone-glow 12s ease-in-out infinite;
+    pointer-events: none;
+}
+
+#cherry-blossom-koi-stream {
+    position: absolute;
+    bottom: 11%; left: 0;
+    width: 100%; height: 20%;
+    background: linear-gradient(90deg, rgba(119, 193, 214, 0.35), rgba(165, 209, 216, 0.55), rgba(119, 193, 214, 0.35));
+    background-size: 200% 100%;
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    z-index: 7;
+    overflow: hidden;
+    animation: cherry-water-flow 18s linear infinite;
+    backdrop-filter: blur(2px);
+}
+
+#cherry-blossom-koi-stream::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.05) 70%);
+    mix-blend-mode: screen;
+    opacity: 0.6;
+}
+
+#cherry-blossom-koi-stream::after {
+    content: '';
+    position: absolute;
+    top: 10%; left: -40%;
+    width: 80%; height: 80%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 70%);
+    animation: koi-reflection 25s linear infinite;
+}
+
+.stream-ripple {
+    position: absolute;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+    animation: expand-ripple 6s ease-out;
+}
+
+#cherry-blossom-bridge {
+    position: absolute;
+    bottom: 26%; left: 50%;
+    transform: translateX(-50%);
+    width: 320px; height: 110px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 110"><path d="M 0 60 Q 160 -25, 320 60" fill="none" stroke="rgba(92,54,69,0.9)" stroke-width="12" stroke-linecap="round"/><rect x="0" y="60" width="320" height="6" fill="rgba(92,54,69,0.9)"/></svg>');
+    z-index: 8;
 }
 
 #cherry-blossom-lanterns {
     position: absolute;
     bottom: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 7;
+    z-index: 9;
 }
 
 .cherry-blossom-lantern {
     position: absolute;
-    width: 40px; height: 60px; /* Taller for a better shape */
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 60"><rect x="5" y="0" width="40" height="10" fill="rgba(60,40,30,0.8)"/><rect x="0" y="10" width="50" height="40" fill="rgba(60,40,30,0.8)"/><rect x="10" y="15" width="30" height="30" fill="rgba(255,228,181,0.1)"/><rect x="5" y="50" width="40" height="10" fill="rgba(60,40,30,0.8)"/></svg>');
+    width: 42px; height: 62px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 60"><rect x="5" y="0" width="40" height="8" rx="3" fill="rgba(60,40,30,0.8)"/><rect x="0" y="8" width="50" height="44" rx="6" fill="rgba(60,40,30,0.78)"/><rect x="8" y="14" width="34" height="30" rx="4" fill="rgba(255,228,181,0.12)"/><rect x="6" y="52" width="38" height="6" rx="3" fill="rgba(60,40,30,0.82)"/></svg>');
 }
 
 .cherry-blossom-lantern::after {
     content: '';
     position: absolute;
-    top: 15px; left: 10px;
+    top: 16px; left: 11px;
     width: 30px; height: 30px;
-    background-color: #ffc947;
-    border-radius: 2px;
+    background: radial-gradient(circle, #ffd46f 0%, #ffb347 60%, rgba(255, 179, 71, 0.2) 100%);
+    border-radius: 4px;
     animation: flicker-warm 4s ease-in-out infinite alternate;
-}
-
-@keyframes flicker-warm {
-    0% { background-color: #fbc531; box-shadow: 0 0 15px 3px #fbc531; }
-    50% { background-color: #ffc947; box-shadow: 0 0 25px 8px #ffc947; }
-    100% { background-color: #fbc531; box-shadow: 0 0 18px 4px #fbc531; }
 }
 
 .bamboo-water-feature {
     position: absolute;
     bottom: 15%; right: 5%;
     width: 100px; height: 100px;
-    z-index: 8;
+    z-index: 10;
 }
 
 .bamboo-tock {
     position: absolute;
     width: 10px; height: 60px;
-    background-color: #556b2f;
+    background: linear-gradient(180deg, #5f7d3a 0%, #49652f 100%);
     border-radius: 3px;
     transform-origin: bottom center;
     animation: bamboo-tock-anim 10s ease-in-out infinite;
+    box-shadow: 0 8px 14px rgba(56, 82, 41, 0.25);
+}
+
+@keyframes gentle-sway {
+    from { transform: rotate(-0.6deg) translateX(-1.2%); }
+    to { transform: rotate(0.6deg) translateX(1.2%); }
+}
+
+@keyframes cherry-sky-shift {
+    from { background: linear-gradient(180deg, #ffe7f4 0%, #ffd4dd 45%, #f6f6ff 100%); }
+    to { background: linear-gradient(180deg, #fce3ff 0%, #ffd7e1 50%, #f1f5ff 100%); }
+}
+
+@keyframes cherry-cloud-drift {
+    from { transform: translateX(-30vw) scale(var(--cloud-scale, 1)); }
+    to { transform: translateX(120vw) scale(var(--cloud-scale, 1)); }
+}
+
+@keyframes cherry-sun-float {
+    0%, 100% { transform: translate3d(-2%, 0, 0) scale(1); }
+    50% { transform: translate3d(4%, 3%, 0) scale(1.05); }
+}
+
+@keyframes cherry-haze-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes cherry-water-flow {
+    from { background-position: 0% 50%; }
+    to { background-position: 200% 50%; }
+}
+
+@keyframes koi-reflection {
+    from { transform: translateX(0); opacity: 0.5; }
+    50% { transform: translateX(80%); opacity: 0.8; }
+    to { transform: translateX(160%); opacity: 0.3; }
+}
+
+@keyframes stone-glow {
+    0%, 100% { box-shadow: 0 10px 15px rgba(78, 46, 66, 0.18); }
+    50% { box-shadow: 0 14px 22px rgba(78, 46, 66, 0.28); }
+}
+
+@keyframes flicker-warm {
+    0% { background: radial-gradient(circle, #ffcf66 0%, #ffb347 60%, rgba(255, 179, 71, 0.2) 100%); box-shadow: 0 0 15px 3px rgba(255, 180, 90, 0.7); }
+    50% { background: radial-gradient(circle, #ffd978 0%, #ffc161 60%, rgba(255, 193, 97, 0.25) 100%); box-shadow: 0 0 26px 10px rgba(255, 193, 97, 0.65); }
+    100% { background: radial-gradient(circle, #ffcf66 0%, #ffb347 60%, rgba(255, 179, 71, 0.2) 100%); box-shadow: 0 0 18px 5px rgba(255, 180, 90, 0.6); }
 }
 
 @keyframes bamboo-tock-anim {

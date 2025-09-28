@@ -509,9 +509,25 @@ function createFloatingIslandsScene() {
 }
 
 function createCherryBlossomGardenScene() {
-    // 1. Falling Petals are handled by WebGLRenderer.
+    // 1. Dreamy sky details
+    const cloudContainer = document.getElementById('cherry-blossom-clouds');
+    if (cloudContainer && cloudContainer.children.length === 0) {
+        const cloudCount = window.innerWidth > 1100 ? 7 : 5;
+        for (let i = 0; i < cloudCount; i++) {
+            const cloud = document.createElement('div');
+            cloud.className = 'cherry-blossom-cloud';
+            cloud.style.top = `${10 + Math.random() * 35}%`;
+            cloud.style.setProperty('--cloud-scale', `${0.7 + Math.random() * 0.8}`);
+            const duration = 45 + Math.random() * 25;
+            cloud.style.setProperty('--cloud-duration', `${duration}s`);
+            cloud.style.animationDelay = `-${Math.random() * duration}s`;
+            cloudContainer.appendChild(cloud);
+        }
+    }
 
-    // 2. Procedural, swaying trees
+    // 2. Falling Petals are handled by WebGLRenderer.
+
+    // 3. Procedural, swaying trees
     const branchContainer = document.getElementById('cherry-blossom-branches');
     if (branchContainer && branchContainer.children.length === 0) {
         const canvas = document.createElement('canvas');
@@ -520,10 +536,13 @@ function createCherryBlossomGardenScene() {
         canvas.width = C_WIDTH;
         canvas.height = C_HEIGHT;
         const ctx = canvas.getContext('2d');
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
 
         const treeLayers = [
-            { count: 10, color: 'rgba(40, 20, 30, 0.5)', bloomColor: 'rgba(255, 220, 230, 0.6)', baseWidth: 8 },
-            { count: 7, color: 'rgba(60, 40, 50, 0.7)', bloomColor: 'rgba(255, 200, 210, 0.7)', baseWidth: 12 }
+            { count: 8, color: 'rgba(68, 36, 52, 0.45)', bloomColor: 'rgba(255, 217, 228, 0.6)', baseWidth: 9 },
+            { count: 6, color: 'rgba(92, 50, 68, 0.65)', bloomColor: 'rgba(255, 204, 220, 0.72)', baseWidth: 12 },
+            { count: 4, color: 'rgba(116, 60, 80, 0.78)', bloomColor: 'rgba(255, 189, 210, 0.78)', baseWidth: 15 }
         ];
 
         const drawBranch = (x1, y1, len, angle, width, color, bloomColor) => {
@@ -546,8 +565,11 @@ function createCherryBlossomGardenScene() {
                     ctx.arc(bloomX, bloomY, bloomRadius, 0, Math.PI * 2);
                     ctx.fillStyle = bloomColor;
                     ctx.globalAlpha = Math.random() * 0.5 + 0.5;
+                    ctx.shadowColor = 'rgba(255, 182, 193, 0.2)';
+                    ctx.shadowBlur = 6;
                     ctx.fill();
                     ctx.globalAlpha = 1.0;
+                    ctx.shadowBlur = 0;
                 }
             }
 
@@ -573,7 +595,22 @@ function createCherryBlossomGardenScene() {
         branchContainer.appendChild(canvas);
     }
 
-    // 3. Flickering Stone Lanterns
+    // 4. Stepping stones leading to the bridge
+    const groundContainer = document.getElementById('cherry-blossom-ground');
+    if (groundContainer && groundContainer.querySelector('.stepping-stone') === null) {
+        const stoneCount = 5;
+        for (let i = 0; i < stoneCount; i++) {
+            const stone = document.createElement('div');
+            stone.className = 'stepping-stone';
+            const spread = 12;
+            stone.style.left = `${20 + i * spread + (Math.random() * 4 - 2)}%`;
+            stone.style.transform = `scale(${0.85 + Math.random() * 0.25})`;
+            stone.style.animationDelay = `-${Math.random() * 8}s`;
+            groundContainer.appendChild(stone);
+        }
+    }
+
+    // 5. Flickering Stone Lanterns
     const lanternContainer = document.getElementById('cherry-blossom-lanterns');
     if (lanternContainer && lanternContainer.children.length === 0) {
         for (let i = 0; i < 3; i++) {
@@ -589,7 +626,7 @@ function createCherryBlossomGardenScene() {
         }
     }
 
-    // 4. Koi Stream Ripples & Bamboo Water Feature
+    // 6. Koi Stream Ripples & Bamboo Water Feature
     const streamContainer = document.getElementById('cherry-blossom-koi-stream');
     if (streamContainer) {
         // Koi Ripples
