@@ -595,41 +595,38 @@ function createCherryBlossomGardenScene() {
         branchContainer.appendChild(canvas);
     }
 
-    // 4. Stepping stones leading to the bridge
-    const groundContainer = document.getElementById('cherry-blossom-ground');
-    if (groundContainer && groundContainer.querySelector('.stepping-stone') === null) {
-        const stoneCount = 5;
-        for (let i = 0; i < stoneCount; i++) {
-            const stone = document.createElement('div');
-            stone.className = 'stepping-stone';
-            const spread = 12;
-            stone.style.left = `${20 + i * spread + (Math.random() * 4 - 2)}%`;
-            stone.style.transform = `scale(${0.85 + Math.random() * 0.25})`;
-            stone.style.animationDelay = `-${Math.random() * 8}s`;
-            groundContainer.appendChild(stone);
+    // 4. Floating Cherry Leaves
+    const leafContainer = document.getElementById('cherry-blossom-leaves');
+    if (leafContainer && leafContainer.children.length === 0) {
+        const leafCount = 30;
+        for (let i = 0; i < leafCount; i++) {
+            const leaf = document.createElement('div');
+            leaf.className = 'cherry-leaf';
+
+            const yStart = -10 - Math.random() * 20;
+            leaf.style.setProperty('--y-start', `${yStart}vh`);
+            leaf.style.setProperty('--y-end', `${110 + Math.random() * 10}vh`);
+
+            const xStart = Math.random() * 100;
+            leaf.style.setProperty('--x-start', `${xStart}vw`);
+            leaf.style.setProperty('--x-end', `${xStart + (Math.random() - 0.5) * 40}vw`);
+
+            leaf.style.setProperty('--r-start', `${Math.random() * 360}deg`);
+            leaf.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+
+            leaf.style.setProperty('--leaf-size', `${Math.random() * 10 + 15}px`);
+
+            const duration = 15 + Math.random() * 10;
+            leaf.style.animationDuration = `${duration}s`;
+            leaf.style.animationDelay = `-${Math.random() * duration}s`;
+
+            leafContainer.appendChild(leaf);
         }
     }
 
-    // 5. Flickering Stone Lanterns
-    const lanternContainer = document.getElementById('cherry-blossom-lanterns');
-    if (lanternContainer && lanternContainer.children.length === 0) {
-        for (let i = 0; i < 3; i++) {
-            let lantern = document.createElement('div');
-            lantern.className = 'cherry-blossom-lantern';
-            lantern.style.left = `${10 + i * 35 + Math.random() * 5}%`;
-            lantern.style.bottom = `${Math.random() * 5 + 20}%`;
-            lantern.style.transform = `scale(${Math.random() * 0.2 + 0.9})`;
-            const afterElement = document.createElement('div'); // For the ::after pseudo-element's animation
-            afterElement.style.animationDelay = `-${Math.random() * 4}s`;
-            lantern.appendChild(afterElement);
-            lanternContainer.appendChild(lantern);
-        }
-    }
-
-    // 6. Koi Stream Ripples & Bamboo Water Feature
+    // 5. Koi Stream Ripples
     const streamContainer = document.getElementById('cherry-blossom-koi-stream');
     if (streamContainer) {
-        // Koi Ripples
         const createStreamRipple = () => {
             if (activeTheme !== 'cherry-blossom-garden') return;
             let ripple = document.createElement('div');

@@ -3213,7 +3213,7 @@
 
 /* --- Cherry Blossom Garden Theme --- */
 #cherry-blossom-garden-theme {
-    background: radial-gradient(ellipse at bottom, #f9c5d1 0%, #fbdce2 40%, #fdeff5 75%);
+    background: #fdeff5;
     overflow: hidden;
     position: relative;
 }
@@ -3222,19 +3222,19 @@
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: linear-gradient(180deg, #ffe7f4 0%, #ffd4dd 45%, #f6f6ff 100%);
-    animation: cherry-sky-shift 45s ease-in-out infinite alternate;
+    background: linear-gradient(180deg, #d4e0ff 0%, #fbc2eb 45%, #fdeff5 100%);
+    animation: cherry-sky-shift 60s ease-in-out infinite alternate;
     z-index: 1;
 }
 
 #cherry-blossom-sun {
     position: absolute;
-    top: 8%; left: 12%;
-    width: 260px; height: 260px;
+    top: 10%; left: 15%;
+    width: 200px; height: 200px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 239, 200, 0.9) 0%, rgba(255, 205, 178, 0.55) 40%, rgba(255, 205, 178, 0) 70%);
-    filter: blur(1px);
-    animation: cherry-sun-float 60s ease-in-out infinite;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 220, 230, 0.6) 40%, rgba(255, 220, 230, 0) 70%);
+    filter: blur(2px);
+    animation: cherry-sun-float 80s ease-in-out infinite;
     z-index: 2;
 }
 
@@ -3281,35 +3281,24 @@
     bottom: 28%; left: 0;
     width: 120%; height: 40%;
     background-image:
-        radial-gradient(160% 80% at 15% 100%, rgba(124, 74, 96, 0.45) 0%, rgba(124, 74, 96, 0) 70%),
-        radial-gradient(140% 75% at 60% 100%, rgba(143, 85, 113, 0.5) 0%, rgba(143, 85, 113, 0) 70%),
-        radial-gradient(120% 70% at 90% 100%, rgba(102, 64, 92, 0.55) 0%, rgba(102, 64, 92, 0) 70%);
+        radial-gradient(160% 80% at 15% 100%, rgba(200, 180, 210, 0.5) 0%, rgba(200, 180, 210, 0) 70%),
+        radial-gradient(140% 75% at 60% 100%, rgba(210, 190, 220, 0.55) 0%, rgba(210, 190, 220, 0) 70%),
+        radial-gradient(120% 70% at 90% 100%, rgba(190, 170, 200, 0.6) 0%, rgba(190, 170, 200, 0) 70%);
     background-repeat: no-repeat;
     transform: translateX(-10%);
     z-index: 2;
-    opacity: 0.85;
-    filter: blur(0.8px);
+    opacity: 0.9;
+    filter: blur(1.5px);
 }
 
 #cherry-blossom-haze {
     position: absolute;
     top: 35%; left: 0;
     width: 100%; height: 40%;
-    background: linear-gradient(180deg, rgba(255, 244, 249, 0) 0%, rgba(255, 244, 249, 0.65) 50%, rgba(255, 244, 249, 0) 100%);
-    animation: cherry-haze-pulse 30s ease-in-out infinite;
+    background: linear-gradient(180deg, rgba(255, 244, 249, 0) 0%, rgba(255, 244, 249, 0.5) 50%, rgba(255, 244, 249, 0) 100%);
+    animation: cherry-haze-pulse 40s ease-in-out infinite;
     z-index: 4;
     pointer-events: none;
-}
-
-#cherry-blossom-pagodas {
-    position: absolute;
-    bottom: 32%; left: 0;
-    width: 200%; height: 24%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200"><path d="M 70 200 L 100 150 L 40 150 Z M 70 140 L 110 110 L 30 110 Z M 70 100 L 125 70 L 15 70 Z M 480 200 L 520 150 L 440 150 Z M 480 140 L 530 110 L 420 110 Z" fill="rgba(78,46,66,0.5)"/></svg>');
-    background-size: contain;
-    animation: slide 180s linear infinite;
-    z-index: 5;
-    opacity: 0.7;
 }
 
 #cherry-blossom-branches {
@@ -3321,11 +3310,47 @@
     animation: gentle-sway 14s ease-in-out infinite alternate;
 }
 
+#cherry-blossom-leaves {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.cherry-leaf {
+    position: absolute;
+    width: var(--leaf-size, 25px);
+    height: calc(var(--leaf-size, 25px) * 0.6);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 15"><path d="M25 7.5C25 7.5 15 15 12.5 15C10 15 0 7.5 0 7.5C0 7.5 10 0 12.5 0C15 0 25 7.5 25 7.5Z" fill="rgba(255, 183, 197, 0.85)"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: drift-leaf linear infinite;
+    filter: drop-shadow(0 0 2px rgba(255, 105, 180, 0.3));
+}
+
+@keyframes drift-leaf {
+    0% {
+        transform: translateY(var(--y-start)) translateX(var(--x-start)) rotate(var(--r-start));
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(var(--y-end)) translateX(var(--x-end)) rotate(var(--r-end));
+        opacity: 0;
+    }
+}
+
 #cherry-blossom-ground {
     position: absolute;
     bottom: 0; left: 0;
     width: 100%; height: 25%;
-    background: linear-gradient(180deg, rgba(214, 148, 173, 0.25) 0%, rgba(214, 148, 173, 0.4) 40%, rgba(174, 120, 140, 0.55) 100%);
+    background: linear-gradient(180deg, rgba(220, 200, 225, 0.3) 0%, rgba(210, 190, 215, 0.45) 40%, rgba(190, 170, 200, 0.6) 100%);
     z-index: 3;
     overflow: hidden;
 }
@@ -3336,33 +3361,22 @@
     bottom: 12%; left: 50%;
     transform: translateX(-50%);
     width: 70%; height: 60%;
-    background: radial-gradient(ellipse at center, rgba(255, 213, 220, 0.6) 0%, rgba(180, 110, 130, 0.05) 70%);
+    background: radial-gradient(ellipse at center, rgba(255, 240, 245, 0.7) 0%, rgba(220, 200, 225, 0.1) 70%);
     opacity: 0.9;
-    filter: blur(2px);
-}
-
-.stepping-stone {
-    position: absolute;
-    bottom: 15%;
-    width: 70px; height: 20px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.5) 0%, rgba(173, 147, 164, 0.9) 70%);
-    box-shadow: 0 10px 15px rgba(78, 46, 66, 0.2);
-    animation: stone-glow 12s ease-in-out infinite;
-    pointer-events: none;
+    filter: blur(3px);
 }
 
 #cherry-blossom-koi-stream {
     position: absolute;
     bottom: 11%; left: 0;
     width: 100%; height: 20%;
-    background: linear-gradient(90deg, rgba(119, 193, 214, 0.35), rgba(165, 209, 216, 0.55), rgba(119, 193, 214, 0.35));
+    background: linear-gradient(90deg, rgba(180, 200, 230, 0.3), rgba(200, 220, 240, 0.4), rgba(180, 200, 230, 0.3));
     background-size: 200% 100%;
     border-radius: 0 0 50% 50% / 0 0 100% 100%;
     z-index: 7;
     overflow: hidden;
-    animation: cherry-water-flow 18s linear infinite;
-    backdrop-filter: blur(2px);
+    animation: cherry-water-flow 25s linear infinite;
+    backdrop-filter: blur(3px);
 }
 
 #cherry-blossom-koi-stream::before {
@@ -3389,45 +3403,6 @@
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
     animation: expand-ripple 6s ease-out;
-}
-
-#cherry-blossom-bridge {
-    position: absolute;
-    bottom: 26%; left: 50%;
-    transform: translateX(-50%);
-    width: 320px; height: 110px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 110"><path d="M 0 60 Q 160 -25, 320 60" fill="none" stroke="rgba(92,54,69,0.9)" stroke-width="12" stroke-linecap="round"/><rect x="0" y="60" width="320" height="6" fill="rgba(92,54,69,0.9)"/></svg>');
-    z-index: 8;
-}
-
-#cherry-blossom-lanterns {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 9;
-}
-
-.cherry-blossom-lantern {
-    position: absolute;
-    width: 42px; height: 62px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 60"><rect x="5" y="0" width="40" height="8" rx="3" fill="rgba(60,40,30,0.8)"/><rect x="0" y="8" width="50" height="44" rx="6" fill="rgba(60,40,30,0.78)"/><rect x="8" y="14" width="34" height="30" rx="4" fill="rgba(255,228,181,0.12)"/><rect x="6" y="52" width="38" height="6" rx="3" fill="rgba(60,40,30,0.82)"/></svg>');
-}
-
-.cherry-blossom-lantern::after {
-    content: '';
-    position: absolute;
-    top: 16px; left: 11px;
-    width: 30px; height: 30px;
-    background: radial-gradient(circle, #ffd46f 0%, #ffb347 60%, rgba(255, 179, 71, 0.2) 100%);
-    border-radius: 4px;
-    animation: flicker-warm 4s ease-in-out infinite alternate;
-}
-
-.bamboo-water-feature {
-    position: absolute;
-    bottom: 15%; right: 5%;
-    width: 100px; height: 100px;
-    z-index: 10;
 }
 
 .bamboo-tock {
