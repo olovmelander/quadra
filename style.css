@@ -26,6 +26,16 @@
             z-index: -1;
         }
 
+        #background-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Below theme containers */
+            pointer-events: none;
+        }
+
 .theme-container {
     position: absolute;
     top: 0;
@@ -2416,16 +2426,6 @@
     z-index: 2;
 }
 
-.himalayan-peak-layer {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 100%;
-    animation: slide 300s linear infinite;
-}
-#himalayan-peaks-back { z-index: 3; filter: brightness(0.8) blur(1px); animation-duration: 400s; }
-#himalayan-peaks-mid { z-index: 5; filter: brightness(0.9); animation-duration: 300s; }
-#himalayan-peaks-front { z-index: 7; filter: brightness(1); animation-duration: 200s; }
-
 #himalayan-clouds {
     position: absolute;
     top: 0; left: 0;
@@ -2468,21 +2468,7 @@
     width: 100%; height: 100%;
     z-index: 8;
 }
-.himalayan-particle {
-    position: absolute;
-    width: 2px; height: 2px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 50%;
-    animation: air-particle-drift ease-in-out infinite;
-}
-@keyframes air-particle-drift {
-    from { transform: translate(0, 0); opacity: 0; }
-    50% { opacity: 0.7; }
-    to { transform: translate(20px, -20px); opacity: 0; }
-}
-
-
-        @keyframes slide {
+@keyframes slide {
             from { transform: translateX(0%); }
             to { transform: translateX(-50%); }
         }

@@ -99,19 +99,22 @@ function stopForestAnimations() {
 }
 
 function createHimalayanPeakScene() {
-    // 1. Procedural Peaks
-    const peakLayers = [
-        { el: document.getElementById('himalayan-peaks-back'), color: 'rgba(60, 70, 90, 0.7)', jaggedness: 0.3, snowLine: 0.4 },
-        { el: document.getElementById('himalayan-peaks-mid'), color: 'rgba(80, 90, 110, 0.8)', jaggedness: 0.5, snowLine: 0.3 },
-        { el: document.getElementById('himalayan-peaks-front'), color: 'rgba(100, 110, 130, 0.9)', jaggedness: 0.7, snowLine: 0.2 }
-    ];
+    // 1. Procedural Peaks for WebGL
+    if (webglRenderer) {
+        const peakLayers = [
+            // z-index values are for WebGL depth, not CSS z-index. Closer to -1 is further away.
+            { zIndex: -0.9, color: 'rgba(60, 70, 90, 0.7)', jaggedness: 0.3, snowLine: 0.4 },
+            { zIndex: -0.8, color: 'rgba(80, 90, 110, 0.8)', jaggedness: 0.5, snowLine: 0.3 },
+            { zIndex: -0.7, color: 'rgba(100, 110, 130, 0.9)', jaggedness: 0.7, snowLine: 0.2 }
+        ];
 
-    peakLayers.forEach(layer => {
-        if (layer.el && layer.el.children.length === 0) {
+        peakLayers.forEach(layer => {
             const canvas = document.createElement('canvas');
+            // We can use a smaller canvas for the texture source
             const C_WIDTH = 2048;
+            const C_HEIGHT = window.innerHeight > 1080 ? 1080 : window.innerHeight; // Cap height for performance
             canvas.width = C_WIDTH;
-            canvas.height = window.innerHeight;
+            canvas.height = C_HEIGHT;
             const ctx = canvas.getContext('2d');
 
             ctx.fillStyle = layer.color;
@@ -135,12 +138,10 @@ function createHimalayanPeakScene() {
             ctx.closePath();
             ctx.fill();
 
-            canvas.style.position = 'absolute';
-            canvas.style.bottom = '0';
-            canvas.style.left = '0';
-            layer.el.appendChild(canvas);
-        }
-    });
+            // Add the generated canvas as a layer to the WebGL renderer
+            webglRenderer.addLayer(canvas, layer.zIndex);
+        });
+    }
 
     // 2. High-altitude clouds
     const cloudContainer = document.getElementById('himalayan-clouds');
@@ -173,20 +174,7 @@ function createHimalayanPeakScene() {
         flagContainer.appendChild(strand);
     }
 
-    // 4. Thin Air Particles
-    const particleContainer = document.getElementById('himalayan-particles');
-    if (particleContainer && particleContainer.children.length === 0) {
-        for (let i = 0; i < 70; i++) {
-            let particle = document.createElement('div');
-            particle.className = 'himalayan-particle';
-            particle.style.left = `${Math.random() * 100}%`;
-            particle.style.top = `${Math.random() * 100}%`;
-            const duration = Math.random() * 10 + 5;
-            particle.style.animationDuration = `${duration}s`;
-            particle.style.animationDelay = `-${Math.random() * duration}s`;
-            particleContainer.appendChild(particle);
-        }
-    }
+    // 4. Thin Air Particles are now handled by WebGLRenderer
 }
 
 function createIceTempleScene() {
@@ -1169,7 +1157,7 @@ class Firefly {
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
         let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false;
         let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null;
-        let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null;
+let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null;
 
         let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
         const soundManager = new SoundManager();
@@ -1765,6 +1753,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
         function init() {
             canvas = document.getElementById('game-canvas'); ctx = canvas.getContext('2d');
             nextCanvases = Array.from({length: 5}, (_, i) => document.getElementById(`next-${i}`));
+            const backgroundCanvas = document.getElementById('background-canvas');
+            if (backgroundCanvas) {
+                webglRenderer = new WebGLRenderer(backgroundCanvas);
+            }
 
             resizeGame();
             window.addEventListener('resize', resizeGame);
@@ -2704,6 +2696,11 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 cancelAnimationFrame(activeThemeAnimationId);
                 activeThemeAnimationId = null;
             }
+
+            if (webglRenderer) {
+                webglRenderer.loadTheme(themeName);
+            }
+
             // Stop any running JS-based animations from the previous theme
             if (activeTheme === 'forest' && typeof stopForestAnimations === 'function') {
                 stopForestAnimations();
