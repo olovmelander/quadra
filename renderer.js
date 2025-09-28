@@ -150,6 +150,21 @@ class ParticleSystem {
         } else if (this.behavior === 'petal') {
             this.rotations = new Float32Array(numParticles);
             this.rotationSpeeds = new Float32Array(numParticles);
+            this.swayFactors = new Float32Array(numParticles * 2); // For more complex sway
+            this.wind = { x: 0.1, y: 0 };
+            this.lastWindGust = 0;
+            this.nextWindGustTime = Math.random() * 4000 + 8000; // 8-12 seconds
+        } else if (this.behavior === 'spiraling-debris') {
+            this.angles = new Float32Array(numParticles);
+            this.radii = new Float32Array(numParticles * 3); // x-radius, y-radius, z-radius (for perspective)
+            this.centers = new Float32Array(numParticles * 2);
+            this.speeds = new Float32Array(numParticles);
+        } else if (this.behavior === 'horizontal-drift') {
+            this.driftFactors = new Float32Array(numParticles);
+        } else if (this.behavior === 'crystal-growth') {
+            this.growthInfo = new Float32Array(numParticles * 2); // currentSize, growthRate
+        } else if (this.behavior === 'incense-smoke') {
+            this.spiralInfo = new Float32Array(numParticles * 3); // angle, radius, speed
         }
 
         this.positionBuffer = gl.createBuffer();
@@ -181,13 +196,56 @@ class ParticleSystem {
             this.blinkInfo[i * 4 + 3] = 0; // isBlinking
             this.alphas[i] = config.minAlpha;
         } else if (this.behavior === 'petal') {
-            this.positions[i * 2] = Math.random() * (width + 100) - 50; // Start off-screen slightly
-            this.positions[i * 2 + 1] = -Math.random() * height; // Start above the screen
-            this.velocities[i * 2] = (Math.random() - 0.5) * 0.5; // Horizontal drift
-            this.velocities[i * 2 + 1] = Math.random() * 0.5 + config.speed; // Vertical speed
+            this.positions[i * 2] = Math.random() * (width + 200) - 100; // Start further off-screen
+            this.positions[i * 2 + 1] = -Math.random() * 50 - 10; // Start just above the screen
+            this.velocities[i * 2] = (Math.random() - 0.5) * 0.3; // Base horizontal drift
+            this.velocities[i * 2 + 1] = (Math.random() * 0.3 + 0.7) * config.speed; // Vertical speed with less variation
             this.rotations[i] = Math.random() * 360;
-            this.rotationSpeeds[i] = (Math.random() - 0.5) * 4;
+            this.rotationSpeeds[i] = (Math.random() - 0.5) * 3;
             this.alphas[i] = Math.random() * (config.maxAlpha - config.minAlpha) + config.minAlpha;
+            this.swayFactors[i * 2] = Math.random() * 2 + 1; // Sway frequency
+            this.swayFactors[i * 2 + 1] = Math.random() * 0.5 + 0.5; // Sway amplitude
+        } else if (this.behavior === 'upward-waterfall') {
+            this.positions[i * 2] = Math.random() * width;
+            this.positions[i * 2 + 1] = height + Math.random() * height * 0.5; // Start from bottom
+            this.velocities[i * 2] = (Math.random() - 0.5) * config.speed * 0.2;
+            this.velocities[i * 2 + 1] = -(Math.random() * 0.4 + 0.8) * config.speed; // Fast upwards
+            this.alphas[i] = Math.random() * (config.maxAlpha - config.minAlpha) + config.minAlpha;
+            this.lifetimes[i] = Math.random() * config.lifetime;
+        } else if (this.behavior === 'spiraling-debris') {
+            this.centers[i * 2] = Math.random() * width;
+            this.centers[i * 2 + 1] = Math.random() * height;
+            this.radii[i * 3] = Math.random() * 80 + 40; // x-radius
+            this.radii[i * 3 + 1] = Math.random() * 40 + 20; // y-radius
+            this.angles[i] = Math.random() * Math.PI * 2;
+            this.speeds[i] = (Math.random() * 0.01 + 0.005) * (Math.random() > 0.5 ? 1 : -1);
+            this.alphas[i] = Math.random() * (config.maxAlpha - config.minAlpha) + config.minAlpha;
+        } else if (this.behavior === 'horizontal-drift') {
+            const fromLeft = Math.random() > 0.5;
+            this.positions[i * 2] = fromLeft ? -Math.random() * 50 : width + Math.random() * 50;
+            this.positions[i * 2 + 1] = Math.random() * height;
+            this.velocities[i * 2] = (fromLeft ? 1 : -1) * (Math.random() * 0.5 + 0.5) * config.speed;
+            this.velocities[i * 2 + 1] = (Math.random() - 0.5) * 0.1; // Slow vertical drift
+            this.alphas[i] = Math.random() * (config.maxAlpha - config.minAlpha) + config.minAlpha;
+            this.driftFactors[i] = Math.random() * 2 - 1; // -1 to 1
+        } else if (this.behavior === 'crystal-growth') {
+            this.positions[i * 2] = Math.random() * width;
+            this.positions[i * 2 + 1] = Math.random() * height;
+            this.growthInfo[i * 2] = 0; // currentSize
+            this.growthInfo[i * 2 + 1] = (Math.random() * 0.02 + 0.01) * config.speed; // growthRate
+            this.lifetimes[i] = config.lifetime;
+            this.alphas[i] = 0;
+            this.sizes[i] = config.maxSize; // The shader uses a_size for gl_PointSize
+        } else if (this.behavior === 'incense-smoke') {
+            this.positions[i * 2] = width / 2 + (Math.random() - 0.5) * 100;
+            this.positions[i * 2 + 1] = height;
+            this.velocities[i * 2] = 0;
+            this.velocities[i * 2 + 1] = -(Math.random() * 0.3 + 0.2) * config.speed;
+            this.spiralInfo[i * 3] = Math.random() * Math.PI * 2; // angle
+            this.spiralInfo[i * 3 + 1] = Math.random() * 10 + 5;  // initial radius
+            this.spiralInfo[i * 3 + 2] = (Math.random() - 0.5) * 0.04; // spiral speed
+            this.lifetimes[i] = config.lifetime;
+            this.alphas[i] = 0;
         } else if (this.behavior === 'waterfall') {
             // Spawn in multiple streams
             const streamIndex = i % 7; // 7 waterfalls
@@ -261,14 +319,95 @@ class ParticleSystem {
                 if (this.positions[i * 2 + 1] < 0 || this.positions[i * 2 + 1] > height) this.velocities[i * 2 + 1] *= -1;
 
             } else if (this.behavior === 'petal') {
-                this.positions[i * 2] += this.velocities[i * 2];
+                // Wind Gust Logic
+                const now = Date.now();
+                if (now - this.lastWindGust > this.nextWindGustTime) {
+                    this.wind.x = Math.random() * 0.5 + 0.5; // Stronger gust
+                    setTimeout(() => { this.wind.x = 0.1; }, Math.random() * 800 + 500); // Gust duration
+                    this.lastWindGust = now;
+                    this.nextWindGustTime = Math.random() * 4000 + 8000;
+                }
+
+                // Apply base velocity and wind
+                this.positions[i * 2] += this.velocities[i * 2] + this.wind.x;
                 this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
                 this.rotations[i] += this.rotationSpeeds[i];
-                // A simple sine wave to add horizontal sway
-                this.positions[i * 2] += Math.sin(this.positions[i * 2 + 1] / 50) * 0.5;
 
-                // Reset when it goes off screen
-                if (this.positions[i * 2 + 1] > height + 20) {
+                // More complex sway using swayFactors
+                const swayFrequency = this.swayFactors[i * 2];
+                const swayAmplitude = this.swayFactors[i * 2 + 1];
+                this.positions[i * 2] += Math.sin(this.positions[i * 2 + 1] / (50 / swayFrequency)) * swayAmplitude;
+
+
+                // Reset when it goes off screen (bottom or sides)
+                if (this.positions[i * 2 + 1] > height + 20 || this.positions[i * 2] > width + 20 || this.positions[i * 2] < -20) {
+                    this.spawnParticle(i);
+                }
+            } else if (this.behavior === 'upward-waterfall') {
+                this.positions[i * 2] += this.velocities[i * 2];
+                this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+                if (this.positions[i * 2 + 1] < -20) { // Reset when it goes off top
+                    this.spawnParticle(i);
+                }
+            } else if (this.behavior === 'spiraling-debris') {
+                this.angles[i] += this.speeds[i];
+                const centerX = this.centers[i * 2];
+                const centerY = this.centers[i * 2 + 1];
+                const radiusX = this.radii[i * 3];
+                const radiusY = this.radii[i * 3 + 1];
+                this.positions[i * 2] = centerX + Math.cos(this.angles[i]) * radiusX;
+                this.positions[i * 2 + 1] = centerY + Math.sin(this.angles[i]) * radiusY;
+                // Fade in and out
+                this.alphas[i] = Math.sin(this.angles[i] * 0.5) * 0.5 + 0.5;
+
+            } else if (this.behavior === 'horizontal-drift') {
+                this.positions[i * 2] += this.velocities[i * 2];
+                this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+                this.positions[i * 2 + 1] += Math.sin(this.positions[i * 2] / 100) * this.driftFactors[i] * 0.2;
+
+                if ((this.velocities[i * 2] > 0 && this.positions[i * 2] > width + 20) ||
+                    (this.velocities[i * 2] < 0 && this.positions[i * 2] < -20)) {
+                    this.spawnParticle(i);
+                }
+            } else if (this.behavior === 'crystal-growth') {
+                const lifetime = this.themeConfig.lifetime;
+                const progress = (lifetime - this.lifetimes[i]) / lifetime;
+
+                // Grow then shrink
+                this.growthInfo[i * 2] += this.growthInfo[i * 2 + 1];
+                this.sizes[i] = Math.min(this.themeConfig.maxSize, this.growthInfo[i * 2]);
+
+                // Fade in then fade out
+                if (progress < 0.5) {
+                    this.alphas[i] = progress * 2 * this.themeConfig.maxAlpha;
+                } else {
+                    this.alphas[i] = (1 - progress) * 2 * this.themeConfig.maxAlpha;
+                }
+
+                if (this.lifetimes[i] <= 0) {
+                    this.spawnParticle(i);
+                }
+            } else if (this.behavior === 'incense-smoke') {
+                const lifetime = this.themeConfig.lifetime;
+                const progress = (lifetime - this.lifetimes[i]) / lifetime;
+
+                // Update spiral
+                this.spiralInfo[i * 3] += this.spiralInfo[i * 3 + 2]; // angle
+                this.spiralInfo[i * 3 + 1] += 0.1; // radius increases
+
+                const spiralX = Math.cos(this.spiralInfo[i * 3]) * this.spiralInfo[i * 3 + 1];
+                this.positions[i * 2] += spiralX;
+                this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+
+                // Fade in and out
+                if (progress < 0.2) {
+                    this.alphas[i] = progress / 0.2 * this.themeConfig.maxAlpha;
+                } else {
+                    this.alphas[i] = (1 - (progress - 0.2) / 0.8) * this.themeConfig.maxAlpha;
+                }
+                this.sizes[i] = this.themeConfig.minSize + progress * (this.themeConfig.maxSize - this.themeConfig.minSize);
+
+                if (this.lifetimes[i] <= 0) {
                     this.spawnParticle(i);
                 }
             } else if (this.behavior === 'waterfall') {
@@ -446,28 +585,60 @@ class WebGLRenderer {
         this.stop();
 
         if (themeName === 'himalayan-peak') {
-            const himalayanConfig = {
-                speed: 0.5,
+            const snowConfig = {
+                behavior: 'horizontal-drift',
+                speed: 1.5, // Faster, sharper wind
                 minSize: 1.0,
-                maxSize: 2.5,
-                minAlpha: 0.2,
-                maxAlpha: 0.7,
-                lifetime: 1000,
-                zIndex: -0.6 // In front of mountains (-0.7) but behind other things
+                maxSize: 3.0,
+                minAlpha: 0.4,
+                maxAlpha: 0.9,
+                lifetime: Infinity, // They reset when off-screen
+                zIndex: -0.6,
+                color: [1.0, 1.0, 1.0]
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 70, himalayanConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 250, snowConfig));
             this.start();
         } else if (themeName === 'ice-temple') {
             const snowCrystalConfig = {
-                speed: 1.5,
+                behavior: 'petal', // Use petal logic for gentle falling snow
+                speed: 0.5,
                 minSize: 2.0,
                 maxSize: 5.0,
                 minAlpha: 0.5,
                 maxAlpha: 1.0,
-                lifetime: 800,
-                zIndex: -0.5, // In front of crystals
+                lifetime: 1600,
+                zIndex: -0.5,
+                color: [0.9, 0.95, 1.0]
             };
             this.particleSystems.push(new ParticleSystem(this.gl, 80, snowCrystalConfig));
+
+            const iceGrowthConfig = {
+                behavior: 'crystal-growth',
+                speed: 1.0, // Controls growth rate
+                minSize: 0.0,
+                maxSize: 4.0,
+                minAlpha: 0.0,
+                maxAlpha: 0.7,
+                lifetime: 500, // shorter life, they appear and disappear
+                zIndex: -0.3, // On top of most things
+                color: [0.8, 0.9, 1.0]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 100, iceGrowthConfig));
+
+            this.start();
+        } else if (themeName === 'meditation-temple') {
+            const smokeConfig = {
+                behavior: 'incense-smoke',
+                speed: 1.0,
+                minSize: 2.0,
+                maxSize: 15.0,
+                minAlpha: 0.0,
+                maxAlpha: 0.15,
+                lifetime: 1200, // 20 seconds
+                zIndex: -0.1,
+                color: [0.9, 0.9, 0.95]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 20, smokeConfig));
             this.start();
         } else if (themeName === 'crystal-cave') {
             const shardConfig = {
@@ -531,45 +702,55 @@ class WebGLRenderer {
             this.particleSystems.push(new ParticleSystem(this.gl, 25, fireflyConfig));
             this.start();
         } else if (themeName === 'cherry-blossom-garden') {
-            const petalConfig = {
-                behavior: 'petal',
-                speed: 1, // Base vertical speed
-                minSize: 5.0,
-                maxSize: 12.0,
-                minAlpha: 0.8,
-                maxAlpha: 1.0,
-                lifetime: 1200, // ~20 seconds
-                zIndex: -0.3,
-                color: [1.0, 0.85, 0.9] // Pinkish-white
-            };
-            this.particleSystems.push(new ParticleSystem(this.gl, 200, petalConfig));
+            // Create 3 layers of petals for depth
+            const petalLayers = [
+                { // Far layer
+                    behavior: 'petal', speed: 0.6, minSize: 4.0, maxSize: 8.0,
+                    minAlpha: 0.6, maxAlpha: 0.8, lifetime: 1800, // ~30 seconds
+                    zIndex: -0.5, color: [1.0, 0.8, 0.85], count: 60
+                },
+                { // Mid layer
+                    behavior: 'petal', speed: 0.8, minSize: 6.0, maxSize: 12.0,
+                    minAlpha: 0.8, maxAlpha: 1.0, lifetime: 1500, // ~25 seconds
+                    zIndex: -0.3, color: [1.0, 0.85, 0.9], count: 80
+                },
+                { // Near layer
+                    behavior: 'petal', speed: 1.0, minSize: 8.0, maxSize: 15.0,
+                    minAlpha: 0.9, maxAlpha: 1.0, lifetime: 1200, // ~20 seconds
+                    zIndex: -0.1, color: [1.0, 0.9, 0.95], count: 60
+                }
+            ];
+
+            petalLayers.forEach(config => {
+                this.particleSystems.push(new ParticleSystem(this.gl, config.count, config));
+            });
+
             this.start();
         } else if (themeName === 'floating-islands') {
-            const waterfallConfig = {
-                behavior: 'waterfall',
-                speed: 8, // high vertical speed
-                minSize: 1.5,
-                maxSize: 3.0,
-                minAlpha: 0.3,
-                maxAlpha: 0.6,
-                lifetime: 250, // short lifetime
-                zIndex: -0.4, // behind magic particles
-                color: [0.67, 0.84, 0.9] // light blue
-            };
-            this.particleSystems.push(new ParticleSystem(this.gl, 800, waterfallConfig));
-
-            const magicConfig = {
-                behavior: 'ambient', // reuse ambient behavior
-                speed: 0.4,
+            const upwardWaterfallConfig = {
+                behavior: 'upward-waterfall',
+                speed: 6,
                 minSize: 2.0,
                 maxSize: 4.0,
-                minAlpha: 0.5,
-                maxAlpha: 0.9,
-                lifetime: Infinity,
-                zIndex: -0.3,
-                color: [0.9, 0.8, 1.0] // light purple/pink
+                minAlpha: 0.2,
+                maxAlpha: 0.5,
+                lifetime: 300,
+                zIndex: -0.4,
+                color: [0.6, 0.8, 1.0]
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 40, magicConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 500, upwardWaterfallConfig));
+
+            const debrisConfig = {
+                behavior: 'spiraling-debris',
+                minSize: 3.0,
+                maxSize: 8.0,
+                minAlpha: 0.7,
+                maxAlpha: 1.0,
+                lifetime: Infinity,
+                zIndex: -0.2,
+                color: [0.9, 0.9, 1.0] // Crystal white
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 50, debrisConfig));
             this.start();
         }
     }

@@ -91,6 +91,18 @@ function createHimalayanPeakScene() {
     }
 
     // 4. Thin Air Particles are now handled by WebGLRenderer
+
+    // 5. Sun Rays
+    const sunRayContainer = document.getElementById('himalayan-sun-rays');
+    if (sunRayContainer && sunRayContainer.children.length === 0) {
+        for (let i = 0; i < 25; i++) {
+            let ray = document.createElement('div');
+            ray.className = 'himalayan-sun-ray';
+            ray.style.transform = `rotate(${Math.random() * 360}deg)`;
+            ray.style.animationDelay = `-${Math.random() * 12}s`;
+            sunRayContainer.appendChild(ray);
+        }
+    }
 }
 
 function createIceTempleScene() {
@@ -165,9 +177,23 @@ function createIceTempleScene() {
         }
     }
 
-    // 4. Snow Crystals are now handled by WebGLRenderer
+    // 4. Snow Crystals and Growing Ice are now handled by WebGLRenderer
 
-    // 5. Ice Sculptures
+    // 5. Prismatic Light Refractions
+    const refractionContainer = document.getElementById('ice-temple-refractions');
+    if (refractionContainer && refractionContainer.children.length === 0) {
+        for (let i = 0; i < 15; i++) {
+            let ray = document.createElement('div');
+            ray.className = 'ice-refraction-ray';
+            ray.style.left = `${Math.random() * 100}%`;
+            ray.style.top = `${Math.random() * 100}%`;
+            ray.style.transform = `rotate(${Math.random() * 360}deg)`;
+            ray.style.animationDelay = `-${Math.random() * 10}s`;
+            refractionContainer.appendChild(ray);
+        }
+    }
+
+    // 6. Ice Sculptures
     const sculptureContainer = document.getElementById('ice-temple-sculptures');
     if (sculptureContainer && sculptureContainer.children.length === 0) {
         const sculptureSVG = [
@@ -325,68 +351,100 @@ function createMeditationTempleScene() {
         }
     }
 
-    // 4. Bells (glints)
-    // The bells themselves are part of the temple SVG, but we can add glints
+    // 4. Bells, Prayer Wheels, and Monks
     const templeContainer = document.getElementById('meditation-temple-main');
-    if (templeContainer && templeContainer.children.length < 2) { // Check to avoid re-adding
+    if (templeContainer && templeContainer.children.length === 0) {
+        // Add swaying bells
         for (let i = 0; i < 3; i++) {
-            let glint = document.createElement('div');
-            glint.className = 'temple-bell-glint';
-            // Position them roughly where bells would be on the SVG
-            glint.style.left = `${30 + i * 15}%`;
-            glint.style.top = '55%';
-            glint.style.animationDelay = `-${Math.random() * 10}s`;
-            templeContainer.appendChild(glint);
+            let bell = document.createElement('div');
+            bell.className = 'temple-bell';
+            bell.style.left = `${25 + i * 25}%`;
+            bell.style.top = '45%';
+            bell.style.animationDelay = `-${Math.random() * 8}s`;
+            templeContainer.appendChild(bell);
+        }
+        // Add spinning prayer wheels
+        for (let i = 0; i < 4; i++) {
+            let wheel = document.createElement('div');
+            wheel.className = 'prayer-wheel';
+            wheel.style.left = `${10 + i * 22}%`;
+            wheel.style.bottom = '-10%';
+            wheel.style.animationDelay = `-${Math.random() * 15}s`;
+            templeContainer.appendChild(wheel);
+        }
+    }
+
+    const midMountainContainer = document.getElementById('meditation-temple-mountains-mid');
+    if (midMountainContainer && midMountainContainer.children.length < 2) { // Check to avoid re-adding
+        // Add monk silhouettes
+        for (let i = 0; i < 2; i++) {
+            let monk = document.createElement('div');
+            monk.className = 'monk-silhouette';
+            monk.style.left = `${20 + i * 50 + Math.random() * 10}%`;
+            monk.style.bottom = `${35 + Math.random() * 5}%`;
+            monk.style.transform = `scaleX(${Math.random() > 0.5 ? 1 : -1})`;
+            midMountainContainer.appendChild(monk);
         }
     }
 }
 
 function createFloatingIslandsScene() {
-    // 1. Floating Islands
+    const islandPositions = [];
+
+    // 1. Floating Islands with 3D rotation
     const islandLayers = [
-        { el: document.getElementById('floating-islands-back'), count: 5, minSize: 100, maxSize: 200, zIndex: 2 },
-        { el: document.getElementById('floating-islands-mid'), count: 4, minSize: 150, maxSize: 300, zIndex: 4 },
-        { el: document.getElementById('floating-islands-front'), count: 3, minSize: 200, maxSize: 400, zIndex: 6 }
+        { el: document.getElementById('floating-islands-back'), count: 4, minSize: 100, maxSize: 200 },
+        { el: document.getElementById('floating-islands-mid'), count: 3, minSize: 150, maxSize: 300 },
+        { el: document.getElementById('floating-islands-front'), count: 2, minSize: 200, maxSize: 400 }
     ];
 
     const islandShapes = [
-        'M 0 50 C 20 0, 80 0, 100 50 S 80 100, 20 100 S 0 50, 0 50', // Smooth oval
-        'M 0 40 L 30 10 L 70 20 L 100 60 L 80 90 L 20 100 Z', // Jagged
-        'M 0 50 C 10 20, 40 10, 50 30 C 60 0, 90 20, 100 50 C 90 80, 60 90, 50 70 C 40 100, 10 80, 0 50' // Complex
+        'M 0 50 C 20 0, 80 0, 100 50 S 80 100, 20 100 S 0 50, 0 50',
+        'M 0 40 L 30 10 L 70 20 L 100 60 L 80 90 L 20 100 Z',
+        'M 0 50 C 10 20, 40 10, 50 30 C 60 0, 90 20, 100 50 C 90 80, 60 90, 50 70 C 40 100, 10 80, 0 50'
     ];
 
     islandLayers.forEach(layer => {
         if (layer.el && layer.el.children.length === 0) {
             for (let i = 0; i < layer.count; i++) {
-                let island = document.createElement('div');
+                const wrapper = document.createElement('div');
+                wrapper.className = 'floating-island-wrapper';
+                const island = document.createElement('div');
                 island.className = 'floating-island';
+
                 const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
-                island.style.width = `${size}px`;
-                island.style.height = `${size * (Math.random() * 0.3 + 0.4)}px`;
+                wrapper.style.width = `${size}px`;
+                wrapper.style.height = `${size * (Math.random() * 0.3 + 0.4)}px`;
 
                 const shape = islandShapes[Math.floor(Math.random() * islandShapes.length)];
                 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="${shape}" fill="%234a3a32"/></svg>`;
                 island.style.backgroundImage = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
 
-                island.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-                island.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-                island.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-                island.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                island.style.setProperty('--r-start', `${Math.random() * 10 - 5}deg`);
-                island.style.setProperty('--r-end', `${Math.random() * 10 - 5}deg`);
-                const duration = Math.random() * 40 + 80; // Slow drift
-                island.style.animationDuration = `${duration}s`;
-                island.style.animationDelay = `-${Math.random() * duration}s`;
+                const xStart = Math.random() * 80 + 10;
+                const yStart = Math.random() * 80 + 10;
+                islandPositions.push({ x: xStart, y: yStart, el: wrapper });
 
-                layer.el.appendChild(island);
+                wrapper.style.setProperty('--x-start', `${xStart}vw`);
+                wrapper.style.setProperty('--y-start', `${yStart}vh`);
+                wrapper.style.setProperty('--x-end', `${xStart + (Math.random() - 0.5) * 20}vw`);
+                wrapper.style.setProperty('--y-end', `${yStart + (Math.random() - 0.5) * 20}vh`);
+                wrapper.style.animationDuration = `${Math.random() * 40 + 80}s`;
+                wrapper.style.animationDelay = `-${Math.random() * 120}s`;
+
+                island.style.setProperty('--axis-x', Math.random());
+                island.style.setProperty('--axis-y', Math.random());
+                island.style.setProperty('--axis-z', Math.random());
+                island.style.setProperty('--rotate-duration', `${Math.random() * 20 + 20}s`);
+
+                wrapper.appendChild(island);
+                layer.el.appendChild(wrapper);
             }
         }
     });
 
-    // 2. Waterfalls are now handled by WebGLRenderer.
-    // 3. Magical Particles are now handled by WebGLRenderer.
+    // 2. Waterfalls & Debris are now handled by WebGLRenderer.
 
-    // 4. Ethereal Clouds
+    // 3. Ethereal Clouds
     const cloudContainer = document.getElementById('floating-islands-clouds');
     if (cloudContainer && cloudContainer.children.length === 0) {
         for (let i = 0; i < 15; i++) {
@@ -399,23 +457,77 @@ function createFloatingIslandsScene() {
             cloudContainer.appendChild(cloud);
         }
     }
+
+    // 4. Magical Energy Bridges
+    const frontLayer = document.getElementById('floating-islands-front');
+    if (frontLayer && frontLayer.querySelectorAll('.energy-bridge').length === 0 && islandPositions.length > 1) {
+        for (let i = 0; i < 3; i++) { // Create 3 bridges
+            const bridge = document.createElement('div');
+            bridge.className = 'energy-bridge';
+
+            const islandA = islandPositions[Math.floor(Math.random() * islandPositions.length)];
+            let islandB;
+            do {
+                islandB = islandPositions[Math.floor(Math.random() * islandPositions.length)];
+            } while (islandA === islandB);
+
+            const dx = (islandB.x - islandA.x) * window.innerWidth / 100;
+            const dy = (islandB.y - islandA.y) * window.innerHeight / 100;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            bridge.style.left = `${islandA.x}vw`;
+            bridge.style.top = `${islandA.y}vh`;
+            bridge.style.width = `${distance}px`;
+            bridge.style.transform = `rotate(${angle}deg)`;
+            bridge.style.animationDelay = `-${i * 4}s`;
+            frontLayer.appendChild(bridge);
+        }
+    }
+
+    // 5. Serpentine Aurora
+    const auroraContainer = document.getElementById('floating-aurora');
+    if (auroraContainer && auroraContainer.children.length === 0) {
+        const colors = ['#55efc4', '#a29bfe', '#74b9ff'];
+        for (let i = 0; i < 3; i++) {
+            const serpent = document.createElement('div');
+            serpent.className = 'aurora-serpent';
+            serpent.style.setProperty('--aurora-color', colors[i]);
+            for (let j = 1; j <= 4; j++) {
+                serpent.style.setProperty(`--x${j}`, `${Math.random() * 100}vw`);
+                serpent.style.setProperty(`--y${j}`, `${Math.random() * 100}vh`);
+                serpent.style.setProperty(`--z${j}`, `${Math.random() * 800 - 400}px`);
+                serpent.style.setProperty(`--rx${j}`, Math.random());
+                serpent.style.setProperty(`--ry${j}`, Math.random());
+                serpent.style.setProperty(`--rz${j}`, Math.random());
+                serpent.style.setProperty(`--ra${j}`, `${Math.random() * 180 - 90}deg`);
+            }
+            serpent.style.animationDelay = `-${i * 8}s`;
+            auroraContainer.appendChild(serpent);
+        }
+    }
 }
 
 function createCherryBlossomGardenScene() {
-    // 1. Falling Petals are now handled by WebGLRenderer.
-    // The old DOM element creation is removed.
+    // 1. Falling Petals are handled by WebGLRenderer.
 
-    // 2. Procedural Trees are now drawn to a canvas and passed to WebGL.
-    if (webglRenderer) {
+    // 2. Procedural, swaying trees
+    const branchContainer = document.getElementById('cherry-blossom-branches');
+    if (branchContainer && branchContainer.children.length === 0) {
+        const canvas = document.createElement('canvas');
+        const C_WIDTH = 2048;
+        const C_HEIGHT = 1080;
+        canvas.width = C_WIDTH;
+        canvas.height = C_HEIGHT;
+        const ctx = canvas.getContext('2d');
+
         const treeLayers = [
-            { zIndex: -0.8, count: 10, color: 'rgba(40, 20, 30, 0.6)', bloomColor: 'rgba(255, 220, 230, 0.7)' },
-            { zIndex: -0.6, count: 7, color: 'rgba(60, 40, 50, 0.8)', bloomColor: 'rgba(255, 200, 210, 0.8)' }
+            { count: 10, color: 'rgba(40, 20, 30, 0.5)', bloomColor: 'rgba(255, 220, 230, 0.6)', baseWidth: 8 },
+            { count: 7, color: 'rgba(60, 40, 50, 0.7)', bloomColor: 'rgba(255, 200, 210, 0.7)', baseWidth: 12 }
         ];
 
-        // Helper function for drawing tree branches recursively
-        const drawBranch = (ctx, x1, y1, len, angle, width, color, bloomColor) => {
-            if (width < 1) return;
-
+        const drawBranch = (x1, y1, len, angle, width, color, bloomColor) => {
+            if (width < 0.5) return;
             ctx.beginPath();
             ctx.lineWidth = width;
             ctx.strokeStyle = color;
@@ -425,60 +537,62 @@ function createCherryBlossomGardenScene() {
             ctx.lineTo(x2, y2);
             ctx.stroke();
 
-            // Draw blooms
-            if (width < 5) {
-                for (let i = 0; i < 5; i++) {
-                    const bloomX = x2 + (Math.random() - 0.5) * 20;
-                    const bloomY = y2 + (Math.random() - 0.5) * 20;
-                    const bloomRadius = Math.random() * 3 + 2;
+            if (width < 6) {
+                for (let i = 0; i < 7; i++) {
+                    const bloomX = x2 + (Math.random() - 0.5) * 30;
+                    const bloomY = y2 + (Math.random() - 0.5) * 30;
+                    const bloomRadius = Math.random() * 4 + 2;
                     ctx.beginPath();
                     ctx.arc(bloomX, bloomY, bloomRadius, 0, Math.PI * 2);
                     ctx.fillStyle = bloomColor;
+                    ctx.globalAlpha = Math.random() * 0.5 + 0.5;
                     ctx.fill();
+                    ctx.globalAlpha = 1.0;
                 }
             }
 
-            const newLen = len * (0.7 + Math.random() * 0.1);
-            drawBranch(ctx, x2, y2, newLen, angle + Math.random() * 20 + 15, width * 0.7, color, bloomColor);
-            drawBranch(ctx, x2, y2, newLen, angle - (Math.random() * 20 + 15), width * 0.7, color, bloomColor);
+            const newLen = len * (0.75 + Math.random() * 0.1);
+            drawBranch(x2, y2, newLen, angle + Math.random() * 15 + 10, width * 0.75, color, bloomColor);
+            drawBranch(x2, y2, newLen, angle - (Math.random() * 15 + 10), width * 0.75, color, bloomColor);
         };
 
         treeLayers.forEach(layer => {
-            const canvas = document.createElement('canvas');
-            // Use a fixed-size canvas for texture generation to improve performance
-            const C_WIDTH = 2048;
-            const C_HEIGHT = 1080;
-            canvas.width = C_WIDTH;
-            canvas.height = C_HEIGHT;
-            const ctx = canvas.getContext('2d');
-
             for (let i = 0; i < layer.count; i++) {
                 const x = Math.random() * C_WIDTH;
                 const y = C_HEIGHT;
-                const length = Math.random() * 100 + 150;
-                drawBranch(ctx, x, y, length, -90, 10, layer.color, layer.bloomColor);
+                const length = Math.random() * 80 + 120;
+                drawBranch(x, y, length, -90, layer.baseWidth, layer.color, layer.bloomColor);
             }
-
-            webglRenderer.addLayer(canvas, layer.zIndex);
         });
+
+        canvas.style.position = 'absolute';
+        canvas.style.bottom = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        branchContainer.appendChild(canvas);
     }
 
-    // 3. Stone Lanterns
+    // 3. Flickering Stone Lanterns
     const lanternContainer = document.getElementById('cherry-blossom-lanterns');
     if (lanternContainer && lanternContainer.children.length === 0) {
         for (let i = 0; i < 3; i++) {
             let lantern = document.createElement('div');
             lantern.className = 'cherry-blossom-lantern';
-            lantern.style.left = `${10 + i * 30 + Math.random() * 10}%`;
-            lantern.style.bottom = `${Math.random() * 5 + 5}%`;
-            lantern.style.animationDelay = `-${Math.random() * 7}s`;
+            lantern.style.left = `${10 + i * 35 + Math.random() * 5}%`;
+            lantern.style.bottom = `${Math.random() * 5 + 20}%`;
+            lantern.style.transform = `scale(${Math.random() * 0.2 + 0.9})`;
+            const afterElement = document.createElement('div'); // For the ::after pseudo-element's animation
+            afterElement.style.animationDelay = `-${Math.random() * 4}s`;
+            lantern.appendChild(afterElement);
             lanternContainer.appendChild(lantern);
         }
     }
 
-    // 4. Koi Stream Ripples
+    // 4. Koi Stream Ripples & Bamboo Water Feature
     const streamContainer = document.getElementById('cherry-blossom-koi-stream');
     if (streamContainer) {
+        // Koi Ripples
         const createStreamRipple = () => {
             if (activeTheme !== 'cherry-blossom-garden') return;
             let ripple = document.createElement('div');
@@ -490,6 +604,16 @@ function createCherryBlossomGardenScene() {
             setTimeout(createStreamRipple, Math.random() * 4000 + 3000);
         };
         setTimeout(createStreamRipple, 2000);
+
+        // Bamboo Water Feature
+        if (streamContainer.querySelector('.bamboo-water-feature') === null) {
+            const waterFeature = document.createElement('div');
+            waterFeature.className = 'bamboo-water-feature';
+            const tock = document.createElement('div');
+            tock.className = 'bamboo-tock';
+            waterFeature.appendChild(tock);
+            streamContainer.appendChild(waterFeature);
+        }
     }
 }
 
