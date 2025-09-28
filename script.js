@@ -178,15 +178,15 @@ function createHimalayanPeakScene() {
 }
 
 function createIceTempleScene() {
-    // 1. Ice Crystal Architecture (Canvas)
-    const crystalLayers = [
-        { el: document.getElementById('ice-temple-crystals-back'), count: 20, color: 'rgba(150, 180, 220, 0.3)' },
-        { el: document.getElementById('ice-temple-crystals-mid'), count: 15, color: 'rgba(180, 210, 240, 0.4)' },
-        { el: document.getElementById('ice-temple-crystals-front'), count: 10, color: 'rgba(210, 230, 255, 0.5)' }
-    ];
+    // 1. Ice Crystal Architecture (WebGL)
+    if (webglRenderer) {
+        const crystalLayers = [
+            { zIndex: -0.9, count: 20, color: 'rgba(150, 180, 220, 0.3)' },
+            { zIndex: -0.8, count: 15, color: 'rgba(180, 210, 240, 0.4)' },
+            { zIndex: -0.7, count: 10, color: 'rgba(210, 230, 255, 0.5)' }
+        ];
 
-    crystalLayers.forEach(layer => {
-        if (layer.el && layer.el.children.length === 0) {
+        crystalLayers.forEach(layer => {
             const canvas = document.createElement('canvas');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -217,12 +217,9 @@ function createIceTempleScene() {
                 ctx.fill();
                 ctx.stroke();
             }
-            canvas.style.position = 'absolute';
-            canvas.style.bottom = '0';
-            canvas.style.left = '0';
-            layer.el.appendChild(canvas);
-        }
-    });
+            webglRenderer.addLayer(canvas, layer.zIndex);
+        });
+    }
 
     // 2. Aurora
     const auroraContainer = document.getElementById('ice-temple-aurora');
@@ -252,20 +249,7 @@ function createIceTempleScene() {
         }
     }
 
-    // 4. Snow Crystals
-    const snowContainer = document.getElementById('ice-temple-snow-crystals');
-    if (snowContainer && snowContainer.children.length === 0) {
-        for (let i = 0; i < 80; i++) {
-            let crystal = document.createElement('div');
-            crystal.className = 'snow-crystal';
-            crystal.style.left = `${Math.random() * 100}%`;
-            crystal.style.top = `${Math.random() * 100}%`;
-            const duration = Math.random() * 15 + 20;
-            crystal.style.animationDuration = `${duration}s`;
-            crystal.style.animationDelay = `-${Math.random() * duration}s`;
-            snowContainer.appendChild(crystal);
-        }
-    }
+    // 4. Snow Crystals are now handled by WebGLRenderer
 
     // 5. Ice Sculptures
     const sculptureContainer = document.getElementById('ice-temple-sculptures');
@@ -640,6 +624,47 @@ function createCherryBlossomGardenScene() {
 }
 
 function createCandlelitMonasteryScene() {
+    // WebGL Archways
+    if (webglRenderer) {
+        const archwayLayers = [
+            { zIndex: -0.9, filter: 'brightness(0.5)' },
+            { zIndex: -0.8, filter: 'brightness(0.7)' },
+            { zIndex: -0.7, filter: 'brightness(0.9)' }
+        ];
+
+        archwayLayers.forEach(layer => {
+            const canvas = document.createElement('canvas');
+            const C_WIDTH = window.innerWidth * 2; // For parallax effect
+            const C_HEIGHT = window.innerHeight;
+            canvas.width = C_WIDTH;
+            canvas.height = C_HEIGHT;
+            const ctx = canvas.getContext('2d');
+
+            ctx.filter = layer.filter;
+            ctx.fillStyle = 'rgba(20,10,5,0.8)';
+
+            const singleArchSVGWidth = 800;
+            const scaledArchWidth = 400; // From original CSS background-size
+            const numRepeats = Math.ceil(C_WIDTH / scaledArchWidth);
+
+            for (let i = 0; i < numRepeats; i++) {
+                ctx.save();
+                ctx.translate(i * scaledArchWidth, 0);
+
+                const scaleX = scaledArchWidth / singleArchSVGWidth;
+                const scaleY = C_HEIGHT / 600; // 600 is the viewBox height
+                ctx.scale(scaleX, scaleY);
+
+                const path = new Path2D("M 100 600 C 100 300, 300 300, 300 600 Z M 500 600 C 500 300, 700 300, 700 600 Z");
+                ctx.fill(path);
+
+                ctx.restore();
+            }
+
+            webglRenderer.addLayer(canvas, layer.zIndex);
+        });
+    }
+
     // 1. Candles
     const candleContainer = document.getElementById('monastery-candles');
     if (candleContainer && candleContainer.children.length === 0) {
@@ -661,19 +686,7 @@ function createCandlelitMonasteryScene() {
         }
     }
 
-    // 2. Incense Smoke
-    const smokeContainer = document.getElementById('monastery-incense-smoke');
-    if (smokeContainer && smokeContainer.children.length === 0) {
-        for (let i = 0; i < 15; i++) {
-            let smokeWisp = document.createElement('div');
-            smokeWisp.className = 'incense-wisp';
-            smokeWisp.style.left = `${Math.random() * 100}%`;
-            const duration = Math.random() * 20 + 15;
-            smokeWisp.style.animationDuration = `${duration}s`;
-            smokeWisp.style.animationDelay = `-${Math.random() * duration}s`;
-            smokeContainer.appendChild(smokeWisp);
-        }
-    }
+    // 2. Incense Smoke is now handled by WebGLRenderer
 
     // 3. Stained Glass Light
     const lightContainer = document.getElementById('monastery-stained-glass-light');
@@ -2823,15 +2836,15 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
         }
 
 function createCrystalCaveScene() {
-    // 1. Layered Crystal Formations (Procedural Canvases)
-    const crystalLayers = [
-        { el: document.getElementById('crystal-cave-back-crystals'), count: 15, color: 'rgba(40, 60, 100, 0.5)', height: 0.7, jaggedness: 0.6 },
-        { el: document.getElementById('crystal-cave-mid-crystals'), count: 12, color: 'rgba(60, 80, 130, 0.6)', height: 0.8, jaggedness: 0.8 },
-        { el: document.getElementById('crystal-cave-front-crystals'), count: 10, color: 'rgba(80, 100, 160, 0.7)', height: 0.9, jaggedness: 1.0 }
-    ];
+    // 1. Layered Crystal Formations (WebGL)
+    if (webglRenderer) {
+        const crystalLayers = [
+            { zIndex: -0.9, count: 15, color: 'rgba(40, 60, 100, 0.5)', height: 0.7 },
+            { zIndex: -0.8, count: 12, color: 'rgba(60, 80, 130, 0.6)', height: 0.8 },
+            { zIndex: -0.7, count: 10, color: 'rgba(80, 100, 160, 0.7)', height: 0.9 }
+        ];
 
-    crystalLayers.forEach(layer => {
-        if (layer.el && layer.el.children.length === 0) {
+        crystalLayers.forEach(layer => {
             const canvas = document.createElement('canvas');
             const C_WIDTH = 2048;
             canvas.width = C_WIDTH;
@@ -2866,14 +2879,9 @@ function createCrystalCaveScene() {
                 ctx.fill();
                 ctx.stroke();
             }
-            canvas.style.position = 'absolute';
-            canvas.style.left = '0';
-            canvas.style.bottom = '0';
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            layer.el.appendChild(canvas);
-        }
-    });
+            webglRenderer.addLayer(canvas, layer.zIndex);
+        });
+    }
 
     // 2. Glowing Crystal Clusters
     const clusterContainer = document.getElementById('crystal-cave-glow-clusters');
@@ -2894,23 +2902,8 @@ function createCrystalCaveScene() {
         }
     }
 
-    // 3. Floating Crystal Shards
-    const shardContainer = document.getElementById('crystal-cave-floating-shards');
-    if (shardContainer && shardContainer.children.length === 0) {
-        for (let i = 0; i < 25; i++) {
-            let shard = document.createElement('div');
-            shard.className = 'floating-shard';
-            shard.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-            shard.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-            shard.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-            shard.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-            shard.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
-            const duration = Math.random() * 20 + 20;
-            shard.style.animationDuration = `${duration}s`;
-            shard.style.animationDelay = `-${Math.random() * duration}s`;
-            shardContainer.appendChild(shard);
-        }
-    }
+    // 3. Floating Crystal Shards are now handled by WebGLRenderer
+    // 5. Sparkling Mineral Dust is now handled by WebGLRenderer
 
     // 4. Bioluminescent Moss
     const mossContainer = document.getElementById('crystal-cave-moss');
@@ -2925,22 +2918,6 @@ function createCrystalCaveScene() {
             patch.style.height = `${size}px`;
             patch.style.animationDelay = `-${Math.random() * 6}s`;
             mossContainer.appendChild(patch);
-        }
-    }
-
-    // 5. Sparkling Mineral Dust
-    const dustContainer = document.getElementById('crystal-cave-dust');
-    if (dustContainer && dustContainer.children.length === 0) {
-        for (let i = 0; i < 100; i++) {
-            let particle = document.createElement('div');
-            particle.className = 'cave-dust-particle';
-            const size = Math.random() * 2 + 1;
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.left = `${Math.random() * 100}%`;
-            particle.style.top = `${Math.random() * 100}%`;
-            particle.style.animationDelay = `-${Math.random() * 10}s`;
-            dustContainer.appendChild(particle);
         }
     }
 

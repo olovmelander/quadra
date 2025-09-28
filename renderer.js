@@ -347,6 +347,53 @@ class WebGLRenderer {
             };
             this.particleSystems.push(new ParticleSystem(this.gl, 70, himalayanConfig));
             this.start();
+        } else if (themeName === 'ice-temple') {
+            const snowCrystalConfig = {
+                speed: 1.5,
+                minSize: 2.0,
+                maxSize: 5.0,
+                minAlpha: 0.5,
+                maxAlpha: 1.0,
+                lifetime: 800,
+                zIndex: -0.5, // In front of crystals
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 80, snowCrystalConfig));
+            this.start();
+        } else if (themeName === 'crystal-cave') {
+            const shardConfig = {
+                speed: 0.8,
+                minSize: 4.0,
+                maxSize: 10.0,
+                minAlpha: 0.4,
+                maxAlpha: 0.8,
+                lifetime: 1500,
+                zIndex: -0.4,
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 25, shardConfig));
+
+            const dustConfig = {
+                speed: 0.2,
+                minSize: 1.0,
+                maxSize: 2.5,
+                minAlpha: 0.3,
+                maxAlpha: 0.7,
+                lifetime: 2000,
+                zIndex: -0.3,
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 100, dustConfig));
+            this.start();
+        } else if (themeName === 'candlelit-monastery') {
+            const smokeConfig = {
+                speed: 0.5,
+                minSize: 2.0,
+                maxSize: 10.0,
+                minAlpha: 0.1,
+                maxAlpha: 0.3,
+                lifetime: 1800,
+                zIndex: -0.5, // In front of archways
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 15, smokeConfig));
+            this.start();
         }
     }
 }
