@@ -516,9 +516,9 @@ function createCherryBlossomGardenScene() {
         for (let i = 0; i < cloudCount; i++) {
             const cloud = document.createElement('div');
             cloud.className = 'cherry-blossom-cloud';
-            cloud.style.top = `${10 + Math.random() * 35}%`;
-            cloud.style.setProperty('--cloud-scale', `${0.7 + Math.random() * 0.8}`);
-            const duration = 45 + Math.random() * 25;
+            cloud.style.top = `${5 + Math.random() * 25}%`;
+            cloud.style.setProperty('--cloud-scale', `${0.6 + Math.random() * 0.7}`);
+            const duration = 60 + Math.random() * 40;
             cloud.style.setProperty('--cloud-duration', `${duration}s`);
             cloud.style.animationDelay = `-${Math.random() * duration}s`;
             cloudContainer.appendChild(cloud);
@@ -540,61 +540,53 @@ function createCherryBlossomGardenScene() {
         ctx.lineJoin = 'round';
 
         const treeLayers = [
-            { count: 8, color: 'rgba(80, 45, 60, 0.5)', bloomColor: 'rgba(255, 217, 228, 0.6)', baseWidth: 12 },
-            { count: 6, color: 'rgba(100, 60, 75, 0.7)', bloomColor: 'rgba(255, 204, 220, 0.72)', baseWidth: 16 },
-            { count: 4, color: 'rgba(120, 70, 85, 0.85)', bloomColor: 'rgba(255, 189, 210, 0.78)', baseWidth: 20 }
+            { count: 3, color: '#2c1e1e', bloomColors: ['#ff8fab', '#ff7f9e', '#e7738c'], baseWidth: 28 },
+            { count: 5, color: '#3b2a2a', bloomColors: ['#ff8fab', '#ff7f9e', '#e7738c'], baseWidth: 22 }
         ];
 
-        const drawBranch = (x1, y1, len, angle, width, color, bloomColor) => {
-            if (width < 1) return;
+        const drawBranch = (x1, y1, len, angle, width, colors) => {
+            if (width < 2) return;
 
-            // Draw a slightly thicker black outline first for a cartoony look
             ctx.beginPath();
-            ctx.lineWidth = width + 2;
-            ctx.strokeStyle = 'rgba(40, 20, 30, 0.8)';
+            ctx.lineWidth = width;
+            ctx.strokeStyle = colors.color;
             ctx.moveTo(x1, y1);
             const x2 = x1 + len * Math.cos(angle * Math.PI / 180);
             const y2 = y1 + len * Math.sin(angle * Math.PI / 180);
             ctx.lineTo(x2, y2);
             ctx.stroke();
 
-            // Draw the main branch on top
-            ctx.beginPath();
-            ctx.lineWidth = width;
-            ctx.strokeStyle = color;
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
+            // Create dense flower clusters on smaller branches
+            if (width < 15) {
+                const clusterSize = 40 + (15 - width) * 5;
+                const numBlooms = 30 + (15 - width) * 3;
+                for (let i = 0; i < numBlooms; i++) {
+                    const angleOffset = (Math.random() * 2 - 1) * Math.PI;
+                    const radiusOffset = Math.random() * clusterSize;
+                    const bloomX = x2 + Math.cos(angleOffset) * radiusOffset;
+                    const bloomY = y2 + Math.sin(angleOffset) * radiusOffset;
+                    const bloomRadius = Math.random() * 10 + 5;
 
-            if (width < 8) {
-                for (let i = 0; i < 7; i++) {
-                    const bloomX = x2 + (Math.random() - 0.5) * 30;
-                    const bloomY = y2 + (Math.random() - 0.5) * 30;
-                    const bloomRadius = Math.random() * 5 + 3; // Slightly larger blooms
                     ctx.beginPath();
                     ctx.arc(bloomX, bloomY, bloomRadius, 0, Math.PI * 2);
-                    ctx.fillStyle = bloomColor;
-                    ctx.globalAlpha = Math.random() * 0.5 + 0.5;
-                    ctx.shadowColor = 'rgba(255, 182, 193, 0.3)';
-                    ctx.shadowBlur = 8;
+                    ctx.fillStyle = colors.bloomColors[Math.floor(Math.random() * colors.bloomColors.length)];
+                    ctx.globalAlpha = Math.random() * 0.4 + 0.6;
                     ctx.fill();
-                    ctx.globalAlpha = 1.0;
-                    ctx.shadowBlur = 0;
                 }
+                ctx.globalAlpha = 1.0;
             }
 
-            // Shorter, more exaggerated branches
-            const newLen = len * (0.65 + Math.random() * 0.1);
-            drawBranch(x2, y2, newLen, angle + (Math.random() * 25 + 15), width * 0.7, color, bloomColor);
-            drawBranch(x2, y2, newLen, angle - (Math.random() * 25 + 15), width * 0.7, color, bloomColor);
+            const newLen = len * (0.75 + Math.random() * 0.1);
+            drawBranch(x2, y2, newLen, angle + (Math.random() * 20 + 10), width * 0.75, colors);
+            drawBranch(x2, y2, newLen, angle - (Math.random() * 20 + 10), width * 0.75, colors);
         };
 
         treeLayers.forEach(layer => {
             for (let i = 0; i < layer.count; i++) {
                 const x = Math.random() * C_WIDTH;
                 const y = C_HEIGHT;
-                const length = Math.random() * 80 + 120;
-                drawBranch(x, y, length, -90, layer.baseWidth, layer.color, layer.bloomColor);
+                const length = Math.random() * 50 + 100;
+                drawBranch(x, y, length, -90, layer.baseWidth, { color: layer.color, bloomColors: layer.bloomColors });
             }
         });
 
@@ -609,7 +601,7 @@ function createCherryBlossomGardenScene() {
     // 4. Floating Cherry Leaves
     const leafContainer = document.getElementById('cherry-blossom-leaves');
     if (leafContainer && leafContainer.children.length === 0) {
-        const leafCount = 30;
+        const leafCount = 50; // Increased count
         for (let i = 0; i < leafCount; i++) {
             const leaf = document.createElement('div');
             leaf.className = 'cherry-leaf';
@@ -620,21 +612,20 @@ function createCherryBlossomGardenScene() {
 
             const xStart = Math.random() * 100;
             leaf.style.setProperty('--x-start', `${xStart}vw`);
-            leaf.style.setProperty('--x-end', `${xStart + (Math.random() - 0.5) * 40}vw`);
+            leaf.style.setProperty('--x-end', `${xStart + (Math.random() - 0.5) * 60}vw`);
 
             leaf.style.setProperty('--r-start', `${Math.random() * 360}deg`);
             leaf.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
 
-            leaf.style.setProperty('--leaf-size', `${Math.random() * 10 + 15}px`);
+            leaf.style.setProperty('--leaf-size', `${Math.random() * 5 + 8}px`); // Smaller, more numerous petals
 
-            const duration = 15 + Math.random() * 10;
+            const duration = 12 + Math.random() * 8;
             leaf.style.animationDuration = `${duration}s`;
             leaf.style.animationDelay = `-${Math.random() * duration}s`;
 
             leafContainer.appendChild(leaf);
         }
     }
-
 }
 
 function createCandlelitMonasteryScene() {
