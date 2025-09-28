@@ -11,92 +11,8 @@ function random(min, max) {
 // 🌲 FOREST THEME
 // =================================================================================
 
-let forestAnimationFrameId = null;
-
-function startForestAnimations() {
-    if (forestAnimationFrameId) cancelAnimationFrame(forestAnimationFrameId);
-
-    const canvas = document.getElementById('forest-canvas');
-    if (!canvas) {
-        console.error("Forest canvas not found!");
-        return;
-    }
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const fireflies = [];
-    for (let i = 0; i < 25; i++) {
-        fireflies.push(new Firefly(canvas.width, canvas.height));
-    }
-
-    const particles = [];
-    for (let i = 0; i < 50; i++) {
-        particles.push({
-            x: random(0, canvas.width),
-            y: random(0, canvas.height),
-            vx: random(-0.2, 0.2),
-            vy: random(-0.2, 0.2),
-            radius: random(1, 2.5),
-            alpha: random(0.1, 0.5)
-        });
-    }
-
-    function animateForest() {
-        if (!document.getElementById('forest-theme')?.classList.contains('active')) {
-            stopForestAnimations();
-            return;
-        }
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Update and draw particles
-        particles.forEach(p => {
-            p.x += p.vx;
-            p.y += p.vy;
-
-            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(200, 220, 255, ${p.alpha})`;
-            ctx.fill();
-        });
-
-        // Update and draw fireflies
-        fireflies.forEach(f => {
-            f.update();
-            f.draw(ctx);
-        });
-
-        forestAnimationFrameId = requestAnimationFrame(animateForest);
-    }
-    animateForest();
-
-    // Ensure canvas resizes with window
-    const resizeHandler = () => {
-        if (!canvas) return;
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    };
-    window.addEventListener('resize', resizeHandler);
-
-    // Store resize handler on the canvas element to remove it later
-    canvas.resizeHandler = resizeHandler;
-}
-
-function stopForestAnimations() {
-    if (forestAnimationFrameId) {
-        cancelAnimationFrame(forestAnimationFrameId);
-        forestAnimationFrameId = null;
-    }
-    const canvas = document.getElementById('forest-canvas');
-    if (canvas && canvas.resizeHandler) {
-        window.removeEventListener('resize', canvas.resizeHandler);
-        canvas.resizeHandler = null;
-    }
-}
+// All Forest theme particle animations are now handled by the WebGLRenderer.
+// The old startForestAnimations, stopForestAnimations, and Firefly class have been removed.
 
 function createHimalayanPeakScene() {
     // 1. Procedural Peaks for WebGL
@@ -467,40 +383,8 @@ function createFloatingIslandsScene() {
         }
     });
 
-    // 2. Waterfalls
-    const waterfallContainer = document.getElementById('floating-islands-waterfalls');
-    if (waterfallContainer && waterfallContainer.children.length === 0) {
-        for (let i = 0; i < 7; i++) {
-            let waterfall = document.createElement('div');
-            waterfall.className = 'island-waterfall';
-            waterfall.style.left = `${Math.random() * 100}%`;
-            waterfall.style.top = `${Math.random() * 80}%`;
-            waterfall.style.height = `${Math.random() * 200 + 100}px`;
-            if (Math.random() > 0.6) { // Upward flowing
-                waterfall.style.transform = 'scaleY(-1)';
-                waterfall.style.top = `${Math.random() * 60 + 20}%`;
-            }
-            waterfall.style.animationDelay = `-${Math.random() * 5}s`;
-            waterfallContainer.appendChild(waterfall);
-        }
-    }
-
-    // 3. Magical Particles
-    const particleContainer = document.getElementById('floating-islands-particles');
-    if (particleContainer && particleContainer.children.length === 0) {
-        for (let i = 0; i < 40; i++) {
-            let particle = document.createElement('div');
-            particle.className = 'island-particle';
-            particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-            particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-            particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-            particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-            const duration = Math.random() * 15 + 10;
-            particle.style.animationDuration = `${duration}s`;
-            particle.style.animationDelay = `-${Math.random() * duration}s`;
-            particleContainer.appendChild(particle);
-        }
-    }
+    // 2. Waterfalls are now handled by WebGLRenderer.
+    // 3. Magical Particles are now handled by WebGLRenderer.
 
     // 4. Ethereal Clouds
     const cloudContainer = document.getElementById('floating-islands-clouds');
@@ -518,79 +402,65 @@ function createFloatingIslandsScene() {
 }
 
 function createCherryBlossomGardenScene() {
-    // 1. Falling Petals
-    const petalContainer = document.getElementById('cherry-blossom-petals');
-    if (petalContainer && petalContainer.children.length === 0) {
-        for (let i = 0; i < 50; i++) {
-            let petal = document.createElement('div');
-            petal.className = 'cherry-blossom-petal';
-            petal.style.left = `${Math.random() * 110 - 5}%`; // Allow some overflow
-            petal.style.setProperty('--r-start', `${Math.random() * 360}deg`);
-            petal.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
-            petal.style.setProperty('--x-drift', `${Math.random() * 30 - 15}vw`);
-            const duration = Math.random() * 8 + 12;
-            petal.style.animationDuration = `${duration}s`;
-            petal.style.animationDelay = `-${Math.random() * duration}s`;
-            petalContainer.appendChild(petal);
-        }
-    }
+    // 1. Falling Petals are now handled by WebGLRenderer.
+    // The old DOM element creation is removed.
 
-    // 2. Procedural Trees
-    const treeLayers = [
-        { el: document.getElementById('cherry-blossom-trees-back'), count: 10, color: 'rgba(40, 20, 30, 0.6)', bloomColor: 'rgba(255, 220, 230, 0.7)' },
-        { el: document.getElementById('cherry-blossom-trees-front'), count: 7, color: 'rgba(60, 40, 50, 0.8)', bloomColor: 'rgba(255, 200, 210, 0.8)' }
-    ];
+    // 2. Procedural Trees are now drawn to a canvas and passed to WebGL.
+    if (webglRenderer) {
+        const treeLayers = [
+            { zIndex: -0.8, count: 10, color: 'rgba(40, 20, 30, 0.6)', bloomColor: 'rgba(255, 220, 230, 0.7)' },
+            { zIndex: -0.6, count: 7, color: 'rgba(60, 40, 50, 0.8)', bloomColor: 'rgba(255, 200, 210, 0.8)' }
+        ];
 
-    treeLayers.forEach(layer => {
-        if (layer.el && layer.el.children.length === 0) {
+        // Helper function for drawing tree branches recursively
+        const drawBranch = (ctx, x1, y1, len, angle, width, color, bloomColor) => {
+            if (width < 1) return;
+
+            ctx.beginPath();
+            ctx.lineWidth = width;
+            ctx.strokeStyle = color;
+            ctx.moveTo(x1, y1);
+            const x2 = x1 + len * Math.cos(angle * Math.PI / 180);
+            const y2 = y1 + len * Math.sin(angle * Math.PI / 180);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            // Draw blooms
+            if (width < 5) {
+                for (let i = 0; i < 5; i++) {
+                    const bloomX = x2 + (Math.random() - 0.5) * 20;
+                    const bloomY = y2 + (Math.random() - 0.5) * 20;
+                    const bloomRadius = Math.random() * 3 + 2;
+                    ctx.beginPath();
+                    ctx.arc(bloomX, bloomY, bloomRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = bloomColor;
+                    ctx.fill();
+                }
+            }
+
+            const newLen = len * (0.7 + Math.random() * 0.1);
+            drawBranch(ctx, x2, y2, newLen, angle + Math.random() * 20 + 15, width * 0.7, color, bloomColor);
+            drawBranch(ctx, x2, y2, newLen, angle - (Math.random() * 20 + 15), width * 0.7, color, bloomColor);
+        };
+
+        treeLayers.forEach(layer => {
             const canvas = document.createElement('canvas');
-            canvas.width = window.innerWidth * 1.5;
-            canvas.height = window.innerHeight;
+            // Use a fixed-size canvas for texture generation to improve performance
+            const C_WIDTH = 2048;
+            const C_HEIGHT = 1080;
+            canvas.width = C_WIDTH;
+            canvas.height = C_HEIGHT;
             const ctx = canvas.getContext('2d');
 
             for (let i = 0; i < layer.count; i++) {
-                const x = Math.random() * canvas.width;
-                const y = canvas.height;
+                const x = Math.random() * C_WIDTH;
+                const y = C_HEIGHT;
                 const length = Math.random() * 100 + 150;
                 drawBranch(ctx, x, y, length, -90, 10, layer.color, layer.bloomColor);
             }
-            canvas.style.position = 'absolute';
-            canvas.style.left = '0';
-            canvas.style.bottom = '0';
-            canvas.style.width = `${canvas.width}px`;
-            canvas.style.height = '100%';
-            layer.el.appendChild(canvas);
-        }
-    });
 
-    function drawBranch(ctx, x1, y1, len, angle, width, color, bloomColor) {
-        if (width < 1) return;
-
-        ctx.beginPath();
-        ctx.lineWidth = width;
-        ctx.strokeStyle = color;
-        ctx.moveTo(x1, y1);
-        const x2 = x1 + len * Math.cos(angle * Math.PI / 180);
-        const y2 = y1 + len * Math.sin(angle * Math.PI / 180);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-
-        // Draw blooms
-        if (width < 5) {
-            for (let i = 0; i < 5; i++) {
-                const bloomX = x2 + (Math.random() - 0.5) * 20;
-                const bloomY = y2 + (Math.random() - 0.5) * 20;
-                const bloomRadius = Math.random() * 3 + 2;
-                ctx.beginPath();
-                ctx.arc(bloomX, bloomY, bloomRadius, 0, Math.PI * 2);
-                ctx.fillStyle = bloomColor;
-                ctx.fill();
-            }
-        }
-
-        const newLen = len * (0.7 + Math.random() * 0.1);
-        drawBranch(ctx, x2, y2, newLen, angle + Math.random() * 20 + 15, width * 0.7, color, bloomColor);
-        drawBranch(ctx, x2, y2, newLen, angle - (Math.random() * 20 + 15), width * 0.7, color, bloomColor);
+            webglRenderer.addLayer(canvas, layer.zIndex);
+        });
     }
 
     // 3. Stone Lanterns
@@ -708,60 +578,7 @@ function createCandlelitMonasteryScene() {
     }
 }
 
-class Firefly {
-    constructor(boundsX, boundsY) {
-        this.boundsX = boundsX; this.boundsY = boundsY;
-        this.x = random(0, this.boundsX);
-        this.y = random(0, this.boundsY);
-        this.vx = 0; this.vy = 0;
-        this.wanderAngle = random(0, Math.PI * 2);
-        this.lastBlink = Date.now();
-        this.blinkDuration = random(100, 300);
-        this.nextBlink = random(2000, 5000);
-        this.isBlinking = false;
-        this.radius = 2.5;
-    }
-
-    update() {
-        this.wanderAngle += random(-0.4, 0.4);
-        this.vx += Math.cos(this.wanderAngle) * 0.08;
-        this.vy += Math.sin(this.wanderAngle) * 0.08;
-        this.vx *= 0.96; this.vy *= 0.96;
-        this.x += this.vx; this.y += this.vy;
-
-        if (this.x < 0) { this.x = 0; this.vx *= -1; }
-        if (this.x > this.boundsX) { this.x = this.boundsX; this.vx *= -1; }
-        if (this.y < 0) { this.y = 0; this.vy *= -1; }
-        if (this.y > this.boundsY) { this.y = this.boundsY; this.vy *= -1; }
-
-        const now = Date.now();
-        if (now - this.lastBlink > this.nextBlink) {
-            this.isBlinking = true;
-            setTimeout(() => {
-                this.isBlinking = false;
-            }, this.blinkDuration);
-            this.lastBlink = now;
-            this.nextBlink = random(2000, 8000);
-        }
-    }
-
-    draw(ctx) {
-        const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 4);
-        if (this.isBlinking) {
-            grad.addColorStop(0, 'rgba(240, 240, 170, 1)');
-            grad.addColorStop(0.2, 'rgba(240, 240, 170, 0.7)');
-            grad.addColorStop(1, 'rgba(240, 240, 170, 0)');
-        } else {
-            grad.addColorStop(0, 'rgba(240, 240, 170, 0.6)');
-            grad.addColorStop(0.3, 'rgba(240, 240, 170, 0.3)');
-            grad.addColorStop(1, 'rgba(240, 240, 170, 0)');
-        }
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius * 4, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
+// The Firefly class has been migrated to a particle behavior in WebGLRenderer.
         class SoundManager {
             constructor() {
                 this.audioContext = null; this.isMuted = false; this.musicInterval = null;
@@ -2716,10 +2533,11 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
 
             // Stop any running JS-based animations from the previous theme
             if (activeTheme === 'forest' && typeof stopForestAnimations === 'function') {
+                // This is now obsolete, but keeping for safety during transition.
                 stopForestAnimations();
             }
 
-            if (!THEMES.includes(themeName) || activeTheme === themeName) return;
+            if (!THEMES.includes(themeName) || (activeTheme === themeName && themeName !== 'forest')) return;
             activeTheme = themeName;
             document.querySelectorAll('.theme-container').forEach(el => {
                 if (el.id === `${themeName}-theme`) {
@@ -2741,9 +2559,8 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     }
                     if (themeName === 'forest') {
                         createEnchantedForest();
-                        if (typeof startForestAnimations === 'function') {
-                            startForestAnimations();
-                        }
+                        // The new WebGL renderer handles the forest particles,
+                        // so startForestAnimations() is no longer called here.
                     }
                     if (themeName === 'winter') {
                         createWinterScene();

@@ -117,9 +117,16 @@ const PARTICLE_FRAGMENT_SHADER = `
     precision mediump float;
 
     varying float v_alpha;
+    uniform vec3 u_color;
 
     void main() {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, v_alpha);
+        float dist = distance(gl_PointCoord, vec2(0.5, 0.5));
+        if (dist > 0.5) {
+            discard;
+        }
+        // Create a smooth falloff for a glowing effect
+        float glow = pow(1.0 - dist * 2.0, 2.0);
+        gl_FragColor = vec4(u_color, v_alpha * glow);
     }
 `;
 
@@ -129,12 +136,21 @@ class ParticleSystem {
         this.numParticles = numParticles;
         this.themeConfig = themeConfig;
         this.zIndex = themeConfig.zIndex || 0.0;
+        this.behavior = themeConfig.behavior || 'standard';
 
         this.positions = new Float32Array(numParticles * 2);
         this.velocities = new Float32Array(numParticles * 2);
         this.sizes = new Float32Array(numParticles);
         this.alphas = new Float32Array(numParticles);
         this.lifetimes = new Float32Array(numParticles);
+
+        if (this.behavior === 'firefly') {
+            this.wanderAngles = new Float32Array(numParticles);
+            this.blinkInfo = new Float32Array(numParticles * 4); // lastBlinkTime, blinkDuration, nextBlinkInterval, isBlinking
+        } else if (this.behavior === 'petal') {
+            this.rotations = new Float32Array(numParticles);
+            this.rotationSpeeds = new Float32Array(numParticles);
+        }
 
         this.positionBuffer = gl.createBuffer();
         this.sizeBuffer = gl.createBuffer();
@@ -152,29 +168,121 @@ class ParticleSystem {
         this.positions[i * 2] = Math.random() * width;
         this.positions[i * 2 + 1] = Math.random() * height;
 
-        this.velocities[i * 2] = (Math.random() - 0.5) * config.speed;
-        this.velocities[i * 2 + 1] = (Math.random() - 0.5) * config.speed;
-
         this.sizes[i] = Math.random() * (config.maxSize - config.minSize) + config.minSize;
-        this.alphas[i] = Math.random() * (config.maxAlpha - config.minAlpha) + config.minAlpha;
-        this.lifetimes[i] = Math.random() * config.lifetime;
+        this.lifetimes[i] = config.lifetime === Infinity ? Infinity : Math.random() * config.lifetime;
+
+        if (this.behavior === 'firefly') {
+            this.velocities[i * 2] = 0;
+            this.velocities[i * 2 + 1] = 0;
+            this.wanderAngles[i] = Math.random() * Math.PI * 2;
+            this.blinkInfo[i * 4] = Date.now(); // lastBlinkTime
+            this.blinkInfo[i * 4 + 1] = Math.random() * 200 + 100; // blinkDuration
+            this.blinkInfo[i * 4 + 2] = Math.random() * 3000 + 2000; // nextBlinkInterval
+            this.blinkInfo[i * 4 + 3] = 0; // isBlinking
+            this.alphas[i] = config.minAlpha;
+        } else if (this.behavior === 'petal') {
+            this.positions[i * 2] = Math.random() * (width + 100) - 50; // Start off-screen slightly
+            this.positions[i * 2 + 1] = -Math.random() * height; // Start above the screen
+            this.velocities[i * 2] = (Math.random() - 0.5) * 0.5; // Horizontal drift
+            this.velocities[i * 2 + 1] = Math.random() * 0.5 + config.speed; // Vertical speed
+            this.rotations[i] = Math.random() * 360;
+            this.rotationSpeeds[i] = (Math.random() - 0.5) * 4;
+            this.alphas[i] = Math.random() * (config.maxAlpha - config.minAlpha) + config.minAlpha;
+        } else if (this.behavior === 'waterfall') {
+            // Spawn in multiple streams
+            const streamIndex = i % 7; // 7 waterfalls
+            const streamX = (0.1 + streamIndex * 0.13 + Math.random() * 0.05) * width;
+            this.positions[i * 2] = streamX;
+            this.positions[i * 2 + 1] = Math.random() * -height; // Start well above screen
+            this.velocities[i * 2] = (Math.random() - 0.5) * config.speed * 0.1; // Little horizontal sway
+            this.velocities[i * 2 + 1] = (Math.random() * 0.2 + 0.8) * config.speed; // Fast downwards
+            this.alphas[i] = Math.random() * (config.maxAlpha - config.minAlpha) + config.minAlpha;
+            this.lifetimes[i] = Math.random() * config.lifetime;
+        } else { // 'standard' or 'ambient'
+            this.velocities[i * 2] = (Math.random() - 0.5) * config.speed;
+            this.velocities[i * 2 + 1] = (Math.random() - 0.5) * config.speed;
+            this.alphas[i] = Math.random() * (config.maxAlpha - config.minAlpha) + config.minAlpha;
+        }
     }
 
     update() {
         const { width, height } = this.gl.canvas;
+        const config = this.themeConfig;
 
         for (let i = 0; i < this.numParticles; i++) {
-            this.lifetimes[i]--;
-            if (this.lifetimes[i] <= 0) {
-                this.spawnParticle(i);
+            if (this.lifetimes[i] !== Infinity) {
+                this.lifetimes[i]--;
+                if (this.lifetimes[i] <= 0) {
+                    this.spawnParticle(i);
+                    continue;
+                }
             }
 
-            this.positions[i * 2] += this.velocities[i * 2];
-            this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+            if (this.behavior === 'firefly') {
+                this.wanderAngles[i] += (Math.random() - 0.5) * 0.4;
+                this.velocities[i * 2] += Math.cos(this.wanderAngles[i]) * 0.08;
+                this.velocities[i * 2 + 1] += Math.sin(this.wanderAngles[i]) * 0.08;
+                this.velocities[i * 2] *= 0.96;
+                this.velocities[i * 2 + 1] *= 0.96;
 
-            if (this.positions[i * 2] < 0 || this.positions[i * 2] > width ||
-                this.positions[i * 2 + 1] < 0 || this.positions[i * 2 + 1] > height) {
-                this.spawnParticle(i);
+                this.positions[i * 2] += this.velocities[i * 2];
+                this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+
+                if (this.positions[i * 2] < 0) { this.positions[i * 2] = 0; this.velocities[i * 2] *= -1; }
+                if (this.positions[i * 2] > width) { this.positions[i * 2] = width; this.velocities[i * 2] *= -1; }
+                if (this.positions[i * 2 + 1] < 0) { this.positions[i * 2 + 1] = 0; this.velocities[i * 2 + 1] *= -1; }
+                if (this.positions[i * 2 + 1] > height) { this.positions[i * 2 + 1] = height; this.velocities[i * 2 + 1] *= -1; }
+
+                const now = Date.now();
+                let lastBlinkTime = this.blinkInfo[i * 4];
+                const blinkDuration = this.blinkInfo[i * 4 + 1];
+                let nextBlinkInterval = this.blinkInfo[i * 4 + 2];
+                let isBlinking = this.blinkInfo[i * 4 + 3];
+
+                if (isBlinking === 1) {
+                    if (now - lastBlinkTime > blinkDuration) {
+                        this.blinkInfo[i * 4 + 3] = 0; // Stop blinking
+                        this.alphas[i] = config.minAlpha;
+                    }
+                } else {
+                    if (now - lastBlinkTime > nextBlinkInterval) {
+                        this.blinkInfo[i * 4] = now; // Start blinking
+                        this.blinkInfo[i * 4 + 3] = 1;
+                        this.blinkInfo[i * 4 + 2] = Math.random() * 6000 + 2000; // New interval
+                        this.alphas[i] = config.maxAlpha;
+                    }
+                }
+
+            } else if (this.behavior === 'ambient') {
+                this.positions[i * 2] += this.velocities[i * 2];
+                this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+
+                if (this.positions[i * 2] < 0 || this.positions[i * 2] > width) this.velocities[i * 2] *= -1;
+                if (this.positions[i * 2 + 1] < 0 || this.positions[i * 2 + 1] > height) this.velocities[i * 2 + 1] *= -1;
+
+            } else if (this.behavior === 'petal') {
+                this.positions[i * 2] += this.velocities[i * 2];
+                this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+                this.rotations[i] += this.rotationSpeeds[i];
+                // A simple sine wave to add horizontal sway
+                this.positions[i * 2] += Math.sin(this.positions[i * 2 + 1] / 50) * 0.5;
+
+                // Reset when it goes off screen
+                if (this.positions[i * 2 + 1] > height + 20) {
+                    this.spawnParticle(i);
+                }
+            } else if (this.behavior === 'waterfall') {
+                this.positions[i * 2] += this.velocities[i * 2];
+                this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+                // Lifetime check at the top handles respawning
+            } else { // standard behavior
+                this.positions[i * 2] += this.velocities[i * 2];
+                this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
+
+                if (this.positions[i * 2] < 0 || this.positions[i * 2] > width ||
+                    this.positions[i * 2 + 1] < 0 || this.positions[i * 2 + 1] > height) {
+                    this.spawnParticle(i);
+                }
             }
         }
     }
@@ -227,6 +335,7 @@ class WebGLRenderer {
         this.particleProgram.uniforms = {
             u_resolution: this.gl.getUniformLocation(this.particleProgram, "u_resolution"),
             u_zIndex: this.gl.getUniformLocation(this.particleProgram, "u_zIndex"),
+            u_color: this.gl.getUniformLocation(this.particleProgram, "u_color"),
         };
 
         this.resize();
@@ -322,6 +431,7 @@ class WebGLRenderer {
 
         this.particleSystems.forEach(ps => {
             gl.uniform1f(this.particleProgram.uniforms.u_zIndex, ps.zIndex);
+            gl.uniform3fv(this.particleProgram.uniforms.u_color, ps.themeConfig.color || [1.0, 1.0, 1.0]);
             ps.update();
             ps.bindBuffers(this.particleProgram);
             ps.draw();
@@ -393,6 +503,73 @@ class WebGLRenderer {
                 zIndex: -0.5, // In front of archways
             };
             this.particleSystems.push(new ParticleSystem(this.gl, 15, smokeConfig));
+            this.start();
+        } else if (themeName === 'forest') {
+            const ambientConfig = {
+                behavior: 'ambient',
+                speed: 0.2,
+                minSize: 1.0,
+                maxSize: 3.0,
+                minAlpha: 0.1,
+                maxAlpha: 0.4,
+                lifetime: Infinity,
+                zIndex: -0.2,
+                color: [0.8, 0.87, 1.0] // Bluish white
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 50, ambientConfig));
+
+            const fireflyConfig = {
+                behavior: 'firefly',
+                minSize: 8.0,
+                maxSize: 12.0,
+                minAlpha: 0.3,
+                maxAlpha: 1.0,
+                lifetime: Infinity,
+                zIndex: -0.1,
+                color: [0.94, 0.94, 0.66] // Yellowish
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 25, fireflyConfig));
+            this.start();
+        } else if (themeName === 'cherry-blossom-garden') {
+            const petalConfig = {
+                behavior: 'petal',
+                speed: 1, // Base vertical speed
+                minSize: 5.0,
+                maxSize: 12.0,
+                minAlpha: 0.8,
+                maxAlpha: 1.0,
+                lifetime: 1200, // ~20 seconds
+                zIndex: -0.3,
+                color: [1.0, 0.85, 0.9] // Pinkish-white
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 200, petalConfig));
+            this.start();
+        } else if (themeName === 'floating-islands') {
+            const waterfallConfig = {
+                behavior: 'waterfall',
+                speed: 8, // high vertical speed
+                minSize: 1.5,
+                maxSize: 3.0,
+                minAlpha: 0.3,
+                maxAlpha: 0.6,
+                lifetime: 250, // short lifetime
+                zIndex: -0.4, // behind magic particles
+                color: [0.67, 0.84, 0.9] // light blue
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 800, waterfallConfig));
+
+            const magicConfig = {
+                behavior: 'ambient', // reuse ambient behavior
+                speed: 0.4,
+                minSize: 2.0,
+                maxSize: 4.0,
+                minAlpha: 0.5,
+                maxAlpha: 0.9,
+                lifetime: Infinity,
+                zIndex: -0.3,
+                color: [0.9, 0.8, 1.0] // light purple/pink
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 40, magicConfig));
             this.start();
         }
     }
