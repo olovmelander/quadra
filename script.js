@@ -2705,108 +2705,75 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     el.classList.add('active');
                     if (themeName === 'swedish-forest') {
                         createSwedishForest();
-                    }
-                    if (themeName === 'ocean') {
+                    } else if (themeName === 'ocean') {
                         createDeepOcean();
-                    }
-                    if (themeName === 'sunset') {
+                    } else if (themeName === 'sunset') {
                         createSunset();
-                    }
-                    if (themeName === 'mountain') {
+                    } else if (themeName === 'mountain') {
                         createMountainScene();
-                    }
-                    if (themeName === 'zen') {
+                    } else if (themeName === 'zen') {
                         createZenScene();
-                    }
-                    if (themeName === 'forest') {
+                    } else if (themeName === 'forest') {
                         createEnchantedForest();
                         // The new WebGL renderer handles the forest particles,
                         // so startForestAnimations() is no longer called here.
-                    }
-                    if (themeName === 'winter') {
+                    } else if (themeName === 'winter') {
                         createWinterScene();
-                    }
-                    if (themeName === 'fall') {
+                    } else if (themeName === 'fall') {
                         createAutumnScene();
-                    }
-                    if (themeName === 'summer') {
+                    } else if (themeName === 'summer') {
                         createSummerScene();
-                    }
-                    if (themeName === 'spring') {
+                    } else if (themeName === 'spring') {
                         createSpringScene();
-                    }
-                    if (themeName === 'aurora') {
+                    } else if (themeName === 'aurora') {
                         createAuroraScene();
-                    }
-                    if (themeName === 'galaxy') {
+                    } else if (themeName === 'galaxy') {
                         createGalaxyScene();
-                    }
-                    if (themeName === 'rainy-window') {
+                    } else if (themeName === 'rainy-window') {
                         createRainyWindow();
-                    }
-                    if (themeName === 'koi-pond') {
+                    } else if (themeName === 'koi-pond') {
                         createKoiPondScene();
-                    }
-                    if (themeName === 'meadow') {
+                    } else if (themeName === 'meadow') {
                         createMeadowScene();
-                    }
-                    if (themeName === 'cosmic-chimes') {
+                    } else if (themeName === 'cosmic-chimes') {
                         createCosmicChimesScene();
-                    }
-                    if (themeName === 'singing-bowl') {
+                    } else if (themeName === 'singing-bowl') {
                         createSingingBowlScene();
-                    }
-                    if (themeName === 'starlight') {
+                    } else if (themeName === 'starlight') {
                         createStarlightScene();
-                    }
-                    if (themeName === 'geode') {
+                    } else if (themeName === 'geode') {
                         createGeodeScene();
-                    }
-                    if (themeName === 'bioluminescence') {
+                    } else if (themeName === 'bioluminescence') {
                         createBioluminescenceScene();
-                    }
-                    if (themeName === 'desert-oasis') {
+                    } else if (themeName === 'desert-oasis') {
                         createDesertOasisScene();
-                    }
-                    if (themeName === 'bamboo-grove') {
+                    } else if (themeName === 'bamboo-grove') {
                         createBambooGroveScene();
-                    }
-                    if (themeName === 'misty-lake') {
+                    } else if (themeName === 'misty-lake') {
                         createMistyLakeScene();
+                    } else if (themeName === 'waves') {
+                        createWavesScene();
+                    } else if (themeName === 'fluid-dreams') {
+                        createFluidDreamsScene();
+                    } else if (themeName === 'lantern-festival') {
+                        createLanternFestivalScene();
+                    } else if (themeName === 'crystal-cave') {
+                        createCrystalCaveScene();
+                    } else if (themeName === 'candlelit-monastery') {
+                        createCandlelitMonasteryScene();
+                    } else if (themeName === 'cherry-blossom-garden') {
+                        createCherryBlossomGardenScene();
+                    } else if (themeName === 'floating-islands') {
+                        createFloatingIslandsScene();
+                    } else if (themeName === 'meditation-temple') {
+                        createMeditationTempleScene();
+                    } else if (themeName === 'moonlit-greenhouse') {
+                        createMoonlitGreenhouseScene();
+                    } else if (themeName === 'ice-temple') {
+                        createIceTempleScene();
+                    } else if (themeName === 'himalayan-peak') {
+                        createHimalayanPeakScene();
                     }
-            if (themeName === 'waves') {
-                createWavesScene();
-            }
-            if (themeName === 'fluid-dreams') {
-                createFluidDreamsScene();
-            }
-            if (themeName === 'lantern-festival') {
-                createLanternFestivalScene();
-            }
-             if (themeName === 'crystal-cave') {
-                createCrystalCaveScene();
-            }
-            if (themeName === 'candlelit-monastery') {
-                createCandlelitMonasteryScene();
-            }
-            if (themeName === 'cherry-blossom-garden') {
-                createCherryBlossomGardenScene();
-            }
-            if (themeName === 'floating-islands') {
-                createFloatingIslandsScene();
-            }
-            if (themeName === 'meditation-temple') {
-                createMeditationTempleScene();
-            }
-            if (themeName === 'moonlit-greenhouse') {
-                createMoonlitGreenhouseScene();
-            }
-            if (themeName === 'ice-temple') {
-                createIceTempleScene();
-            }
-            if (themeName === 'himalayan-peak') {
-                createHimalayanPeakScene();
-            }
                 } else {
                     el.classList.remove('active');
                 }
