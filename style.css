@@ -2172,6 +2172,38 @@
     10% { opacity: 0; }
 }
 
+.prayer-wheel {
+    position: absolute;
+    width: 40px; height: 60px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60"><rect x="0" y="5" width="40" height="50" fill="%23c0955d" stroke="%238b5e34" stroke-width="2"/><rect x="18" y="0" width="4" height="60" fill="%235a3d2b"/></svg>');
+    animation: spin-wheel 15s linear infinite;
+}
+
+@keyframes spin-wheel {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
+
+.temple-bell {
+    position: absolute;
+    width: 30px; height: 40px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40"><path d="M 5 0 L 25 0 L 30 20 A 15 15 0 0 1 0 20 L 5 0 Z" fill="%23fbc531"/></svg>');
+    transform-origin: top center;
+    animation: sway-bell 8s ease-in-out infinite alternate;
+}
+
+@keyframes sway-bell {
+    from { transform: rotate(3deg); }
+    to { transform: rotate(-3deg); }
+}
+
+.monk-silhouette {
+    position: absolute;
+    width: 20px; height: 35px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 35"><path d="M 10 0 A 5 5 0 0 0 10 10 L 12 25 L 8 25 L 10 10 M 5 25 L 15 25 L 12 35 L 8 35 Z" fill="rgba(20,10,5,0.7)"/></svg>');
+    opacity: 0.6;
+}
+
 /* --- Moonlit Greenhouse Theme --- */
 #moonlit-greenhouse-theme {
     background-color: #0c141f;
@@ -2358,6 +2390,31 @@
     justify-content: space-around;
     align-items: flex-end;
 }
+
+#ice-temple-refractions {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 7; /* On top of most elements */
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+.ice-refraction-ray {
+    position: absolute;
+    width: 1px;
+    height: 150px;
+    background: linear-gradient(to bottom, transparent, #74b9ff, #a29bfe, #55efc4, #ff7675, #fdcb6e, transparent);
+    animation: ice-refraction-shimmer 10s ease-in-out infinite;
+    opacity: 0;
+}
+
+@keyframes ice-refraction-shimmer {
+    0%, 100% { opacity: 0; }
+    5% { opacity: 0.4; }
+    10% { opacity: 0; }
+}
+
 .ice-sculpture {
     width: 150px; height: 150px;
     background-size: contain;
@@ -2427,6 +2484,36 @@
     width: 15px; height: 20px;
     transform-origin: top center;
     animation: flutter-flag 3s ease-in-out infinite;
+}
+
+#himalayan-sun-rays {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3; /* Between sky and clouds */
+    transform-origin: 50% 15%; /* Centered on the sun */
+    animation: sun-ray-pan 90s ease-in-out infinite alternate;
+    mix-blend-mode: screen;
+}
+
+@keyframes sun-ray-pan {
+    from { transform: rotate(-15deg); }
+    to { transform: rotate(15deg); }
+}
+
+.himalayan-sun-ray {
+    position: absolute;
+    top: 0; left: 50%;
+    width: 2px;
+    height: 120%;
+    background: linear-gradient(to bottom, rgba(255, 255, 240, 0.2), transparent 70%);
+    transform-origin: top center;
+    animation: sun-ray-fade 12s ease-in-out infinite;
+}
+
+@keyframes sun-ray-fade {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
 }
 
 #himalayan-particles {
@@ -3173,6 +3260,20 @@
     z-index: 5;
 }
 
+#cherry-blossom-branches {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
+    transform-origin: bottom center;
+    animation: gentle-sway 12s ease-in-out infinite alternate;
+}
+
+@keyframes gentle-sway {
+    from { transform: rotate(-0.5deg) translateX(-1%); }
+    to { transform: rotate(0.5deg) translateX(1%); }
+}
+
 #cherry-blossom-lanterns {
     position: absolute;
     bottom: 0; left: 0;
@@ -3182,20 +3283,52 @@
 
 .cherry-blossom-lantern {
     position: absolute;
-    width: 40px; height: 40px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50"><rect x="10" y="10" width="30" height="30" fill="rgba(20,10,5,0.7)"/><rect x="15" y="15" width="20" height="20" fill="rgba(255,228,181,0.5)"/></svg>');
-    animation: lantern-glow 7s ease-in-out infinite alternate;
+    width: 40px; height: 60px; /* Taller for a better shape */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 60"><rect x="5" y="0" width="40" height="10" fill="rgba(60,40,30,0.8)"/><rect x="0" y="10" width="50" height="40" fill="rgba(60,40,30,0.8)"/><rect x="10" y="15" width="30" height="30" fill="rgba(255,228,181,0.1)"/><rect x="5" y="50" width="40" height="10" fill="rgba(60,40,30,0.8)"/></svg>');
 }
 
-@keyframes lantern-glow {
-    from { box-shadow: 0 0 10px rgba(255,228,181,0.4); }
-    to { box-shadow: 0 0 20px rgba(255,228,181,0.8); }
+.cherry-blossom-lantern::after {
+    content: '';
+    position: absolute;
+    top: 15px; left: 10px;
+    width: 30px; height: 30px;
+    background-color: #ffc947;
+    border-radius: 2px;
+    animation: flicker-warm 4s ease-in-out infinite alternate;
+}
+
+@keyframes flicker-warm {
+    0% { background-color: #fbc531; box-shadow: 0 0 15px 3px #fbc531; }
+    50% { background-color: #ffc947; box-shadow: 0 0 25px 8px #ffc947; }
+    100% { background-color: #fbc531; box-shadow: 0 0 18px 4px #fbc531; }
+}
+
+.bamboo-water-feature {
+    position: absolute;
+    bottom: 15%; right: 5%;
+    width: 100px; height: 100px;
+    z-index: 8;
+}
+
+.bamboo-tock {
+    position: absolute;
+    width: 10px; height: 60px;
+    background-color: #556b2f;
+    border-radius: 3px;
+    transform-origin: bottom center;
+    animation: bamboo-tock-anim 10s ease-in-out infinite;
+}
+
+@keyframes bamboo-tock-anim {
+    0%, 90%, 100% { transform: rotate(0deg); }
+    95% { transform: rotate(80deg); }
 }
 
 /* --- Floating Islands Theme --- */
 #floating-islands-theme {
     background-color: #d4eaf7;
     overflow: hidden;
+    perspective: 1200px; /* Add perspective for 3D elements */
 }
 
 #floating-islands-sky {
@@ -3217,22 +3350,34 @@
     top: 0; left: 0;
     width: 100%; height: 100%;
     will-change: transform;
+    transform-style: preserve-3d; /* Enable 3D space for children */
 }
 
-#floating-islands-back { z-index: 2; filter: blur(2px) brightness(0.8); }
-#floating-islands-mid { z-index: 4; }
-#floating-islands-front { z-index: 6; filter: brightness(1.2); }
+#floating-islands-back { z-index: 2; filter: blur(2px) brightness(0.8); transform: translateZ(-400px) scale(1.5); }
+#floating-islands-mid { z-index: 4; transform: translateZ(-200px) scale(1.2); }
+#floating-islands-front { z-index: 6; filter: brightness(1.2); transform: translateZ(0px) scale(1); }
+
+.floating-island-wrapper {
+    position: absolute;
+    animation: drift-island 100s ease-in-out infinite alternate;
+    transform-style: preserve-3d;
+}
 
 .floating-island {
-    position: absolute;
+    width: 100%; height: 100%;
     background-size: 100% 100%;
     filter: drop-shadow(5px 10px 10px rgba(0,0,0,0.3));
-    animation: drift-island 100s ease-in-out infinite alternate;
+    animation: island-rotate var(--rotate-duration, 30s) linear infinite;
 }
 
 @keyframes drift-island {
-    from { transform: translate(var(--x-start), var(--y-start)) rotate(var(--r-start)); }
-    to { transform: translate(var(--x-end), var(--y-end)) rotate(var(--r-end)); }
+    from { transform: translate3d(var(--x-start), var(--y-start), 0); }
+    to { transform: translate3d(var(--x-end), var(--y-end), 0); }
+}
+
+@keyframes island-rotate {
+    from { transform: rotate3d(var(--axis-x, 0), var(--axis-y, 1), var(--axis-z, 0), 0deg); }
+    to { transform: rotate3d(var(--axis-x, 0), var(--axis-y, 1), var(--axis-z, 0), 360deg); }
 }
 
 #floating-islands-clouds {
@@ -3241,6 +3386,51 @@
     width: 100%; height: 100%;
     z-index: 5;
     mix-blend-mode: screen;
+}
+
+.energy-bridge {
+    position: absolute;
+    transform-origin: left center;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #a29bfe, #74b9ff, #a29bfe, transparent);
+    box-shadow: 0 0 8px #a29bfe, 0 0 12px #a29bfe;
+    border-radius: 4px;
+    opacity: 0;
+    animation: pulse-bridge 12s ease-in-out infinite;
+}
+
+@keyframes pulse-bridge {
+    0%, 100% { opacity: 0; transform-origin: left center; transform: scaleX(0); }
+    10% { opacity: 0.9; transform-origin: left center; transform: scaleX(1); }
+    90% { opacity: 0.9; transform-origin: right center; transform: scaleX(1); }
+    99% { opacity: 0; transform-origin: right center; transform: scaleX(0); }
+}
+
+#floating-aurora {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    mix-blend-mode: screen;
+    z-index: 5;
+    filter: blur(10px);
+    transform-style: preserve-3d;
+}
+
+.aurora-serpent {
+    position: absolute;
+    width: 20px;
+    height: 500px;
+    background: linear-gradient(to bottom, transparent, var(--aurora-color, #55efc4), transparent);
+    border-radius: 50%;
+    animation: weave-serpent 25s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+}
+
+@keyframes weave-serpent {
+    0% { transform: translate3d(var(--x1), var(--y1), var(--z1)) rotate3d(var(--rx1), var(--ry1), var(--rz1), var(--ra1)) skewX(20deg); }
+    25% { transform: translate3d(var(--x2), var(--y2), var(--z2)) rotate3d(var(--rx2), var(--ry2), var(--rz2), var(--ra2)) skewX(-20deg); }
+    50% { transform: translate3d(var(--x3), var(--y3), var(--z3)) rotate3d(var(--rx3), var(--ry3), var(--rz3), var(--ra3)) skewX(20deg); }
+    75% { transform: translate3d(var(--x4), var(--y4), var(--z4)) rotate3d(var(--rx4), var(--ry4), var(--rz4), var(--ra4)) skewX(-20deg); }
+    100% { transform: translate3d(var(--x1), var(--y1), var(--z1)) rotate3d(var(--rx1), var(--ry1), var(--rz1), var(--ra1)) skewX(20deg); }
 }
 
 .ethereal-cloud {
