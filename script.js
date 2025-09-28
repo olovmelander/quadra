@@ -540,42 +540,53 @@ function createCherryBlossomGardenScene() {
         ctx.lineJoin = 'round';
 
         const treeLayers = [
-            { count: 8, color: 'rgba(68, 36, 52, 0.45)', bloomColor: 'rgba(255, 217, 228, 0.6)', baseWidth: 9 },
-            { count: 6, color: 'rgba(92, 50, 68, 0.65)', bloomColor: 'rgba(255, 204, 220, 0.72)', baseWidth: 12 },
-            { count: 4, color: 'rgba(116, 60, 80, 0.78)', bloomColor: 'rgba(255, 189, 210, 0.78)', baseWidth: 15 }
+            { count: 8, color: 'rgba(80, 45, 60, 0.5)', bloomColor: 'rgba(255, 217, 228, 0.6)', baseWidth: 12 },
+            { count: 6, color: 'rgba(100, 60, 75, 0.7)', bloomColor: 'rgba(255, 204, 220, 0.72)', baseWidth: 16 },
+            { count: 4, color: 'rgba(120, 70, 85, 0.85)', bloomColor: 'rgba(255, 189, 210, 0.78)', baseWidth: 20 }
         ];
 
         const drawBranch = (x1, y1, len, angle, width, color, bloomColor) => {
-            if (width < 0.5) return;
+            if (width < 1) return;
+
+            // Draw a slightly thicker black outline first for a cartoony look
             ctx.beginPath();
-            ctx.lineWidth = width;
-            ctx.strokeStyle = color;
+            ctx.lineWidth = width + 2;
+            ctx.strokeStyle = 'rgba(40, 20, 30, 0.8)';
             ctx.moveTo(x1, y1);
             const x2 = x1 + len * Math.cos(angle * Math.PI / 180);
             const y2 = y1 + len * Math.sin(angle * Math.PI / 180);
             ctx.lineTo(x2, y2);
             ctx.stroke();
 
-            if (width < 6) {
+            // Draw the main branch on top
+            ctx.beginPath();
+            ctx.lineWidth = width;
+            ctx.strokeStyle = color;
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            if (width < 8) {
                 for (let i = 0; i < 7; i++) {
                     const bloomX = x2 + (Math.random() - 0.5) * 30;
                     const bloomY = y2 + (Math.random() - 0.5) * 30;
-                    const bloomRadius = Math.random() * 4 + 2;
+                    const bloomRadius = Math.random() * 5 + 3; // Slightly larger blooms
                     ctx.beginPath();
                     ctx.arc(bloomX, bloomY, bloomRadius, 0, Math.PI * 2);
                     ctx.fillStyle = bloomColor;
                     ctx.globalAlpha = Math.random() * 0.5 + 0.5;
-                    ctx.shadowColor = 'rgba(255, 182, 193, 0.2)';
-                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = 'rgba(255, 182, 193, 0.3)';
+                    ctx.shadowBlur = 8;
                     ctx.fill();
                     ctx.globalAlpha = 1.0;
                     ctx.shadowBlur = 0;
                 }
             }
 
-            const newLen = len * (0.75 + Math.random() * 0.1);
-            drawBranch(x2, y2, newLen, angle + Math.random() * 15 + 10, width * 0.75, color, bloomColor);
-            drawBranch(x2, y2, newLen, angle - (Math.random() * 15 + 10), width * 0.75, color, bloomColor);
+            // Shorter, more exaggerated branches
+            const newLen = len * (0.65 + Math.random() * 0.1);
+            drawBranch(x2, y2, newLen, angle + (Math.random() * 25 + 15), width * 0.7, color, bloomColor);
+            drawBranch(x2, y2, newLen, angle - (Math.random() * 25 + 15), width * 0.7, color, bloomColor);
         };
 
         treeLayers.forEach(layer => {
@@ -624,31 +635,6 @@ function createCherryBlossomGardenScene() {
         }
     }
 
-    // 5. Koi Stream Ripples
-    const streamContainer = document.getElementById('cherry-blossom-koi-stream');
-    if (streamContainer) {
-        const createStreamRipple = () => {
-            if (activeTheme !== 'cherry-blossom-garden') return;
-            let ripple = document.createElement('div');
-            ripple.className = 'stream-ripple';
-            ripple.style.left = `${Math.random() * 100}%`;
-            ripple.style.top = `${Math.random() * 100}%`;
-            ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
-            streamContainer.appendChild(ripple);
-            setTimeout(createStreamRipple, Math.random() * 4000 + 3000);
-        };
-        setTimeout(createStreamRipple, 2000);
-
-        // Bamboo Water Feature
-        if (streamContainer.querySelector('.bamboo-water-feature') === null) {
-            const waterFeature = document.createElement('div');
-            waterFeature.className = 'bamboo-water-feature';
-            const tock = document.createElement('div');
-            tock.className = 'bamboo-tock';
-            waterFeature.appendChild(tock);
-            streamContainer.appendChild(waterFeature);
-        }
-    }
 }
 
 function createCandlelitMonasteryScene() {
