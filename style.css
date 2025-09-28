@@ -2328,16 +2328,6 @@
     animation: aurora-curtain-flow 30s ease-in-out infinite alternate;
 }
 
-
-.ice-temple-crystal-layer {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 100%;
-}
-#ice-temple-crystals-back { z-index: 3; filter: blur(2px) brightness(0.7); }
-#ice-temple-crystals-mid { z-index: 5; filter: blur(1px); }
-#ice-temple-crystals-front { z-index: 7; }
-
 #ice-temple-waterfalls {
     position: absolute;
     top: 0; left: 0;
@@ -2375,29 +2365,6 @@
     background-position: center;
     filter: drop-shadow(0 0 15px rgba(173, 216, 230, 0.7));
     animation: shimmer-ice 8s ease-in-out infinite alternate-reverse;
-}
-
-
-#ice-temple-snow-crystals {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 8;
-    pointer-events: none;
-}
-
-.snow-crystal {
-    position: absolute;
-    width: 10px; height: 10px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 L10 20 M0 10 L20 10 M5 5 L15 15 M5 15 L15 5" stroke="rgba(255,255,255,0.8)" stroke-width="1"/></svg>');
-    animation: float-and-spin ease-in-out infinite;
-}
-
-@keyframes float-and-spin {
-    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-    20% { opacity: 0.8; }
-    80% { opacity: 0.8; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
 
 /* --- Himalayan Peak Theme --- */
@@ -2985,18 +2952,6 @@
     overflow: hidden;
 }
 
-.crystal-cave-layer {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 100%;
-    will-change: transform;
-    z-index: 1;
-}
-
-#crystal-cave-back-crystals { z-index: 2; filter: brightness(0.6); }
-#crystal-cave-mid-crystals { z-index: 5; filter: brightness(0.8); }
-#crystal-cave-front-crystals { z-index: 8; }
-
 #crystal-cave-pools {
     position: absolute;
     bottom: 0; left: 0;
@@ -3052,33 +3007,6 @@
     to { transform: scale(1.1); opacity: 1; }
 }
 
-#crystal-cave-floating-shards {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 7;
-}
-.floating-shard {
-    position: absolute;
-    width: 10px; height: 30px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(200,200,255,0.4));
-    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-    animation: shard-drift linear infinite;
-}
-@keyframes shard-drift {
-    from {
-        transform: translate(var(--x-start), var(--y-start)) rotate(0deg);
-        opacity: 0;
-    }
-    50% {
-        opacity: 0.7;
-    }
-    to {
-        transform: translate(var(--x-end), var(--y-end)) rotate(var(--r-end));
-        opacity: 0;
-    }
-}
-
 #crystal-cave-refractions {
     position: absolute;
     top: 0; left: 0;
@@ -3100,40 +3028,11 @@
     to { opacity: 0; transform: scaleY(1) rotate(var(--r-end)); }
 }
 
-#crystal-cave-dust {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 10;
-}
-.cave-dust-particle {
-    position: absolute;
-    background-color: rgba(220, 230, 255, 0.7);
-    border-radius: 50%;
-    box-shadow: 0 0 5px rgba(220, 230, 255, 0.5);
-    animation: twinkle 10s ease-in-out infinite;
-}
-
 /* --- Candlelit Monastery Theme --- */
 #candlelit-monastery-theme {
     background: linear-gradient(to top, #1a120a, #3a2a1a, #5a4a3a);
     overflow: hidden;
 }
-
-.monastery-archway-layer {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 200%; height: 100%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><path d="M 100 600 C 100 300, 300 300, 300 600 Z M 500 600 C 500 300, 700 300, 700 600 Z" fill="rgba(20,10,5,0.8)"/></svg>');
-    background-repeat: repeat-x;
-    background-size: 400px 100%;
-    animation: slide linear infinite;
-    will-change: transform;
-}
-
-#monastery-archways-back { animation-duration: 180s; z-index: 2; filter: brightness(0.5); }
-#monastery-archways-mid { animation-duration: 120s; z-index: 4; filter: brightness(0.7); }
-#monastery-archways-front { animation-duration: 80s; z-index: 6; filter: brightness(0.9); }
 
 #monastery-candles {
     position: absolute;
@@ -3170,29 +3069,6 @@
     0% { transform: translateX(-50%) scaleY(1) scaleX(1) rotate(2deg); opacity: 0.9; }
     50% { transform: translateX(-50%) scaleY(0.95) scaleX(1.05) rotate(-2deg); opacity: 1; }
     100% { transform: translateX(-50%) scaleY(1.05) scaleX(0.95) rotate(2deg); opacity: 0.9; }
-}
-
-#monastery-incense-smoke {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 5;
-    mix-blend-mode: screen;
-}
-
-.incense-wisp {
-    position: absolute;
-    bottom: 0;
-    width: 2px;
-    height: 100%;
-    background: linear-gradient(to top, rgba(200, 190, 180, 0.2), transparent);
-    animation: rise-smoke ease-in-out infinite;
-}
-
-@keyframes rise-smoke {
-    0% { transform: translateY(0) scaleX(1); opacity: 0; }
-    10% { opacity: 1; }
-    100% { transform: translateY(-100vh) scaleX(5); opacity: 0; }
 }
 
 #monastery-stained-glass-light {
