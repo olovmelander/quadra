@@ -2337,49 +2337,22 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             });
         }
+        
         function createSunset() {
             const themeContainer = document.getElementById('sunset-theme');
             const sun = themeContainer.querySelector('.sun');
 
             function randomizeSunPath() {
-                // Random start position (15-35% from left)
-                const startX = random(15, 35);
-                // Random end position (65-85% from left)
-                const endX = random(65, 85);
-                
-                // Peak X is between start and end, with some randomness
-                const peakX = (startX + endX) / 2 + random(-10, 10);
-                
-                // Random peak height variations (-25vh to -5vh)
-                const peakY = random(-25, -5);
-                
-                // Slight variations in start/end vertical positions
-                const startY = random(108, 112);
-                const endY = random(108, 112);
-
-                // Set the CSS variables
-                themeContainer.style.setProperty('--sun-start-x', `${startX}vw`);
-                themeContainer.style.setProperty('--sun-peak-x', `${peakX}vw`);
-                themeContainer.style.setProperty('--sun-end-x', `${endX}vw`);
-                themeContainer.style.setProperty('--sun-peak-y', `${peakY}vh`);
-                themeContainer.style.setProperty('--sun-start-y', `${startY}vh`);
-                themeContainer.style.setProperty('--sun-end-y', `${endY}vh`);
+                // This function is no longer needed as we're using fixed keyframe animation
+                // Keeping it for compatibility but it won't do anything
             }
 
-            // Set initial random path
+            // Set initial random path (though it won't be used)
             randomizeSunPath();
 
-            // Re-randomize on each animation loop
-            if (sun) {
-                // Remove existing listener if any
-                if (!sun.hasAnimationIterationListener) {
-                    sun.addEventListener('animationiteration', () => {
-                        if (activeTheme === 'sunset') {
-                            randomizeSunPath();
-                        }
-                    });
-                    sun.hasAnimationIterationListener = true;
-                }
+            // Remove the event listener that was changing the path
+            if (sun && sun.hasAnimationIterationListener) {
+                // Do nothing - we want consistent animation now
             }
 
             // Procedurally generate clouds (keep existing cloud code)
@@ -2468,77 +2441,129 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     let ray = document.createElement('div');
                     ray.className = 'sunset-god-ray';
                     ray.style.transform = `rotate(${i * 12 + Math.random() * 4 - 2}deg)`;
+                    ray.style.animationDelay = `-${Math.random() * 25}s`;
                     godRayContainer.appendChild(ray);
                 }
             }
 
-            // Dust Motes - Canvas Implementation (keep existing code)
+            // Enhanced Dust Motes - Particle System
             const dustContainer = document.getElementById('dust-motes');
             if (dustContainer && dustContainer.children.length === 0) {
-                const canvas = document.createElement('canvas');
-                canvas.className = 'dust-canvas';
-                dustContainer.appendChild(canvas);
-                const ctx = canvas.getContext('2d');
+                // Create multiple types of particles
+                const particleTypes = [
+                    { count: 60, size: [1, 3], speed: [15, 25], color: 'rgba(255, 240, 200, 0.6)' }, // Dust motes
+                    { count: 30, size: [2, 4], speed: [20, 35], color: 'rgba(255, 220, 180, 0.5)' }, // Light particles
+                    { count: 20, size: [1, 2], speed: [10, 18], color: 'rgba(255, 255, 240, 0.7)' }, // Sparkles
+                ];
 
-                let animationFrameId;
-                let particles = [];
-                const particleCount = 70;
-
-                const resizeCanvas = () => {
-                    canvas.width = dustContainer.offsetWidth;
-                    canvas.height = dustContainer.offsetHeight;
-                };
-
-                const createParticle = () => {
-                    return {
-                        x: Math.random() * canvas.width,
-                        y: Math.random() * canvas.height,
-                        vx: (Math.random() - 0.5) * 0.3,
-                        vy: (Math.random() - 0.5) * 0.3,
-                        size: Math.random() * 1.5 + 1,
-                        opacity: Math.random() * 0.5 + 0.2
-                    };
-                };
-
-                const initParticles = () => {
-                    particles = [];
-                    for (let i = 0; i < particleCount; i++) {
-                        particles.push(createParticle());
+                particleTypes.forEach(type => {
+                    for (let i = 0; i < type.count; i++) {
+                        let particle = document.createElement('div');
+                        particle.className = 'sunset-dust-particle';
+                        
+                        const size = random(type.size[0], type.size[1]);
+                        particle.style.width = `${size}px`;
+                        particle.style.height = `${size}px`;
+                        particle.style.background = type.color;
+                        particle.style.borderRadius = '50%';
+                        particle.style.position = 'absolute';
+                        particle.style.boxShadow = `0 0 ${size * 2}px ${type.color}`;
+                        
+                        // Random starting position
+                        particle.style.left = `${Math.random() * 100}%`;
+                        particle.style.top = `${Math.random() * 100}%`;
+                        
+                        // Random animation properties
+                        const duration = random(type.speed[0], type.speed[1]);
+                        particle.style.animation = `sunset-particle-float ${duration}s ease-in-out infinite alternate`;
+                        particle.style.animationDelay = `-${Math.random() * duration}s`;
+                        
+                        // Store end position as CSS variables for animation
+                        particle.style.setProperty('--end-x', `${(Math.random() - 0.5) * 30}vw`);
+                        particle.style.setProperty('--end-y', `${(Math.random() - 0.5) * 30}vh`);
+                        
+                        dustContainer.appendChild(particle);
                     }
-                };
+                });
 
-                const animateParticles = () => {
-                    if (activeTheme !== 'sunset') return;
-                    
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    particles.forEach(p => {
-                        p.x += p.vx;
-                        p.y += p.vy;
-
-                        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fillStyle = `rgba(255, 220, 180, ${p.opacity})`;
-                        ctx.fill();
-                    });
-                    animationFrameId = requestAnimationFrame(animateParticles);
-                };
-
-                resizeCanvas();
-                initParticles();
-                animateParticles();
-
-                window.addEventListener('resize', resizeCanvas);
-
-                return {
-                    cleanup: () => {
-                        window.removeEventListener('resize', resizeCanvas);
-                        cancelAnimationFrame(animationFrameId);
-                    }
-                };
+                // Add particle animation to stylesheet if not exists
+                if (!document.getElementById('sunset-particle-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'sunset-particle-style';
+                    style.textContent = `
+                        @keyframes sunset-particle-float {
+                            0% {
+                                transform: translate(0, 0) scale(1);
+                                opacity: 0;
+                            }
+                            10% {
+                                opacity: 1;
+                            }
+                            90% {
+                                opacity: 1;
+                            }
+                            100% {
+                                transform: translate(var(--end-x), var(--end-y)) scale(0.5);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
             }
+
+            // Add birds during day
+            if (!dustContainer.querySelector('.sunset-bird')) {
+                for (let i = 0; i < 5; i++) {
+                    let bird = document.createElement('div');
+                    bird.className = 'sunset-bird';
+                    bird.style.position = 'absolute';
+                    bird.style.width = '20px';
+                    bird.style.height = '8px';
+                    bird.style.top = `${20 + Math.random() * 40}%`;
+                    bird.style.left = '-5%';
+                    bird.innerHTML = '<svg width="20" height="8" viewBox="0 0 20 8"><path d="M 0 4 Q 5 0, 10 4 Q 15 0, 20 4" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1"/></svg>';
+                    
+                    const duration = random(25, 40);
+                    bird.style.animation = `sunset-bird-fly ${duration}s linear infinite`;
+                    bird.style.animationDelay = `-${Math.random() * duration}s`;
+                    
+                    dustContainer.appendChild(bird);
+                }
+
+                // Add bird animation
+                if (!document.getElementById('sunset-bird-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'sunset-bird-style';
+                    style.textContent = `
+                        @keyframes sunset-bird-fly {
+                            0% {
+                                transform: translateX(0) translateY(0);
+                                opacity: 0;
+                            }
+                            5% {
+                                opacity: 0.4;
+                            }
+                            95% {
+                                opacity: 0.4;
+                            }
+                            100% {
+                                transform: translateX(110vw) translateY(-20vh);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            return {
+                cleanup: () => {
+                    // Clean up if needed
+                    const dustParticles = dustContainer.querySelectorAll('.sunset-dust-particle, .sunset-bird');
+                    dustParticles.forEach(p => p.remove());
+                }
+            };
         }
         function createMountainScene() {
             // Stars
