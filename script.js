@@ -395,7 +395,7 @@ function createFloatingIslandsScene() {
         soil: { base: '#8B7355', dark: '#654321' },
         rock: { face: '#7A6A5D', moss: '#4A7C59' },
         tree: { trunk: '#5D4E37', foliageBright: '#9ACD32', foliageMid: '#6B8E23', foliageShadow: '#4A6A2E' },
-        waterfall: { top: '#E8F8FF', mid: '#B8E6F5', bottom: '#FFFFFF' }
+        waterfall: { top: 'rgba(232, 248, 255, 0.8)', mid: 'rgba(184, 230, 245, 0.7)', bottom: 'rgba(255, 255, 255, 0.9)' }
     };
 
     // Helper function to draw a majestic tree
@@ -403,7 +403,6 @@ function createFloatingIslandsScene() {
         const trunkWidth = height / 7;
         const canopyRadius = height / 1.8;
 
-        // Trunk with gradient
         const trunkGradient = ctx.createLinearGradient(x - trunkWidth / 2, y, x + trunkWidth / 2, y);
         trunkGradient.addColorStop(0, '#3E2F1F');
         trunkGradient.addColorStop(0.5, palette.tree.trunk);
@@ -417,122 +416,178 @@ function createFloatingIslandsScene() {
         ctx.closePath();
         ctx.fill();
 
-        // Layered foliage for depth
         ctx.fillStyle = palette.tree.foliageShadow;
         ctx.beginPath();
         ctx.arc(x, y - height, canopyRadius, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.fillStyle = palette.tree.foliageMid;
         ctx.beginPath();
         ctx.arc(x - canopyRadius / 5, y - height - canopyRadius / 5, canopyRadius * 0.9, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.fillStyle = palette.tree.foliageBright;
         ctx.beginPath();
         ctx.arc(x + canopyRadius / 6, y - height - canopyRadius / 4, canopyRadius * 0.75, 0, Math.PI * 2);
         ctx.fill();
     };
 
-    // Main drawing function for a layer of islands
-    const drawIslandLayer = (canvas, { numIslands, minSize, maxSize, isHeroLayer, filter }) => {
-        const ctx = canvas.getContext('2d');
-        if (filter) ctx.filter = filter;
+    const drawIsland = (ctx, island) => {
+        const { x, y, width, height } = island;
+        // Undulating top surface points
+        const topSurface = [];
+        for (let i = 0; i <= width; i++) {
+            const angle = (i / width) * Math.PI;
+            const bump = Math.sin(angle) * 20 + Math.sin(angle*3) * 5;
+            topSurface.push({x: x + i, y: y - bump});
+        }
 
-        for (let i = 0; i < numIslands; i++) {
-            const islandWidth = random(minSize, maxSize);
-            const islandHeight = islandWidth * random(0.4, 0.6);
-            const x = (canvas.width / numIslands) * i + random(-50, 50);
-            const y = random(canvas.height * 0.3, canvas.height * 0.7);
+        // Underside shape points
+        const bottomSurface = [];
+        for (let i = width; i >= 0; i--) {
+            const angle = (i / width) * Math.PI;
+            const bump = Math.sin(angle) * (height*0.8) + Math.sin(angle*2) * 20 + Math.random() * 15;
+            bottomSurface.push({x: x + i, y: y + bump});
+        }
 
-            // Underside (rock and soil)
-            const rockGradient = ctx.createLinearGradient(x, y, x, y + islandHeight);
-            rockGradient.addColorStop(0, palette.soil.base);
-            rockGradient.addColorStop(0.5, palette.rock.face);
-            rockGradient.addColorStop(1, palette.soil.dark);
-            ctx.fillStyle = rockGradient;
+        // Combine paths and draw the main rock/soil body
+        const rockGradient = ctx.createLinearGradient(x, y, x, y + height);
+        rockGradient.addColorStop(0, palette.soil.base);
+        rockGradient.addColorStop(0.5, palette.rock.face);
+        rockGradient.addColorStop(1, palette.soil.dark);
+        ctx.fillStyle = rockGradient;
+        ctx.beginPath();
+        ctx.moveTo(topSurface[0].x, topSurface[0].y);
+        topSurface.forEach(p => ctx.lineTo(p.x, p.y));
+        ctx.lineTo(bottomSurface[0].x, bottomSurface[0].y);
+        bottomSurface.forEach(p => ctx.lineTo(p.x, p.y));
+        ctx.closePath();
+        ctx.fill();
+
+        // Draw gnarled roots
+        for(let i=0; i<width/8; i++) {
+            const rootStartX = x + random(width * 0.1, width * 0.9);
+            const rootStartY = y + height * random(0.5, 1);
+            ctx.strokeStyle = palette.soil.dark;
+            ctx.lineWidth = random(2, 6);
             ctx.beginPath();
-            ctx.ellipse(x + islandWidth / 2, y + islandHeight / 2, islandWidth / 2, islandHeight / 2, 0, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.moveTo(rootStartX, rootStartY);
+            ctx.bezierCurveTo(rootStartX + random(-20, 20), rootStartY + 30, rootStartX + random(-10, 10), rootStartY + 60, rootStartX + random(-5, 5), rootStartY + 90);
+            ctx.stroke();
+        }
 
-            // Hanging roots
-            for (let j = 0; j < islandWidth / 10; j++) {
-                const rootX = x + random(0, islandWidth);
-                const rootY = y + islandHeight * 0.8 + Math.random() * (islandHeight * 0.2);
-                const rootLen = random(20, 50);
-                ctx.strokeStyle = palette.soil.dark;
-                ctx.lineWidth = random(1, 3);
-                ctx.beginPath();
-                ctx.moveTo(rootX, rootY);
-                ctx.lineTo(rootX + random(-5, 5), rootY + rootLen);
-                ctx.stroke();
-            }
+        // Draw grassy top layer
+        ctx.fillStyle = palette.grass.deep;
+        ctx.beginPath();
+        ctx.moveTo(topSurface[0].x, topSurface[0].y);
+        topSurface.forEach(p => ctx.lineTo(p.x, p.y));
+        ctx.lineTo(topSurface[topSurface.length-1].x, topSurface[topSurface.length-1].y + 20);
+        ctx.lineTo(topSurface[0].x, topSurface[0].y + 20);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = palette.grass.bright;
+        ctx.beginPath();
+        ctx.moveTo(topSurface[0].x, topSurface[0].y);
+        topSurface.forEach(p => ctx.lineTo(p.x, p.y + 5));
+        ctx.closePath();
+        ctx.fill();
 
-            // Grassy top
-            const grassGradient = ctx.createLinearGradient(x, y - 10, x, y + 20);
-            grassGradient.addColorStop(0, palette.grass.highlight);
-            grassGradient.addColorStop(0.5, palette.grass.bright);
-            grassGradient.addColorStop(1, palette.grass.deep);
-            ctx.fillStyle = grassGradient;
+        // Draw vegetation
+        if(island.tree) {
+            drawMajesticTree(ctx, x + width / 2, topSurface[Math.floor(width/2)].y, island.tree.height);
+        }
+        for(let i=0; i<island.bushes; i++) {
+            const bushX = x + random(0, width);
+            const bushY = topSurface[Math.floor(bushX - x)].y;
+            ctx.fillStyle = palette.tree.foliageMid;
             ctx.beginPath();
-            ctx.ellipse(x + islandWidth / 2, y, islandWidth / 2, 20);
+            ctx.arc(bushX, bushY, 15, 0, Math.PI*2);
             ctx.fill();
+            ctx.fillStyle = palette.tree.foliageBright;
+            ctx.beginPath();
+            ctx.arc(bushX-5, bushY-5, 12, 0, Math.PI*2);
+            ctx.fill();
+        }
 
-            // Add tree
-            const treeHeight = isHeroLayer ? islandWidth / 2.5 : islandWidth / 3;
-            if (isHeroLayer && i === Math.floor(numIslands / 2)) { // Hero tree on the main island
-                drawMajesticTree(ctx, x + islandWidth / 2, y, treeHeight);
-            } else if (!isHeroLayer) { // Simpler trees for other islands
-                 const treeX = x + islandWidth / 2 + random(-20, 20);
-                 ctx.fillStyle = palette.tree.trunk;
-                 ctx.fillRect(treeX - 5, y - treeHeight, 10, treeHeight);
-                 ctx.fillStyle = palette.tree.foliageMid;
-                 ctx.beginPath();
-                 ctx.arc(treeX, y-treeHeight, treeHeight/2, 0, Math.PI*2);
-                 ctx.fill();
-            }
-
-            // Waterfall
-            const fallX = x + islandWidth / 2 + random(-islandWidth / 4, islandWidth / 4);
-            const fallHeight = random(100, 300);
-            const fallGradient = ctx.createLinearGradient(fallX, y, fallX, y + fallHeight);
+        // Draw waterfall
+        if(island.waterfall) {
+            const fallX = x + width * 0.7;
+            const fallY = topSurface[Math.floor(width*0.7)].y;
+            const fallHeight = random(300, 500);
+            const fallGradient = ctx.createLinearGradient(fallX, fallY, fallX, fallY + fallHeight);
             fallGradient.addColorStop(0, palette.waterfall.top);
             fallGradient.addColorStop(0.5, palette.waterfall.mid);
             fallGradient.addColorStop(1, palette.waterfall.bottom);
             ctx.fillStyle = fallGradient;
-            ctx.globalAlpha = 0.8;
-            ctx.fillRect(fallX - 5, y + 10, 10, fallHeight);
+            ctx.globalAlpha = 0.85;
+            ctx.fillRect(fallX - 15, fallY, 30, fallHeight);
             ctx.globalAlpha = 1;
         }
     };
 
+    const C_WIDTH = 4096;
+    const C_HEIGHT = window.innerHeight;
+
     const layers = [
-        { el: document.getElementById('fi-layer-back'), count: 12, min: 100, max: 200, hero: false, filter: 'blur(1.5px) brightness(0.8)' },
-        { el: document.getElementById('fi-layer-mid'), count: 8, min: 200, max: 350, hero: false, filter: 'blur(0.5px) brightness(0.95)' },
-        { el: document.getElementById('fi-layer-front'), count: 5, min: 400, max: 600, hero: true, filter: '' }
+        { el: document.getElementById('fi-layer-front'),
+          islands: [
+              { x: C_WIDTH * 0.1, y: C_HEIGHT * 0.5, width: 600, height: 250, tree: { height: 200 }, bushes: 5, waterfall: true }
+          ]
+        },
+        { el: document.getElementById('fi-layer-mid'),
+          islands: [
+              { x: C_WIDTH * 0.6, y: C_HEIGHT * 0.3, width: 450, height: 180, tree: { height: 120 }, bushes: 3, waterfall: true },
+              { x: C_WIDTH * 0.8, y: C_HEIGHT * 0.6, width: 300, height: 120, tree: { height: 80 }, bushes: 2, waterfall: false }
+          ]
+        },
+        { el: document.getElementById('fi-layer-back'),
+          islands: [
+              { x: C_WIDTH * 0.3, y: C_HEIGHT * 0.4, width: 250, height: 100, tree: { height: 60 }, bushes: 1, waterfall: true },
+              { x: C_WIDTH * 0.05, y: C_HEIGHT * 0.7, width: 200, height: 80, tree: { height: 50 }, bushes: 0, waterfall: false }
+          ]
+        }
     ];
 
     layers.forEach(layer => {
         if (layer.el && layer.el.children.length === 0) {
             const canvas = document.createElement('canvas');
-            const C_WIDTH = 4096; // Wide canvas for parallax scrolling
             canvas.width = C_WIDTH;
-            canvas.height = window.innerHeight;
-            drawIslandLayer(canvas, {
-                numIslands: layer.count,
-                minSize: layer.min,
-                maxSize: layer.max,
-                isHeroLayer: layer.hero,
-                filter: layer.filter
-            });
+            canvas.height = C_HEIGHT;
+            const ctx = canvas.getContext('2d');
+            layer.islands.forEach(island => drawIsland(ctx, island));
             canvas.style.position = 'absolute';
             canvas.style.left = '0';
             canvas.style.bottom = '0';
             canvas.style.width = `${C_WIDTH}px`;
-            canvas.style.height = `${window.innerHeight}px`;
+            canvas.style.height = '100%';
             layer.el.appendChild(canvas);
         }
     });
+
+    const mountainContainer = document.getElementById('fi-mountains-back');
+    if (mountainContainer && mountainContainer.children.length === 0) {
+        const canvas = document.createElement('canvas');
+        canvas.width = C_WIDTH;
+        canvas.height = C_HEIGHT;
+        const ctx = canvas.getContext('2d');
+        const mountainColors = ['#8FA5B8', '#7A8FA0'];
+        for (let i = 0; i < mountainColors.length; i++) {
+            ctx.fillStyle = mountainColors[i];
+            ctx.beginPath();
+            ctx.moveTo(0, C_HEIGHT);
+            let y = C_HEIGHT * (0.5 + i * 0.1);
+            for (let x = 0; x < C_WIDTH; x += 20) {
+                ctx.lineTo(x, y - Math.sin(x * 0.001 + i) * 100 + Math.random()*20);
+            }
+            ctx.lineTo(C_WIDTH, C_HEIGHT);
+            ctx.closePath();
+            ctx.fill();
+        }
+        canvas.style.position = 'absolute';
+        canvas.style.left = '0';
+        canvas.style.bottom = '0';
+        canvas.style.width = `${C_WIDTH}px`;
+        canvas.style.height = '100%';
+        mountainContainer.appendChild(canvas);
+    }
 
     // Create clouds
     const cloudsBackContainer = document.getElementById('fi-clouds-back');
@@ -587,7 +642,7 @@ function createFloatingIslandsScene() {
         }
     }
 
-    return {}; // No specific data needed for other functions
+    return {};
 }
 
 function createCherryBlossomGardenScene() {
