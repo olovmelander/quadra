@@ -2577,7 +2577,8 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
 
             // Bubbles
             const bubblesContainer = document.getElementById('bubbles');
-            if (bubblesContainer && bubblesContainer.children.length === 0) {
+            if (bubblesContainer) {
+                bubblesContainer.innerHTML = ''; // Clear old bubbles
                 for (let i = 0; i < 80; i++) {
                     let el = document.createElement('div');
                     el.className = 'bubble';
