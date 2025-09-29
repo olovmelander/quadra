@@ -3082,9 +3082,9 @@ function createFluidDreamsScene() {
 function createMoonlitForestScene() {
     // Define tree colors for different layers
     const treeLayers = [
-        { el: document.getElementById('moonlit-forest-back'),  color: '#7A9B7E', foliageColor: '#5A8067', count: 40, height: 350 },
-        { el: document.getElementById('moonlit-forest-mid'),   color: '#3D5F4A', foliageColor: '#4A6B56', count: 30, height: 450 },
-        { el: document.getElementById('moonlit-forest-front'), color: '#1A2820', foliageColor: '#2F4A3A', count: 20, height: 600 }
+        { el: document.getElementById('moonlit-forest-back'),  color: '#7A9B7E', foliageColor: '#5A8067', count: 40, height: window.innerHeight * 0.7 },
+        { el: document.getElementById('moonlit-forest-mid'),   color: '#3D5F4A', foliageColor: '#4A6B56', count: 30, height: window.innerHeight * 0.85 },
+        { el: document.getElementById('moonlit-forest-front'), color: '#1A2820', foliageColor: '#2F4A3A', count: 20, height: window.innerHeight }
     ];
 
     // Helper function to draw a more realistic tree
