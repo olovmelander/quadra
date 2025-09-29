@@ -1947,21 +1947,129 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
         }
         function createAuroraScene() {
-            // Faint, twinkling stars
+            const auroraContainer = document.getElementById('aurora-theme');
             const starsContainer = document.getElementById('aurora-stars');
+            const dynamicStyleId = 'aurora-dynamic-styles';
+
+            // 1. Cleanup old aurora elements and styles
+            const oldStyleElement = document.getElementById(dynamicStyleId);
+            if (oldStyleElement) {
+                oldStyleElement.remove();
+            }
+            // Remove all children from auroraContainer except the stars
+            while (auroraContainer.lastChild && auroraContainer.lastChild !== starsContainer) {
+                auroraContainer.removeChild(auroraContainer.lastChild);
+            }
+
+            // 2. Preserve existing star generation
             if (starsContainer && starsContainer.children.length === 0) {
                 for (let i = 0; i < 150; i++) {
                     let star = document.createElement('div');
                     star.className = 'aurora-star';
-                    const size = Math.random() * 1.5 + 0.5;
+                    const size = random(0.5, 1.5);
                     star.style.width = `${size}px`;
                     star.style.height = `${size}px`;
-                    star.style.left = `${Math.random() * 100}%`;
-                    star.style.top = `${Math.random() * 100}%`;
-                    star.style.animationDelay = `${Math.random() * 10}s`;
+                    star.style.left = `${random(0, 100)}%`;
+                    star.style.top = `${random(0, 100)}%`;
+                    star.style.animationDelay = `${random(0, 10)}s`;
                     starsContainer.appendChild(star);
                 }
             }
+
+            // 3. Color System
+            const colorPalettes = [
+                // Palette 1: Classic Green & Teal
+                ['#00ff87', '#39ff14', '#00ffaa', '#00ff87', '#40e0d0', '#ff006e'],
+                // Palette 2: Green & Pink focus
+                ['#7fff00', '#00ff87', '#39ff14', '#64ffda', '#ff1493', '#ff66cc'],
+                // Palette 3: Cyan dominant
+                ['#00ffff', '#64ffda', '#00ffaa', '#00ff87', '#40e0d0', '#ff006e'],
+                // Palette 4: Balanced with a rare purple
+                ['#39ff14', '#7fff00', '#00ffaa', '#40e0d0', '#ff1493', '#9d00ff'],
+                // Palette 5: Vibrant Green & Magenta
+                ['#00ff87', '#39ff14', '#7fff00', '#00ffff', '#ff006e', '#ff66cc'],
+                // Palette 6: Teal and Purple
+                ['#64ffda', '#40e0d0', '#00ffaa', '#00ff87', '#bf00ff', '#a29bfe'],
+                // Palette 7: Heavy on greens
+                ['#00ff87', '#39ff14', '#7fff00', '#00ffaa', '#39ff14', '#40e0d0', '#ff1493']
+            ];
+            const selectedPalette = colorPalettes[Math.floor(random(0, colorPalettes.length))];
+
+            const numLayers = Math.floor(random(3, 6)); // 3-5 layers
+            let dynamicKeyframes = '';
+
+            for (let i = 0; i < numLayers; i++) {
+                const layer = document.createElement('div');
+                const animationName = `aurora-flow-layer-${i}-${Date.now()}`;
+
+                // 4. Dynamic Layer Styling
+                const color = selectedPalette[Math.floor(random(0, selectedPalette.length))];
+                const top = random(-60, -40);
+                const width = random(120, 180);
+                const height = random(150, 220);
+                const opacity = random(0.6, 0.9);
+                const blur = random(5, 15);
+                const zIndex = i + 1; // Simple z-index stacking
+
+                // Gradient with random center
+                const gradX = random(30, 70);
+                const gradY = random(40, 60);
+                const transparentStop = random(35, 45);
+                layer.style.background = `radial-gradient(ellipse at ${gradX}% ${gradY}%, transparent 0%, transparent ${transparentStop}%, ${color} 100%)`;
+
+                layer.style.position = 'absolute';
+                layer.style.top = `${top}%`;
+                layer.style.left = `${random(-40, 0)}%`;
+                layer.style.width = `${width}%`;
+                layer.style.height = `${height}%`;
+                layer.style.opacity = opacity;
+                layer.style.mixBlendMode = 'screen';
+                layer.style.willChange = 'transform, filter';
+                layer.style.zIndex = zIndex;
+
+                // 5. Dynamic Animation Properties
+                const duration = random(18, 45);
+                const direction = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
+                layer.style.animation = `${animationName} ${duration}s ease-in-out infinite ${direction}`;
+                layer.style.filter = `blur(${blur}px)`; // Initial blur
+
+                // 6. Dynamic Keyframe Generation
+                let keyframeSteps = '0% { transform: rotate(0deg) scale(1) skewX(0deg) translateX(0%) translateY(0%); filter: blur(' + blur + 'px) brightness(1) saturate(1) hue-rotate(0deg); }\n';
+                const numKeyframes = Math.floor(random(6, 9)); // 6-8 steps
+                const keyframePercentages = [0, 100];
+                for (let j = 0; j < numKeyframes - 2; j++) {
+                    keyframePercentages.push(Math.floor(random(10, 90)));
+                }
+                keyframePercentages.sort((a, b) => a - b);
+
+                for (let j = 1; j < keyframePercentages.length - 1; j++) {
+                    const percent = keyframePercentages[j];
+                    const rotate = random(-15, 15);
+                    const scale = random(0.85, 1.25);
+                    const skewX = random(-20, 20);
+                    const skewY = random(-8, 8);
+                    const translateX = random(-15, 15);
+                    const translateY = random(-10, 10);
+                    const hueRotate = random(15, 30);
+                    const brightness = random(1.0, 1.5);
+                    const saturate = random(0.8, 1.3);
+
+                    keyframeSteps += `${percent}% {
+                        transform: rotate(${rotate}deg) scale(${scale}) skewX(${skewX}deg) skewY(${skewY}deg) translateX(${translateX}%) translateY(${translateY}%);
+                        filter: blur(${blur}px) brightness(${brightness}) saturate(${saturate}) hue-rotate(${percent < 50 ? (percent/50) * hueRotate : (1 - (percent-50)/50) * hueRotate}deg);
+                    }\n`;
+                }
+                keyframeSteps += '100% { transform: rotate(0deg) scale(1) skewX(0deg) translateX(0%) translateY(0%); filter: blur(' + blur + 'px) brightness(1) saturate(1) hue-rotate(0deg); }\n';
+
+                dynamicKeyframes += `@keyframes ${animationName} {\n${keyframeSteps}}\n`;
+                auroraContainer.appendChild(layer);
+            }
+
+            // 7. Inject Stylesheet
+            const styleElement = document.createElement('style');
+            styleElement.id = dynamicStyleId;
+            styleElement.textContent = dynamicKeyframes;
+            document.head.appendChild(styleElement);
         }
         function createSpringScene() {
             // Drifting Clouds
