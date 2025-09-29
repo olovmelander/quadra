@@ -325,90 +325,196 @@ body {
 /* --- Sunset Theme --- */
 #sunset-theme {
     overflow: hidden;
-    /* Define CSS variables for the sun's path, with default centered values */
-    --sun-start-x: 50vw;
+    /* Define CSS variables for the sun's path */
+    --sun-start-x: 15vw;
     --sun-start-y: 110vh;
     --sun-peak-x: 50vw;
-    --sun-peak-y: -20vh;
-    --sun-end-x: 50vw;
+    --sun-peak-y: -15vh;
+    --sun-end-x: 85vw;
     --sun-end-y: 110vh;
 }
+
 .sun-and-sky {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    animation: sky-color-change 150s linear infinite;
+    animation: sky-color-cycle 150s linear infinite;
     z-index: 1;
 }
 
-@keyframes sky-color-change {
-    0% { background: linear-gradient(to top, #89cff0, #2980b9); } /* Morning/Day */
-    20% { background: linear-gradient(to top, #f7b733, #fc4a1a); } /* Afternoon/Golden Hour */
-    35% { background: linear-gradient(to top, #ec008c, #fc6767); } /* Sunset */
-    50% { background: linear-gradient(to top, #485563, #29323c); } /* Dusk/Twilight */
-    70% { background: linear-gradient(to top, #0c1440, #000000); } /* Night */
-    85% { background: linear-gradient(to top, #29323c, #1a223a); } /* Pre-dawn */
-    95% { background: linear-gradient(to top, #fc6767, #f7b733); } /* Sunrise */
-    100% { background: linear-gradient(to top, #89cff0, #2980b9); } /* Back to Morning/Day */
+@keyframes sky-color-cycle {
+    /* Morning/Day - Blue */
+    0% { background: linear-gradient(to top, #89cff0, #2980b9); }
+    
+    /* Transition to Afternoon */
+    15% { background: linear-gradient(to top, #fad390, #ee9ca7); }
+    
+    /* Afternoon/Golden Hour - Orange */
+    22% { background: linear-gradient(to top, #f7b733, #fc4a1a); }
+    
+    /* Transition to Sunset */
+    30% { background: linear-gradient(to top, #fa709a, #fee140); }
+    
+    /* Sunset - Pink/Purple */
+    37% { background: linear-gradient(to top, #ec008c, #fc6767); }
+    
+    /* Transition to Dusk */
+    44% { background: linear-gradient(to top, #654ea3, #485563); }
+    
+    /* Dusk/Twilight - Dark Blue */
+    52% { background: linear-gradient(to top, #485563, #29323c); }
+    
+    /* Transition to Night */
+    60% { background: linear-gradient(to top, #2c3e50, #1a223a); }
+    
+    /* Night - Very Dark */
+    72% { background: linear-gradient(to top, #0c1440, #000000); }
+    
+    /* Deep Night */
+    80% { background: linear-gradient(to top, #000000, #0c1440); }
+    
+    /* Transition to Pre-dawn */
+    87% { background: linear-gradient(to top, #29323c, #1a223a); }
+    
+    /* Pre-dawn - Lightening */
+    92% { background: linear-gradient(to top, #485563, #354a5f); }
+    
+    /* Transition to Sunrise */
+    96% { background: linear-gradient(to top, #fc6767, #f7b733); }
+    
+    /* Sunrise - Pink/Orange */
+    98% { background: linear-gradient(to top, #fee140, #fa709a); }
+    
+    /* Back to Morning/Day - Must match 0% exactly */
+    100% { background: linear-gradient(to top, #89cff0, #2980b9); }
 }
 
 .sun {
     position: absolute;
-    top: 0; left: 0; /* Position controlled by transform */
+    top: 0; left: 0;
     width: 150px; height: 150px;
     background: radial-gradient(circle, #fff, #ffd700, #ff8c00);
     border-radius: 50%;
-    /* Use linear timing for a constant speed, which is crucial for a smooth loop */
-    animation: sunset-path 150s linear infinite, sun-pulse 8s ease-in-out infinite alternate;
+    animation: sun-path-cycle 150s linear infinite, sun-pulse 8s ease-in-out infinite alternate;
 }
 
 @keyframes sun-pulse {
-    from { box-shadow: 0 0 60px 20px #ff8c00, 0 0 100px 40px #ffd700; transform: scale(1); }
-    to { box-shadow: 0 0 80px 30px #ff8c00, 0 0 140px 50px #ffd700; transform: scale(1.05); }
+    from { 
+        box-shadow: 0 0 60px 20px #ff8c00, 0 0 100px 40px #ffd700; 
+        transform: scale(1); 
+    }
+    to { 
+        box-shadow: 0 0 80px 30px #ff8c00, 0 0 140px 50px #ffd700; 
+        transform: scale(1.05); 
+    }
 }
 
-@keyframes sunset-path {
-    0% { /* Sunrise start (off-screen bottom) */
-        transform: translate(var(--sun-start-x), var(--sun-start-y)) scale(0.6);
+@keyframes sun-path-cycle {
+    /* Sunrise - Sun rising from start position */
+    0% { 
+        transform: translate(var(--sun-start-x), var(--sun-start-y)) scale(0.7);
+        opacity: 0;
+    }
+    
+    /* Sun becoming visible */
+    8% { 
+        transform: translate(var(--sun-start-x), 95vh) scale(0.8);
+        opacity: 0.6;
+    }
+    
+    /* Morning - Sun rising */
+    15% { 
+        transform: translate(calc(var(--sun-start-x) + (var(--sun-peak-x) - var(--sun-start-x)) * 0.3), 40vh) scale(0.95);
         opacity: 1;
     }
-    25% { /* Mid-day (peak arc) */
-        transform: translate(var(--sun-peak-x), var(--sun-peak-y)) scale(1.1);
+    
+    /* Mid-morning */
+    22% { 
+        transform: translate(calc(var(--sun-start-x) + (var(--sun-peak-x) - var(--sun-start-x)) * 0.6), var(--sun-peak-y)) scale(1.1);
         opacity: 1;
     }
-    50% { /* Sunset end (off-screen bottom) */
-        transform: translate(var(--sun-end-x), var(--sun-end-y)) scale(0.6);
+    
+    /* Noon - Peak */
+    30% { 
+        transform: translate(var(--sun-peak-x), calc(var(--sun-peak-y) - 2vh)) scale(1.15);
         opacity: 1;
     }
-    51% { /* Night-time (fully hidden) */
+    
+    /* Early afternoon - Sun descending */
+    37% { 
+        transform: translate(calc(var(--sun-peak-x) + (var(--sun-end-x) - var(--sun-peak-x)) * 0.4), var(--sun-peak-y)) scale(1.1);
+        opacity: 1;
+    }
+    
+    /* Late afternoon */
+    44% { 
+        transform: translate(calc(var(--sun-peak-x) + (var(--sun-end-x) - var(--sun-peak-x)) * 0.7), 20vh) scale(1);
+        opacity: 1;
+    }
+    
+    /* Sunset - Sun touching horizon */
+    52% { 
+        transform: translate(var(--sun-end-x), 85vh) scale(0.85);
+        opacity: 1;
+    }
+    
+    /* Sun setting - partially below horizon */
+    56% { 
+        transform: translate(var(--sun-end-x), 95vh) scale(0.7);
+        opacity: 0.7;
+    }
+    
+    /* Sun below horizon */
+    60% { 
         transform: translate(var(--sun-end-x), var(--sun-end-y)) scale(0.6);
         opacity: 0;
     }
-    85% { /* Pre-dawn (still hidden) */
+    
+    /* Night - Sun hidden */
+    80% { 
+        transform: translate(var(--sun-end-x), var(--sun-end-y)) scale(0.6);
+        opacity: 0;
+    }
+    
+    /* Pre-dawn - Sun repositioning under horizon */
+    92% { 
         transform: translate(var(--sun-start-x), var(--sun-start-y)) scale(0.6);
         opacity: 0;
     }
-    100% { /* Back to sunrise start */
-        transform: translate(var(--sun-start-x), var(--sun-start-y)) scale(0.6);
-        opacity: 1;
+    
+    /* Early sunrise glow */
+    96% { 
+        transform: translate(var(--sun-start-x), 98vh) scale(0.65);
+        opacity: 0.3;
+    }
+    
+    /* Back to start - Must match 0% exactly */
+    100% { 
+        transform: translate(var(--sun-start-x), var(--sun-start-y)) scale(0.7);
+        opacity: 0;
     }
 }
 
 .lens-flare {
     position: absolute;
-    top: 0; left: 0; /* Position controlled by transform */
+    top: 0; left: 0;
     width: 400px; height: 400px;
     background: radial-gradient(circle, rgba(255,255,220,0.2) 0%, rgba(255,255,220,0) 40%);
     border-radius: 50%;
-    animation: sunset-path 150s linear infinite, lens-flare-fade 150s linear infinite;
-    opacity: 0;
+    animation: sun-path-cycle 150s linear infinite, lens-flare-fade-cycle 150s linear infinite;
 }
 
-@keyframes lens-flare-fade {
-    0%, 100% { opacity: 0.8; } /* Visible during day */
-    50% { opacity: 0; } /* Hidden during night */
-    85% { opacity: 0; } /* Still hidden pre-dawn */
+@keyframes lens-flare-fade-cycle {
+    0% { opacity: 0; }
+    15% { opacity: 0.4; }
+    30% { opacity: 0.8; }
+    44% { opacity: 0.8; }
+    60% { opacity: 0; }
+    92% { opacity: 0; }
+    96% { opacity: 0.2; }
+    100% { opacity: 0; }
 }
+
 .sunset-clouds {
     position: absolute;
     top: 0; left: 0;
@@ -417,9 +523,29 @@ body {
     animation-iteration-count: infinite;
     will-change: transform;
 }
-#sunset-clouds-back { animation-name: slide-sunset; animation-duration: 280s; z-index: 2; opacity: 0.4; }
-#sunset-clouds-mid { animation-name: slide-sunset; animation-duration: 200s; animation-direction: reverse; z-index: 4; opacity: 0.6; }
-#sunset-clouds-front { animation-name: slide-sunset; animation-duration: 120s; z-index: 6; opacity: 0.8; }
+
+#sunset-clouds-back { 
+    animation-name: slide-sunset; 
+    animation-duration: 280s; 
+    z-index: 2; 
+    opacity: 0.4; 
+}
+
+#sunset-clouds-mid { 
+    animation-name: slide-sunset; 
+    animation-duration: 200s; 
+    animation-direction: reverse; 
+    z-index: 4; 
+    opacity: 0.6; 
+}
+
+#sunset-clouds-front { 
+    animation-name: slide-sunset; 
+    animation-duration: 120s; 
+    z-index: 6; 
+    opacity: 0.8; 
+}
+
 @keyframes slide-sunset {
     from { transform: translateX(0%); }
     to { transform: translateX(-50%); }
@@ -430,9 +556,10 @@ body {
     top: 0; left: 0;
     width: 100%; height: 100%;
     z-index: 3;
-    animation: sunset-path 150s ease-in-out infinite, sunset-ray-fade 150s linear infinite;
+    animation: sun-path-cycle 150s linear infinite, god-ray-fade-cycle 150s linear infinite;
     transform-origin: 50% 0;
 }
+
 .sunset-god-ray {
     position: absolute;
     top: -10%; left: 50%;
@@ -441,41 +568,50 @@ body {
     background: linear-gradient(to bottom, rgba(255, 220, 180, 0.25), transparent);
     transform-origin: top center;
 }
-@keyframes sunset-ray-fade {
-    0% { opacity: 1; }
-    40% { opacity: 1; }
-    80% { opacity: 0; }
+
+@keyframes god-ray-fade-cycle {
+    0% { opacity: 0; }
+    15% { opacity: 0.6; }
+    30% { opacity: 1; }
+    44% { opacity: 1; }
+    52% { opacity: 0.8; }
+    60% { opacity: 0; }
+    92% { opacity: 0; }
+    96% { opacity: 0.3; }
     100% { opacity: 0; }
 }
+
 .mountain-silhouette {
     position: absolute;
     bottom: 0; left: 0;
     width: 100%; height: 25%;
     z-index: 5;
 }
+
 .sunset-heat-haze {
-    position: absolute; top: 0; left: 0;
+    position: absolute; 
+    top: 0; left: 0;
     width: 100%; height: 100%;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="haze"><feTurbulence type="turbulence" baseFrequency="0.01 0.03" numOctaves="1" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="3" xChannelSelector="R" yChannelSelector="G"/></filter><rect width="200" height="200" fill="transparent" filter="url(%23haze)"/></svg>');
     background-size: 200px 200px;
-    animation: heat-haze-anim 8s linear infinite alternate;
-    opacity: 0;
+    animation: heat-haze-cycle 150s linear infinite;
     z-index: 10;
 }
-@keyframes heat-haze-anim {
+
+@keyframes heat-haze-cycle {
     0% { background-position: 0% 0%; opacity: 0; }
-    40% { opacity: 0.1; }
-    60% { opacity: 0.1; }
+    22% { background-position: 30% 30%; opacity: 0.15; }
+    37% { background-position: 50% 50%; opacity: 0.2; }
+    52% { background-position: 70% 70%; opacity: 0.1; }
+    60% { background-position: 85% 85%; opacity: 0; }
     100% { background-position: 100% 100%; opacity: 0; }
 }
 
 .dust-canvas {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 3; /* Positioned between back clouds and god rays */
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
     pointer-events: none;
 }
 

@@ -2342,34 +2342,47 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const sun = themeContainer.querySelector('.sun');
 
             function randomizeSunPath() {
-                const startX = random(15, 85); // Start position in vw
-                const endX = random(15, 85);   // End position in vw
-
-                // Peak X is between start and end for a natural arc
-                const peakX = (startX + endX) / 2 + random(-15, 15);
+                // Random start position (15-35% from left)
+                const startX = random(15, 35);
+                // Random end position (65-85% from left)
+                const endX = random(65, 85);
+                
+                // Peak X is between start and end, with some randomness
+                const peakX = (startX + endX) / 2 + random(-10, 10);
+                
+                // Random peak height variations (-25vh to -5vh)
+                const peakY = random(-25, -5);
+                
+                // Slight variations in start/end vertical positions
+                const startY = random(108, 112);
+                const endY = random(108, 112);
 
                 // Set the CSS variables
                 themeContainer.style.setProperty('--sun-start-x', `${startX}vw`);
                 themeContainer.style.setProperty('--sun-peak-x', `${peakX}vw`);
                 themeContainer.style.setProperty('--sun-end-x', `${endX}vw`);
-
-                // Set a random vertical peak for the arc
-                themeContainer.style.setProperty('--sun-peak-y', `${random(-30, 5)}vh`);
+                themeContainer.style.setProperty('--sun-peak-y', `${peakY}vh`);
+                themeContainer.style.setProperty('--sun-start-y', `${startY}vh`);
+                themeContainer.style.setProperty('--sun-end-y', `${endY}vh`);
             }
 
-            // Set the initial random path
+            // Set initial random path
             randomizeSunPath();
 
-            // Add a listener to re-randomize the path on each animation loop
+            // Re-randomize on each animation loop
             if (sun) {
-                // To prevent adding multiple listeners, we can use a flag
+                // Remove existing listener if any
                 if (!sun.hasAnimationIterationListener) {
-                    sun.addEventListener('animationiteration', randomizeSunPath);
+                    sun.addEventListener('animationiteration', () => {
+                        if (activeTheme === 'sunset') {
+                            randomizeSunPath();
+                        }
+                    });
                     sun.hasAnimationIterationListener = true;
                 }
             }
 
-            // Procedurally generate clouds
+            // Procedurally generate clouds (keep existing cloud code)
             const cloudLayers = [
                 { el: document.getElementById('sunset-clouds-back'), count: 10, color: 'rgba(255, 255, 255, 0.2)', height: 300, width: 800 },
                 { el: document.getElementById('sunset-clouds-mid'), count: 8, color: 'rgba(255, 230, 200, 0.5)', height: 250, width: 600 },
@@ -2409,7 +2422,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             });
 
-            // Procedurally generate mountain silhouette
+            // Procedurally generate mountain silhouette (keep existing code)
             const mountainContainer = document.querySelector('.mountain-silhouette');
             if (mountainContainer && mountainContainer.children.length === 0) {
                 let canvas = document.createElement('canvas');
@@ -2448,8 +2461,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 mountainContainer.appendChild(canvas);
             }
 
-
-            // God Rays
+            // God Rays (keep existing code)
             const godRayContainer = document.querySelector('.sunset-god-rays');
             if (godRayContainer && godRayContainer.children.length === 0) {
                 for (let i = 0; i < 30; i++) {
@@ -2460,7 +2472,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
-            // Dust Motes - Canvas Implementation
+            // Dust Motes - Canvas Implementation (keep existing code)
             const dustContainer = document.getElementById('dust-motes');
             if (dustContainer && dustContainer.children.length === 0) {
                 const canvas = document.createElement('canvas');
@@ -2496,6 +2508,8 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 };
 
                 const animateParticles = () => {
+                    if (activeTheme !== 'sunset') return;
+                    
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     particles.forEach(p => {
                         p.x += p.vx;
@@ -2518,7 +2532,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
 
                 window.addEventListener('resize', resizeCanvas);
 
-                // Return a cleanup function to be called when the theme changes
                 return {
                     cleanup: () => {
                         window.removeEventListener('resize', resizeCanvas);
