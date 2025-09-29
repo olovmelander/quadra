@@ -1219,7 +1219,7 @@ function createCandlelitMonasteryScene() {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -2783,7 +2783,8 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 'crystal-cave': createCrystalCaveScene, 'candlelit-monastery': createCandlelitMonasteryScene,
                 'cherry-blossom-garden': createCherryBlossomGardenScene, 'floating-islands': createFloatingIslandsScene,
                 'meditation-temple': createMeditationTempleScene, 'moonlit-greenhouse': createMoonlitGreenhouseScene,
-                'ice-temple': createIceTempleScene, 'himalayan-peak': createHimalayanPeakScene, 'electric-dreams': createElectricDreamsScene
+                'ice-temple': createIceTempleScene, 'himalayan-peak': createHimalayanPeakScene, 'electric-dreams': createElectricDreamsScene,
+                'moonlit-forest': createMoonlitForestScene
             };
 
             let themeData = null;
@@ -3074,6 +3075,122 @@ function createFluidDreamsScene() {
             const duration = Math.random() * 20 + 30; // 30s to 50s
             ribbon.style.animationDelay = `-${Math.random() * duration}s, -${Math.random() * 10}s`;
             ribbonContainer.appendChild(ribbon);
+        }
+    }
+}
+
+function createMoonlitForestScene() {
+    // 1. Tree generation for parallax layers
+    const layers = [
+        { el: document.getElementById('moonlit-forest-back'), count: 50, color: 'rgba(5, 10, 15, 0.8)', height: 300 },
+        { el: document.getElementById('moonlit-forest-mid'), count: 40, color: 'rgba(10, 20, 30, 0.85)', height: 400 },
+        { el: document.getElementById('moonlit-forest-front'), count: 30, color: 'rgba(15, 25, 40, 0.9)', height: 550 }
+    ];
+
+    layers.forEach(layer => {
+        if(layer.el && !layer.el.style.backgroundImage) { // Check if background is already set
+            const T_WIDTH = 150;
+            let canvas = document.createElement('canvas');
+            canvas.width = layer.count * T_WIDTH;
+            canvas.height = layer.height;
+            let ctx = canvas.getContext('2d');
+            ctx.fillStyle = layer.color;
+            ctx.strokeStyle = layer.color;
+
+            for(let i = 0; i < layer.count; i++) {
+                const x = i * T_WIDTH + Math.random() * (T_WIDTH / 2);
+                const h = layer.height * (0.6 + Math.random() * 0.4);
+                const trunkWidth = 8 + Math.random() * 12;
+
+                // Draw trunk
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height);
+                ctx.lineTo(x + trunkWidth / 4, canvas.height - h / 2);
+                ctx.lineTo(x - trunkWidth / 4, canvas.height - h);
+                ctx.lineWidth = trunkWidth;
+                ctx.stroke();
+
+                // Draw branches
+                for(let j = 0; j < 7; j++) {
+                    const branchY = canvas.height - h + (Math.random() * (h/1.5));
+                    const branchLen = Math.random() * 50 + 20;
+                    const angle = (Math.random() - 0.5) * Math.PI;
+                    ctx.beginPath();
+                    ctx.moveTo(x - trunkWidth / 4, branchY);
+                    ctx.lineTo(x - trunkWidth / 4 + Math.cos(angle) * branchLen, branchY + Math.sin(angle) * branchLen);
+                    ctx.lineWidth = Math.random() * 4 + 1;
+                    ctx.stroke();
+                }
+            }
+            layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
+            layer.el.style.backgroundSize = `${canvas.width}px ${canvas.height}px`;
+        }
+    });
+
+    // 2. Glowing Mushrooms
+    const mushroomContainer = document.getElementById('glowing-mushrooms');
+    if (mushroomContainer && mushroomContainer.children.length === 0) {
+        for (let i = 0; i < 25; i++) {
+            let mushroom = document.createElement('div');
+            mushroom.className = 'glowing-mushroom';
+            mushroom.style.left = `${Math.random() * 98}%`;
+            mushroom.style.bottom = `${Math.random() * 80}%`;
+            mushroom.style.transform = `scale(${Math.random() * 0.5 + 0.7})`;
+            mushroom.style.setProperty('--delay', `-${Math.random() * 8}s`);
+            mushroomContainer.appendChild(mushroom);
+        }
+    }
+
+    // 3. Moonbeams
+    const moonbeamContainer = document.querySelector('.moonbeam-container');
+    if (moonbeamContainer && moonbeamContainer.children.length === 0) {
+        for (let i = 0; i < 12; i++) {
+            let beam = document.createElement('div');
+            beam.className = 'moonbeam';
+            const angle = Math.random() * 30 - 15;
+            beam.style.left = `${Math.random() * 100}%`;
+            beam.style.setProperty('--r-start', `${angle - 5}deg`);
+            beam.style.setProperty('--r-end', `${angle + 5}deg`);
+            beam.style.setProperty('--opacity', `${Math.random() * 0.4 + 0.1}`);
+            beam.style.animationDelay = `-${Math.random() * 30}s`;
+            moonbeamContainer.appendChild(beam);
+        }
+    }
+
+    // 4. Wildlife and Leaves
+    const wildlifeContainer = document.getElementById('moonlit-wildlife');
+    if (wildlifeContainer && wildlifeContainer.children.length === 0) {
+        // Glowing Eyes
+        for (let i = 0; i < 5; i++) {
+            let eyes = document.createElement('div');
+            eyes.className = 'glowing-eyes';
+            eyes.style.left = `${Math.random() * 95}%`;
+            eyes.style.bottom = `${Math.random() * 30}%`;
+            eyes.style.animationDelay = `-${Math.random() * 15}s`;
+            wildlifeContainer.appendChild(eyes);
+        }
+        // Flying Owl
+        let owl = document.createElement('div');
+        owl.className = 'flying-owl';
+        owl.style.animationDelay = `-${Math.random() * 35}s`;
+        wildlifeContainer.appendChild(owl);
+    }
+
+    const themeContainer = document.getElementById('moonlit-forest-theme');
+    if (themeContainer) {
+        // Falling Leaves
+        for (let i = 0; i < 15; i++) {
+            let leaf = document.createElement('div');
+            leaf.className = 'moonlit-leaf';
+            const xStart = Math.random() * 100;
+            leaf.style.setProperty('--x-start', `${xStart}vw`);
+            leaf.style.setProperty('--x-end', `${xStart + (Math.random() * 20 - 10)}vw`);
+            leaf.style.setProperty('--r-start', `${Math.random() * 360}deg`);
+            leaf.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+            const duration = Math.random() * 10 + 10;
+            leaf.style.animationDuration = `${duration}s`;
+            leaf.style.animationDelay = `-${Math.random() * duration}s`;
+            themeContainer.appendChild(leaf);
         }
     }
 }

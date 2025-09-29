@@ -152,6 +152,13 @@ class ParticleSystem {
         if (this.behavior === 'firefly') {
             this.wanderAngles = new Float32Array(numParticles);
             this.blinkInfo = new Float32Array(numParticles * 4); // lastBlinkTime, blinkDuration, nextBlinkInterval, isBlinking
+            this.fireflyStates = new Uint8Array(numParticles); // 0: wandering, 1: targeting, 2: clustering
+            this.clusterTargets = new Float32Array(numParticles * 2);
+            this.clusterTimers = new Float32Array(numParticles);
+            this.clusterPoints = Array.from({length: 5}, () => ({
+                x: Math.random() * this.gl.canvas.width,
+                y: Math.random() * this.gl.canvas.height * 0.5 + this.gl.canvas.height * 0.4 // Lower half
+            }));
         } else if (this.behavior === 'petal') {
             this.rotations = new Float32Array(numParticles);
             this.rotationSpeeds = new Float32Array(numParticles);
@@ -201,9 +208,11 @@ class ParticleSystem {
             this.wanderAngles[i] = Math.random() * Math.PI * 2;
             this.blinkInfo[i * 4] = Date.now(); // lastBlinkTime
             this.blinkInfo[i * 4 + 1] = Math.random() * 200 + 100; // blinkDuration
-            this.blinkInfo[i * 4 + 2] = Math.random() * 3000 + 2000; // nextBlinkInterval
+            this.blinkInfo[i * 4 + 2] = Math.random() * 2000 + 2000; // nextBlinkInterval (2-4 seconds)
             this.blinkInfo[i * 4 + 3] = 0; // isBlinking
             this.alphas[i] = config.minAlpha;
+            this.fireflyStates[i] = 0; // Start in wandering state
+            this.clusterTimers[i] = 0;
         } else if (this.behavior === 'petal') {
             this.positions[i * 2] = Math.random() * (width + 200) - 100; // Start further off-screen
             this.positions[i * 2 + 1] = -Math.random() * 50 - 10; // Start just above the screen
@@ -303,11 +312,50 @@ class ParticleSystem {
             }
 
             if (this.behavior === 'firefly') {
-                this.wanderAngles[i] += (Math.random() - 0.5) * 0.4;
-                this.velocities[i * 2] += Math.cos(this.wanderAngles[i]) * 0.08;
-                this.velocities[i * 2 + 1] += Math.sin(this.wanderAngles[i]) * 0.08;
-                this.velocities[i * 2] *= 0.96;
-                this.velocities[i * 2 + 1] *= 0.96;
+                const state = this.fireflyStates[i];
+
+                if (state === 0) { // Wandering
+                    this.wanderAngles[i] += (Math.random() - 0.5) * 0.4;
+                    this.velocities[i * 2] += Math.cos(this.wanderAngles[i]) * 0.08;
+                    this.velocities[i * 2 + 1] += Math.sin(this.wanderAngles[i]) * 0.08;
+                    this.velocities[i * 2] *= 0.96;
+                    this.velocities[i * 2 + 1] *= 0.96;
+
+                    if (Math.random() < 0.001) {
+                        this.fireflyStates[i] = 1; // Targeting
+                        const targetPoint = this.clusterPoints[Math.floor(Math.random() * this.clusterPoints.length)];
+                        this.clusterTargets[i * 2] = targetPoint.x;
+                        this.clusterTargets[i * 2 + 1] = targetPoint.y;
+                    }
+                } else if (state === 1) { // Targeting cluster
+                    const targetX = this.clusterTargets[i * 2];
+                    const targetY = this.clusterTargets[i * 2 + 1];
+                    const dx = targetX - this.positions[i * 2];
+                    const dy = targetY - this.positions[i * 2 + 1];
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 15) {
+                        this.fireflyStates[i] = 2; // Clustering
+                        this.clusterTimers[i] = Math.random() * 300 + 300;
+                        this.velocities[i * 2] = 0;
+                        this.velocities[i * 2 + 1] = 0;
+                    } else {
+                        const speed = 1.2;
+                        this.velocities[i * 2] = (dx / dist) * speed;
+                        this.velocities[i * 2 + 1] = (dy / dist) * speed;
+                    }
+                } else if (state === 2) { // Clustering
+                    this.clusterTimers[i]--;
+                    if (this.clusterTimers[i] <= 0) {
+                        this.fireflyStates[i] = 0; // Back to wandering
+                    } else {
+                        this.wanderAngles[i] += (Math.random() - 0.5) * 0.2;
+                        this.velocities[i * 2] += Math.cos(this.wanderAngles[i]) * 0.04;
+                        this.velocities[i * 2 + 1] += Math.sin(this.wanderAngles[i]) * 0.04;
+                        this.velocities[i * 2] *= 0.9;
+                        this.velocities[i * 2 + 1] *= 0.9;
+                    }
+                }
 
                 this.positions[i * 2] += this.velocities[i * 2];
                 this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
@@ -714,6 +762,32 @@ class WebGLRenderer {
             };
             this.particleSystems.push(new ParticleSystem(this.gl, 100, iceGrowthConfig));
 
+            this.start();
+        } else if (themeName === 'moonlit-forest') {
+            const fireflyConfig = {
+                behavior: 'firefly',
+                minSize: 4.0,
+                maxSize: 8.0,
+                minAlpha: 0.4,
+                maxAlpha: 1.0,
+                lifetime: Infinity,
+                zIndex: -0.2,
+                color: [0.8, 1.0, 0.4] // Golden-green
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 40, fireflyConfig));
+
+            const dustConfig = {
+                behavior: 'ambient',
+                speed: 0.1,
+                minSize: 1.0,
+                maxSize: 2.5,
+                minAlpha: 0.1,
+                maxAlpha: 0.3,
+                lifetime: Infinity,
+                zIndex: -0.3,
+                color: [1.0, 1.0, 0.8] // Faint yellow-white
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 100, dustConfig));
             this.start();
         } else if (themeName === 'meditation-temple') {
             const smokeConfig = {
