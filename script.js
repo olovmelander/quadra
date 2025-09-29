@@ -389,20 +389,55 @@ function createMeditationTempleScene() {
 }
 
 function createFloatingIslandsScene() {
-    // Define the color palette from the prompt
     const palette = {
         grass: { bright: '#7CB342', deep: '#558B2F', highlight: '#AED581' },
         soil: { base: '#8B7355', dark: '#654321' },
         rock: { face: '#7A6A5D', moss: '#4A7C59' },
         tree: { trunk: '#5D4E37', foliageBright: '#9ACD32', foliageMid: '#6B8E23', foliageShadow: '#4A6A2E' },
-        waterfall: { top: 'rgba(232, 248, 255, 0.8)', mid: 'rgba(184, 230, 245, 0.7)', bottom: 'rgba(255, 255, 255, 0.9)' }
     };
 
-    // Helper function to draw a majestic tree
+    const waterfallIntervals = [];
+
+    const createWaterfallEffect = (container, startX, startY, fallHeight) => {
+        const fallRate = 30; // particles per second
+        const intervalId = setInterval(() => {
+            const particle = document.createElement('div');
+            particle.className = 'waterfall-particle';
+
+            const x = startX + random(-8, 8);
+            const duration = (fallHeight / random(250, 400)); // Adjust speed
+
+            particle.style.left = `${x}px`;
+            particle.style.top = `${startY}px`;
+            particle.style.height = `${random(40, 80)}px`;
+            particle.style.animationDuration = `${duration}s`;
+
+            container.appendChild(particle);
+
+            // Create mist puff when particle "lands"
+            const mistPuff = document.createElement('div');
+            mistPuff.className = 'waterfall-mist-puff';
+            mistPuff.style.left = `${x}px`;
+            mistPuff.style.bottom = `${random(-20, 30)}px`;
+            // Delay the mist puff animation to match the particle's fall time
+            mistPuff.style.animationDelay = `${duration - 0.2}s`;
+            container.appendChild(mistPuff);
+
+            // Remove particles and mist after animations
+            const totalLifetime = (duration + 2) * 1000; // fall duration + mist duration
+            setTimeout(() => {
+                particle.remove();
+                mistPuff.remove();
+            }, totalLifetime);
+
+        }, 1000 / fallRate);
+
+        waterfallIntervals.push(intervalId);
+    };
+
     const drawMajesticTree = (ctx, x, y, height) => {
         const trunkWidth = height / 7;
         const canopyRadius = height / 1.8;
-
         const trunkGradient = ctx.createLinearGradient(x - trunkWidth / 2, y, x + trunkWidth / 2, y);
         trunkGradient.addColorStop(0, '#3E2F1F');
         trunkGradient.addColorStop(0.5, palette.tree.trunk);
@@ -415,7 +450,6 @@ function createFloatingIslandsScene() {
         ctx.lineTo(x - trunkWidth * 0.7, y - height);
         ctx.closePath();
         ctx.fill();
-
         ctx.fillStyle = palette.tree.foliageShadow;
         ctx.beginPath();
         ctx.arc(x, y - height, canopyRadius, 0, Math.PI * 2);
@@ -432,23 +466,20 @@ function createFloatingIslandsScene() {
 
     const drawIsland = (ctx, island) => {
         const { x, y, width, height } = island;
-        // Undulating top surface points
         const topSurface = [];
         for (let i = 0; i <= width; i++) {
             const angle = (i / width) * Math.PI;
             const bump = Math.sin(angle) * 20 + Math.sin(angle*3) * 5;
             topSurface.push({x: x + i, y: y - bump});
         }
+        island.topSurface = topSurface; // Store for waterfalls
 
-        // Underside shape points
         const bottomSurface = [];
         for (let i = width; i >= 0; i--) {
             const angle = (i / width) * Math.PI;
             const bump = Math.sin(angle) * (height*0.8) + Math.sin(angle*2) * 20 + Math.random() * 15;
             bottomSurface.push({x: x + i, y: y + bump});
         }
-
-        // Combine paths and draw the main rock/soil body
         const rockGradient = ctx.createLinearGradient(x, y, x, y + height);
         rockGradient.addColorStop(0, palette.soil.base);
         rockGradient.addColorStop(0.5, palette.rock.face);
@@ -461,8 +492,6 @@ function createFloatingIslandsScene() {
         bottomSurface.forEach(p => ctx.lineTo(p.x, p.y));
         ctx.closePath();
         ctx.fill();
-
-        // Draw gnarled roots
         for(let i=0; i<width/8; i++) {
             const rootStartX = x + random(width * 0.1, width * 0.9);
             const rootStartY = y + height * random(0.5, 1);
@@ -473,8 +502,6 @@ function createFloatingIslandsScene() {
             ctx.bezierCurveTo(rootStartX + random(-20, 20), rootStartY + 30, rootStartX + random(-10, 10), rootStartY + 60, rootStartX + random(-5, 5), rootStartY + 90);
             ctx.stroke();
         }
-
-        // Draw grassy top layer
         ctx.fillStyle = palette.grass.deep;
         ctx.beginPath();
         ctx.moveTo(topSurface[0].x, topSurface[0].y);
@@ -489,8 +516,6 @@ function createFloatingIslandsScene() {
         topSurface.forEach(p => ctx.lineTo(p.x, p.y + 5));
         ctx.closePath();
         ctx.fill();
-
-        // Draw vegetation
         if(island.tree) {
             drawMajesticTree(ctx, x + width / 2, topSurface[Math.floor(width/2)].y, island.tree.height);
         }
@@ -506,48 +531,22 @@ function createFloatingIslandsScene() {
             ctx.arc(bushX-5, bushY-5, 12, 0, Math.PI*2);
             ctx.fill();
         }
-
-        // Draw waterfall
-        if(island.waterfall) {
-            const fallX = x + width * 0.7;
-            const fallY = topSurface[Math.floor(width*0.7)].y;
-            const fallHeight = random(300, 500);
-            const fallGradient = ctx.createLinearGradient(fallX, fallY, fallX, fallY + fallHeight);
-            fallGradient.addColorStop(0, palette.waterfall.top);
-            fallGradient.addColorStop(0.5, palette.waterfall.mid);
-            fallGradient.addColorStop(1, palette.waterfall.bottom);
-            ctx.fillStyle = fallGradient;
-            ctx.globalAlpha = 0.85;
-            ctx.fillRect(fallX - 15, fallY, 30, fallHeight);
-            ctx.globalAlpha = 1;
-        }
     };
-
     const C_WIDTH = 4096;
     const C_HEIGHT = window.innerHeight;
-
     const layers = [
-        { el: document.getElementById('fi-layer-front'),
-          islands: [
-              { x: C_WIDTH * 0.1, y: C_HEIGHT * 0.5, width: 600, height: 250, tree: { height: 200 }, bushes: 5, waterfall: true }
-          ]
-        },
-        { el: document.getElementById('fi-layer-mid'),
-          islands: [
-              { x: C_WIDTH * 0.6, y: C_HEIGHT * 0.3, width: 450, height: 180, tree: { height: 120 }, bushes: 3, waterfall: true },
-              { x: C_WIDTH * 0.8, y: C_HEIGHT * 0.6, width: 300, height: 120, tree: { height: 80 }, bushes: 2, waterfall: false }
-          ]
-        },
-        { el: document.getElementById('fi-layer-back'),
-          islands: [
-              { x: C_WIDTH * 0.3, y: C_HEIGHT * 0.4, width: 250, height: 100, tree: { height: 60 }, bushes: 1, waterfall: true },
-              { x: C_WIDTH * 0.05, y: C_HEIGHT * 0.7, width: 200, height: 80, tree: { height: 50 }, bushes: 0, waterfall: false }
-          ]
-        }
+        { el: document.getElementById('fi-layer-front'), wc: document.getElementById('fi-waterfall-front'),
+          islands: [ { x: C_WIDTH*0.1, y: C_HEIGHT*0.5, width: 600, height: 250, tree: { height: 200 }, bushes: 5, waterfall: { edge: 0.9, width: 25 } } ] },
+        { el: document.getElementById('fi-layer-mid'), wc: document.getElementById('fi-waterfall-mid'),
+          islands: [ { x: C_WIDTH*0.6, y: C_HEIGHT*0.3, width: 450, height: 180, tree: { height: 120 }, bushes: 3, waterfall: { edge: 0.85, width: 20 } },
+                     { x: C_WIDTH*0.8, y: C_HEIGHT*0.6, width: 300, height: 120, tree: { height: 80 }, bushes: 2, waterfall: false } ] },
+        { el: document.getElementById('fi-layer-back'), wc: document.getElementById('fi-waterfall-back'),
+          islands: [ { x: C_WIDTH*0.3, y: C_HEIGHT*0.4, width: 250, height: 100, tree: { height: 60 }, bushes: 1, waterfall: { edge: 0.9, width: 15 } },
+                     { x: C_WIDTH*0.05, y: C_HEIGHT*0.7, width: 200, height: 80, tree: { height: 50 }, bushes: 0, waterfall: false } ] }
     ];
 
     layers.forEach(layer => {
-        if (layer.el && layer.el.children.length === 0) {
+        if (layer.el && layer.el.querySelector('canvas') === null) {
             const canvas = document.createElement('canvas');
             canvas.width = C_WIDTH;
             canvas.height = C_HEIGHT;
@@ -558,7 +557,18 @@ function createFloatingIslandsScene() {
             canvas.style.bottom = '0';
             canvas.style.width = `${C_WIDTH}px`;
             canvas.style.height = '100%';
-            layer.el.appendChild(canvas);
+            layer.el.insertBefore(canvas, layer.el.firstChild);
+        }
+
+        if (layer.wc) {
+            layer.islands.forEach(island => {
+                if (island.waterfall && island.topSurface) {
+                    const edgeIndex = Math.floor(island.topSurface.length * island.waterfall.edge);
+                    const edgePoint = island.topSurface[edgeIndex];
+                    const fallHeight = C_HEIGHT - edgePoint.y;
+                    createWaterfallEffect(layer.wc, edgePoint.x, edgePoint.y, fallHeight);
+                }
+            });
         }
     });
 
@@ -588,61 +598,12 @@ function createFloatingIslandsScene() {
         canvas.style.height = '100%';
         mountainContainer.appendChild(canvas);
     }
-
-    // Create clouds
-    const cloudsBackContainer = document.getElementById('fi-clouds-back');
-    const cloudsFrontContainer = document.getElementById('fi-clouds-front');
-    if (cloudsBackContainer && cloudsFrontContainer) {
-        cloudsBackContainer.innerHTML = '';
-        cloudsFrontContainer.innerHTML = '';
-        const createCloud = (container) => {
-            const cloud = document.createElement('div');
-            cloud.className = 'fi-cloud';
-            if (Math.random() > 0.6) cloud.classList.add('shadow');
-            const size = random(300, 600);
-            cloud.style.width = `${size}px`;
-            cloud.style.height = `${size * 0.4}px`;
-            cloud.style.top = `${random(5, 60)}%`;
-            cloud.style.left = `${random(0, 100)}%`;
-            container.appendChild(cloud);
-        };
-        for (let i = 0; i < 15; i++) createCloud(cloudsBackContainer);
-        for (let i = 0; i < 10; i++) createCloud(cloudsFrontContainer);
-    }
-
-    // Create God Rays
-    const godRayContainer = document.getElementById('fi-god-rays');
-    if (godRayContainer) {
-        godRayContainer.innerHTML = '';
-        for (let i = 0; i < 20; i++) {
-            const ray = document.createElement('div');
-            ray.className = 'fi-god-ray';
-            ray.style.transform = `rotate(${i * 18 + random(-5, 5)}deg)`;
-            ray.style.animationDelay = `-${random(0, 20)}s`;
-            godRayContainer.appendChild(ray);
+    return {
+        cleanup: () => {
+            waterfallIntervals.forEach(clearInterval);
+            document.querySelectorAll('.waterfall-particle, .waterfall-mist-puff').forEach(el => el.remove());
         }
-    }
-
-    // Create Foreground Particles
-    const particleContainer = document.getElementById('fi-particles');
-    if (particleContainer) {
-        particleContainer.innerHTML = '';
-        for (let i = 0; i < 30; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'fi-particle';
-            const size = random(1, 4);
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.setProperty('--x-start', `${random(0, 100)}vw`);
-            particle.style.setProperty('--y-start', `${random(0, 100)}vh`);
-            particle.style.setProperty('--x-end', `${random(0, 100)}vw`);
-            particle.style.setProperty('--y-end', `${random(0, 100)}vh`);
-            particle.style.animationDelay = `-${random(0, 25)}s`;
-            particleContainer.appendChild(particle);
-        }
-    }
-
-    return {};
+    };
 }
 
 function createCherryBlossomGardenScene() {
@@ -662,7 +623,7 @@ function createCherryBlossomGardenScene() {
         }
     }
 
-    // 2. Falling Petals are handled by WebGLRenderer.
+    // 2. Falling Petals are now handled by WebGLRenderer.
 
     // 3. Procedural, swaying trees
     const branchContainer = document.getElementById('cherry-blossom-branches');
@@ -1259,7 +1220,7 @@ function createCandlelitMonasteryScene() {
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
         let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false;
         let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null;
-let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null;
+let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null, activeThemeData = null;
 
         let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
         const soundManager = new SoundManager();
@@ -2798,6 +2759,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 cancelAnimationFrame(activeThemeAnimationId);
                 activeThemeAnimationId = null;
             }
+            if (activeThemeData && typeof activeThemeData.cleanup === 'function') {
+                activeThemeData.cleanup();
+                activeThemeData = null;
+            }
 
             if (!THEMES.includes(themeName) || (activeTheme === themeName && !isGameOver)) return;
             activeTheme = themeName;
@@ -2826,7 +2791,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 if (el.id === `${themeName}-theme`) {
                     el.classList.add('active');
                     if (themeCreationFunctions[themeName]) {
-                        themeData = themeCreationFunctions[themeName]();
+                        activeThemeData = themeCreationFunctions[themeName]();
                     }
                 } else {
                     el.classList.remove('active');
@@ -2834,7 +2799,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             });
 
             if (webglRenderer) {
-                webglRenderer.loadTheme(themeName, themeData);
+                webglRenderer.loadTheme(themeName, activeThemeData);
             }
         }
 
