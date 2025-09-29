@@ -2069,41 +2069,45 @@
 
 /* --- Moonlit Forest Theme --- */
 #moonlit-forest-theme {
-    background: transparent; /* Now transparent to allow WebGL canvas to show through */
+    background: transparent; /* Allow WebGL canvas to show through */
     overflow: hidden;
-    animation: scene-pulse 15s ease-in-out infinite alternate;
+    animation: moonlit-scene-pulse 10s ease-in-out infinite alternate;
 }
 
+/* Base background gradient, rendered behind WebGL canvas */
 .moonlit-forest-bg {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: linear-gradient(to top, #0c141f, #1b263b, #415a77);
-    z-index: -1; /* Placed behind the WebGL canvas */
+    background: linear-gradient(to top,
+        #2D5442, /* Deep teal-green at the bottom */
+        #4A7C5E, /* Medium forest green */
+        #8BAF6F  /* Yellowish-green glow near moon */
+    );
+    z-index: 1;
 }
 
-@keyframes scene-pulse {
-    from { filter: brightness(0.95) saturate(0.9); }
-    to { filter: brightness(1.05) saturate(1.1); }
+@keyframes moonlit-scene-pulse {
+    from { filter: saturate(1); }
+    to { filter: saturate(1.15); }
 }
 
 .moonlit-forest-moon {
     position: absolute;
-    top: 8%;
+    top: 10%;
     left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 120px;
-    background: radial-gradient(circle, #f7f3e3, #e0dacc);
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #F4E8A8, #E8D895);
     border-radius: 50%;
-    box-shadow: 0 0 50px #f7f3e3, 0 0 100px #f7f3e3, 0 0 150px #f7f3e3;
-    z-index: 2;
-    animation: moon-shift 300s linear infinite alternate;
+    box-shadow: 0 0 60px #F4E8A8, 0 0 120px #F4E8A8, 0 0 180px #E8D895;
+    z-index: 3;
+    animation: moon-path-long 300s linear infinite alternate;
 }
 
-@keyframes moon-shift {
-    from { transform: translate(-60%, -5%); }
-    to { transform: translate(-40%, 5%); }
+@keyframes moon-path-long {
+    from { transform: translate(-40%, -10%); }
+    to { transform: translate(-60%, 10%); }
 }
 
 .moonlit-forest-layer {
@@ -2114,36 +2118,37 @@
     background-position: 0 bottom;
     will-change: transform;
     animation: slide linear infinite;
+    z-index: 5; /* Default for mid-ground */
 }
 
-#moonlit-forest-back { z-index: 1; animation-duration: 320s; filter: brightness(0.4); }
-#moonlit-forest-mid { z-index: 4; animation-duration: 220s; filter: brightness(0.6); }
-#moonlit-forest-front { z-index: 7; animation-duration: 150s; filter: brightness(0.8); }
+#moonlit-forest-back { z-index: 2; animation-duration: 400s; filter: brightness(0.6); }
+#moonlit-forest-mid { z-index: 5; animation-duration: 280s; filter: brightness(0.8); }
+#moonlit-forest-front { z-index: 8; animation-duration: 160s; }
 
 .moonlit-forest-mist {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 200%;
-    height: 30%;
-    background: linear-gradient(to top, rgba(180, 190, 210, 0.25) 0%, transparent 100%);
-    animation: moonlit-mist-scroll linear infinite;
+    height: 40%;
+    background: linear-gradient(to top, rgba(139, 175, 111, 0.2) 0%, transparent 100%);
+    animation: mist-scroll-gentle linear infinite;
+    z-index: 4;
 }
 
 #moonlit-forest-mist-back {
-    z-index: 3;
-    opacity: 0.8;
-    animation-duration: 180s;
-    filter: brightness(0.9);
+    z-index: 4;
+    opacity: 0.9;
+    animation-duration: 200s;
 }
 #moonlit-forest-mist-front {
-    z-index: 5;
+    z-index: 7;
     opacity: 1;
-    animation-duration: 110s;
-    transform: translateY(10%);
+    animation-duration: 130s;
+    transform: translateY(5%);
 }
 
-@keyframes moonlit-mist-scroll {
+@keyframes mist-scroll-gentle {
     from { transform: translateX(0%); }
     to { transform: translateX(-50%); }
 }
@@ -2163,21 +2168,21 @@
     top: -10%;
     width: 2px;
     height: 120%;
-    background: linear-gradient(to bottom, rgba(247, 243, 227, 0.15), transparent 70%);
+    background: linear-gradient(to bottom, rgba(244, 232, 168, 0.1) 0%, transparent 60%);
     transform-origin: top center;
-    animation: drift-beam 30s ease-in-out infinite alternate;
+    animation: beam-drift 45s ease-in-out infinite alternate;
 }
 
-@keyframes drift-beam {
+@keyframes beam-drift {
     from {
-        transform: translateY(0) rotate(var(--r-start)) scaleY(0.9);
+        transform: rotate(var(--r-start)) scaleY(0.95);
         opacity: 0;
     }
     50% {
         opacity: var(--opacity);
     }
     to {
-        transform: translateY(-10px) rotate(var(--r-end)) scaleY(1);
+        transform: rotate(var(--r-end)) scaleY(1.05);
         opacity: 0;
     }
 }
@@ -2187,15 +2192,15 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 25%;
-    z-index: 8;
+    height: 20%;
+    z-index: 9;
 }
 
 .glowing-mushroom {
     position: absolute;
     bottom: 0;
-    width: 20px;
-    height: 25px;
+    width: 15px;
+    height: 20px;
 }
 
 .glowing-mushroom::before { /* Cap */
@@ -2205,414 +2210,80 @@
     transform: translateX(-50%);
     width: 100%;
     height: 60%;
-    background: radial-gradient(ellipse, #a29bfe, #74b9ff);
+    background: radial-gradient(ellipse, #F9DC5C, #C8E86B);
     border-radius: 50% 50% 10% 10%;
-    box-shadow: 0 0 8px #a29bfe, 0 0 12px #a29bfe, 0 0 18px #74b9ff;
-    animation: pulse-mushroom 8s ease-in-out infinite alternate;
+    box-shadow: 0 0 6px #F9DC5C, 0 0 10px #F9DC5C, 0 0 15px #C8E86B;
+    animation: mushroom-pulse-gentle 12s ease-in-out infinite alternate;
     animation-delay: var(--delay);
 }
 
-.glowing-mushroom::after { /* Stem */
-    content: '';
-    position: absolute;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 25%;
-    height: 50%;
-    background: linear-gradient(to top, #a29bfe, #dcdcfc);
-    filter: brightness(0.8);
-}
-
-@keyframes pulse-mushroom {
-    from { filter: brightness(0.7); transform: translateX(-50%) scale(0.95); }
-    to { filter: brightness(1.3); transform: translateX(-50%) scale(1.05); }
+@keyframes mushroom-pulse-gentle {
+    from { filter: brightness(0.8); transform: translateX(-50%) scale(0.98); }
+    to { filter: brightness(1.2); transform: translateX(-50%) scale(1.02); }
 }
 
 .moonlit-leaf {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0C5 5, 5 15, 10 20C15 15, 15 5, 10 0Z" fill="rgba(10, 20, 30, 0.5)"/></svg>');
+    width: 18px;
+    height: 18px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0C5 5, 5 15, 10 20C15 15, 15 5, 10 0Z" fill="rgba(15, 26, 18, 0.6)"/></svg>');
     background-size: contain;
-    animation: fall-leaf-moonlit linear infinite;
-    z-index: 9;
+    animation: fall-leaf-gentle linear infinite;
+    z-index: 10;
 }
 
-@keyframes fall-leaf-moonlit {
+@keyframes fall-leaf-gentle {
     0% { transform: translateY(-10vh) translateX(var(--x-start)) rotate(var(--r-start)); opacity: 1; }
     100% { transform: translateY(110vh) translateX(var(--x-end)) rotate(var(--r-end)); opacity: 0; }
 }
 
 .glowing-eyes {
     position: absolute;
-    width: 20px;
-    height: 5px;
-    z-index: 4;
-    animation: blink-eyes 15s ease-in-out infinite;
+    width: 18px;
+    height: 4px;
+    z-index: 5;
+    animation: eyes-blink-subtle 12s ease-in-out infinite;
 }
 
 .glowing-eyes::before,
 .glowing-eyes::after {
     content: '';
     position: absolute;
-    width: 5px;
-    height: 5px;
-    background-color: #f7ff9e;
+    width: 4px;
+    height: 4px;
+    background-color: #FFE873;
     border-radius: 50%;
-    box-shadow: 0 0 8px #f7ff9e, 0 0 12px #f7ff9e;
+    box-shadow: 0 0 6px #FFE873, 0 0 10px #FFE873;
 }
 
 .glowing-eyes::after {
     right: 0;
 }
 
-@keyframes blink-eyes {
-    0%, 20%, 100% { opacity: 0; }
-    30%, 60% { opacity: 1; }
-    60.5% { opacity: 0; } /* Blink */
-    61% { opacity: 1; }
-    61.5% { opacity: 0; } /* Blink */
-    62% { opacity: 1; }
-    70% { opacity: 1; }
-    80% { opacity: 0; }
+@keyframes eyes-blink-subtle {
+    0%, 30%, 100% { opacity: 0; }
+    40%, 70% { opacity: 1; }
+    70.5% { opacity: 0; } /* Blink */
+    71% { opacity: 1; }
+    80% { opacity: 1; }
+    90% { opacity: 0; }
 }
 
 .flying-owl {
     position: absolute;
-    width: 50px;
-    height: 30px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 30"><path d="M25 0 C 10 0, 0 10, 0 20 L 50 20 C 50 10, 40 0, 25 0 M 15 15 A 5 5 0 1 1 15 14.9 M 35 15 A 5 5 0 1 1 35 14.9" fill="rgba(10,20,30,0.8)"/></svg>');
+    width: 45px;
+    height: 25px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 30"><path d="M25 0 C 10 0, 0 10, 0 20 L 50 20 C 50 10, 40 0, 25 0 M 15 15 A 5 5 0 1 1 15 14.9 M 35 15 A 5 5 0 1 1 35 14.9" fill="rgba(15, 26, 18, 0.9)"/></svg>');
     background-size: contain;
     background-repeat: no-repeat;
-    z-index: 4;
-    animation: fly-owl 35s linear infinite;
-}
-
-@keyframes fly-owl {
-    0% { transform: translateX(-10vw) translateY(20vh) scale(0.8); opacity: 1; }
-    100% { transform: translateX(110vw) translateY(25vh) scale(1.2); opacity: 1; }
-}
-
-/* --- Moonlit Forest Theme --- */
-#moonlit-forest-theme {
-    background: transparent; /* Now transparent to allow WebGL canvas to show through */
-    overflow: hidden;
-    animation: scene-pulse 15s ease-in-out infinite alternate;
-}
-
-.moonlit-forest-bg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(to top, #0c141f, #1b263b, #415a77);
-    z-index: -1; /* Placed behind the WebGL canvas */
-}
-
-@keyframes scene-pulse {
-    from { filter: brightness(0.95) saturate(0.9); }
-    to { filter: brightness(1.05) saturate(1.1); }
-}
-
-.moonlit-forest-moon {
-    position: absolute;
-    top: 8%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 120px;
-    background: radial-gradient(circle, #f7f3e3, #e0dacc);
-    border-radius: 50%;
-    box-shadow: 0 0 50px #f7f3e3, 0 0 100px #f7f3e3, 0 0 150px #f7f3e3;
-    z-index: 2;
-    animation: moon-shift 300s linear infinite alternate;
-}
-
-@keyframes moon-shift {
-    from { transform: translate(-60%, -5%); }
-    to { transform: translate(-40%, 5%); }
-}
-
-.moonlit-forest-layer {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 200%; height: 100%;
-    background-repeat: repeat-x;
-    background-position: 0 bottom;
-    will-change: transform;
-    animation: slide linear infinite;
-}
-
-#moonlit-forest-back { z-index: 1; animation-duration: 320s; filter: brightness(0.4); }
-#moonlit-forest-mid { z-index: 4; animation-duration: 220s; filter: brightness(0.6); }
-#moonlit-forest-front { z-index: 7; animation-duration: 150s; filter: brightness(0.8); }
-
-.moonlit-forest-mist {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 200%;
-    height: 30%;
-    background: linear-gradient(to top, rgba(180, 190, 210, 0.25) 0%, transparent 100%);
-    animation: moonlit-mist-scroll linear infinite;
-}
-
-#moonlit-forest-mist-back {
-    z-index: 3;
-    opacity: 0.8;
-    animation-duration: 180s;
-    filter: brightness(0.9);
-}
-#moonlit-forest-mist-front {
     z-index: 5;
-    opacity: 1;
-    animation-duration: 110s;
-    transform: translateY(10%);
+    animation: owl-fly-long 45s linear infinite;
+    filter: blur(0.5px);
 }
 
-@keyframes moonlit-mist-scroll {
-    from { transform: translateX(0%); }
-    to { transform: translateX(-50%); }
-}
-
-.moonbeam-container {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    overflow: hidden;
-    z-index: 6;
-    mix-blend-mode: screen;
-    pointer-events: none;
-}
-
-.moonbeam {
-    position: absolute;
-    top: -10%;
-    width: 2px;
-    height: 120%;
-    background: linear-gradient(to bottom, rgba(247, 243, 227, 0.15), transparent 70%);
-    transform-origin: top center;
-    animation: drift-beam 30s ease-in-out infinite alternate;
-}
-
-@keyframes drift-beam {
-    from {
-        transform: translateY(0) rotate(var(--r-start)) scaleY(0.9);
-        opacity: 0;
-    }
-    50% {
-        opacity: var(--opacity);
-    }
-    to {
-        transform: translateY(-10px) rotate(var(--r-end)) scaleY(1);
-        opacity: 0;
-    }
-}
-
-#glowing-mushrooms {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 25%;
-    z-index: 8;
-}
-
-.glowing-mushroom {
-    position: absolute;
-    bottom: 0;
-    width: 20px;
-    height: 25px;
-}
-
-.glowing-mushroom::before { /* Cap */
-    content: '';
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    height: 60%;
-    background: radial-gradient(ellipse, #a29bfe, #74b9ff);
-    border-radius: 50% 50% 10% 10%;
-    box-shadow: 0 0 8px #a29bfe, 0 0 12px #a29bfe, 0 0 18px #74b9ff;
-    animation: pulse-mushroom 8s ease-in-out infinite alternate;
-    animation-delay: var(--delay);
-}
-
-.glowing-mushroom::after { /* Stem */
-    content: '';
-    position: absolute;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 25%;
-    height: 50%;
-    background: linear-gradient(to top, #a29bfe, #dcdcfc);
-    filter: brightness(0.8);
-}
-
-@keyframes pulse-mushroom {
-    from { filter: brightness(0.7); transform: translateX(-50%) scale(0.95); }
-    to { filter: brightness(1.3); transform: translateX(-50%) scale(1.05); }
-}
-
-/* --- Moonlit Forest Theme --- */
-#moonlit-forest-theme {
-    background: transparent; /* Make container transparent for WebGL particles */
-    overflow: hidden;
-    animation: scene-pulse 15s ease-in-out infinite alternate;
-}
-
-.moonlit-forest-bg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(to top, #0c141f, #1b263b, #415a77);
-    z-index: 1; /* Lowest layer */
-}
-
-@keyframes scene-pulse {
-    from { filter: brightness(0.95) saturate(0.9); }
-    to { filter: brightness(1.05) saturate(1.1); }
-}
-
-.moonlit-forest-moon {
-    position: absolute;
-    top: 8%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 120px;
-    background: radial-gradient(circle, #f7f3e3, #e0dacc);
-    border-radius: 50%;
-    box-shadow: 0 0 50px #f7f3e3, 0 0 100px #f7f3e3, 0 0 150px #f7f3e3;
-    z-index: 3; /* Behind mid-ground trees */
-    animation: moon-shift 300s linear infinite alternate;
-}
-
-@keyframes moon-shift {
-    from { transform: translate(-60%, -5%); }
-    to { transform: translate(-40%, 5%); }
-}
-
-.moonlit-forest-layer {
-    position: absolute;
-    bottom: 0; left: 0;
-    width: 200%; height: 100%;
-    background-repeat: repeat-x;
-    background-position: 0 bottom;
-    will-change: transform;
-    animation: slide linear infinite;
-}
-
-#moonlit-forest-back { z-index: 2; animation-duration: 320s; filter: brightness(0.4); }
-#moonlit-forest-mid { z-index: 5; animation-duration: 220s; filter: brightness(0.6); }
-#moonlit-forest-front { z-index: 8; animation-duration: 150s; filter: brightness(0.8); }
-
-.moonlit-forest-mist {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 200%;
-    height: 30%;
-    background: linear-gradient(to top, rgba(180, 190, 210, 0.25) 0%, transparent 100%);
-    animation: moonlit-mist-scroll linear infinite;
-}
-
-#moonlit-forest-mist-back {
-    z-index: 4;
-    opacity: 0.8;
-    animation-duration: 180s;
-    filter: brightness(0.9);
-}
-#moonlit-forest-mist-front {
-    z-index: 6;
-    opacity: 1;
-    animation-duration: 110s;
-    transform: translateY(10%);
-}
-
-@keyframes moonlit-mist-scroll {
-    from { transform: translateX(0%); }
-    to { transform: translateX(-50%); }
-}
-
-.moonbeam-container {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    overflow: hidden;
-    z-index: 6;
-    mix-blend-mode: screen;
-    pointer-events: none;
-}
-
-.moonbeam {
-    position: absolute;
-    top: -10%;
-    width: 2px; /* Thinner beams */
-    height: 120%;
-    background: linear-gradient(to bottom, rgba(247, 243, 227, 0.15), transparent 70%);
-    transform-origin: top center;
-    animation: drift-beam 30s ease-in-out infinite alternate;
-}
-
-@keyframes drift-beam {
-    from {
-        transform: translateY(0) rotate(var(--r-start)) scaleY(0.9);
-        opacity: 0;
-    }
-    50% {
-        opacity: var(--opacity);
-    }
-    to {
-        transform: translateY(-10px) rotate(var(--r-end)) scaleY(1);
-        opacity: 0;
-    }
-}
-
-#glowing-mushrooms {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 25%;
-    z-index: 8;
-}
-
-.glowing-mushroom {
-    position: absolute;
-    bottom: 0;
-    width: 20px;
-    height: 25px;
-}
-
-.glowing-mushroom::before { /* Cap */
-    content: '';
-    position: absolute;
-    top: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    height: 60%;
-    background: radial-gradient(ellipse, #a29bfe, #74b9ff);
-    border-radius: 50% 50% 10% 10%;
-    box-shadow: 0 0 8px #a29bfe, 0 0 12px #a29bfe, 0 0 18px #74b9ff;
-    animation: pulse-mushroom 8s ease-in-out infinite alternate;
-    animation-delay: var(--delay);
-}
-
-.glowing-mushroom::after { /* Stem */
-    content: '';
-    position: absolute;
-    bottom: 0; left: 50%;
-    transform: translateX(-50%);
-    width: 25%;
-    height: 50%;
-    background: linear-gradient(to top, #a29bfe, #dcdcfc);
-    filter: brightness(0.8);
-}
-
-@keyframes pulse-mushroom {
-    from { filter: brightness(0.7); transform: translateX(-50%) scale(0.95); }
-    to { filter: brightness(1.3); transform: translateX(-50%) scale(1.05); }
+@keyframes owl-fly-long {
+    0% { transform: translateX(110vw) translateY(15vh) scale(0.9); opacity: 1; }
+    100% { transform: translateX(-10vw) translateY(20vh) scale(1.1); opacity: 1; }
 }
 
 /* --- Meditation Temple Theme --- */
