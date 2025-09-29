@@ -2575,6 +2575,16 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
+            // Bubbles
+            const bubblesContainer = document.getElementById('bubbles');
+            if (bubblesContainer && bubblesContainer.children.length === 0) {
+                for (let i = 0; i < 80; i++) {
+                    let el = document.createElement('div');
+                    el.className = 'bubble'; const size = Math.random()*15+5; el.style.width=`${size}px`; el.style.height=`${size}px`; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+10}s`; el.style.animationDelay=`${Math.random()*15}s`; el.style.setProperty('--x-drift', `${Math.random()*4-2}vw`); el.style.setProperty('--x-drift-end', `${Math.random()*4-2}vw`);
+                    bubblesContainer.appendChild(el);
+                }
+            }
+
             // Plankton
             const planktonContainer = document.getElementById('ocean-plankton-layer');
             if (planktonContainer && planktonContainer.children.length === 0) {
@@ -2723,7 +2733,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
         function createParticles() {
             const containers = {
                 stars: { count: 100, el: 'stars' }, fireflies: { count: 20, el: 'fireflies' },
-                bubbles: { count: 30, el: 'bubbles' },
                 petals: { count: 25, el: 'petals' },
                 forestSpirits: { count: 10, el: 'forest-spirits' }
             };
@@ -2736,7 +2745,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                         switch(key) {
                             case 'stars': el.className = 'star'; el.style.width = `${Math.random()*2+1}px`; el.style.height=el.style.width; el.style.left = `${Math.random()*100}%`; el.style.top = `${Math.random()*100}%`; el.style.animationDelay = `${Math.random()*5}s`; break;
                             case 'fireflies': el.className = 'firefly'; el.style.setProperty('--x-start', `${Math.random() * 100}vw`); el.style.setProperty('--y-start', `${Math.random() * 100}vh`); el.style.setProperty('--x-end', `${Math.random() * 100}vw`); el.style.setProperty('--y-end', `${Math.random() * 100}vh`); el.style.animationDelay = `${Math.random() * 15}s`; break;
-                            case 'bubbles': el.className = 'bubble'; const size = Math.random()*15+5; el.style.width=`${size}px`; el.style.height=`${size}px`; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+10}s`; el.style.animationDelay=`${Math.random()*15}s`; el.style.setProperty('--x-drift', `${Math.random()*4-2}vw`); el.style.setProperty('--x-drift-end', `${Math.random()*4-2}vw`); break;
                             case 'clouds': el.className='cloud'; el.style.top=`${Math.random()*40+5}%`; el.style.transform=`scale(${Math.random()*0.5+0.5})`; el.style.animationDuration=`${Math.random()*40+30}s`; el.style.animationDelay=`${Math.random()*30}s`; break;
                             case 'petals': el.className='petal'; el.style.left=`${Math.random()*100}%`; el.style.setProperty('--r-start', `${Math.random()*360}deg`); el.style.setProperty('--r-end', `${Math.random()*720-360}deg`); el.style.setProperty('--x-drift', `${Math.random()*40-20}vw`); el.style.animationDelay = `${Math.random()*12}s`; break;
                             case 'snowflakes': el.className = 'snowflake'; el.textContent = '❄'; const snowSize = Math.random() * 0.8 + 0.4; el.style.fontSize = `${snowSize}rem`; el.style.left = `${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+8}s`; el.style.animationDelay=`${Math.random()*10}s`; el.style.setProperty('--x-drift', `${Math.random()*6-3}vw`); el.style.setProperty('--r-end', `${Math.random()*360-180}deg`); break;
