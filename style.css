@@ -2072,16 +2072,13 @@
     background: transparent; /* Allow WebGL canvas to show through */
     overflow: hidden;
     animation: moonlit-scene-pulse 10s ease-in-out infinite alternate;
-    position: relative;
 }
 
-#moonlit-forest-theme::before {
-    content: '';
+/* Base background gradient, rendered behind WebGL canvas */
+.moonlit-forest-bg {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: linear-gradient(to top,
         #2D5442, /* Deep teal-green at the bottom */
         #4A7C5E, /* Medium forest green */
@@ -2089,8 +2086,6 @@
     );
     z-index: -1;
 }
-
-/* Base background gradient, rendered behind WebGL canvas */
 
 @keyframes moonlit-scene-pulse {
     from { filter: saturate(1); }
