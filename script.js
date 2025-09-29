@@ -1219,7 +1219,7 @@ function createCandlelitMonasteryScene() {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -2783,7 +2783,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 'crystal-cave': createCrystalCaveScene, 'candlelit-monastery': createCandlelitMonasteryScene,
                 'cherry-blossom-garden': createCherryBlossomGardenScene, 'floating-islands': createFloatingIslandsScene,
                 'meditation-temple': createMeditationTempleScene, 'moonlit-greenhouse': createMoonlitGreenhouseScene,
-                'ice-temple': createIceTempleScene, 'himalayan-peak': createHimalayanPeakScene
+                'ice-temple': createIceTempleScene, 'himalayan-peak': createHimalayanPeakScene, 'electric-dreams': createElectricDreamsScene
             };
 
             let themeData = null;
@@ -3074,6 +3074,61 @@ function createFluidDreamsScene() {
             const duration = Math.random() * 20 + 30; // 30s to 50s
             ribbon.style.animationDelay = `-${Math.random() * duration}s, -${Math.random() * 10}s`;
             ribbonContainer.appendChild(ribbon);
+        }
+    }
+}
+
+function createElectricDreamsScene() {
+    // 1. Create morphing, glowing veins
+    const veinContainer = document.getElementById('electric-veins');
+    if (veinContainer && veinContainer.children.length === 0) {
+        const numVeins = 10;
+        for (let i = 0; i < numVeins; i++) {
+            let vein = document.createElement('div');
+            vein.className = 'electric-vein';
+            const size = Math.random() * 120 + 80; // 80px to 200px
+            vein.style.width = `${size}px`;
+            vein.style.height = `${size}px`;
+
+            // Set random animation properties for organic movement
+            vein.style.setProperty('--x-start', `${Math.random() * 80 + 10}vw`);
+            vein.style.setProperty('--y-start', `${Math.random() * 80 + 10}vh`);
+            vein.style.setProperty('--x-end', `${Math.random() * 80 + 10}vw`);
+            vein.style.setProperty('--y-end', `${Math.random() * 80 + 10}vh`);
+            vein.style.setProperty('--scale-start', `${Math.random() * 0.5 + 0.8}`);
+            vein.style.setProperty('--scale-end', `${Math.random() * 0.5 + 0.8}`);
+            vein.style.setProperty('--hue-start', `${Math.random() * 360}deg`);
+            vein.style.setProperty('--hue-end', `${Math.random() * 360}deg`);
+
+            const moveDuration = Math.random() * 15 + 20; // 20-35s
+            const pulseDuration = Math.random() * 2 + 5; // 5-7s
+            vein.style.animationDuration = `${moveDuration}s, ${pulseDuration}s, 20s`;
+            vein.style.animationDelay = `-${Math.random() * moveDuration}s, -${Math.random() * pulseDuration}s, -${Math.random() * 20}s`;
+
+            veinContainer.appendChild(vein);
+        }
+    }
+
+    // 2. Create glowing particles
+    const particleContainer = document.getElementById('electric-particles');
+    if (particleContainer && particleContainer.children.length === 0) {
+        const numParticles = 50;
+        for (let i = 0; i < numParticles; i++) {
+            let particle = document.createElement('div');
+            particle.className = 'electric-particle';
+            const size = Math.random() * 3 + 1;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+
+            particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+            particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
+            particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+            particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
+
+            const duration = Math.random() * 10 + 10; // 10-20s
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `-${Math.random() * duration}s`;
+            particleContainer.appendChild(particle);
         }
     }
 }
