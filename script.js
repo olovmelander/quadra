@@ -2338,6 +2338,37 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             });
         }
         function createSunset() {
+            const themeContainer = document.getElementById('sunset-theme');
+            const sun = themeContainer.querySelector('.sun');
+
+            function randomizeSunPath() {
+                const startX = random(15, 85); // Start position in vw
+                const endX = random(15, 85);   // End position in vw
+
+                // Peak X is between start and end for a natural arc
+                const peakX = (startX + endX) / 2 + random(-15, 15);
+
+                // Set the CSS variables
+                themeContainer.style.setProperty('--sun-start-x', `${startX}vw`);
+                themeContainer.style.setProperty('--sun-peak-x', `${peakX}vw`);
+                themeContainer.style.setProperty('--sun-end-x', `${endX}vw`);
+
+                // Set a random vertical peak for the arc
+                themeContainer.style.setProperty('--sun-peak-y', `${random(-30, 5)}vh`);
+            }
+
+            // Set the initial random path
+            randomizeSunPath();
+
+            // Add a listener to re-randomize the path on each animation loop
+            if (sun) {
+                // To prevent adding multiple listeners, we can use a flag
+                if (!sun.hasAnimationIterationListener) {
+                    sun.addEventListener('animationiteration', randomizeSunPath);
+                    sun.hasAnimationIterationListener = true;
+                }
+            }
+
             // Procedurally generate clouds
             const cloudLayers = [
                 { el: document.getElementById('sunset-clouds-back'), count: 10, color: 'rgba(255, 255, 255, 0.2)', height: 300, width: 800 },
@@ -2429,22 +2460,71 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
-            // Dust Motes
+            // Dust Motes - Canvas Implementation
             const dustContainer = document.getElementById('dust-motes');
             if (dustContainer && dustContainer.children.length === 0) {
-                for (let i = 0; i < 50; i++) {
-                    let mote = document.createElement('div');
-                    mote.className = 'dust-mote';
-                    const size = Math.random() * 2 + 1;
-                    mote.style.width = `${size}px`;
-                    mote.style.height = `${size}px`;
-                    mote.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-                    mote.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-                    mote.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-                    mote.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                    mote.style.animationDelay = `-${Math.random() * 15}s`;
-                    dustContainer.appendChild(mote);
-                }
+                const canvas = document.createElement('canvas');
+                canvas.className = 'dust-canvas';
+                dustContainer.appendChild(canvas);
+                const ctx = canvas.getContext('2d');
+
+                let animationFrameId;
+                let particles = [];
+                const particleCount = 70;
+
+                const resizeCanvas = () => {
+                    canvas.width = dustContainer.offsetWidth;
+                    canvas.height = dustContainer.offsetHeight;
+                };
+
+                const createParticle = () => {
+                    return {
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3,
+                        size: Math.random() * 1.5 + 1,
+                        opacity: Math.random() * 0.5 + 0.2
+                    };
+                };
+
+                const initParticles = () => {
+                    particles = [];
+                    for (let i = 0; i < particleCount; i++) {
+                        particles.push(createParticle());
+                    }
+                };
+
+                const animateParticles = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+
+                        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(255, 220, 180, ${p.opacity})`;
+                        ctx.fill();
+                    });
+                    animationFrameId = requestAnimationFrame(animateParticles);
+                };
+
+                resizeCanvas();
+                initParticles();
+                animateParticles();
+
+                window.addEventListener('resize', resizeCanvas);
+
+                // Return a cleanup function to be called when the theme changes
+                return {
+                    cleanup: () => {
+                        window.removeEventListener('resize', resizeCanvas);
+                        cancelAnimationFrame(animationFrameId);
+                    }
+                };
             }
         }
         function createMountainScene() {
