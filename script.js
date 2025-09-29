@@ -391,120 +391,149 @@ function createMeditationTempleScene() {
 function createFloatingIslandsScene() {
     const islandPositions = [];
 
-    // 1. Floating Islands with 3D rotation
-    const islandLayers = [
-        { el: document.getElementById('floating-islands-back'), count: 4, minSize: 100, maxSize: 200 },
-        { el: document.getElementById('floating-islands-mid'), count: 3, minSize: 150, maxSize: 300 },
-        { el: document.getElementById('floating-islands-front'), count: 2, minSize: 200, maxSize: 400 }
-    ];
+    // 1. Floating Islands
+    const frontLayer = document.getElementById('floating-islands-front');
+    if (frontLayer && frontLayer.children.length === 0) {
+        const islandConfigs = [
+            { size: 350, x: 50, y: 50, rotate: 25, isMain: true }, // Main island
+            { size: 180, x: 20, y: 35, rotate: 20, isMain: false },// Small island 1
+            { size: 220, x: 80, y: 65, rotate: 30, isMain: false },// Small island 2
+        ];
 
-    const islandShapes = [
-        'M 0 50 C 20 0, 80 0, 100 50 S 80 100, 20 100 S 0 50, 0 50',
-        'M 0 40 L 30 10 L 70 20 L 100 60 L 80 90 L 20 100 Z',
-        'M 0 50 C 10 20, 40 10, 50 30 C 60 0, 90 20, 100 50 C 90 80, 60 90, 50 70 C 40 100, 10 80, 0 50'
-    ];
+        islandConfigs.forEach((config, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'floating-island-wrapper';
+            const island = document.createElement('div');
+            island.className = 'floating-island';
 
-    islandLayers.forEach(layer => {
-        if (layer.el && layer.el.children.length === 0) {
-            for (let i = 0; i < layer.count; i++) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'floating-island-wrapper';
-                const island = document.createElement('div');
-                island.className = 'floating-island';
+            wrapper.style.width = `${config.size}px`;
+            wrapper.style.height = `${config.size * (random(0.4, 0.5))}px`;
 
-                const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
-                wrapper.style.width = `${size}px`;
-                wrapper.style.height = `${size * (Math.random() * 0.3 + 0.4)}px`;
+            const shape = 'M 0 50 C 20 0, 80 0, 100 50 S 150 100, 50 100 S -50 100, 0 50';
+            const svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <defs>
+                        <radialGradient id="gradMoss${index}" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#5f7a76" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="#4a5f7f" stop-opacity="0"/>
+                        </radialGradient>
+                        <filter id="mossTexture${index}">
+                            <feTurbulence type="fractalNoise" baseFrequency="0.1 0.3" numOctaves="2" result="noise"/>
+                            <feDiffuseLighting in="noise" lighting-color="#5f7a76" surfaceScale="2">
+                                <feDistantLight azimuth="45" elevation="60"/>
+                            </feDiffuseLighting>
+                        </filter>
+                    </defs>
+                    <path d="${shape}" fill="#4a5f7f"/>
+                    <path d="${shape}" fill="url(#gradMoss${index})"/>
+                    <rect x="0" y="0" width="100" height="100" fill="transparent" filter="url(#mossTexture${index})"/>
+                    <path d="M 10 55 C 20 45, 30 45, 40 55" stroke="#8b9cb3" stroke-width="2" fill="none"/>
+                    <path d="M 60 70 C 70 60, 80 60, 90 70" stroke="#8b9cb3" stroke-width="3" fill="none"/>
+                    <path d="M 20 80 C 25 75, 35 75, 40 80" stroke="#2c3e50" stroke-width="4" fill="none"/>
+                </svg>`;
+            island.style.backgroundImage = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
 
-                const shape = islandShapes[Math.floor(Math.random() * islandShapes.length)];
-                const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="${shape}" fill="%234a3a32"/></svg>`;
-                island.style.backgroundImage = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
+            const xStart = config.x;
+            const yStart = config.y;
+            islandPositions.push({ x: xStart, y: yStart, el: wrapper });
 
-                const xStart = Math.random() * 80 + 10;
-                const yStart = Math.random() * 80 + 10;
-                islandPositions.push({ x: xStart, y: yStart, el: wrapper });
+            wrapper.style.setProperty('--x-start', `${xStart}vw`);
+            wrapper.style.setProperty('--y-start', `${yStart}vh`);
+            wrapper.style.setProperty('--x-end', `${xStart + random(-5, 5)}vw`);
+            wrapper.style.setProperty('--y-end', `${yStart + random(-5, 5)}vh`);
+            wrapper.style.setProperty('--tilt-start', `rotate3d(${random(-0.2,0.2)}, ${random(-0.2,0.2)}, 0, 10deg)`);
+            wrapper.style.setProperty('--tilt-end', `rotate3d(${random(-0.2,0.2)}, ${random(-0.2,0.2)}, 0, 10deg)`);
+            wrapper.style.animationDelay = `-${index * 10}s`;
 
-                wrapper.style.setProperty('--x-start', `${xStart}vw`);
-                wrapper.style.setProperty('--y-start', `${yStart}vh`);
-                wrapper.style.setProperty('--x-end', `${xStart + (Math.random() - 0.5) * 20}vw`);
-                wrapper.style.setProperty('--y-end', `${yStart + (Math.random() - 0.5) * 20}vh`);
-                wrapper.style.animationDuration = `${Math.random() * 40 + 80}s`;
-                wrapper.style.animationDelay = `-${Math.random() * 120}s`;
+            island.style.setProperty('--rotate-duration', `${config.rotate}s`);
 
-                island.style.setProperty('--axis-x', Math.random());
-                island.style.setProperty('--axis-y', Math.random());
-                island.style.setProperty('--axis-z', Math.random());
-                island.style.setProperty('--rotate-duration', `${Math.random() * 20 + 20}s`);
-
-                wrapper.appendChild(island);
-                layer.el.appendChild(wrapper);
+            // Add glowing flora
+            for (let j = 0; j < 15; j++) {
+                const flora = document.createElement('div');
+                const type = j % 3 === 0 ? 'cyan' : (j % 3 === 1 ? 'purple' : 'mint');
+                flora.className = `glowing-flora ${type}`;
+                flora.style.left = `${random(10, 90)}%`;
+                flora.style.top = `${random(10, 90)}%`;
+                const size = random(2, 6);
+                flora.style.width = `${size}px`;
+                flora.style.height = `${size}px`;
+                flora.style.setProperty('--glow-radius', `${size * 2}px`);
+                flora.style.animationDelay = `-${random(0, 12)}s`;
+                island.appendChild(flora);
             }
-        }
-    });
 
-    // 2. Waterfalls & Debris are now handled by WebGLRenderer.
-
-    // 3. Ethereal Clouds
-    const cloudContainer = document.getElementById('floating-islands-clouds');
-    if (cloudContainer && cloudContainer.children.length === 0) {
-        for (let i = 0; i < 15; i++) {
-            let cloud = document.createElement('div');
-            cloud.className = 'ethereal-cloud';
-            cloud.style.top = `${Math.random() * 100}%`;
-            const duration = Math.random() * 80 + 100;
-            cloud.style.animationDuration = `${duration}s`;
-            cloud.style.animationDelay = `-${Math.random() * duration}s`;
-            cloudContainer.appendChild(cloud);
-        }
+            wrapper.appendChild(island);
+            frontLayer.appendChild(wrapper);
+        });
     }
 
-    // 4. Magical Energy Bridges
-    const frontLayer = document.getElementById('floating-islands-front');
+    // 2. Parallax Clouds
+    const cloudContainer = document.getElementById('floating-islands-clouds');
+    if (cloudContainer && cloudContainer.children.length === 0) {
+        const layers = ['background', 'mid-layer', 'foreground'];
+        layers.forEach(layerClass => {
+            for (let i = 0; i < 5; i++) {
+                let cloud = document.createElement('div');
+                cloud.className = `floating-cloud ${layerClass}`;
+                cloud.style.top = `${random(0, 100)}%`;
+                const size = random(200, 500);
+                cloud.style.width = `${size}px`;
+                cloud.style.height = `${size * 0.5}px`;
+                cloud.style.animationDelay = `-${random(0, 90)}s`;
+                cloudContainer.appendChild(cloud);
+            }
+        });
+    }
+
+    // 3. Magical Energy Bridges
     if (frontLayer && frontLayer.querySelectorAll('.energy-bridge').length === 0 && islandPositions.length > 1) {
-        for (let i = 0; i < 3; i++) { // Create 3 bridges
+        for (let i = 0; i < islandPositions.length -1; i++) {
             const bridge = document.createElement('div');
             bridge.className = 'energy-bridge';
 
-            const islandA = islandPositions[Math.floor(Math.random() * islandPositions.length)];
-            let islandB;
-            do {
-                islandB = islandPositions[Math.floor(Math.random() * islandPositions.length)];
-            } while (islandA === islandB);
+            const islandA = islandPositions[i];
+            const islandB = islandPositions[i + 1];
 
             const dx = (islandB.x - islandA.x) * window.innerWidth / 100;
             const dy = (islandB.y - islandA.y) * window.innerHeight / 100;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+            const distance = Math.sqrt(dx*dx + dy*dy);
             const angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
             bridge.style.left = `${islandA.x}vw`;
             bridge.style.top = `${islandA.y}vh`;
             bridge.style.width = `${distance}px`;
             bridge.style.transform = `rotate(${angle}deg)`;
-            bridge.style.animationDelay = `-${i * 4}s`;
+            bridge.querySelector('::after').style.animationDelay = `-${i * 2}s`;
             frontLayer.appendChild(bridge);
         }
     }
 
-    // 5. Serpentine Aurora
+    // 4. Serpentine Aurora
     const auroraContainer = document.getElementById('floating-aurora');
     if (auroraContainer && auroraContainer.children.length === 0) {
-        const colors = ['#55efc4', '#a29bfe', '#74b9ff'];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 2; i++) {
             const serpent = document.createElement('div');
             serpent.className = 'aurora-serpent';
-            serpent.style.setProperty('--aurora-color', colors[i]);
             for (let j = 1; j <= 4; j++) {
-                serpent.style.setProperty(`--x${j}`, `${Math.random() * 100}vw`);
-                serpent.style.setProperty(`--y${j}`, `${Math.random() * 100}vh`);
-                serpent.style.setProperty(`--z${j}`, `${Math.random() * 800 - 400}px`);
-                serpent.style.setProperty(`--rx${j}`, Math.random());
-                serpent.style.setProperty(`--ry${j}`, Math.random());
-                serpent.style.setProperty(`--rz${j}`, Math.random());
-                serpent.style.setProperty(`--ra${j}`, `${Math.random() * 180 - 90}deg`);
+                serpent.style.setProperty(`--x${j}`, `${random(0, 100)}vw`);
+                serpent.style.setProperty(`--y${j}`, `${random(0, 100)}vh`);
+                serpent.style.setProperty(`--z${j}`, `${random(-500, 100)}px`);
+                serpent.style.setProperty(`--rx${j}`, random(-0.5, 0.5));
+                serpent.style.setProperty(`--ry${j}`, random(0.5, 1));
+                serpent.style.setProperty(`--rz${j}`, random(-0.5, 0.5));
+                serpent.style.setProperty(`--ra${j}`, `${random(-45, 45)}deg`);
             }
-            serpent.style.animationDelay = `-${i * 8}s`;
+            serpent.style.animationDelay = `-${i * 15}s`;
             auroraContainer.appendChild(serpent);
         }
+    }
+
+    // 5. Ambient Glow
+    const skyContainer = document.getElementById('floating-islands-sky');
+    if (skyContainer && skyContainer.children.length === 0) {
+        const glow = document.createElement('div');
+        glow.className = 'ambient-glow';
+        skyContainer.appendChild(glow);
     }
 }
 

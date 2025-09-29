@@ -3396,133 +3396,153 @@
 
 /* --- Floating Islands Theme --- */
 #floating-islands-theme {
-    background-color: #d4eaf7;
+    background: linear-gradient(to bottom, #1a1a2e, #16213e, #0f3460);
     overflow: hidden;
-    perspective: 1200px; /* Add perspective for 3D elements */
+    perspective: 1200px;
 }
 
+/* Base layer for ambient glow */
 #floating-islands-sky {
-    position: absolute;
-    top: 0; left: 0;
+    position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
-    background: linear-gradient(to top, #a8d8ea, #d4eaf7, #f0f8ff);
-    animation: sky-color-change-islands 120s ease-in-out infinite alternate;
     z-index: 1;
 }
-
-@keyframes sky-color-change-islands {
-    from { background: linear-gradient(to top, #b8c6db, #f5f7fa); }
-    to { background: linear-gradient(to top, #f8cdda, #a8d8ea); }
+.ambient-glow {
+    position: absolute;
+    width: 150%; height: 150%;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse, #2d4a7c, transparent 60%);
+    filter: blur(120px);
 }
 
 .floating-island-layer {
-    position: absolute;
-    top: 0; left: 0;
+    position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
     will-change: transform;
-    transform-style: preserve-3d; /* Enable 3D space for children */
+    transform-style: preserve-3d;
 }
 
-#floating-islands-back { z-index: 2; filter: blur(2px) brightness(0.8); transform: translateZ(-400px) scale(1.5); }
-#floating-islands-mid { z-index: 4; transform: translateZ(-200px) scale(1.2); }
-#floating-islands-front { z-index: 6; filter: brightness(1.2); transform: translateZ(0px) scale(1); }
+#floating-islands-back { z-index: 3; transform: translateZ(-400px) scale(1.5); }
+#floating-islands-mid { z-index: 5; transform: translateZ(-200px) scale(1.2); }
+#floating-islands-front { z-index: 7; transform: translateZ(0px) scale(1); }
 
 .floating-island-wrapper {
     position: absolute;
-    animation: drift-island 100s ease-in-out infinite alternate;
+    animation: drift-island 120s ease-in-out infinite alternate;
     transform-style: preserve-3d;
 }
 
 .floating-island {
     width: 100%; height: 100%;
     background-size: 100% 100%;
-    filter: drop-shadow(5px 10px 10px rgba(0,0,0,0.3));
-    animation: island-rotate var(--rotate-duration, 30s) linear infinite;
+    filter: drop-shadow(5px 10px 15px rgba(0,0,0,0.4));
+    animation: island-rotate linear infinite;
+    animation-duration: var(--rotate-duration, 25s);
+}
+
+.glowing-flora {
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0 var(--glow-radius, 10px) var(--glow-color);
+    animation: pulse-flora infinite;
+}
+.glowing-flora.cyan { --glow-color: #4fc3f7; animation-duration: 10s; }
+.glowing-flora.purple { --glow-color: #ab47bc; animation-duration: 12s; animation-delay: 4s; }
+.glowing-flora.mint { --glow-color: #69f0ae; animation-duration: 8s; opacity: 0.3; }
+
+@keyframes pulse-flora {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.1); opacity: 1; }
 }
 
 @keyframes drift-island {
-    from { transform: translate3d(var(--x-start), var(--y-start), 0); }
-    to { transform: translate3d(var(--x-end), var(--y-end), 0); }
+    from { transform: translate3d(var(--x-start), var(--y-start), 0) rotate(var(--tilt-start)); }
+    to { transform: translate3d(var(--x-end), var(--y-end), 0) rotate(var(--tilt-end)); }
 }
 
 @keyframes island-rotate {
-    from { transform: rotate3d(var(--axis-x, 0), var(--axis-y, 1), var(--axis-z, 0), 0deg); }
-    to { transform: rotate3d(var(--axis-x, 0), var(--axis-y, 1), var(--axis-z, 0), 360deg); }
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
 }
 
 #floating-islands-clouds {
-    position: absolute;
-    top: 0; left: 0;
+    position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 5;
-    mix-blend-mode: screen;
+    z-index: 2; /* Behind the back islands */
+    transform-style: preserve-3d;
+}
+.floating-cloud {
+    position: absolute;
+    background-color: #2d4a7c;
+    border-radius: 50%;
+    filter: blur(50px);
+    animation: drift-cloud-float linear infinite;
+}
+.floating-cloud.foreground { animation-duration: 40s; z-index: 10; opacity: 0.2; }
+.floating-cloud.mid-layer { animation-duration: 60s; animation-direction: reverse; z-index: 4; opacity: 0.12; }
+.floating-cloud.background { animation-duration: 90s; z-index: 2; opacity: 0.08; }
+
+@keyframes drift-cloud-float {
+    from { transform: translateX(-25vw); }
+    to { transform: translateX(125vw); }
 }
 
 .energy-bridge {
     position: absolute;
     transform-origin: left center;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, #a29bfe, #74b9ff, #a29bfe, transparent);
-    box-shadow: 0 0 8px #a29bfe, 0 0 12px #a29bfe;
-    border-radius: 4px;
-    opacity: 0;
-    animation: pulse-bridge 12s ease-in-out infinite;
+    height: 3px;
+    background-color: #b19cd9;
+    box-shadow: 0 0 10px #b19cd9, 0 0 15px #b19cd9;
+    border-radius: 3px;
+    opacity: 0.7;
+}
+.energy-bridge::after {
+    content: '';
+    position: absolute;
+    top: -1px; left: 0;
+    width: 15%; height: 5px;
+    background-color: #e1bee7;
+    border-radius: 5px;
+    box-shadow: 0 0 8px #e1bee7;
+    animation: pulse-bridge 6s linear infinite;
 }
 
 @keyframes pulse-bridge {
-    0%, 100% { opacity: 0; transform-origin: left center; transform: scaleX(0); }
-    10% { opacity: 0.9; transform-origin: left center; transform: scaleX(1); }
-    90% { opacity: 0.9; transform-origin: right center; transform: scaleX(1); }
-    99% { opacity: 0; transform-origin: right center; transform: scaleX(0); }
+    from { left: -15%; }
+    to { left: 100%; }
 }
 
 #floating-aurora {
-    position: absolute;
-    top: 0; left: 0;
+    position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
     mix-blend-mode: screen;
-    z-index: 5;
-    filter: blur(10px);
+    z-index: 6;
+    filter: blur(15px);
     transform-style: preserve-3d;
 }
 
 .aurora-serpent {
     position: absolute;
-    width: 20px;
-    height: 500px;
-    background: linear-gradient(to bottom, transparent, var(--aurora-color, #55efc4), transparent);
+    width: 25px;
+    height: 120%;
+    background: linear-gradient(to bottom, transparent, #80cbc4, #ce93d8, #f8bbd0, transparent);
     border-radius: 50%;
-    animation: weave-serpent 25s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+    animation: weave-serpent 35s cubic-bezier(0.42, 0, 0.58, 1) infinite;
 }
 
 @keyframes weave-serpent {
-    0% { transform: translate3d(var(--x1), var(--y1), var(--z1)) rotate3d(var(--rx1), var(--ry1), var(--rz1), var(--ra1)) skewX(20deg); }
-    25% { transform: translate3d(var(--x2), var(--y2), var(--z2)) rotate3d(var(--rx2), var(--ry2), var(--rz2), var(--ra2)) skewX(-20deg); }
-    50% { transform: translate3d(var(--x3), var(--y3), var(--z3)) rotate3d(var(--rx3), var(--ry3), var(--rz3), var(--ra3)) skewX(20deg); }
-    75% { transform: translate3d(var(--x4), var(--y4), var(--z4)) rotate3d(var(--rx4), var(--ry4), var(--rz4), var(--ra4)) skewX(-20deg); }
-    100% { transform: translate3d(var(--x1), var(--y1), var(--z1)) rotate3d(var(--rx1), var(--ry1), var(--rz1), var(--ra1)) skewX(20deg); }
+    0% { transform: translate3d(var(--x1), var(--y1), var(--z1)) rotate3d(var(--rx1), var(--ry1), var(--rz1), var(--ra1)) skew(20deg); }
+    25% { transform: translate3d(var(--x2), var(--y2), var(--z2)) rotate3d(var(--rx2), var(--ry2), var(--rz2), var(--ra2)) skew(-20deg); }
+    50% { transform: translate3d(var(--x3), var(--y3), var(--z3)) rotate3d(var(--rx3), var(--ry3), var(--rz3), var(--ra3)) skew(20deg); }
+    75% { transform: translate3d(var(--x4), var(--y4), var(--z4)) rotate3d(var(--rx4), var(--ry4), var(--rz4), var(--ra4)) skew(-20deg); }
+    100% { transform: translate3d(var(--x1), var(--y1), var(--z1)) rotate3d(var(--rx1), var(--ry1), var(--rz1), var(--ra1)) skew(20deg); }
 }
 
-.ethereal-cloud {
-    position: absolute;
-    width: 300px; height: 150px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
-    border-radius: 50%;
-    filter: blur(20px);
-    animation: drift-cloud linear infinite;
-}
-
-
-@keyframes particle-drift {
-    from {
-        transform: translate(var(--x-start), var(--y-start));
-        opacity: 0;
-    }
-    50% {
-        opacity: 0.9;
-    }
-    to {
-        transform: translate(var(--x-end), var(--y-end));
-        opacity: 0;
-    }
+/* Placeholder for WebGL particles. No CSS needed here. */
+#floating-islands-particles {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 8;
+    pointer-events: none;
 }
