@@ -390,222 +390,204 @@ function createMeditationTempleScene() {
 
 function createFloatingIslandsScene() {
     const container = document.getElementById('floating-islands-container');
-    const cloudContainer = document.getElementById('floating-islands-clouds');
-    const auroraContainer = document.getElementById('floating-aurora');
-
     if (!container) return null;
 
-    // Clear previous elements to prevent duplication on theme switch
+    // Clear previous elements
     container.innerHTML = '';
-    if (cloudContainer) cloudContainer.innerHTML = '';
-    if (auroraContainer) auroraContainer.innerHTML = '';
 
+    // Color Palette
+    const palette = {
+        grass: { bright: '#7CB342', deep: '#558B2F', highlight: '#AED581' },
+        soil: { base: '#8B7355', dark: '#654321' },
+        rock: { face: '#7A6A5D', moss: '#4A7C59' },
+        tree: { trunk: '#5D4E37', foliageBright: '#9ACD32', foliageMid: '#6B8E23', foliageShadow: '#4A6A2E' }
+    };
 
     const islandData = [];
 
-    const createIslandCanvas = (width, height) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        const groundColor = '#4a5f7f';
-        const mossColor = '#5f7a76';
-        const shadowColor = '#2c3e50';
+    const drawHeroTree = (ctx, x, y, height) => {
+        const trunkWidth = height / 8;
+        // Trunk
+        ctx.fillStyle = palette.tree.trunk;
+        ctx.fillRect(x - trunkWidth / 2, y - height, trunkWidth, height);
 
-        const topSurfacePoints = [];
-        const topY = height * 0.4;
-        for (let x = 0; x <= width; x++) {
-            const angle = (x / width) * Math.PI * 2;
-            const y = topY + Math.sin(angle) * 10 + Math.cos(angle * 2.5) * 5;
-            topSurfacePoints.push({ x, y });
-        }
-
-        const bottomSurfacePoints = [];
-        const bottomY = height * 0.6;
-        for (let x = width; x >= 0; x--) {
-            const angle = (x / width) * Math.PI * 4;
-            const y = bottomY + Math.sin(angle) * 15 + Math.random() * 20;
-            bottomSurfacePoints.push({ x, y });
-        }
-
-        ctx.fillStyle = groundColor;
+        // Foliage
+        const canopyRadius = height / 2;
+        ctx.fillStyle = palette.tree.foliageShadow;
         ctx.beginPath();
-        ctx.moveTo(topSurfacePoints[0].x, topSurfacePoints[0].y);
-        topSurfacePoints.forEach(p => ctx.lineTo(p.x, p.y));
-        bottomSurfacePoints.forEach(p => ctx.lineTo(p.x, p.y));
-        ctx.closePath();
+        ctx.arc(x, y - height, canopyRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = shadowColor;
+        ctx.fillStyle = palette.tree.foliageMid;
         ctx.beginPath();
-        ctx.moveTo(bottomSurfacePoints[0].x, bottomSurfacePoints[0].y);
-        for(let i = 0; i < bottomSurfacePoints.length; i+=2) {
-             ctx.lineTo(bottomSurfacePoints[i].x, bottomSurfacePoints[i].y + 5);
-        }
-        ctx.closePath();
+        ctx.arc(x - canopyRadius / 4, y - height - canopyRadius / 4, canopyRadius * 0.8, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = mossColor;
+        ctx.fillStyle = palette.tree.foliageBright;
         ctx.beginPath();
-        ctx.moveTo(topSurfacePoints[0].x, topSurfacePoints[0].y);
-        topSurfacePoints.forEach(p => ctx.lineTo(p.x, p.y + 2 + Math.sin(p.x/15)*2));
-        ctx.closePath();
+        ctx.arc(x + canopyRadius / 5, y - height - canopyRadius / 5, canopyRadius * 0.7, 0, Math.PI * 2);
         ctx.fill();
-
-        return {
-            canvas,
-            getGroundY: (x) => {
-                const angle = (x / width) * Math.PI * 2;
-                return topY + Math.sin(angle) * 10 + Math.cos(angle * 2.5) * 5;
-            }
-        };
     };
 
-    const drawPineTree = (ctx, x, y, height) => {
-        const color = '#2c3e50';
-        const width = height / 2;
-        ctx.fillStyle = color;
+    const createIslandCanvas = (config) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = config.size;
+        canvas.height = config.size; // Make it square to handle varied shapes
+        const ctx = canvas.getContext('2d');
+
+        const islandHeight = config.size * 0.3;
+        const islandTopY = (config.size - islandHeight) / 2;
+        const islandBottomY = islandTopY + islandHeight;
+
+        // Main island body (soil)
+        ctx.fillStyle = palette.soil.base;
         ctx.beginPath();
-        ctx.moveTo(x - width / 2, y);
-        ctx.lineTo(x, y - height);
-        ctx.lineTo(x + width / 2, y);
-        ctx.lineTo(x - width / 2, y);
-        ctx.closePath();
+        ctx.moveTo(0, islandTopY + 10);
+        ctx.ellipse(config.size / 2, islandTopY + islandHeight / 2, config.size / 2, islandHeight / 2, 0, 0, Math.PI * 2);
         ctx.fill();
+
+        // Underside with roots
+        ctx.fillStyle = palette.soil.dark;
+        ctx.fillRect(0, islandBottomY - 20, config.size, 20);
+        for (let i = 0; i < 20; i++) {
+            const rootX = Math.random() * config.size;
+            const rootLen = 20 + Math.random() * 30;
+            ctx.strokeStyle = palette.soil.dark;
+            ctx.lineWidth = Math.random() * 3 + 1;
+            ctx.beginPath();
+            ctx.moveTo(rootX, islandBottomY);
+            ctx.lineTo(rootX + (Math.random() - 0.5) * 10, islandBottomY + rootLen);
+            ctx.stroke();
+        }
+
+        // Grassy top surface
+        const grassGradient = ctx.createLinearGradient(0, islandTopY, 0, islandBottomY);
+        grassGradient.addColorStop(0, palette.grass.highlight);
+        grassGradient.addColorStop(0.3, palette.grass.bright);
+        grassGradient.addColorStop(1, palette.grass.deep);
+        ctx.fillStyle = grassGradient;
+        ctx.beginPath();
+        ctx.moveTo(0, islandTopY + 10);
+        ctx.ellipse(config.size / 2, islandTopY + 5, config.size / 2, 15, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Add Tree
+        if (config.isHero) {
+            drawHeroTree(ctx, config.size / 2, islandTopY + 5, 100);
+        }
+
+        // Add Waterfall logic
+        const waterfallContainer = document.createElement('div');
+        waterfallContainer.style.position = 'absolute';
+        waterfallContainer.style.top = `${islandBottomY - 20}px`;
+        waterfallContainer.style.left = '50%';
+        waterfallContainer.style.transform = 'translateX(-50%)';
+
+        if (config.isHero || config.size === 250) { // Add to hero and one other island
+            const waterfall = document.createElement('div');
+            waterfall.className = 'waterfall';
+            waterfallContainer.appendChild(waterfall);
+        }
+
+        return { canvas, waterfallContainer };
     };
 
     const islandConfigs = [
-        { size: 450, x: 50, y: 50, z: 0, rot: 25, trees: 12 },
-        { size: 250, x: 15, y: 35, z: -300, rot: 20, trees: 7 },
-        { size: 280, x: 75, y: 65, z: -400, rot: 30, trees: 9 },
-        { size: 180, x: 80, y: 20, z: -600, rot: 35, trees: 5 },
-        { size: 200, x: 5, y: 70, z: -700, rot: 28, trees: 6 },
+        // Primary Hero Island
+        { size: 400, x: 50, y: 55, z: 0, rot: 50, isHero: true },
+        // Secondary Islands
+        { size: 250, x: 20, y: 30, z: -400, rot: 60, isHero: false },
+        { size: 200, x: 80, y: 40, z: -600, rot: 70, isHero: false },
+        // Distant Islands
+        { size: 150, x: 5, y: 50, z: -900, rot: 120, isHero: false },
+        { size: 180, x: 90, y: 60, z: -1200, rot: 100, isHero: false },
     ];
 
     islandConfigs.forEach(config => {
         const wrapper = document.createElement('div');
         wrapper.className = 'floating-island-wrapper';
+        wrapper.style.width = `${config.size}px`;
+        wrapper.style.height = `${config.size}px`;
+
+        // Use translate3d for positioning
+        wrapper.style.transform = `translate3d(${config.x}vw, ${config.y}vh, ${config.z}px)`;
+        if(config.z < -800) {
+            wrapper.style.filter = 'blur(2px) brightness(0.8)';
+        } else if (config.z < -500) {
+            wrapper.style.filter = 'blur(1px) brightness(0.9)';
+        }
+
 
         const islandDiv = document.createElement('div');
         islandDiv.className = 'floating-island';
-        islandDiv.style.animationName = 'island-bob, island-rotate';
-        islandDiv.style.animationDuration = `12s, ${config.rot}s`;
+        // Set unique animation durations
+        islandDiv.style.animationDuration = `${15 + Math.random() * 10}s, ${config.rot}s`;
 
-        const islandWidth = config.size;
-        const islandHeight = config.size * random(0.4, 0.6);
-        wrapper.style.width = `${islandWidth}px`;
-        wrapper.style.height = `${islandHeight}px`;
-
-        const xStart = config.x, yStart = config.y, zStart = config.z;
-        wrapper.style.setProperty('--x-start', `${xStart - random(1, 3)}vw`);
-        wrapper.style.setProperty('--y-start', `${yStart - random(1, 3)}vh`);
-        wrapper.style.setProperty('--z-start', `${zStart}px`);
-        wrapper.style.setProperty('--x-end', `${xStart + random(1, 3)}vw`);
-        wrapper.style.setProperty('--y-end', `${yStart + random(1, 3)}vh`);
-        wrapper.style.setProperty('--z-end', `${zStart + random(-50, 50)}px`);
-        wrapper.style.animationDuration = `${random(80, 120)}s`;
-        wrapper.style.animationDelay = `-${random(0, 120)}s`;
-
-        const { canvas, getGroundY } = createIslandCanvas(islandWidth, islandHeight);
-        const ctx = canvas.getContext('2d');
-
-        for (let i = 0; i < config.trees; i++) {
-            const treeX = random(islandWidth * 0.1, islandWidth * 0.9);
-            const groundY = getGroundY(treeX);
-            const treeHeight = random(30, 50);
-            drawPineTree(ctx, treeX, groundY, treeHeight);
-        }
-
-        islandDiv.appendChild(canvas);
+        const { canvas: islandCanvas, waterfallContainer } = createIslandCanvas(config);
+        islandDiv.appendChild(islandCanvas);
+        islandDiv.appendChild(waterfallContainer);
         wrapper.appendChild(islandDiv);
         container.appendChild(wrapper);
 
-        // Use a timeout to get the position after the element is in the DOM and has dimensions
-        setTimeout(() => {
-            const rect = wrapper.getBoundingClientRect();
-            islandData.push({
-                x: rect.left, y: rect.top,
-                width: rect.width, height: rect.height,
-                z: zStart,
-                raw: wrapper
-            });
-        }, 0);
+        islandData.push({ element: wrapper, config: config });
     });
 
-    if (cloudContainer) {
-        const cloudLayers = [
-            { count: 5, opacity: 0.2, minDuration: 90, z: -800 },
-            { count: 5, opacity: 0.12, minDuration: 60, z: -250 },
-            { count: 5, opacity: 0.08, minDuration: 40, z: 200 },
-        ];
-        cloudLayers.forEach(layer => {
-            for (let i = 0; i < layer.count; i++) {
-                let cloud = document.createElement('div');
-                cloud.className = 'floating-island-cloud';
-                cloud.style.top = `${random(5, 85)}%`;
-                cloud.style.opacity = layer.opacity;
-                const size = random(300, 600);
-                cloud.style.width = `${size}px`;
-                cloud.style.height = `${size * 0.4}px`;
-                const duration = random(layer.minDuration, layer.minDuration + 40);
-                cloud.style.animationDuration = `${duration}s`;
-                cloud.style.animationDelay = `-${random(0, duration)}s`;
-                cloud.style.animationDirection = i % 2 === 0 ? 'normal' : 'reverse';
-                cloud.style.transform = `translateZ(${layer.z}px)`;
-                cloudContainer.appendChild(cloud);
+    // Create clouds
+    const cloudsBackContainer = document.getElementById('floating-islands-clouds-back');
+    const cloudsFrontContainer = document.getElementById('floating-islands-clouds-front');
+    if (cloudsBackContainer && cloudsFrontContainer) {
+        cloudsBackContainer.innerHTML = '';
+        cloudsFrontContainer.innerHTML = '';
+        const createCloud = (duration, isFront) => {
+            const cloud = document.createElement('div');
+            cloud.className = 'floating-cloud';
+            if (Math.random() > 0.5) cloud.classList.add('shadow');
+            const size = random(200, 500);
+            cloud.style.width = `${size}px`;
+            cloud.style.height = `${size * 0.5}px`;
+            cloud.style.top = `${random(5, 70)}%`;
+            cloud.style.animationDuration = `${duration}s`;
+            cloud.style.animationDelay = `-${random(0, duration)}s`;
+            if (isFront) {
+                cloudsFrontContainer.appendChild(cloud);
+            } else {
+                cloudsBackContainer.appendChild(cloud);
             }
-        });
+        };
+        for (let i = 0; i < 7; i++) createCloud(random(90, 120), false); // Back clouds
+        for (let i = 0; i < 5; i++) createCloud(random(60, 90), true); // Front clouds
     }
 
-    if (auroraContainer) {
-        const auroraColors = ['#80cbc4', '#ce93d8', '#f8bbd0'];
-        for (let i = 0; i < 3; i++) {
-            let serpent = document.createElement('div');
-            serpent.className = 'aurora-serpent';
-            serpent.style.setProperty('--aurora-color', auroraColors[i % auroraColors.length]);
-            serpent.style.setProperty('--x-start', `${random(-20, 120)}vw`);
-            serpent.style.setProperty('--y-start', `${random(10, 70)}vh`);
-            serpent.style.setProperty('--z-start', `${random(-800, -400)}px`);
-            serpent.style.setProperty('--r-start', `${random(-40, 40)}deg`);
-            serpent.style.setProperty('--x-end', `${random(-20, 120)}vw`);
-            serpent.style.setProperty('--y-end', `${random(10, 70)}vh`);
-            serpent.style.setProperty('--z-end', `${random(-800, -400)}px`);
-            serpent.style.setProperty('--r-end', `${random(-40, 40)}deg`);
-            serpent.style.animationDelay = `-${random(0, 35)}s`;
-            auroraContainer.appendChild(serpent);
+    // Create God Rays
+    const godRayContainer = document.getElementById('floating-islands-god-rays');
+    if (godRayContainer) {
+        godRayContainer.innerHTML = '';
+        for (let i = 0; i < 15; i++) {
+            const ray = document.createElement('div');
+            ray.className = 'god-ray';
+            ray.style.transform = `rotate(${i * 10 + random(-5, 5)}deg)`;
+            ray.style.animationDelay = `-${random(0, 15)}s`;
+            godRayContainer.appendChild(ray);
         }
     }
 
-    const bridgeContainer = document.getElementById('floating-islands-bridges');
-    if (bridgeContainer) {
-        bridgeContainer.innerHTML = '';
-        setTimeout(() => {
-            if (islandData.length < 2) return;
-            for (let i = 0; i < 3; i++) {
-                const bridge = document.createElement('div');
-                bridge.className = 'energy-bridge';
-
-                const islandA = islandData[Math.floor(Math.random() * islandData.length)];
-                let islandB;
-                do {
-                    islandB = islandData[Math.floor(Math.random() * islandData.length)];
-                } while (islandA === islandB);
-
-                const dx = islandB.x - islandA.x;
-                const dy = islandB.y - islandA.y;
-                const dz = islandB.z - islandA.z;
-                const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                const angleY = Math.atan2(dy, dx) * 180 / Math.PI;
-                const angleX = Math.atan2(dz, Math.sqrt(dx*dx + dy*dy)) * 180 / Math.PI;
-
-                bridge.style.width = `${distance}px`;
-                bridge.style.left = `${islandA.x + islandA.width / 2}px`;
-                bridge.style.top = `${islandA.y + islandA.height / 2}px`;
-                bridge.style.transform = `rotateZ(${angleY}deg) rotateY(${angleX}deg)`;
-                bridge.style.animationDelay = `-${i * 2}s`;
-                bridgeContainer.appendChild(bridge);
-            }
-        }, 100);
+    // Create Foreground Particles
+    const particleContainer = document.getElementById('floating-islands-particles');
+    if (particleContainer) {
+        particleContainer.innerHTML = '';
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'island-particle';
+            const size = random(1, 4);
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.setProperty('--x-start', `${random(0, 100)}vw`);
+            particle.style.setProperty('--y-start', `${random(0, 100)}vh`);
+            particle.style.setProperty('--x-end', `${random(0, 100)}vw`);
+            particle.style.setProperty('--y-end', `${random(0, 100)}vh`);
+            particle.style.animationDelay = `-${random(0, 20)}s`;
+            particleContainer.appendChild(particle);
+        }
     }
 
     return islandData;
