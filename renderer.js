@@ -124,8 +124,8 @@ const PARTICLE_FRAGMENT_SHADER = `
         if (dist > 0.5) {
             discard;
         }
-        // Create a smooth falloff for a glowing effect
-        float glow = pow(1.0 - dist * 2.0, 2.0);
+        // Softer, wider glow with a slightly brighter core
+        float glow = pow(1.0 - dist * 2.0, 1.5) * 0.8 + 0.2;
         gl_FragColor = vec4(u_color, v_alpha * glow);
     }
 `;
@@ -151,13 +151,15 @@ class ParticleSystem {
 
         if (this.behavior === 'firefly') {
             this.wanderAngles = new Float32Array(numParticles);
-            this.blinkInfo = new Float32Array(numParticles * 4); // lastBlinkTime, blinkDuration, nextBlinkInterval, isBlinking
+            // 0: state (0:fade-in, 1:glow, 2:fade-out, 3:dark), 1: timer, 2: fadeInTime, 3: glowTime, 4: fadeOutTime, 5: darkTime
+            this.blinkInfo = new Float32Array(numParticles * 6);
             this.fireflyStates = new Uint8Array(numParticles); // 0: wandering, 1: targeting, 2: clustering
             this.clusterTargets = new Float32Array(numParticles * 2);
             this.clusterTimers = new Float32Array(numParticles);
+            this.dartInfo = new Float32Array(numParticles * 2); // 0: isDarting, 1: dartTimer
             this.clusterPoints = Array.from({length: 5}, () => ({
                 x: Math.random() * this.gl.canvas.width,
-                y: Math.random() * this.gl.canvas.height * 0.5 + this.gl.canvas.height * 0.4 // Lower half
+                y: Math.random() * this.gl.canvas.height * 0.6 + this.gl.canvas.height * 0.35 // Mid-to-lower section
             }));
         } else if (this.behavior === 'petal') {
             this.rotations = new Float32Array(numParticles);
@@ -203,16 +205,25 @@ class ParticleSystem {
         this.lifetimes[i] = config.lifetime === Infinity ? Infinity : Math.random() * config.lifetime;
 
         if (this.behavior === 'firefly') {
+            this.positions[i * 2 + 1] = Math.random() * height * 0.9 + height * 0.1; // Spawn away from very top/bottom
             this.velocities[i * 2] = 0;
             this.velocities[i * 2 + 1] = 0;
             this.wanderAngles[i] = Math.random() * Math.PI * 2;
-            this.blinkInfo[i * 4] = Date.now(); // lastBlinkTime
-            this.blinkInfo[i * 4 + 1] = Math.random() * 200 + 100; // blinkDuration
-            this.blinkInfo[i * 4 + 2] = Math.random() * 2000 + 2000; // nextBlinkInterval (2-4 seconds)
-            this.blinkInfo[i * 4 + 3] = 0; // isBlinking
-            this.alphas[i] = config.minAlpha;
+
+            // Blinking state machine setup
+            const blinkOffset = i * 6;
+            this.blinkInfo[blinkOffset] = Math.floor(Math.random() * 4); // Start in a random state
+            this.blinkInfo[blinkOffset + 2] = Math.random() * 200 + 300; // Fade-in: 0.3-0.5s
+            this.blinkInfo[blinkOffset + 3] = Math.random() * 500 + 500; // Glow: 0.5-1.0s
+            this.blinkInfo[blinkOffset + 4] = Math.random() * 300 + 500; // Fade-out: 0.5-0.8s
+            this.blinkInfo[blinkOffset + 5] = Math.random() * 2000 + 1000; // Dark: 1-3s
+            this.blinkInfo[blinkOffset + 1] = this.blinkInfo[blinkOffset + 2 + this.blinkInfo[blinkOffset]]; // Set initial timer
+            this.alphas[i] = 0; // Start dark
+
             this.fireflyStates[i] = 0; // Start in wandering state
             this.clusterTimers[i] = 0;
+            this.dartInfo[i * 2] = 0; // Not darting
+            this.dartInfo[i * 2 + 1] = 0; // Dart timer
         } else if (this.behavior === 'petal') {
             this.positions[i * 2] = Math.random() * (width + 200) - 100; // Start further off-screen
             this.positions[i * 2 + 1] = -Math.random() * 50 - 10; // Start just above the screen
@@ -313,78 +324,79 @@ class ParticleSystem {
 
             if (this.behavior === 'firefly') {
                 const state = this.fireflyStates[i];
+                const dartOffset = i * 2;
+                const isDarting = this.dartInfo[dartOffset] === 1;
 
-                if (state === 0) { // Wandering
-                    this.wanderAngles[i] += (Math.random() - 0.5) * 0.4;
-                    this.velocities[i * 2] += Math.cos(this.wanderAngles[i]) * 0.08;
-                    this.velocities[i * 2 + 1] += Math.sin(this.wanderAngles[i]) * 0.08;
-                    this.velocities[i * 2] *= 0.96;
-                    this.velocities[i * 2 + 1] *= 0.96;
-
-                    if (Math.random() < 0.001) {
-                        this.fireflyStates[i] = 1; // Targeting
-                        const targetPoint = this.clusterPoints[Math.floor(Math.random() * this.clusterPoints.length)];
-                        this.clusterTargets[i * 2] = targetPoint.x;
-                        this.clusterTargets[i * 2 + 1] = targetPoint.y;
+                // Movement Logic
+                if (isDarting) {
+                    this.dartInfo[dartOffset + 1]--; // Decrement dart timer
+                    if (this.dartInfo[dartOffset + 1] <= 0) {
+                        this.dartInfo[dartOffset] = 0; // End dart
                     }
-                } else if (state === 1) { // Targeting cluster
-                    const targetX = this.clusterTargets[i * 2];
-                    const targetY = this.clusterTargets[i * 2 + 1];
-                    const dx = targetX - this.positions[i * 2];
-                    const dy = targetY - this.positions[i * 2 + 1];
-                    const dist = Math.sqrt(dx * dx + dy * dy);
+                } else {
+                    // Wandering behavior
+                    this.wanderAngles[i] += (Math.random() - 0.5) * 0.3; // More gentle turns
+                    const baseSpeed = 0.05;
+                    this.velocities[i * 2] += Math.cos(this.wanderAngles[i]) * baseSpeed;
+                    this.velocities[i * 2 + 1] += Math.sin(this.wanderAngles[i]) * baseSpeed;
 
-                    if (dist < 15) {
-                        this.fireflyStates[i] = 2; // Clustering
-                        this.clusterTimers[i] = Math.random() * 300 + 300;
-                        this.velocities[i * 2] = 0;
-                        this.velocities[i * 2 + 1] = 0;
-                    } else {
-                        const speed = 1.2;
-                        this.velocities[i * 2] = (dx / dist) * speed;
-                        this.velocities[i * 2 + 1] = (dy / dist) * speed;
-                    }
-                } else if (state === 2) { // Clustering
-                    this.clusterTimers[i]--;
-                    if (this.clusterTimers[i] <= 0) {
-                        this.fireflyStates[i] = 0; // Back to wandering
-                    } else {
-                        this.wanderAngles[i] += (Math.random() - 0.5) * 0.2;
-                        this.velocities[i * 2] += Math.cos(this.wanderAngles[i]) * 0.04;
-                        this.velocities[i * 2 + 1] += Math.sin(this.wanderAngles[i]) * 0.04;
-                        this.velocities[i * 2] *= 0.9;
-                        this.velocities[i * 2 + 1] *= 0.9;
+                    // Occasional darting
+                    if (Math.random() < 0.005) {
+                        this.dartInfo[dartOffset] = 1; // Start darting
+                        this.dartInfo[dartOffset + 1] = Math.random() * 30 + 20; // Dart for 20-50 frames
+                        const dartAngle = this.wanderAngles[i] + (Math.random() - 0.5) * 0.5;
+                        const dartSpeed = Math.random() * 1.5 + 1.0;
+                        this.velocities[i * 2] = Math.cos(dartAngle) * dartSpeed;
+                        this.velocities[i * 2 + 1] = Math.sin(dartAngle) * dartSpeed;
                     }
                 }
+
+                // Apply friction/drag
+                this.velocities[i * 2] *= 0.97;
+                this.velocities[i * 2 + 1] *= 0.97;
 
                 this.positions[i * 2] += this.velocities[i * 2];
                 this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
 
-                if (this.positions[i * 2] < 0) { this.positions[i * 2] = 0; this.velocities[i * 2] *= -1; }
-                if (this.positions[i * 2] > width) { this.positions[i * 2] = width; this.velocities[i * 2] *= -1; }
-                if (this.positions[i * 2 + 1] < 0) { this.positions[i * 2 + 1] = 0; this.velocities[i * 2 + 1] *= -1; }
-                if (this.positions[i * 2 + 1] > height) { this.positions[i * 2 + 1] = height; this.velocities[i * 2 + 1] *= -1; }
+                // Screen boundary collision
+                if (this.positions[i * 2] < 0) { this.positions[i * 2] = 0; this.velocities[i * 2] *= -0.8; }
+                if (this.positions[i * 2] > width) { this.positions[i * 2] = width; this.velocities[i * 2] *= -0.8; }
+                if (this.positions[i * 2 + 1] < 0) { this.positions[i * 2 + 1] = 0; this.velocities[i * 2 + 1] *= -0.8; }
+                if (this.positions[i * 2 + 1] > height) { this.positions[i * 2 + 1] = height; this.velocities[i * 2 + 1] *= -0.8; }
 
-                const now = Date.now();
-                let lastBlinkTime = this.blinkInfo[i * 4];
-                const blinkDuration = this.blinkInfo[i * 4 + 1];
-                let nextBlinkInterval = this.blinkInfo[i * 4 + 2];
-                let isBlinking = this.blinkInfo[i * 4 + 3];
+                // Blinking State Machine
+                const blinkOffset = i * 6;
+                let blinkState = this.blinkInfo[blinkOffset];
+                let timer = this.blinkInfo[blinkOffset + 1];
+                const fadeInTime = this.blinkInfo[blinkOffset + 2];
+                const glowTime = this.blinkInfo[blinkOffset + 3];
+                const fadeOutTime = this.blinkInfo[blinkOffset + 4];
+                const darkTime = this.blinkInfo[blinkOffset + 5];
+                const maxAlpha = config.maxAlpha || 1.0;
 
-                if (isBlinking === 1) {
-                    if (now - lastBlinkTime > blinkDuration) {
-                        this.blinkInfo[i * 4 + 3] = 0; // Stop blinking
-                        this.alphas[i] = config.minAlpha;
-                    }
-                } else {
-                    if (now - lastBlinkTime > nextBlinkInterval) {
-                        this.blinkInfo[i * 4] = now; // Start blinking
-                        this.blinkInfo[i * 4 + 3] = 1;
-                        this.blinkInfo[i * 4 + 2] = Math.random() * 6000 + 2000; // New interval
-                        this.alphas[i] = config.maxAlpha;
-                    }
+                timer -= 16.67; // Approximate ms per frame
+                if (timer <= 0) {
+                    blinkState = (blinkState + 1) % 4;
+                    this.blinkInfo[blinkOffset] = blinkState;
+                    const durations = [fadeInTime, glowTime, fadeOutTime, darkTime];
+                    timer = durations[blinkState];
                 }
+                this.blinkInfo[blinkOffset + 1] = timer;
 
+                switch (blinkState) {
+                    case 0: // FADE_IN
+                        this.alphas[i] = maxAlpha * (1.0 - timer / fadeInTime);
+                        break;
+                    case 1: // GLOW
+                        this.alphas[i] = maxAlpha;
+                        break;
+                    case 2: // FADE_OUT
+                        this.alphas[i] = maxAlpha * (timer / fadeOutTime);
+                        break;
+                    case 3: // DARK
+                        this.alphas[i] = 0;
+                        break;
+                }
             } else if (this.behavior === 'ambient') {
                 this.positions[i * 2] += this.velocities[i * 2];
                 this.positions[i * 2 + 1] += this.velocities[i * 2 + 1];
@@ -764,30 +776,47 @@ class WebGLRenderer {
 
             this.start();
         } else if (themeName === 'moonlit-forest') {
-            const fireflyConfig = {
+            // Background fireflies (dimmer, smaller)
+            const fireflyBackConfig = {
                 behavior: 'firefly',
-                minSize: 4.0,
-                maxSize: 8.0,
-                minAlpha: 0.4,
-                maxAlpha: 1.0,
-                lifetime: Infinity,
-                zIndex: -0.2,
-                color: [0.8, 1.0, 0.4] // Golden-green
+                minSize: 1.0, maxSize: 3.0,
+                maxAlpha: 0.7,
+                lifetime: Infinity, zIndex: -0.7,
+                color: [0.78, 0.91, 0.42] // #C8E86B
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 40, fireflyConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 15, fireflyBackConfig));
 
+            // Mid-ground fireflies (primary layer)
+            const fireflyMidConfig = {
+                behavior: 'firefly',
+                minSize: 2.0, maxSize: 5.0,
+                maxAlpha: 1.0,
+                lifetime: Infinity, zIndex: -0.5,
+                color: [0.99, 0.86, 0.45] // #FFE873
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 20, fireflyMidConfig));
+
+            // Foreground fireflies (larger, brighter)
+            const fireflyFrontConfig = {
+                behavior: 'firefly',
+                minSize: 3.0, maxSize: 6.0,
+                maxAlpha: 1.0,
+                lifetime: Infinity, zIndex: -0.1,
+                color: [0.98, 0.86, 0.36] // #F9DC5C
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 10, fireflyFrontConfig));
+
+            // Magical dust particles in moonbeams
             const dustConfig = {
                 behavior: 'ambient',
-                speed: 0.1,
-                minSize: 1.0,
-                maxSize: 2.5,
-                minAlpha: 0.1,
-                maxAlpha: 0.3,
+                speed: 0.15,
+                minSize: 1.0, maxSize: 2.0,
+                minAlpha: 0.1, maxAlpha: 0.4,
                 lifetime: Infinity,
-                zIndex: -0.3,
-                color: [1.0, 1.0, 0.8] // Faint yellow-white
+                zIndex: -0.4, // Positioned within moonbeam area
+                color: [0.95, 0.92, 0.8] // Soft yellow-white
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 100, dustConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 70, dustConfig));
             this.start();
         } else if (themeName === 'meditation-temple') {
             const smokeConfig = {
