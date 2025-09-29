@@ -2522,6 +2522,91 @@
     width: 100%; height: 100%;
     z-index: 8;
 }
+
+/* --- Electric Dreams Theme --- */
+#electric-dreams-theme {
+    background: #000005;
+    overflow: hidden;
+}
+
+#electric-veins {
+    width: 100%;
+    height: 100%;
+    filter: url(#gooey-blobs) brightness(1.2) saturate(1.5);
+}
+
+.electric-vein {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+    animation:
+        move-vein 30s ease-in-out infinite alternate,
+        pulse-vein 6s ease-in-out infinite alternate,
+        cycle-vein-color 20s linear infinite alternate;
+}
+
+@keyframes move-vein {
+    from {
+        transform: translate(var(--x-start), var(--y-start)) rotate(0deg) scale(var(--scale-start));
+        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    }
+    50% {
+        border-radius: 60% 40% 30% 70% / 50% 60% 50% 40%;
+    }
+    to {
+        transform: translate(var(--x-end), var(--y-end)) rotate(360deg) scale(var(--scale-end));
+        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    }
+}
+
+@keyframes pulse-vein {
+    from {
+        box-shadow:
+            0 0 10px #0ff, 0 0 20px #0ff,
+            0 0 30px #f0f, 0 0 40px #f0f;
+    }
+    to {
+        box-shadow:
+            0 0 20px #0ff, 0 0 40px #0ff,
+            0 0 60px #f0f, 0 0 80px #f0f;
+    }
+}
+
+@keyframes cycle-vein-color {
+    from { filter: hue-rotate(var(--hue-start)); }
+    to { filter: hue-rotate(var(--hue-end)); }
+}
+
+#electric-particles {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1; /* Behind the veins */
+}
+
+.electric-particle {
+    position: absolute;
+    background-color: #ccddff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #ccddff, 0 0 10px #ccddff;
+    animation: drift-electric-particle 15s ease-in-out infinite alternate;
+    opacity: 0;
+}
+
+@keyframes drift-electric-particle {
+    from {
+        transform: translate(var(--x-start), var(--y-start));
+        opacity: 0;
+    }
+    20%, 80% {
+        opacity: 0.8;
+    }
+    to {
+        transform: translate(var(--x-end), var(--y-end));
+        opacity: 0;
+    }
+}
+
 @keyframes slide {
             from { transform: translateX(0%); }
             to { transform: translateX(-50%); }
