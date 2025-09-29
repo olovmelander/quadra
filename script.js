@@ -2580,7 +2580,15 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             if (bubblesContainer && bubblesContainer.children.length === 0) {
                 for (let i = 0; i < 80; i++) {
                     let el = document.createElement('div');
-                    el.className = 'bubble'; const size = Math.random()*15+5; el.style.width=`${size}px`; el.style.height=`${size}px`; el.style.left=`${Math.random()*100}%`; el.style.animationDuration=`${Math.random()*10+10}s`; el.style.animationDelay=`${Math.random()*15}s`; el.style.setProperty('--x-drift', `${Math.random()*4-2}vw`); el.style.setProperty('--x-drift-end', `${Math.random()*4-2}vw`);
+                    el.className = 'bubble';
+                    const size = Math.random() * 15 + 5;
+                    el.style.width = `${size}px`;
+                    el.style.height = `${size}px`;
+                    el.style.left = `${Math.random() * 100}%`;
+                    el.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                    el.style.animationDelay = `-${Math.random() * 15}s`;
+                    el.style.setProperty('--x-drift', `${Math.random() * 4 - 2}vw`);
+                    el.style.setProperty('--x-drift-end', `${Math.random() * 4 - 2}vw`);
                     bubblesContainer.appendChild(el);
                 }
             }
