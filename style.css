@@ -289,7 +289,7 @@ body {
     }
 }
 
-#bubbles { z-index: 7; }
+#bubbles { z-index: 10; }
 .bubble {
     position: absolute;
     background: rgba(173, 216, 230, 0.15);
