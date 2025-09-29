@@ -3737,7 +3737,12 @@
 
 #fi-layer-back { animation-duration: 280s; z-index: 3; }
 #fi-layer-mid { animation-duration: 200s; z-index: 5; }
-#fi-layer-front { animation-duration: 120s; z-index: 7; }
+#fi-layer-front { animation-duration: 120s; z-index: 9; }
+
+@keyframes slide {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-50%); }
+}
 
 /* --- Atmospherics: Clouds, Mist, God Rays --- */
 .fi-clouds {
@@ -3767,7 +3772,7 @@
     bottom: 0; left: 0;
     width: 100%; height: 40%;
     background: linear-gradient(to top, rgba(232, 242, 240, 0.6) 20%, transparent);
-    z-index: 8;
+    z-index: 7;
     animation: drift-mist 80s linear infinite alternate;
 }
 @keyframes drift-mist {
@@ -3790,7 +3795,7 @@
     width: 100%; height: 100%;
     transform-origin: 10% 10%; /* Sun position */
     animation: fi-god-ray-pan 150s ease-in-out infinite alternate;
-    z-index: 6;
+    z-index: 8;
     mix-blend-mode: screen;
     pointer-events: none;
 }
