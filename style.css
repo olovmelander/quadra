@@ -2069,13 +2069,23 @@
 
 /* --- Moonlit Forest Theme --- */
 #moonlit-forest-theme {
+    background: transparent; /* Allow WebGL canvas to show through */
+    position: relative;
     overflow: hidden;
     animation: moonlit-scene-pulse 10s ease-in-out infinite alternate;
+}
+
+#moonlit-forest-theme::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: linear-gradient(to top,
         #2D5442, /* Deep teal-green at the bottom */
         #4A7C5E, /* Medium forest green */
         #8BAF6F  /* Yellowish-green glow near moon */
     );
+    z-index: 0;
 }
 
 @keyframes moonlit-scene-pulse {
