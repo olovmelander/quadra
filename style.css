@@ -3701,42 +3701,56 @@
 
 /* --- Floating Islands Theme --- */
 #floating-islands-theme {
-    background: linear-gradient(to top, #0f3460, #16213e, #1a1a2e);
+    background: linear-gradient(
+        to bottom,
+        #87CEEB 0%, /* Top sky blue */
+        #6BB6E8 15%,
+        #B8D8F0 30%, /* Lighter blue with clouds */
+        #E8F4F8 50%,
+        #FFE5D9 70%, /* Soft peachy-pink */
+        #FFD6C9 85%,
+        #FFFACD 100% /* Warm cream near islands */
+    );
     overflow: hidden;
-    perspective: 1000px; /* Create a 3D space */
+    perspective: 1000px;
+}
+
+.sun-glow {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #FFF9E6, rgba(255, 249, 230, 0) 70%);
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    opacity: 0.8;
+    z-index: 1;
 }
 
 #floating-islands-container {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    transform-style: preserve-3d; /* Enable 3D positioning for children */
+    transform-style: preserve-3d;
 }
 
-/* Wrapper for each island to handle its position and slow drift */
 .floating-island-wrapper {
     position: absolute;
     transform-style: preserve-3d;
-    animation: island-drift linear infinite;
 }
 
-@keyframes island-drift {
-    0% { transform: translate3d(var(--x-start), var(--y-start), var(--z-start)); }
-    100% { transform: translate3d(var(--x-end), var(--y-end), var(--z-end)); }
-}
-
-/* The island itself, containing the canvas, handles rotation and bobbing */
 .floating-island {
     width: 100%; height: 100%;
-    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+    filter: drop-shadow(0 20px 25px rgba(0,0,0,0.3));
     animation:
-        island-bob 12s ease-in-out infinite alternate,
-        island-rotate linear infinite;
+        island-bob 15s ease-in-out infinite alternate,
+        island-rotate 50s linear infinite;
 }
 
 @keyframes island-bob {
-    from { transform: translateY(-8px); }
-    to { transform: translateY(8px); }
+    from { transform: translateY(-10px); }
+    to { transform: translateY(10px); }
 }
 
 @keyframes island-rotate {
@@ -3744,77 +3758,138 @@
     to { transform: rotateY(360deg); }
 }
 
-/* Clouds for parallax depth */
-#floating-islands-clouds {
+/* --- Waterfalls & Mist --- */
+.waterfall {
+    position: absolute;
+    width: 20px;
+    height: 150px; /* Taller waterfalls */
+    background: linear-gradient(
+        to bottom,
+        rgba(232, 248, 255, 0.8) 0%, /* Light cyan top */
+        rgba(184, 230, 245, 0.7) 50%,
+        rgba(255, 255, 255, 0.9) 100% /* White foam bottom */
+    );
+    animation: flow-water 1.5s linear infinite;
+}
+
+@keyframes flow-water {
+    from { background-position: 0 0; }
+    to { background-position: 0 100%; }
+}
+
+#floating-islands-mist {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30%;
+    background: linear-gradient(to top, rgba(232, 242, 240, 0.6), transparent);
+    z-index: 8; /* In front of most islands, but behind the hero */
+    animation: drift-mist 60s linear infinite alternate;
+}
+
+#floating-islands-haze {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 3; /* Between island layers */
+    background: radial-gradient(circle at 50% 100%, rgba(213, 232, 240, 0.3), transparent 70%);
+    z-index: 2; /* Behind most elements */
+    opacity: 0.5;
+}
+
+@keyframes drift-mist {
+    from { transform: translateX(-10%); }
+    to { transform: translateX(10%); }
+}
+
+/* --- Clouds & God Rays --- */
+.floating-clouds {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     pointer-events: none;
 }
+#floating-islands-clouds-back { z-index: 2; }
+#floating-islands-clouds-front { z-index: 7; }
 
-.floating-island-cloud {
+.floating-cloud {
     position: absolute;
-    background: #2d4a7c;
+    background: #FFFFFF;
     border-radius: 50%;
-    filter: blur(30px);
-    animation: cloud-drift linear infinite;
+    filter: blur(40px);
+    opacity: 0.6;
+    animation: drift-cloud linear infinite;
+}
+.floating-cloud.shadow {
+    background: #D3E4F0;
+    opacity: 0.4;
 }
 
-@keyframes cloud-drift {
+@keyframes drift-cloud {
     from { transform: translateX(-20vw); }
     to { transform: translateX(120vw); }
 }
 
-/* Energy bridges connecting islands */
-#floating-islands-bridges {
+#floating-islands-god-rays {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 5;
-    transform-style: preserve-3d;
-}
-
-.energy-bridge {
-    position: absolute;
-    height: 3px;
-    background: linear-gradient(to right, transparent, #b19cd9, #e1bee7, #b19cd9, transparent);
-    border-radius: 3px;
-    box-shadow: 0 0 10px #e1bee7;
-    animation: pulse-bridge 6s ease-in-out infinite;
-    transform-origin: center;
-}
-
-@keyframes pulse-bridge {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(2.5); }
-}
-
-/* Serpentine auroras weaving through space */
-#floating-aurora {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 2; /* Behind most islands */
+    transform-origin: 15% 15%; /* Sun position */
+    animation: god-ray-pan 120s ease-in-out infinite alternate;
+    z-index: 6;
     mix-blend-mode: screen;
-    filter: blur(20px);
-    transform-style: preserve-3d;
+    pointer-events: none;
 }
 
-.aurora-serpent {
+.god-ray {
     position: absolute;
-    width: 100%;
-    height: 150px;
-    background: linear-gradient(to bottom, transparent, var(--aurora-color, #80cbc4), transparent);
+    top: -10%; left: 50%;
+    width: 4px;
+    height: 120%;
+    background: linear-gradient(to bottom, rgba(255, 249, 230, 0.25), transparent 60%);
+    transform-origin: top center;
+    animation: god-ray-fade 15s ease-in-out infinite alternate;
+}
+
+@keyframes god-ray-pan {
+    from { transform: rotate(-10deg); }
+    to { transform: rotate(10deg); }
+}
+
+@keyframes god-ray-fade {
+    from { opacity: 0; }
+    to { opacity: 0.5; }
+}
+
+/* --- Particles --- */
+#floating-islands-particles {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 10; /* Highest layer for foreground particles */
+    pointer-events: none;
+}
+
+.island-particle {
+    position: absolute;
+    background-color: #FFF9E6; /* Warm, light yellow */
     border-radius: 50%;
-    animation: weave-serpent 35s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+    animation: particle-drift-gentle 20s ease-in-out infinite;
 }
 
-@keyframes weave-serpent {
-    from { transform: translate3d(var(--x-start), var(--y-start), var(--z-start)) rotate(var(--r-start)) skewX(30deg); opacity: 0.8; }
-    to { transform: translate3d(var(--x-end), var(--y-end), var(--z-end)) rotate(var(--r-end)) skewX(-30deg); opacity: 0.8; }
+@keyframes particle-drift-gentle {
+    0% {
+        transform: translate(var(--x-start), var(--y-start)) scale(1);
+        opacity: 0;
+    }
+    20%, 80% {
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(var(--x-end), var(--y-end)) scale(0.8);
+        opacity: 0;
+    }
 }
-
 
 @keyframes particle-drift {
     from {
