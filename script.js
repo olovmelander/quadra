@@ -534,6 +534,12 @@ function createFloatingIslandsScene() {
     };
     const C_WIDTH = 4096;
     const C_HEIGHT = window.innerHeight;
+
+    // Set the width of the containers to match the parallax canvas
+    document.querySelectorAll('.fi-waterfall-container').forEach(wc => {
+        wc.style.width = `${C_WIDTH}px`;
+    });
+
     const layers = [
         { el: document.getElementById('fi-layer-front'), wc: document.getElementById('fi-waterfall-front'),
           islands: [ { x: C_WIDTH*0.1, y: C_HEIGHT*0.5, width: 600, height: 250, tree: { height: 200 }, bushes: 5, waterfall: { edge: 0.9, width: 25 } } ] },
