@@ -1224,7 +1224,7 @@ function createCandlelitMonasteryScene() {
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
-        let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false;
+        let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false, isPaused = false;
         let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null;
 let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null, activeThemeData = null;
 
@@ -4435,7 +4435,12 @@ function checkGravity() {
             document.head.appendChild(s); const c=document.getElementById('score-popups');c.appendChild(n); setTimeout(()=>{c.removeChild(n);document.head.removeChild(s);},1500);
         }
         function gameLoop(time) {
-            if(isGameOver)return; const delta=time-lastTime; lastTime=time;
+            if(isGameOver) return;
+            if (isPaused) {
+                animationId = requestAnimationFrame(gameLoop);
+                return;
+            }
+            const delta=time-lastTime; lastTime=time;
             if(!isProcessingPhysics&&currentPiece){ dropCounter+=delta; if(dropCounter>dropInterval)softDrop(); }
             draw(); updateStats(); animationId=requestAnimationFrame(gameLoop);
         }
@@ -4469,8 +4474,8 @@ function checkGravity() {
         }
         function setupUI(){
             const sm=document.getElementById('settings-modal');
-            document.getElementById('settings-btn').addEventListener('click',()=>sm.classList.add('visible'));
-            document.getElementById('close-settings').addEventListener('click',()=>sm.classList.remove('visible'));
+            document.getElementById('settings-btn').addEventListener('click',()=>{ isPaused = true; sm.classList.add('visible'); });
+            document.getElementById('close-settings').addEventListener('click',()=>{ isPaused = false; lastTime = performance.now(); sm.classList.remove('visible'); });
             document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
             document.getElementById('next-track-btn').addEventListener('click', () => soundManager.nextTrack());
             const ds=document.getElementById('das-delay'),dv=document.getElementById('das-delay-value'),is=document.getElementById('das-interval'),iv=document.getElementById('das-interval-value');
