@@ -2743,11 +2743,11 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
         }
         function createEnchantedForest() {
-            // Tree generation for parallax layers
+            // Tree generation for parallax layers with mystical elements
             const layers = [
-                { el: document.getElementById('enchanted-forest-back'), count: 40, color: 'rgba(10, 15, 25, 0.7)', height: 250 },
-                { el: document.getElementById('enchanted-forest-mid'), count: 30, color: 'rgba(20, 30, 50, 0.8)', height: 350 },
-                { el: document.getElementById('enchanted-forest-front'), count: 20, color: 'rgba(30, 45, 75, 0.9)', height: 500 }
+                { el: document.getElementById('enchanted-forest-back'), count: 40, color: 'rgba(10, 15, 25, 0.7)', height: 250, detail: 'low' },
+                { el: document.getElementById('enchanted-forest-mid'), count: 30, color: 'rgba(20, 30, 50, 0.8)', height: 350, detail: 'mid' },
+                { el: document.getElementById('enchanted-forest-front'), count: 20, color: 'rgba(30, 45, 75, 0.9)', height: 500, detail: 'high' }
             ];
 
             layers.forEach(layer => {
@@ -2757,32 +2757,68 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     canvas.width = layer.count * T_WIDTH;
                     canvas.height = layer.height;
                     let ctx = canvas.getContext('2d');
-                    ctx.fillStyle = layer.color;
-                    ctx.strokeStyle = layer.color;
 
                     for(let i = 0; i < layer.count; i++) {
                         const x = i * T_WIDTH + Math.random() * (T_WIDTH / 2);
                         const h = layer.height * (0.7 + Math.random() * 0.3);
                         const trunkWidth = 10 + Math.random() * 10;
 
-                        // Draw trunk
+                        // Draw organic trunk with curves
+                        ctx.strokeStyle = layer.color;
+                        ctx.fillStyle = layer.color;
+                        ctx.lineWidth = trunkWidth;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+
                         ctx.beginPath();
                         ctx.moveTo(x, canvas.height);
-                        ctx.lineTo(x + trunkWidth / 4, canvas.height - h / 2);
-                        ctx.lineTo(x - trunkWidth / 4, canvas.height - h);
-                        ctx.lineWidth = trunkWidth;
+                        const segments = 8;
+                        for(let s = 1; s <= segments; s++) {
+                            const segmentH = canvas.height - (h / segments) * s;
+                            const sway = Math.sin(s * 0.5) * (Math.random() * 15 - 7.5);
+                            ctx.lineTo(x + sway, segmentH);
+                        }
                         ctx.stroke();
 
-                        // Draw branches
-                        for(let j = 0; j < 5; j++) {
-                            const branchY = canvas.height - h + (Math.random() * (h/2));
-                            const branchLen = Math.random() * 40 + 20;
-                            const angle = (Math.random() - 0.5) * Math.PI;
+                        // Draw branches with foliage
+                        const branchCount = layer.detail === 'high' ? 8 : layer.detail === 'mid' ? 6 : 4;
+                        for(let j = 0; j < branchCount; j++) {
+                            const branchY = canvas.height - h * 0.3 + (Math.random() * (h * 0.6));
+                            const branchLen = Math.random() * 50 + 30;
+                            const angle = (Math.random() - 0.5) * Math.PI * 0.8;
+                            const branchSway = Math.sin(j * 0.8) * 8;
+
+                            ctx.lineWidth = Math.random() * 4 + 2;
                             ctx.beginPath();
-                            ctx.moveTo(x - trunkWidth / 4, branchY);
-                            ctx.lineTo(x - trunkWidth / 4 + Math.cos(angle) * branchLen, branchY + Math.sin(angle) * branchLen);
-                            ctx.lineWidth = Math.random() * 3 + 1;
+                            ctx.moveTo(x + branchSway, branchY);
+                            const endX = x + branchSway + Math.cos(angle) * branchLen;
+                            const endY = branchY + Math.sin(angle) * branchLen;
+                            ctx.quadraticCurveTo(
+                                x + branchSway + Math.cos(angle) * branchLen * 0.5,
+                                branchY + Math.sin(angle) * branchLen * 0.5 - 10,
+                                endX, endY
+                            );
                             ctx.stroke();
+
+                            // Add foliage clusters
+                            if(layer.detail !== 'low') {
+                                ctx.globalAlpha = 0.6;
+                                ctx.fillStyle = `rgba(${40 + Math.random() * 30}, ${60 + Math.random() * 40}, ${80 + Math.random() * 40}, 0.4)`;
+                                const foliageSize = Math.random() * 25 + 15;
+                                ctx.beginPath();
+                                ctx.arc(endX, endY, foliageSize, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.globalAlpha = 1;
+                            }
+                        }
+
+                        // Add glowing moss/lichen on front layer
+                        if(layer.detail === 'high' && Math.random() > 0.5) {
+                            ctx.fillStyle = `rgba(100, 200, 150, ${0.3 + Math.random() * 0.3})`;
+                            const mossY = canvas.height - h * (0.2 + Math.random() * 0.4);
+                            ctx.beginPath();
+                            ctx.ellipse(x, mossY, trunkWidth * 0.6, 15, 0, 0, Math.PI * 2);
+                            ctx.fill();
                         }
                     }
                     canvas.style.position = 'absolute';
@@ -2791,6 +2827,39 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     canvas.style.width = `${canvas.width}px`;
                     canvas.style.height = `${canvas.height}px`;
                     layer.el.appendChild(canvas);
+
+                    // Add mystical elements to DOM
+                    if(layer.detail === 'high') {
+                        // Add mushrooms
+                        for(let i = 0; i < 15; i++) {
+                            const mushroom = document.createElement('div');
+                            mushroom.className = 'forest-mushroom';
+                            mushroom.style.left = `${Math.random() * 100}%`;
+                            mushroom.style.animationDelay = `${Math.random() * 3}s`;
+                            layer.el.appendChild(mushroom);
+                        }
+                        // Add wisps
+                        for(let i = 0; i < 20; i++) {
+                            const wisp = document.createElement('div');
+                            wisp.className = 'forest-wisp';
+                            wisp.style.left = `${Math.random() * 100}%`;
+                            wisp.style.bottom = `${Math.random() * 80 + 10}%`;
+                            wisp.style.animationDelay = `${Math.random() * 20}s`;
+                            wisp.style.animationDuration = `${15 + Math.random() * 10}s`;
+                            layer.el.appendChild(wisp);
+                        }
+                    } else if(layer.detail === 'mid') {
+                        // Add eyes in the darkness
+                        for(let i = 0; i < 8; i++) {
+                            const eyes = document.createElement('div');
+                            eyes.className = 'forest-eyes';
+                            eyes.style.left = `${Math.random() * 100}%`;
+                            eyes.style.top = `${30 + Math.random() * 40}%`;
+                            eyes.style.animationDelay = `${Math.random() * 8}s`;
+                            eyes.style.animationDuration = `${6 + Math.random() * 4}s`;
+                            layer.el.appendChild(eyes);
+                        }
+                    }
                 }
             });
         }

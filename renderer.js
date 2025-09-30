@@ -776,35 +776,35 @@ class WebGLRenderer {
 
             this.start();
         } else if (themeName === 'moonlit-forest') {
-            // Background fireflies (dimmer, smaller)
+            // Background fireflies (dimmer, smaller) - Green tinted
             const fireflyBackConfig = {
                 behavior: 'firefly',
-                minSize: 1.0, maxSize: 3.0,
-                maxAlpha: 0.7,
+                minSize: 3.0, maxSize: 5.0,
+                maxAlpha: 0.8,
                 lifetime: Infinity, zIndex: -0.7,
-                color: [0.78, 0.91, 0.42] // #C8E86B
+                color: [0.78, 0.91, 0.42] // #C8E86B - lime green
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 15, fireflyBackConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 20, fireflyBackConfig));
 
-            // Mid-ground fireflies (primary layer)
+            // Mid-ground fireflies (primary layer) - Warm yellow
             const fireflyMidConfig = {
                 behavior: 'firefly',
-                minSize: 2.0, maxSize: 5.0,
+                minSize: 5.0, maxSize: 8.0,
                 maxAlpha: 1.0,
                 lifetime: Infinity, zIndex: -0.5,
-                color: [0.99, 0.86, 0.45] // #FFE873
+                color: [0.99, 0.86, 0.45] // #FFE873 - warm yellow
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 20, fireflyMidConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 25, fireflyMidConfig));
 
-            // Foreground fireflies (larger, brighter)
+            // Foreground fireflies (larger, brighter) - Golden
             const fireflyFrontConfig = {
                 behavior: 'firefly',
-                minSize: 3.0, maxSize: 6.0,
+                minSize: 7.0, maxSize: 12.0,
                 maxAlpha: 1.0,
                 lifetime: Infinity, zIndex: -0.1,
-                color: [0.98, 0.86, 0.36] // #F9DC5C
+                color: [0.98, 0.86, 0.36] // #F9DC5C - golden
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 10, fireflyFrontConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 15, fireflyFrontConfig));
 
             // Magical dust particles in moonbeams
             const dustConfig = {
@@ -813,10 +813,23 @@ class WebGLRenderer {
                 minSize: 1.0, maxSize: 2.0,
                 minAlpha: 0.1, maxAlpha: 0.4,
                 lifetime: Infinity,
-                zIndex: -0.4, // Positioned within moonbeam area
+                zIndex: -0.4,
                 color: [0.95, 0.92, 0.8] // Soft yellow-white
             };
             this.particleSystems.push(new ParticleSystem(this.gl, 70, dustConfig));
+
+            // Additional ambient spores for atmosphere
+            const sporeConfig = {
+                behavior: 'ambient',
+                speed: 0.1,
+                minSize: 1.5, maxSize: 3.0,
+                minAlpha: 0.2, maxAlpha: 0.5,
+                lifetime: Infinity,
+                zIndex: -0.6,
+                color: [0.7, 0.85, 0.6] // Soft green
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 40, sporeConfig));
+
             this.start();
         } else if (themeName === 'meditation-temple') {
             const smokeConfig = {
@@ -868,30 +881,87 @@ class WebGLRenderer {
             this.particleSystems.push(new ParticleSystem(this.gl, 15, smokeConfig));
             this.start();
         } else if (themeName === 'forest') {
+            // Magical spores floating slowly
+            const sporeConfig = {
+                behavior: 'ambient',
+                speed: 0.15,
+                minSize: 2.0,
+                maxSize: 4.0,
+                minAlpha: 0.3,
+                maxAlpha: 0.6,
+                lifetime: Infinity,
+                zIndex: -0.5,
+                color: [0.7, 0.95, 0.7] // Soft green
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 40, sporeConfig));
+
+            // Ambient dust particles
             const ambientConfig = {
                 behavior: 'ambient',
                 speed: 0.2,
                 minSize: 1.0,
-                maxSize: 3.0,
+                maxSize: 2.5,
                 minAlpha: 0.1,
-                maxAlpha: 0.4,
+                maxAlpha: 0.35,
                 lifetime: Infinity,
-                zIndex: -0.2,
+                zIndex: -0.3,
                 color: [0.8, 0.87, 1.0] // Bluish white
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 50, ambientConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 60, ambientConfig));
 
+            // Green fireflies (back layer)
+            const greenFireflyConfig = {
+                behavior: 'firefly',
+                minSize: 4.0,
+                maxSize: 7.0,
+                minAlpha: 0.4,
+                maxAlpha: 0.8,
+                lifetime: Infinity,
+                zIndex: -0.4,
+                color: [0.6, 1.0, 0.7] // Green glow
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 15, greenFireflyConfig));
+
+            // Yellow fireflies (mid layer)
             const fireflyConfig = {
                 behavior: 'firefly',
+                minSize: 6.0,
+                maxSize: 10.0,
+                minAlpha: 0.5,
+                maxAlpha: 1.0,
+                lifetime: Infinity,
+                zIndex: -0.2,
+                color: [1.0, 0.95, 0.6] // Warm yellow
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 20, fireflyConfig));
+
+            // Bright fireflies (front layer)
+            const brightFireflyConfig = {
+                behavior: 'firefly',
                 minSize: 8.0,
-                maxSize: 12.0,
-                minAlpha: 0.3,
+                maxSize: 14.0,
+                minAlpha: 0.6,
                 maxAlpha: 1.0,
                 lifetime: Infinity,
                 zIndex: -0.1,
-                color: [0.94, 0.94, 0.66] // Yellowish
+                color: [1.0, 0.9, 0.5] // Bright yellow
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 25, fireflyConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 12, brightFireflyConfig));
+
+            // Magical energy wisps
+            const wispConfig = {
+                behavior: 'ambient',
+                speed: 0.08,
+                minSize: 3.0,
+                maxSize: 6.0,
+                minAlpha: 0.2,
+                maxAlpha: 0.5,
+                lifetime: Infinity,
+                zIndex: -0.15,
+                color: [0.5, 0.9, 1.0] // Cyan/magical
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 25, wispConfig));
+
             this.start();
         } else if (themeName === 'cherry-blossom-garden') {
             // Create 3 layers of petals for depth
