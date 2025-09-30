@@ -4463,6 +4463,28 @@ function checkGravity() {
             document.getElementById('final-stats').innerHTML=`<div style="font-size:24px;margin-bottom:10px;color:#fbbf24;">Score: ${score}</div><div style="margin-bottom:5px;">Level ${level} (${speedMultiplier}x speed)</div><div>Lines Cleared: ${lines}</div>`;
             document.getElementById('game-over-modal').classList.add('visible');
         }
+
+        function pauseGame() {
+            if (isGameOver) return;
+            isPaused = true;
+            document.getElementById('settings-modal').classList.add('visible');
+        }
+
+        function resumeGame() {
+            if (isGameOver) return;
+            isPaused = false;
+            lastTime = performance.now();
+            document.getElementById('settings-modal').classList.remove('visible');
+        }
+
+        function togglePause() {
+            if (document.getElementById('settings-modal').classList.contains('visible')) {
+                resumeGame();
+            } else {
+                pauseGame();
+            }
+        }
+
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
@@ -4473,9 +4495,8 @@ function checkGravity() {
             }
         }
         function setupUI(){
-            const sm=document.getElementById('settings-modal');
-            document.getElementById('settings-btn').addEventListener('click',()=>{ isPaused = true; sm.classList.add('visible'); });
-            document.getElementById('close-settings').addEventListener('click',()=>{ isPaused = false; lastTime = performance.now(); sm.classList.remove('visible'); });
+            document.getElementById('settings-btn').addEventListener('click', pauseGame);
+            document.getElementById('close-settings').addEventListener('click', resumeGame);
             document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
             document.getElementById('next-track-btn').addEventListener('click', () => soundManager.nextTrack());
             const ds=document.getElementById('das-delay'),dv=document.getElementById('das-delay-value'),is=document.getElementById('das-interval'),iv=document.getElementById('das-interval-value');
@@ -4642,6 +4663,10 @@ function checkGravity() {
 
         let keyMap={};
         document.addEventListener('keydown',(e)=>{
+            if(e.key === 'Escape') {
+                togglePause();
+                return;
+            }
             if(!soundInitialized){soundInitialized=true;initSound();}
             if(document.activeElement.classList.contains('key-input'))return;
             if(document.getElementById('start-modal').classList.contains('visible')||document.getElementById('game-over-modal').classList.contains('visible')){startGame();return;}
