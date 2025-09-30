@@ -4555,10 +4555,10 @@ function checkLines() {
                     });
                 } else {
                     // Piece not affected by line clear, but may need to move down
-                    const linesBelow = fullLines.filter(lineY => lineY >= piece.y + piece.shape.length).length;
+                    const linesBelow = fullLines.filter(lineY => lineY < piece.y).length;
                     newPieces.push({
                         ...piece,
-                        y: piece.y + linesBelow
+                        y: piece.y - linesBelow
                     });
                 }
             });
@@ -4603,9 +4603,10 @@ function checkGravity() {
         // In each pass, move every piece that can fall down by one.
         // Important: use current state of lockedPieces for collision detection
         sortedPieces.forEach(p => {
-            const others = lockedPieces.filter(op => op !== p);
-            if (canFall(p, others)) {
-                p.y++;
+            const originalPiece = lockedPieces.find(lp => lp === p);
+            const others = lockedPieces.filter(op => op !== originalPiece);
+            if (canFall(originalPiece, others)) {
+                originalPiece.y++;
                 fell = true;
                 anyPieceFell = true;
             }
