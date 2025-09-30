@@ -1950,16 +1950,38 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const auroraContainer = document.getElementById('aurora-theme');
             const starsContainer = document.getElementById('aurora-stars');
             const dynamicStyleId = 'aurora-dynamic-styles';
-                
-            // 1. Cleanup old aurora elements and styles
-            const oldStyleElement = document.getElementById(dynamicStyleId);
-            if (oldStyleElement) {
-                oldStyleElement.remove();
+
+            // 1. Smooth cleanup - fade out old elements before removing
+            const oldElements = Array.from(auroraContainer.children).filter(child => child !== starsContainer);
+            if (oldElements.length > 0) {
+                oldElements.forEach(el => {
+                    el.style.transition = 'opacity 2s ease-out';
+                    el.style.opacity = '0';
+                });
+
+                // Remove after fade completes
+                setTimeout(() => {
+                    const oldStyleElement = document.getElementById(dynamicStyleId);
+                    if (oldStyleElement) {
+                        oldStyleElement.remove();
+                    }
+                    while (auroraContainer.lastChild && auroraContainer.lastChild !== starsContainer) {
+                        auroraContainer.removeChild(auroraContainer.lastChild);
+                    }
+                }, 2000);
+
+                // Delay new aurora creation for smooth crossfade
+                setTimeout(() => createAuroraLayers(), 1000);
+                return;
             }
-            // Remove all children from auroraContainer except the stars
-            while (auroraContainer.lastChild && auroraContainer.lastChild !== starsContainer) {
-                auroraContainer.removeChild(auroraContainer.lastChild);
-            }
+
+            createAuroraLayers();
+        }
+
+        function createAuroraLayers() {
+            const auroraContainer = document.getElementById('aurora-theme');
+            const starsContainer = document.getElementById('aurora-stars');
+            const dynamicStyleId = 'aurora-dynamic-styles';
         
             // 2. Preserve existing star generation
             if (starsContainer && starsContainer.children.length === 0) {
@@ -2006,11 +2028,16 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const numLayers = Math.floor(random(4, 6)); // Fewer layers for subtlety
             let dynamicKeyframes = '';
 
-            // Create shimmer particle container
+            // Create shimmer particle container with fade-in
             const shimmerContainer = document.createElement('div');
             shimmerContainer.className = 'aurora-shimmer-container';
-            shimmerContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 60%; z-index: 20; pointer-events: none;';
+            shimmerContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 60%; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 3s ease-in;';
             auroraContainer.appendChild(shimmerContainer);
+
+            // Trigger fade-in
+            setTimeout(() => {
+                shimmerContainer.style.opacity = '1';
+            }, 50);
 
             // Add shimmer particles with varied characteristics
             const numShimmers = Math.floor(random(25, 40)); // Fewer particles for subtlety
@@ -2037,13 +2064,14 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 shimmerContainer.appendChild(particle);
             }
         
-            // Create aurora curtains with realistic motion
+            // Create aurora curtains with realistic motion and smooth fade-in
             for (let i = 0; i < numLayers; i++) {
                 const layer = document.createElement('div');
                 const animationName = `aurora-flow-layer-${i}-${Date.now()}`;
                 const pulseAnimationName = `aurora-pulse-${i}-${Date.now()}`;
                 const waveAnimationName = `aurora-wave-${i}-${Date.now()}`;
                 const colorCycleAnimationName = `aurora-color-cycle-${i}-${Date.now()}`;
+                const fadeInAnimationName = `aurora-fadein-${i}-${Date.now()}`;
 
                 // Select palette using weighted random for natural distribution
                 const palette = weightedPalette[Math.floor(random(0, weightedPalette.length))];
@@ -2079,11 +2107,14 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 layer.style.left = `${random(-40, 10)}%`;
                 layer.style.width = `${width}%`;
                 layer.style.height = `${height}%`;
-                layer.style.opacity = opacity;
+                layer.style.opacity = '0'; // Start invisible for fade-in animation
                 layer.style.mixBlendMode = 'screen';
                 layer.style.willChange = 'transform, filter, opacity';
                 layer.style.zIndex = zIndex;
                 layer.style.filter = `blur(${blur}px) saturate(${random(0.9, 1.2)})`;
+
+                // Store target opacity as data attribute for pulse animation
+                layer.setAttribute('data-target-opacity', opacity);
 
                 // Multiple animation layers for complex, natural motion
                 const flowDuration = random(30, 70); // Slower, more majestic
@@ -2094,25 +2125,38 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 const flowDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
                 const waveDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
                 
+                // Stagger fade-in for each layer
+                const fadeInDelay = i * 0.4; // 400ms between each layer appearing
+
                 layer.style.animation = `
-                    ${animationName} ${flowDuration}s ease-in-out infinite ${flowDirection},
-                    ${pulseAnimationName} ${pulseDuration}s ease-in-out infinite alternate,
-                    ${waveAnimationName} ${waveDuration}s ease-in-out infinite ${waveDirection},
-                    ${colorCycleAnimationName} ${colorCycleDuration}s linear infinite
+                    ${fadeInAnimationName} 4s ease-in ${fadeInDelay}s forwards,
+                    ${animationName} ${flowDuration}s ease-in-out infinite ${flowDirection} ${fadeInDelay + 4}s,
+                    ${pulseAnimationName} ${pulseDuration}s ease-in-out infinite alternate ${fadeInDelay + 4}s,
+                    ${waveAnimationName} ${waveDuration}s ease-in-out infinite ${waveDirection} ${fadeInDelay + 4}s
                 `;
+
+                // Use CSS transition for smooth color changes instead of keyframes
+                layer.style.transition = `background ${colorCycleDuration * 0.25}s ease-in-out`;
+
+                // Fade-in animation with target opacity
+                const fadeInKeyframes = `
+                    0% { opacity: 0; }
+                    100% { opacity: ${opacity}; }
+                `;
+                dynamicKeyframes += `@keyframes ${fadeInAnimationName} {\n${fadeInKeyframes}}\n`;
             
-                // Generate organic flow animation with smooth, sinuous motion
+                // Generate organic flow animation with ultra-smooth, sinuous motion
                 let flowKeyframes = '0% { transform: translateX(0%) rotate(0deg) scaleX(1); }\n';
-                const numFlowPoints = Math.floor(random(6, 10)); // More points for smoother curves
-                for (let j = 1; j <= numFlowPoints; j++) {
+                const numFlowPoints = Math.floor(random(12, 18)); // Many more points for buttery smooth curves
+                for (let j = 1; j < numFlowPoints; j++) { // Exclude last point, set separately
                     const percent = (j / numFlowPoints) * 100;
                     // Use sine wave for more natural drift pattern
                     const driftBase = Math.sin((percent / 100) * Math.PI * 2) * random(15, 35);
-                    const driftNoise = random(-8, 8); // Add noise for organic feel
+                    const driftNoise = random(-5, 5); // Less noise for smoother motion
                     const drift = driftBase + driftNoise;
                     const rotate = Math.sin((percent / 100) * Math.PI * 3) * random(8, 18);
                     const scaleX = 0.95 + Math.sin((percent / 100) * Math.PI * 4) * 0.15;
-                    flowKeyframes += `${percent}% { transform: translateX(${drift}%) rotate(${rotate}deg) scaleX(${scaleX}); }\n`;
+                    flowKeyframes += `${percent.toFixed(2)}% { transform: translateX(${drift.toFixed(2)}%) rotate(${rotate.toFixed(2)}deg) scaleX(${scaleX.toFixed(3)}); }\n`;
                 }
                 flowKeyframes += '100% { transform: translateX(0%) rotate(0deg) scaleX(1); }\n';
             
@@ -2140,10 +2184,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     }
                 `;
             
-                // Generate vertical wave motion with natural undulation
+                // Generate vertical wave motion with ultra-smooth natural undulation
                 let waveKeyframes = '0% { transform: translateY(0%) scaleY(1) skewX(0deg); }\n';
-                const numWavePoints = Math.floor(random(7, 12)); // More points for fluid motion
-                for (let j = 1; j <= numWavePoints; j++) {
+                const numWavePoints = Math.floor(random(15, 22)); // Many more points for ultra-fluid motion
+                for (let j = 1; j < numWavePoints; j++) { // Exclude last point
                     const percent = (j / numWavePoints) * 100;
                     // Multi-frequency wave for complex, natural motion
                     const wave1 = Math.sin((percent / 100) * Math.PI * 2) * random(10, 22);
@@ -2151,46 +2195,65 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     const wave = wave1 + wave2;
                     const scaleY = 0.92 + Math.sin((percent / 100) * Math.PI * 3) * 0.18;
                     const skewX = Math.sin((percent / 100) * Math.PI * 4) * random(6, 12);
-                    waveKeyframes += `${percent}% { transform: translateY(${wave}%) scaleY(${scaleY}) skewX(${skewX}deg); }\n`;
+                    waveKeyframes += `${percent.toFixed(2)}% { transform: translateY(${wave.toFixed(2)}%) scaleY(${scaleY.toFixed(3)}) skewX(${skewX.toFixed(2)}deg); }\n`;
                 }
                 waveKeyframes += '100% { transform: translateY(0%) scaleY(1) skewX(0deg); }\n';
             
-                // Generate color cycling animation with smooth gradient shifts
-                const grad2X = random(15, 85);
-                const grad2Y = random(25, 75);
-                const grad3X = random(15, 85);
-                const grad3Y = random(25, 75);
-                const ellipseSize1 = `${random(40, 70)}% ${random(80, 120)}%`;
-                const ellipseSize2 = `${random(45, 75)}% ${random(85, 125)}%`;
-                const ellipseSize3 = `${random(38, 68)}% ${random(78, 118)}%`;
+                // Set up smooth color cycling using setInterval with CSS transitions
+                const colorSequence = [
+                    {
+                        color: color,
+                        gradX: gradX,
+                        gradY: gradY,
+                        ellipseW: random(40, 70),
+                        ellipseH: random(80, 120),
+                        transparentStop: transparentStop,
+                        colorStop: colorStop
+                    },
+                    {
+                        color: nextColor,
+                        gradX: random(15, 85),
+                        gradY: random(25, 75),
+                        ellipseW: random(45, 75),
+                        ellipseH: random(85, 125),
+                        transparentStop: random(30, 50),
+                        colorStop: random(70, 90)
+                    },
+                    {
+                        color: thirdColor,
+                        gradX: random(15, 85),
+                        gradY: random(25, 75),
+                        ellipseW: random(38, 68),
+                        ellipseH: random(78, 118),
+                        transparentStop: random(32, 48),
+                        colorStop: random(72, 92)
+                    }
+                ];
 
-                const colorCycleKeyframes = `
-                    0% {
-                        background: radial-gradient(ellipse ${ellipseSize1} at ${gradX}% ${gradY}%,
-                            transparent 0%, transparent ${transparentStop}%, ${color} ${colorStop}%, ${color} 100%);
+                let colorIndex = 0;
+                const cycleColors = () => {
+                    if (activeTheme !== 'aurora' || !layer.parentElement) return;
+
+                    colorIndex = (colorIndex + 1) % colorSequence.length;
+                    const nextGrad = colorSequence[colorIndex];
+
+                    layer.style.background = `radial-gradient(ellipse ${nextGrad.ellipseW}% ${nextGrad.ellipseH}% at ${nextGrad.gradX}% ${nextGrad.gradY}%,
+                        transparent 0%,
+                        transparent ${nextGrad.transparentStop}%,
+                        ${nextGrad.color} ${nextGrad.colorStop}%,
+                        ${nextGrad.color} 100%)`;
+                };
+
+                // Start color cycling after fade-in completes
+                setTimeout(() => {
+                    if (activeTheme === 'aurora' && layer.parentElement) {
+                        setInterval(cycleColors, colorCycleDuration * 1000 / 3);
                     }
-                    25% {
-                        background: radial-gradient(ellipse ${ellipseSize2} at ${grad2X}% ${grad2Y}%,
-                            transparent 0%, transparent ${random(22, 42)}%, ${nextColor} ${random(68, 92)}%, ${nextColor} 100%);
-                    }
-                    50% {
-                        background: radial-gradient(ellipse ${ellipseSize3} at ${grad3X}% ${grad3Y}%,
-                            transparent 0%, transparent ${random(24, 44)}%, ${thirdColor} ${random(70, 94)}%, ${thirdColor} 100%);
-                    }
-                    75% {
-                        background: radial-gradient(ellipse ${ellipseSize2} at ${grad2X}% ${grad2Y}%,
-                            transparent 0%, transparent ${random(22, 42)}%, ${nextColor} ${random(68, 92)}%, ${nextColor} 100%);
-                    }
-                    100% {
-                        background: radial-gradient(ellipse ${ellipseSize1} at ${gradX}% ${gradY}%,
-                            transparent 0%, transparent ${transparentStop}%, ${color} ${colorStop}%, ${color} 100%);
-                    }
-                `;
-            
+                }, (fadeInDelay + 4) * 1000);
+
                 dynamicKeyframes += `@keyframes ${animationName} {\n${flowKeyframes}}\n`;
                 dynamicKeyframes += `@keyframes ${pulseAnimationName} {\n${pulseKeyframes}}\n`;
                 dynamicKeyframes += `@keyframes ${waveAnimationName} {\n${waveKeyframes}}\n`;
-                dynamicKeyframes += `@keyframes ${colorCycleAnimationName} {\n${colorCycleKeyframes}}\n`;
                 
                 auroraContainer.appendChild(layer);
             
