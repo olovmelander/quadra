@@ -1976,21 +1976,34 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
         
-            // 3. Enhanced Color System with palettes that transition
+            // 3. Enhanced Color System with natural aurora palettes
             const colorPalettes = [
-                // Classic Green Aurora
-                { colors: ['#00ff87', '#39ff14', '#7fff00', '#40e0d0'], name: 'emerald' },
-                // Pink-Purple Aurora
-                { colors: ['#ff1493', '#ff66cc', '#bf00ff', '#a29bfe'], name: 'magenta' },
-                // Teal-Blue Aurora  
-                { colors: ['#00ffff', '#64ffda', '#40e0d0', '#00ffaa'], name: 'cyan' },
-                // Mixed Classic (green-pink-purple)
-                { colors: ['#00ff87', '#ff1493', '#bf00ff', '#40e0d0'], name: 'mixed' },
-                // Rare Red Aurora
-                { colors: ['#ff006e', '#ff4757', '#ff1493', '#bf00ff'], name: 'ruby' }
+                // Classic Green Aurora (most common in nature)
+                { colors: ['#00ff87', '#39ff14', '#7fff00', '#40e0d0', '#00ffaa'], name: 'emerald', weight: 3 },
+                // Pink-Purple Aurora (rare, occurs at very high altitudes)
+                { colors: ['#ff1493', '#ff66cc', '#bf00ff', '#a29bfe', '#ff00aa'], name: 'magenta', weight: 1 },
+                // Teal-Blue Aurora (nitrogen-based)
+                { colors: ['#00ffff', '#64ffda', '#40e0d0', '#00ffaa', '#00ddff'], name: 'cyan', weight: 2 },
+                // Mixed Classic (green with pink/purple accents)
+                { colors: ['#00ff87', '#39ff14', '#ff1493', '#bf00ff', '#40e0d0'], name: 'mixed', weight: 2 },
+                // Rare Red Aurora (extremely rare, very high altitude)
+                { colors: ['#ff006e', '#ff4757', '#ff1493', '#ff0055', '#bf00ff'], name: 'ruby', weight: 0.5 },
+                // Yellow-Green blend (oxygen at lower altitudes)
+                { colors: ['#7fff00', '#9acd32', '#adff2f', '#00ff87', '#40e0d0'], name: 'lime', weight: 2 },
+                // Deep blue-violet (nitrogen)
+                { colors: ['#6a5acd', '#7b68ee', '#8a2be2', '#9370db', '#ba55d3'], name: 'violet', weight: 1.5 }
             ];
-        
-            const numLayers = Math.floor(random(5, 8)); // More layers for richness
+
+            // Weighted random selection for more natural distribution
+            const weightedPalette = [];
+            colorPalettes.forEach(palette => {
+                const weight = Math.floor(palette.weight * 10);
+                for (let i = 0; i < weight; i++) {
+                    weightedPalette.push(palette);
+                }
+            });
+
+            const numLayers = Math.floor(random(6, 10)); // More layers for depth and complexity
             let dynamicKeyframes = '';
         
             // Create shimmer particle container
@@ -1999,14 +2012,28 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             shimmerContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none;';
             auroraContainer.appendChild(shimmerContainer);
         
-            // Add shimmer particles
-            for (let i = 0; i < 40; i++) {
+            // Add shimmer particles with varied characteristics
+            const numShimmers = Math.floor(random(50, 80)); // More particles for richness
+            for (let i = 0; i < numShimmers; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'aurora-shimmer';
-                particle.style.left = `${random(0, 100)}%`;
-                particle.style.top = `${random(0, 80)}%`;
-                particle.style.animationDelay = `-${random(0, 15)}s`;
-                particle.style.animationDuration = `${random(10, 20)}s`;
+
+                // Randomize starting position with clustering effect
+                const clusterX = random(0, 100);
+                const clusterY = random(0, 60); // Focus on upper portions
+                particle.style.left = `${clusterX + random(-15, 15)}%`;
+                particle.style.top = `${clusterY + random(-10, 10)}%`;
+
+                // Varied timing for organic feel
+                const duration = random(12, 28);
+                particle.style.animationDelay = `-${random(0, duration)}s`;
+                particle.style.animationDuration = `${duration}s`;
+
+                // Vary particle size
+                const size = random(1.5, 3.5);
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
                 shimmerContainer.appendChild(particle);
             }
         
@@ -2017,45 +2044,52 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 const pulseAnimationName = `aurora-pulse-${i}-${Date.now()}`;
                 const waveAnimationName = `aurora-wave-${i}-${Date.now()}`;
                 const colorCycleAnimationName = `aurora-color-cycle-${i}-${Date.now()}`;
-            
-                // Select palette and colors with depth-based variation
-                const paletteIndex = Math.floor(random(0, colorPalettes.length));
-                const palette = colorPalettes[paletteIndex];
+
+                // Select palette using weighted random for natural distribution
+                const palette = weightedPalette[Math.floor(random(0, weightedPalette.length))];
                 const colorIndex = Math.floor(random(0, palette.colors.length));
                 const color = palette.colors[colorIndex];
                 const nextColor = palette.colors[(colorIndex + 1) % palette.colors.length];
+                const thirdColor = palette.colors[(colorIndex + 2) % palette.colors.length];
                 
-                // Position with depth
+                // Position with depth and natural variation
                 const depth = i / numLayers; // 0 (far) to 1 (close)
-                const top = random(-70, -30) - (depth * 20); // Further layers higher up
-                const width = random(100, 200) + (depth * 50); // Closer layers wider
-                const height = random(180, 280) + (depth * 40);
-                const opacity = random(0.5, 0.8) + (depth * 0.2); // Closer layers more visible
-                const blur = random(8, 20) - (depth * 8); // Closer layers less blurry
+                const top = random(-80, -20) - (depth * 25); // Further layers higher up
+                const width = random(120, 250) + (depth * 60); // Closer layers wider
+                const height = random(200, 320) + (depth * 50);
+                const opacity = random(0.4, 0.7) + (depth * 0.25); // Closer layers more visible
+                const blur = random(12, 28) - (depth * 10); // Closer layers less blurry
                 const zIndex = Math.floor(i * 2) + 1;
-            
-                // Unique gradient shape for each curtain
-                const gradX = random(20, 80);
-                const gradY = random(30, 70);
-                const transparentStop = random(30, 50);
-                layer.style.background = `radial-gradient(ellipse at ${gradX}% ${gradY}%, transparent 0%, transparent ${transparentStop}%, ${color} 100%)`;
-            
+
+                // More organic gradient shapes with multiple focus points
+                const gradX = random(15, 85);
+                const gradY = random(25, 75);
+                const transparentStop = random(25, 45);
+                const colorStop = random(70, 95);
+
+                // Create multi-stop gradient for more natural appearance
+                layer.style.background = `radial-gradient(ellipse ${random(40, 70)}% ${random(80, 120)}% at ${gradX}% ${gradY}%,
+                    transparent 0%,
+                    transparent ${transparentStop}%,
+                    ${color} ${colorStop}%,
+                    ${color} 100%)`;
+
                 layer.style.position = 'absolute';
                 layer.style.top = `${top}%`;
-                layer.style.left = `${random(-50, 10)}%`;
+                layer.style.left = `${random(-60, 20)}%`;
                 layer.style.width = `${width}%`;
                 layer.style.height = `${height}%`;
                 layer.style.opacity = opacity;
                 layer.style.mixBlendMode = 'screen';
                 layer.style.willChange = 'transform, filter, opacity';
                 layer.style.zIndex = zIndex;
-                layer.style.filter = `blur(${blur}px)`;
-            
-                // Multiple animation layers for complex motion
-                const flowDuration = random(25, 55); // Slower, more majestic
-                const pulseDuration = random(8, 15);
-                const waveDuration = random(12, 22);
-                const colorCycleDuration = random(35, 65);
+                layer.style.filter = `blur(${blur}px) saturate(${random(1.1, 1.4)})`;
+
+                // Multiple animation layers for complex, natural motion
+                const flowDuration = random(30, 70); // Slower, more majestic
+                const pulseDuration = random(10, 20);
+                const waveDuration = random(15, 30);
+                const colorCycleDuration = random(40, 80);
                 
                 const flowDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
                 const waveDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
@@ -2067,58 +2101,89 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     ${colorCycleAnimationName} ${colorCycleDuration}s linear infinite
                 `;
             
-                // Generate organic flow animation (horizontal drift + rotation)
-                let flowKeyframes = '0% { transform: translateX(0%) rotate(0deg); }\n';
-                const numFlowPoints = Math.floor(random(4, 7));
+                // Generate organic flow animation with smooth, sinuous motion
+                let flowKeyframes = '0% { transform: translateX(0%) rotate(0deg) scaleX(1); }\n';
+                const numFlowPoints = Math.floor(random(6, 10)); // More points for smoother curves
                 for (let j = 1; j <= numFlowPoints; j++) {
                     const percent = (j / numFlowPoints) * 100;
-                    const drift = random(-25, 25);
-                    const rotate = random(-12, 12);
-                    flowKeyframes += `${percent}% { transform: translateX(${drift}%) rotate(${rotate}deg); }\n`;
+                    // Use sine wave for more natural drift pattern
+                    const driftBase = Math.sin((percent / 100) * Math.PI * 2) * random(15, 35);
+                    const driftNoise = random(-8, 8); // Add noise for organic feel
+                    const drift = driftBase + driftNoise;
+                    const rotate = Math.sin((percent / 100) * Math.PI * 3) * random(8, 18);
+                    const scaleX = 0.95 + Math.sin((percent / 100) * Math.PI * 4) * 0.15;
+                    flowKeyframes += `${percent}% { transform: translateX(${drift}%) rotate(${rotate}deg) scaleX(${scaleX}); }\n`;
                 }
-                flowKeyframes += '100% { transform: translateX(0%) rotate(0deg); }\n';
+                flowKeyframes += '100% { transform: translateX(0%) rotate(0deg) scaleX(1); }\n';
             
-                // Generate pulsing/breathing effect (opacity + brightness)
+                // Generate pulsing/breathing effect with smooth transitions
                 const pulseKeyframes = `
-                    0% { 
-                        opacity: ${opacity * 0.6}; 
-                        filter: blur(${blur}px) brightness(0.8) saturate(0.9);
+                    0% {
+                        opacity: ${opacity * 0.65};
+                        filter: blur(${blur}px) brightness(0.85) saturate(0.95);
                     }
-                    50% { 
-                        opacity: ${Math.min(opacity * 1.4, 1)}; 
-                        filter: blur(${blur * 0.9}px) brightness(1.3) saturate(1.2);
+                    25% {
+                        opacity: ${Math.min(opacity * 1.1, 0.95)};
+                        filter: blur(${blur * 0.95}px) brightness(1.1) saturate(1.1);
                     }
-                    100% { 
-                        opacity: ${opacity * 0.6}; 
-                        filter: blur(${blur}px) brightness(0.8) saturate(0.9);
+                    50% {
+                        opacity: ${Math.min(opacity * 1.35, 1)};
+                        filter: blur(${blur * 0.88}px) brightness(1.4) saturate(1.25);
+                    }
+                    75% {
+                        opacity: ${Math.min(opacity * 1.1, 0.95)};
+                        filter: blur(${blur * 0.95}px) brightness(1.1) saturate(1.1);
+                    }
+                    100% {
+                        opacity: ${opacity * 0.65};
+                        filter: blur(${blur}px) brightness(0.85) saturate(0.95);
                     }
                 `;
             
-                // Generate vertical wave motion (undulation)
+                // Generate vertical wave motion with natural undulation
                 let waveKeyframes = '0% { transform: translateY(0%) scaleY(1) skewX(0deg); }\n';
-                const numWavePoints = Math.floor(random(5, 8));
+                const numWavePoints = Math.floor(random(7, 12)); // More points for fluid motion
                 for (let j = 1; j <= numWavePoints; j++) {
                     const percent = (j / numWavePoints) * 100;
-                    const wave = Math.sin((percent / 100) * Math.PI * 2) * random(8, 18);
-                    const scaleY = random(0.9, 1.15);
-                    const skewX = random(-8, 8);
+                    // Multi-frequency wave for complex, natural motion
+                    const wave1 = Math.sin((percent / 100) * Math.PI * 2) * random(10, 22);
+                    const wave2 = Math.sin((percent / 100) * Math.PI * 5) * random(3, 8);
+                    const wave = wave1 + wave2;
+                    const scaleY = 0.92 + Math.sin((percent / 100) * Math.PI * 3) * 0.18;
+                    const skewX = Math.sin((percent / 100) * Math.PI * 4) * random(6, 12);
                     waveKeyframes += `${percent}% { transform: translateY(${wave}%) scaleY(${scaleY}) skewX(${skewX}deg); }\n`;
                 }
                 waveKeyframes += '100% { transform: translateY(0%) scaleY(1) skewX(0deg); }\n';
             
-                // Generate color cycling animation
+                // Generate color cycling animation with smooth gradient shifts
+                const grad2X = random(15, 85);
+                const grad2Y = random(25, 75);
+                const grad3X = random(15, 85);
+                const grad3Y = random(25, 75);
+                const ellipseSize1 = `${random(40, 70)}% ${random(80, 120)}%`;
+                const ellipseSize2 = `${random(45, 75)}% ${random(85, 125)}%`;
+                const ellipseSize3 = `${random(38, 68)}% ${random(78, 118)}%`;
+
                 const colorCycleKeyframes = `
-                    0% { 
-                        background: radial-gradient(ellipse at ${gradX}% ${gradY}%, transparent 0%, transparent ${transparentStop}%, ${color} 100%);
+                    0% {
+                        background: radial-gradient(ellipse ${ellipseSize1} at ${gradX}% ${gradY}%,
+                            transparent 0%, transparent ${transparentStop}%, ${color} ${colorStop}%, ${color} 100%);
                     }
-                    33% {
-                        background: radial-gradient(ellipse at ${random(20,80)}% ${random(30,70)}%, transparent 0%, transparent ${transparentStop}%, ${nextColor} 100%);
+                    25% {
+                        background: radial-gradient(ellipse ${ellipseSize2} at ${grad2X}% ${grad2Y}%,
+                            transparent 0%, transparent ${random(22, 42)}%, ${nextColor} ${random(68, 92)}%, ${nextColor} 100%);
                     }
-                    66% {
-                        background: radial-gradient(ellipse at ${random(20,80)}% ${random(30,70)}%, transparent 0%, transparent ${transparentStop}%, ${palette.colors[(colorIndex + 2) % palette.colors.length]} 100%);
+                    50% {
+                        background: radial-gradient(ellipse ${ellipseSize3} at ${grad3X}% ${grad3Y}%,
+                            transparent 0%, transparent ${random(24, 44)}%, ${thirdColor} ${random(70, 94)}%, ${thirdColor} 100%);
                     }
-                    100% { 
-                        background: radial-gradient(ellipse at ${gradX}% ${gradY}%, transparent 0%, transparent ${transparentStop}%, ${color} 100%);
+                    75% {
+                        background: radial-gradient(ellipse ${ellipseSize2} at ${grad2X}% ${grad2Y}%,
+                            transparent 0%, transparent ${random(22, 42)}%, ${nextColor} ${random(68, 92)}%, ${nextColor} 100%);
+                    }
+                    100% {
+                        background: radial-gradient(ellipse ${ellipseSize1} at ${gradX}% ${gradY}%,
+                            transparent 0%, transparent ${transparentStop}%, ${color} ${colorStop}%, ${color} 100%);
                     }
                 `;
             
@@ -2129,27 +2194,46 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 
                 auroraContainer.appendChild(layer);
             
-                // Add random surge effect
-                if (Math.random() > 0.6) {
+                // Add random surge effect for dynamic energy bursts
+                if (Math.random() > 0.5) { // More frequent surges
+                    const surgeDelay = random(3000, 45000);
                     setTimeout(() => {
                         if (activeTheme === 'aurora' && layer.parentElement) {
                             const surgeName = `aurora-surge-${Date.now()}`;
+                            const surgeDuration = random(3, 7);
                             const surgeKeyframes = `
                                 @keyframes ${surgeName} {
-                                    0% { opacity: ${opacity}; filter: blur(${blur}px) brightness(1); }
-                                    50% { opacity: ${Math.min(opacity * 2, 1)}; filter: blur(${blur * 0.7}px) brightness(2.5); }
-                                    100% { opacity: ${opacity}; filter: blur(${blur}px) brightness(1); }
+                                    0% {
+                                        opacity: ${opacity};
+                                        filter: blur(${blur}px) brightness(1) saturate(${random(1.1, 1.4)});
+                                    }
+                                    15% {
+                                        opacity: ${Math.min(opacity * 1.5, 0.95)};
+                                        filter: blur(${blur * 0.85}px) brightness(1.8) saturate(${random(1.4, 1.7)});
+                                    }
+                                    50% {
+                                        opacity: ${Math.min(opacity * 2.2, 1)};
+                                        filter: blur(${blur * 0.7}px) brightness(3) saturate(${random(1.6, 2)});
+                                    }
+                                    85% {
+                                        opacity: ${Math.min(opacity * 1.5, 0.95)};
+                                        filter: blur(${blur * 0.85}px) brightness(1.8) saturate(${random(1.4, 1.7)});
+                                    }
+                                    100% {
+                                        opacity: ${opacity};
+                                        filter: blur(${blur}px) brightness(1) saturate(${random(1.1, 1.4)});
+                                    }
                                 }
                             `;
                             const surgeStyle = document.createElement('style');
                             surgeStyle.textContent = surgeKeyframes;
                             document.head.appendChild(surgeStyle);
-                            
-                            layer.style.animation += `, ${surgeName} ${random(2, 4)}s ease-in-out`;
-                            
-                            setTimeout(() => surgeStyle.remove(), 5000);
+
+                            layer.style.animation += `, ${surgeName} ${surgeDuration}s ease-in-out`;
+
+                            setTimeout(() => surgeStyle.remove(), surgeDuration * 1000 + 1000);
                         }
-                    }, random(5000, 30000));
+                    }, surgeDelay);
                 }
             }
         
