@@ -4672,71 +4672,23 @@ function checkLines() {
 
         // After a delay, remove the lines and check for gravity
         setTimeout(() => {
-            const newPieces = [];
+            // Get a fresh board from current pieces (without 'C' markers)
+            const freshBoard = generateBoard(lockedPieces);
 
-            // Remove cleared lines from each piece's shape and split disconnected parts
-            lockedPieces.forEach(piece => {
-                const pieceLinesCleared = fullLines.filter(lineY => lineY >= piece.y && lineY < piece.y + piece.shape.length);
-                if (pieceLinesCleared.length > 0) {
-                    // Remove rows from this piece's shape
-                    const localLines = pieceLinesCleared.map(lineY => lineY - piece.y);
-                    const remainingRows = [];
-                    const rowYPositions = [];
-
-                    piece.shape.forEach((row, localY) => {
-                        if (!localLines.includes(localY)) {
-                            remainingRows.push(row);
-                            rowYPositions.push(piece.y + localY);
-                        }
-                    });
-
-                    // If piece is completely gone, skip it
-                    if (remainingRows.length === 0 || remainingRows.every(row => row.every(cell => cell === 0))) {
-                        return;
-                    }
-
-                    // Split into contiguous vertical segments
-                    let segments = [];
-                    let currentSegment = [];
-                    let currentSegmentY = null;
-
-                    remainingRows.forEach((row, idx) => {
-                        const actualY = rowYPositions[idx];
-                        if (currentSegmentY === null || actualY === currentSegmentY + currentSegment.length) {
-                            if (currentSegmentY === null) currentSegmentY = actualY;
-                            currentSegment.push(row);
-                        } else {
-                            // Gap detected - save current segment and start new one
-                            segments.push({ shape: currentSegment, y: currentSegmentY });
-                            currentSegment = [row];
-                            currentSegmentY = actualY;
-                        }
-                    });
-                    if (currentSegment.length > 0) {
-                        segments.push({ shape: currentSegment, y: currentSegmentY });
-                    }
-
-                    // Create separate pieces for each segment
-                    segments.forEach(seg => {
-                        newPieces.push({
-                            x: piece.x,
-                            y: seg.y,
-                            shape: seg.shape,
-                            shapeKey: piece.shapeKey,
-                            color: piece.color
-                        });
-                    });
-                } else {
-                    // Piece not affected by line clear, but may need to move down
-                    const linesBelow = fullLines.filter(lineY => lineY < piece.y).length;
-                    newPieces.push({
-                        ...piece,
-                        y: piece.y - linesBelow
-                    });
-                }
+            // Remove cleared lines from the board
+            fullLines.sort((a, b) => b - a).forEach(lineY => {
+                freshBoard.splice(lineY, 1);
             });
 
-            lockedPieces = newPieces;
+            // Add empty lines at the top
+            for (let i = 0; i < fullLines.length; i++) {
+                freshBoard.unshift(Array(COLS).fill(0));
+            }
+
+            // Use findConnectedComponents to rebuild all pieces from the board
+            // This automatically handles splitting disconnected parts
+            lockedPieces = findConnectedComponents(freshBoard);
+
             checkGravity(); // Next step in the physics chain
         }, 200);
     } else {
@@ -4774,15 +4726,20 @@ function checkGravity() {
         });
 
         // In each pass, move every piece that can fall down by one.
-        // Important: use current state of lockedPieces for collision detection
+        // Important: check all pieces with current positions before moving any
+        const piecesToFall = [];
         sortedPieces.forEach(p => {
-            const originalPiece = lockedPieces.find(lp => lp === p);
-            const others = lockedPieces.filter(op => op !== originalPiece);
-            if (canFall(originalPiece, others)) {
-                originalPiece.y++;
-                fell = true;
-                anyPieceFell = true;
+            const others = lockedPieces.filter(op => op !== p);
+            if (canFall(p, others)) {
+                piecesToFall.push(p);
             }
+        });
+
+        // Now move all pieces that can fall
+        piecesToFall.forEach(p => {
+            p.y++;
+            fell = true;
+            anyPieceFell = true;
         });
 
         // If any piece fell in this pass, redraw and check again.
