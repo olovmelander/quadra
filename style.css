@@ -184,24 +184,27 @@ body {
     position: absolute; top: 0; left: 0;
     width: 100%; height: 100%;
     background: linear-gradient(to top, #010810, #021B39, #0A4882);
-    z-index: 2;
+    z-index: 1;
 }
 .ocean-parallax {
     position: absolute;
     bottom: 0; left: 0;
-    width: 200%; height: 100%;
+    width: 200%; height: 30%;
     will-change: transform;
+    pointer-events: none;
+    background: transparent !important;
 }
-#ocean-floor-bg { animation: slide 320s linear infinite; z-index: 4; filter: brightness(0.7); }
-#ocean-floor-mid { animation: slide 240s linear infinite; z-index: 6; filter: brightness(0.85); }
-#ocean-floor-fg { animation: slide 160s linear infinite; z-index: 9; }
+#ocean-floor-bg { animation: slide 320s linear infinite; z-index: 2; filter: brightness(0.7); pointer-events: none; }
+#ocean-floor-mid { animation: slide 240s linear infinite; z-index: 3; filter: brightness(0.85); pointer-events: none; }
+#ocean-floor-fg { animation: slide 160s linear infinite; z-index: 4; pointer-events: none; }
 
 .ocean-god-rays {
     position: absolute; top: -10%; left: -10%;
     width: 120%; height: 120%;
     transform-origin: center;
     animation: ocean-ray-anim 90s ease-in-out infinite alternate;
-    z-index: 5;
+    z-index: 7;
+    pointer-events: none;
 }
 .ocean-god-ray {
     position: absolute; top: 0;
@@ -218,8 +221,9 @@ body {
     width: 100%; height: 100%;
     transform-origin: center;
     animation: slow-pan 120s linear infinite alternate;
-    z-index: 1;
+    z-index: 11;
     mix-blend-mode: screen;
+    display: none;
 }
 @keyframes slow-pan {
     from { transform: translateX(-5%) scale(1.1); }
@@ -227,17 +231,26 @@ body {
 }
 .caustic-light {
     position: absolute;
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><filter id="w"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="4" seed="8"/><feDiffuseLighting in="w" lighting-color="white" surfaceScale="8"><feDistantLight azimuth="45" elevation="50"/></feDiffuseLighting></filter><rect width="300" height="300" fill="rgba(200,225,255,0.1)" filter="url(%23w)"/></svg>');
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><defs><filter id="w"><feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="4" seed="8"/><feDiffuseLighting in="SourceGraphic" lighting-color="white" surfaceScale="8"><feDistantLight azimuth="45" elevation="50"/></feDiffuseLighting></filter></defs><rect width="300" height="300" fill="rgba(200,225,255,0.08)" filter="url(%23w)" fill-opacity="1"/></svg>');
     background-size: 300% 300%;
     width: 100%; height: 100%;
     animation: caustics-anim 25s ease-in-out infinite alternate;
+    opacity: 0.5;
 }
 @keyframes caustics-anim {
     from { background-position: 0% 0%; }
     to { background-position: 100% 100%; }
 }
 
-#jellyfish-layer { z-index: 8; }
+#jellyfish-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 8;
+    pointer-events: none;
+}
 .jellyfish {
     position: absolute;
     animation: swim-jellyfish 20s ease-in-out infinite;
@@ -270,7 +283,44 @@ body {
     50% { transform: rotate(10deg) scaleY(1.2); }
 }
 
-#ocean-plankton-layer { z-index: 3; }
+#ocean-sediment-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+.ocean-sediment {
+    position: absolute;
+    background: rgba(200, 200, 180, 0.3);
+    border-radius: 50%;
+    animation: drift-sediment ease-in-out infinite;
+    filter: blur(1px);
+}
+@keyframes drift-sediment {
+    0% {
+        transform: translate(var(--x-start), var(--y-start)) rotate(0deg);
+        opacity: 0;
+    }
+    20% { opacity: 0.4; }
+    80% { opacity: 0.4; }
+    100% {
+        transform: translate(var(--x-end), var(--y-end)) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+#ocean-plankton-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 6;
+    pointer-events: none;
+}
 .ocean-plankton {
     position: absolute;
     background: rgba(173, 216, 230, 0.7);
@@ -289,7 +339,15 @@ body {
     }
 }
 
-#bubbles { z-index: 10; }
+#bubbles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
 .bubble {
     position: absolute;
     background: rgba(173, 216, 230, 0.15);
@@ -669,64 +727,360 @@ body {
 
 /* --- Zen Theme --- */
 #zen-theme {
-    background-color: #d8c8b8;
     overflow: hidden;
+    position: relative;
 }
+
+.zen-gradient-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to bottom,
+        #1a1a2e 0%,
+        #2d2d44 20%,
+        #4a4a5a 40%,
+        #6b6b78 60%,
+        #8a8a94 80%,
+        #a8a8b0 100%);
+    z-index: 1;
+}
+
+/* Soft atmospheric light rays */
+.zen-light-rays {
+    position: absolute;
+    top: -10%; left: -10%;
+    width: 120%; height: 60%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255, 245, 220, 0.15) 0%, transparent 60%);
+    z-index: 2;
+    animation: zen-light-pulse 12s ease-in-out infinite alternate;
+}
+@keyframes zen-light-pulse {
+    0% { opacity: 0.3; transform: scale(1); }
+    100% { opacity: 0.6; transform: scale(1.1); }
+}
+
+/* Bamboo stalks */
+#zen-bamboo-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 3;
+    pointer-events: none;
+}
+.zen-bamboo {
+    position: absolute;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to right, #2d4a2f, #3d5a3f, #2d4a2f);
+    border-radius: 8px 8px 0 0;
+    transform-origin: bottom center;
+    animation: bamboo-sway ease-in-out infinite;
+}
+.bamboo-segment {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: rgba(20, 30, 20, 0.4);
+}
+.bamboo-leaf {
+    position: absolute;
+    width: 40px;
+    height: 12px;
+    background: linear-gradient(to right, transparent, #3d5a3f, transparent);
+    border-radius: 50%;
+    transform-origin: left center;
+    animation: leaf-flutter ease-in-out infinite;
+}
+@keyframes bamboo-sway {
+    0%, 100% { transform: rotate(0deg) translateX(0); }
+    25% { transform: rotate(var(--sway-angle)) translateX(5px); }
+    75% { transform: rotate(calc(var(--sway-angle) * -1)) translateX(-5px); }
+}
+@keyframes leaf-flutter {
+    0%, 100% { transform: rotate(0deg) scaleX(1); }
+    50% { transform: rotate(-10deg) scaleX(0.9); }
+}
+
+/* Enhanced raked sand */
 .raked-sand {
     position: absolute;
     width: 100%; height: 100%;
+    background-color: #c5b8a8;
     background-image:
-        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,0.02) 35px, rgba(0,0,0,0.02) 70px),
-        repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(0,0,0,0.02) 35px, rgba(0,0,0,0.02) 70px);
-    filter: blur(1px);
+        repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(0,0,0,0.03) 28px, rgba(0,0,0,0.03) 32px),
+        repeating-linear-gradient(90deg, transparent, transparent 200px, rgba(0,0,0,0.015) 200px, rgba(0,0,0,0.015) 250px);
+    filter: blur(0.5px);
+    z-index: 4;
 }
+
+/* Zen stones */
+#zen-stones-container {
+    position: absolute;
+    width: 100%; height: 100%;
+    z-index: 5;
+    pointer-events: none;
+}
+.zen-stone {
+    position: absolute;
+    background: radial-gradient(ellipse at 30% 30%, #5a5a5a, #3a3a3a);
+    border-radius: 50%;
+    box-shadow:
+        0 4px 8px rgba(0,0,0,0.4),
+        inset -2px -2px 4px rgba(0,0,0,0.3),
+        inset 2px 2px 4px rgba(255,255,255,0.1);
+}
+
+/* Mist layers */
+.zen-mist-layer {
+    position: absolute;
+    width: 100%; height: 100%;
+    pointer-events: none;
+}
+#zen-mist-back {
+    z-index: 3;
+    background: radial-gradient(ellipse at 20% 80%, rgba(200, 200, 210, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(200, 200, 210, 0.15) 0%, transparent 50%);
+    animation: zen-mist-drift-1 40s ease-in-out infinite alternate;
+}
+#zen-mist-mid {
+    z-index: 6;
+    background: radial-gradient(ellipse at 60% 60%, rgba(220, 220, 230, 0.25) 0%, transparent 45%),
+                radial-gradient(ellipse at 30% 50%, rgba(220, 220, 230, 0.2) 0%, transparent 45%);
+    animation: zen-mist-drift-2 35s ease-in-out infinite alternate-reverse;
+}
+#zen-mist-front {
+    z-index: 9;
+    background: radial-gradient(ellipse at 75% 75%, rgba(240, 240, 245, 0.15) 0%, transparent 40%);
+    animation: zen-mist-drift-3 30s ease-in-out infinite alternate;
+}
+@keyframes zen-mist-drift-1 {
+    0% { transform: translateX(-5%) scale(1); opacity: 0.6; }
+    100% { transform: translateX(5%) scale(1.1); opacity: 0.8; }
+}
+@keyframes zen-mist-drift-2 {
+    0% { transform: translateX(3%) translateY(-2%) scale(1); opacity: 0.5; }
+    100% { transform: translateX(-3%) translateY(2%) scale(1.08); opacity: 0.7; }
+}
+@keyframes zen-mist-drift-3 {
+    0% { transform: translateX(-2%) scale(1); opacity: 0.4; }
+    100% { transform: translateX(2%) scale(1.05); opacity: 0.6; }
+}
+
+/* Enhanced water feature */
 .water-feature {
     position: absolute;
-    bottom: 2%; right: 2%;
-    width: 25%; height: 20%;
-    background-color: #3a4a5a;
+    bottom: 8%; right: 8%;
+    width: 30%; height: 25%;
+    background: radial-gradient(ellipse at 40% 40%, #4a5a6a, #2a3a4a);
     border-radius: 45% 55% 40% 60% / 60% 50% 50% 40%;
     overflow: hidden;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    box-shadow:
+        inset 0 0 20px rgba(0,0,0,0.6),
+        0 8px 16px rgba(0,0,0,0.3);
+    z-index: 7;
 }
 .zen-ripple {
     position: absolute;
     top: 50%; left: 50%;
-    border: 1px solid rgba(200, 220, 240, 0.5);
+    border: 2px solid rgba(200, 220, 240, 0.4);
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    animation: zen-ripple-effect 6s ease-out;
+    animation: zen-ripple-effect 8s ease-out infinite;
 }
 @keyframes zen-ripple-effect {
-    from { width: 0; height: 0; opacity: 1; }
-    to { width: 250px; height: 250px; opacity: 0; }
+    0% { width: 0; height: 0; opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { width: 300px; height: 300px; opacity: 0; }
 }
 
-.petal {
+/* Floating lanterns */
+#zen-lanterns-container {
     position: absolute;
-    width: 18px; height: 18px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 0 C5 5, 5 15, 10 20 C15 15, 15 5, 10 0 Z" fill="rgba(255, 105, 180, 0.8)"/></svg>');
-    background-size: contain;
-    animation: fall-petal-zen linear infinite;
-    z-index: 10;
+    width: 100%; height: 100%;
+    z-index: 8;
+    pointer-events: none;
 }
-@keyframes fall-petal-zen {
+.zen-lantern {
+    position: absolute;
+    width: 40px;
+    height: 60px;
+    animation: lantern-float ease-in-out infinite;
+}
+.lantern-body {
+    width: 100%;
+    height: 80%;
+    background: linear-gradient(to bottom, #ff9a6c, #ffc896);
+    border-radius: 8px;
+    box-shadow:
+        0 0 20px rgba(255, 180, 100, 0.6),
+        0 0 40px rgba(255, 160, 80, 0.4),
+        inset 0 0 10px rgba(255, 220, 150, 0.8);
+    position: relative;
+}
+.lantern-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 200, 120, 0.4) 0%, transparent 70%);
+    animation: lantern-glow-pulse 3s ease-in-out infinite;
+}
+@keyframes lantern-float {
+    0%, 100% { transform: translateY(0) rotate(var(--rotation)); }
+    50% { transform: translateY(-15px) rotate(calc(var(--rotation) + 3deg)); }
+}
+@keyframes lantern-glow-pulse {
+    0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+/* Fireflies - magical floating lights */
+#petals {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+.zen-firefly {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, rgba(255, 250, 200, 1) 0%, rgba(255, 240, 180, 0.8) 40%, transparent 70%);
+    border-radius: 50%;
+    box-shadow:
+        0 0 8px rgba(255, 250, 200, 0.8),
+        0 0 16px rgba(255, 240, 180, 0.6),
+        0 0 24px rgba(255, 230, 160, 0.4);
+    animation: firefly-float ease-in-out infinite, firefly-pulse ease-in-out infinite;
+    filter: blur(0.5px);
+}
+@keyframes firefly-float {
     0% {
-        transform: translateY(-10vh) translateX(0) rotate(var(--r-start));
-        opacity: 1;
+        transform: translate(var(--x-start), var(--y-start));
     }
-     25% {
-        transform: translateY(25vh) translateX(calc(var(--x-drift) * 0.4)) rotate(calc(var(--r-start) + 180deg));
+    25% {
+        transform: translate(calc(var(--x-start) + var(--x-drift) * 0.3), calc(var(--y-start) + var(--y-drift) * 0.3));
     }
     50% {
-        transform: translateY(50vh) translateX(calc(var(--x-drift) * 0.8)) rotate(calc(var(--r-start) + 360deg));
+        transform: translate(calc(var(--x-start) + var(--x-drift) * 0.7), calc(var(--y-start) + var(--y-drift) * 0.6));
     }
     75% {
-         transform: translateY(80vh) translateX(calc(var(--x-drift) * 1.1)) rotate(calc(var(--r-start) + 540deg));
+        transform: translate(calc(var(--x-start) + var(--x-drift) * 0.4), calc(var(--y-start) + var(--y-drift) * 0.9));
     }
     100% {
-        transform: translateY(110vh) translateX(var(--x-drift)) rotate(var(--r-end));
+        transform: translate(var(--x-start), var(--y-start));
+    }
+}
+@keyframes firefly-pulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.5);
+    }
+}
+
+/* Incense smoke */
+.zen-incense-smoke {
+    position: absolute;
+    width: 3px;
+    height: 80px;
+    background: linear-gradient(to top,
+        rgba(200, 200, 210, 0.6) 0%,
+        rgba(200, 200, 210, 0.4) 30%,
+        rgba(200, 200, 210, 0.2) 60%,
+        transparent 100%);
+    border-radius: 50%;
+    filter: blur(8px);
+    animation: incense-rise ease-in-out infinite;
+    transform-origin: bottom center;
+}
+@keyframes incense-rise {
+    0% {
+        transform: translateY(0) translateX(0) scaleY(1);
         opacity: 0;
+    }
+    20% {
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(-150px) translateX(20px) scaleY(1.5);
+        opacity: 0.4;
+    }
+    80% {
+        opacity: 0.2;
+    }
+    100% {
+        transform: translateY(-300px) translateX(-10px) scaleY(2);
+        opacity: 0;
+    }
+}
+
+/* Meditation energy orbs */
+.zen-orb {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%,
+        rgba(180, 200, 255, 0.4) 0%,
+        rgba(150, 180, 255, 0.3) 30%,
+        rgba(120, 160, 255, 0.2) 60%,
+        transparent 100%);
+    box-shadow:
+        0 0 20px rgba(180, 200, 255, 0.3),
+        0 0 40px rgba(150, 180, 255, 0.2),
+        inset 0 0 20px rgba(200, 220, 255, 0.2);
+    animation: orb-float ease-in-out infinite, orb-glow ease-in-out infinite;
+    filter: blur(2px);
+}
+@keyframes orb-float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(var(--orb-drift-x), var(--orb-drift-y)) scale(1.2);
+    }
+}
+@keyframes orb-glow {
+    0%, 100% {
+        opacity: 0.3;
+        box-shadow:
+            0 0 20px rgba(180, 200, 255, 0.3),
+            0 0 40px rgba(150, 180, 255, 0.2);
+    }
+    50% {
+        opacity: 0.6;
+        box-shadow:
+            0 0 40px rgba(180, 200, 255, 0.5),
+            0 0 80px rgba(150, 180, 255, 0.3);
+    }
+}
+
+/* Gentle ambient stars */
+.zen-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(255, 255, 255, 0.6);
+    animation: zen-star-twinkle ease-in-out infinite;
+}
+@keyframes zen-star-twinkle {
+    0%, 100% {
+        opacity: 0.2;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.3);
     }
 }
 

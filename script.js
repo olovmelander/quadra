@@ -1296,47 +1296,162 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
         }
         function createZenScene() {
-            // Raked Sand Shimmer
-            const sand = document.querySelector('#zen-theme .raked-sand');
-            if (sand && sand.children.length === 0) {
-                const shimmer = document.createElement('div');
-                shimmer.style.cssText = `
-                    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                    background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
-                    background-size: 200% 100%;
-                    animation: sand-shimmer 25s ease-in-out infinite;
-                `;
-                const keyframes = `
-                    @keyframes sand-shimmer {
-                        from { background-position: 150% 0; }
-                        to { background-position: -50% 0; }
+            // Bamboo stalks
+            const bambooContainer = document.getElementById('zen-bamboo-container');
+            if (bambooContainer && bambooContainer.children.length === 0) {
+                const positions = [5, 12, 18, 85, 92];
+                positions.forEach((pos, idx) => {
+                    const bamboo = document.createElement('div');
+                    bamboo.className = 'zen-bamboo';
+                    const height = random(250, 450);
+                    bamboo.style.height = `${height}px`;
+                    bamboo.style.left = `${pos}%`;
+                    bamboo.style.setProperty('--sway-angle', `${random(1, 3)}deg`);
+                    bamboo.style.animationDuration = `${random(6, 10)}s`;
+                    bamboo.style.animationDelay = `-${random(0, 5)}s`;
+
+                    // Add segments
+                    const numSegments = Math.floor(height / 60);
+                    for (let i = 1; i <= numSegments; i++) {
+                        const segment = document.createElement('div');
+                        segment.className = 'bamboo-segment';
+                        segment.style.top = `${(i * 60)}px`;
+                        bamboo.appendChild(segment);
                     }
-                `;
-                const styleSheet = document.createElement("style");
-                styleSheet.innerText = keyframes;
-                document.head.appendChild(styleSheet);
-                sand.appendChild(shimmer);
+
+                    // Add leaves
+                    const numLeaves = random(3, 6);
+                    for (let i = 0; i < numLeaves; i++) {
+                        const leaf = document.createElement('div');
+                        leaf.className = 'bamboo-leaf';
+                        leaf.style.top = `${random(20, height - 40)}px`;
+                        leaf.style.left = `${random(-5, 15)}px`;
+                        leaf.style.animationDuration = `${random(3, 5)}s`;
+                        leaf.style.animationDelay = `-${random(0, 3)}s`;
+                        bamboo.appendChild(leaf);
+                    }
+
+                    bambooContainer.appendChild(bamboo);
+                });
             }
 
-            // Petals
+            // Zen stones
+            const stonesContainer = document.getElementById('zen-stones-container');
+            if (stonesContainer && stonesContainer.children.length === 0) {
+                const stoneGroups = [
+                    { x: 25, y: 60, count: 3 },
+                    { x: 45, y: 40, count: 5 },
+                    { x: 70, y: 55, count: 2 }
+                ];
+
+                stoneGroups.forEach(group => {
+                    for (let i = 0; i < group.count; i++) {
+                        const stone = document.createElement('div');
+                        stone.className = 'zen-stone';
+                        const size = random(20, 50);
+                        stone.style.width = `${size}px`;
+                        stone.style.height = `${size * 0.6}px`;
+                        stone.style.left = `${group.x + random(-8, 8)}%`;
+                        stone.style.top = `${group.y + random(-5, 5)}%`;
+                        stone.style.transform = `rotate(${random(-15, 15)}deg)`;
+                        stonesContainer.appendChild(stone);
+                    }
+                });
+            }
+
+            // Floating lanterns
+            const lanternsContainer = document.getElementById('zen-lanterns-container');
+            if (lanternsContainer && lanternsContainer.children.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    const lantern = document.createElement('div');
+                    lantern.className = 'zen-lantern';
+                    lantern.style.left = `${random(10, 90)}%`;
+                    lantern.style.top = `${random(15, 70)}%`;
+                    lantern.style.setProperty('--rotation', `${random(-5, 5)}deg`);
+                    lantern.style.animationDuration = `${random(4, 7)}s`;
+                    lantern.style.animationDelay = `-${random(0, 4)}s`;
+
+                    const glow = document.createElement('div');
+                    glow.className = 'lantern-glow';
+
+                    const body = document.createElement('div');
+                    body.className = 'lantern-body';
+                    body.appendChild(glow);
+
+                    lantern.appendChild(body);
+                    lanternsContainer.appendChild(lantern);
+                }
+            }
+
+            // Magical ambient elements
             const petalsContainer = document.getElementById('petals');
             if (petalsContainer && petalsContainer.children.length === 0) {
-                 for (let i = 0; i < 25; i++) {
-                    let petal = document.createElement('div');
-                    petal.className = 'petal';
-                    petal.style.left = `${Math.random() * 110 - 5}%`;
-                    petal.style.setProperty('--r-start', `${Math.random() * 360}deg`);
-                    petal.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
-                    petal.style.setProperty('--x-drift', `${Math.random() * 40 - 20}vw`);
-                    petal.style.animationDelay = `-${Math.random() * 12}s`;
-                    petal.style.animationDuration = `${Math.random() * 5 + 7}s`;
-                    petalsContainer.appendChild(petal);
+                // Stars in twilight sky
+                for (let i = 0; i < 40; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'zen-star';
+                    star.style.left = `${random(0, 100)}%`;
+                    star.style.top = `${random(0, 40)}%`;
+                    star.style.animationDuration = `${random(3, 6)}s`;
+                    star.style.animationDelay = `-${random(0, 5)}s`;
+                    petalsContainer.appendChild(star);
                 }
+
+                // Fireflies - magical floating lights
+                for (let i = 0; i < 15; i++) {
+                    const firefly = document.createElement('div');
+                    firefly.className = 'zen-firefly';
+                    const startX = random(0, 100);
+                    const startY = random(30, 80);
+                    firefly.style.setProperty('--x-start', `${startX}vw`);
+                    firefly.style.setProperty('--y-start', `${startY}vh`);
+                    firefly.style.setProperty('--x-drift', `${random(-30, 30)}vw`);
+                    firefly.style.setProperty('--y-drift', `${random(-20, 20)}vh`);
+                    firefly.style.animationDuration = `${random(8, 15)}s, ${random(2, 4)}s`;
+                    firefly.style.animationDelay = `-${random(0, 10)}s, -${random(0, 3)}s`;
+                    petalsContainer.appendChild(firefly);
+                }
+
+                // Meditation orbs - ethereal energy
+                for (let i = 0; i < 5; i++) {
+                    const orb = document.createElement('div');
+                    orb.className = 'zen-orb';
+                    orb.style.left = `${random(10, 90)}%`;
+                    orb.style.top = `${random(20, 70)}%`;
+                    orb.style.setProperty('--orb-drift-x', `${random(-40, 40)}px`);
+                    orb.style.setProperty('--orb-drift-y', `${random(-40, 40)}px`);
+                    orb.style.animationDuration = `${random(10, 18)}s, ${random(4, 7)}s`;
+                    orb.style.animationDelay = `-${random(0, 12)}s, -${random(0, 5)}s`;
+                    petalsContainer.appendChild(orb);
+                }
+
+                // Incense smoke near stones
+                const smokePositions = [
+                    { x: 27, y: 65 },
+                    { x: 48, y: 45 },
+                    { x: 72, y: 58 }
+                ];
+                smokePositions.forEach(pos => {
+                    const createSmoke = () => {
+                        if (activeTheme !== 'zen') return;
+                        const smoke = document.createElement('div');
+                        smoke.className = 'zen-incense-smoke';
+                        smoke.style.left = `${pos.x}%`;
+                        smoke.style.top = `${pos.y}%`;
+                        smoke.style.animationDuration = `${random(8, 12)}s`;
+                        smoke.addEventListener('animationend', () => {
+                            smoke.remove();
+                        }, { once: true });
+                        petalsContainer.appendChild(smoke);
+                        setTimeout(createSmoke, random(3000, 6000));
+                    };
+                    createSmoke();
+                });
             }
 
             // Water Ripple
             const rippleContainer = document.querySelector('#zen-theme .water-feature');
-            if (rippleContainer && rippleContainer.children.length === 0) {
+            if (rippleContainer) {
                 const createRipple = () => {
                     if (activeTheme !== 'zen') return;
                     let ripple = document.createElement('div');
@@ -1346,7 +1461,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                         ripple.remove();
                     }, { once: true });
                     rippleContainer.appendChild(ripple);
-                    setTimeout(createRipple, Math.random() * 6000 + 4000);
+                    setTimeout(createRipple, Math.random() * 8000 + 5000);
                 }
                 createRipple();
             }
@@ -1819,6 +1934,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
         }
 
+        let soundInitialized = false;
         function init() {
             canvas = document.getElementById('game-canvas'); ctx = canvas.getContext('2d');
             nextCanvases = Array.from({length: 5}, (_, i) => document.getElementById(`next-${i}`));
@@ -1831,8 +1947,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             window.addEventListener('resize', resizeGame);
 
             createParticles(); loadSettings(); setupUI();
-            document.addEventListener('click', initSound, { once: true });
-            document.addEventListener('keydown', initSound, { once: true });
             document.addEventListener('fullscreenchange', () => {
                 const fullscreenBtn = document.getElementById('fullscreen-toggle');
                 fullscreenBtn.textContent = document.fullscreenElement ? '><' : '⛶';
@@ -1955,7 +2069,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const oldElements = Array.from(auroraContainer.children).filter(child => child !== starsContainer);
             if (oldElements.length > 0) {
                 oldElements.forEach(el => {
-                    el.style.transition = 'opacity 2s ease-out';
+                    el.style.transition = 'opacity 5s ease-out';
                     el.style.opacity = '0';
                 });
 
@@ -1968,10 +2082,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     while (auroraContainer.lastChild && auroraContainer.lastChild !== starsContainer) {
                         auroraContainer.removeChild(auroraContainer.lastChild);
                     }
-                }, 2000);
+                }, 5000);
 
                 // Delay new aurora creation for smooth crossfade
-                setTimeout(() => createAuroraLayers(), 1000);
+                setTimeout(() => createAuroraLayers(), 3500);
                 return;
             }
 
@@ -2031,7 +2145,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             // Create shimmer particle container with fade-in
             const shimmerContainer = document.createElement('div');
             shimmerContainer.className = 'aurora-shimmer-container';
-            shimmerContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 60%; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 3s ease-in;';
+            shimmerContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 60%; z-index: 20; pointer-events: none; opacity: 0; transition: opacity 6s ease-in;';
             auroraContainer.appendChild(shimmerContainer);
 
             // Trigger fade-in
@@ -2052,7 +2166,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 particle.style.top = `${clusterY + random(-8, 8)}%`;
 
                 // Varied timing for organic feel
-                const duration = random(12, 28);
+                const duration = random(20, 45);
                 particle.style.animationDelay = `-${random(0, duration)}s`;
                 particle.style.animationDuration = `${duration}s`;
 
@@ -2075,10 +2189,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
 
                 // Select palette using weighted random for natural distribution
                 const palette = weightedPalette[Math.floor(random(0, weightedPalette.length))];
-                const colorIndex = Math.floor(random(0, palette.colors.length));
-                const color = palette.colors[colorIndex];
-                const nextColor = palette.colors[(colorIndex + 1) % palette.colors.length];
-                const thirdColor = palette.colors[(colorIndex + 2) % palette.colors.length];
+                const initialColorIndex = Math.floor(random(0, palette.colors.length));
+                const color = palette.colors[initialColorIndex];
+                const nextColor = palette.colors[(initialColorIndex + 1) % palette.colors.length];
+                const thirdColor = palette.colors[(initialColorIndex + 2) % palette.colors.length];
                 
                 // Position with depth and natural variation (constrained to upper sky)
                 const depth = i / numLayers; // 0 (far) to 1 (close)
@@ -2117,26 +2231,26 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 layer.setAttribute('data-target-opacity', opacity);
 
                 // Multiple animation layers for complex, natural motion
-                const flowDuration = random(30, 70); // Slower, more majestic
-                const pulseDuration = random(10, 20);
-                const waveDuration = random(15, 30);
-                const colorCycleDuration = random(40, 80);
+                const flowDuration = random(50, 100); // Much slower, more majestic
+                const pulseDuration = random(18, 35);
+                const waveDuration = random(25, 50);
+                const colorCycleDuration = random(80, 140);
                 
                 const flowDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
                 const waveDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
                 
                 // Stagger fade-in for each layer
-                const fadeInDelay = i * 0.4; // 400ms between each layer appearing
+                const fadeInDelay = i * 0.7; // 700ms between each layer appearing
 
                 layer.style.animation = `
-                    ${fadeInAnimationName} 4s ease-in ${fadeInDelay}s forwards,
-                    ${animationName} ${flowDuration}s ease-in-out infinite ${flowDirection} ${fadeInDelay + 4}s,
-                    ${pulseAnimationName} ${pulseDuration}s ease-in-out infinite alternate ${fadeInDelay + 4}s,
-                    ${waveAnimationName} ${waveDuration}s ease-in-out infinite ${waveDirection} ${fadeInDelay + 4}s
+                    ${fadeInAnimationName} 7s ease-in ${fadeInDelay}s forwards,
+                    ${animationName} ${flowDuration}s ease-in-out infinite ${flowDirection} ${fadeInDelay + 7}s,
+                    ${pulseAnimationName} ${pulseDuration}s ease-in-out infinite alternate ${fadeInDelay + 7}s,
+                    ${waveAnimationName} ${waveDuration}s ease-in-out infinite ${waveDirection} ${fadeInDelay + 7}s
                 `;
 
                 // Use CSS transition for smooth color changes instead of keyframes
-                layer.style.transition = `background ${colorCycleDuration * 0.25}s ease-in-out`;
+                layer.style.transition = `background ${colorCycleDuration * 0.4}s ease-in-out`;
 
                 // Fade-in animation with target opacity
                 const fadeInKeyframes = `
@@ -2249,7 +2363,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     if (activeTheme === 'aurora' && layer.parentElement) {
                         setInterval(cycleColors, colorCycleDuration * 1000 / 3);
                     }
-                }, (fadeInDelay + 4) * 1000);
+                }, (fadeInDelay + 7) * 1000);
 
                 dynamicKeyframes += `@keyframes ${animationName} {\n${flowKeyframes}}\n`;
                 dynamicKeyframes += `@keyframes ${pulseAnimationName} {\n${pulseKeyframes}}\n`;
@@ -2263,7 +2377,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     setTimeout(() => {
                         if (activeTheme === 'aurora' && layer.parentElement) {
                             const surgeName = `aurora-surge-${Date.now()}`;
-                            const surgeDuration = random(4, 8);
+                            const surgeDuration = random(6, 12);
                             const surgeKeyframes = `
                                 @keyframes ${surgeName} {
                                     0% {
@@ -3036,47 +3150,72 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
-            // Bubbles
+            // Floating Sediment - Adds underwater depth and movement
+            const sedimentContainer = document.getElementById('ocean-sediment-layer');
+            if (sedimentContainer) {
+                sedimentContainer.innerHTML = ''; // Clear old sediment
+                for (let i = 0; i < 100; i++) {
+                    let particle = document.createElement('div');
+                    particle.className = 'ocean-sediment';
+                    const size = Math.random() * 3 + 1;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    const startX = Math.random() * 100;
+                    const startY = Math.random() * 100;
+                    particle.style.setProperty('--x-start', `${startX}vw`);
+                    particle.style.setProperty('--y-start', `${startY}vh`);
+                    particle.style.setProperty('--x-end', `${startX + (Math.random() * 40 - 20)}vw`);
+                    particle.style.setProperty('--y-end', `${startY + (Math.random() * 40 - 20)}vh`);
+                    particle.style.animationDelay = `-${Math.random() * 30}s`;
+                    particle.style.animationDuration = `${Math.random() * 40 + 30}s`;
+                    sedimentContainer.appendChild(particle);
+                }
+            }
+
+            // Bubbles - More bubbles for underwater feel
             const bubblesContainer = document.getElementById('bubbles');
             if (bubblesContainer) {
                 bubblesContainer.innerHTML = ''; // Clear old bubbles
-                for (let i = 0; i < 80; i++) {
+                for (let i = 0; i < 150; i++) {
                     let el = document.createElement('div');
                     el.className = 'bubble';
-                    const size = Math.random() * 15 + 5;
+                    const size = Math.random() * 12 + 3;
                     el.style.width = `${size}px`;
                     el.style.height = `${size}px`;
                     el.style.left = `${Math.random() * 100}%`;
-                    el.style.animationDuration = `${Math.random() * 10 + 10}s`;
-                    el.style.animationDelay = `-${Math.random() * 15}s`;
-                    el.style.setProperty('--x-drift', `${Math.random() * 4 - 2}vw`);
-                    el.style.setProperty('--x-drift-end', `${Math.random() * 4 - 2}vw`);
+                    el.style.animationDuration = `${Math.random() * 15 + 8}s`;
+                    el.style.animationDelay = `-${Math.random() * 20}s`;
+                    el.style.setProperty('--x-drift', `${Math.random() * 6 - 3}vw`);
+                    el.style.setProperty('--x-drift-end', `${Math.random() * 6 - 3}vw`);
                     bubblesContainer.appendChild(el);
                 }
             }
 
-            // Plankton
+            // Plankton - More particles for immersive underwater feel
             const planktonContainer = document.getElementById('ocean-plankton-layer');
-            if (planktonContainer && planktonContainer.children.length === 0) {
-                for (let i = 0; i < 100; i++) {
+            if (planktonContainer) {
+                planktonContainer.innerHTML = ''; // Clear old plankton
+                for (let i = 0; i < 200; i++) {
                     let particle = document.createElement('div');
                     particle.className = 'ocean-plankton';
-                    const size = Math.random() * 1.5 + 0.5;
+                    const size = Math.random() * 2 + 0.5;
                     particle.style.width = `${size}px`;
                     particle.style.height = `${size}px`;
                     particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
                     particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
                     particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
                     particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                    particle.style.animationDelay = `-${Math.random() * 10}s`;
+                    particle.style.animationDelay = `-${Math.random() * 15}s`;
+                    particle.style.animationDuration = `${Math.random() * 20 + 15}s`;
                     planktonContainer.appendChild(particle);
                 }
             }
 
-            // Jellyfish
+            // Jellyfish - More jellyfish for life
             const jellyfishContainer = document.getElementById('jellyfish-layer');
-            if (jellyfishContainer && jellyfishContainer.children.length === 0) {
-                for (let i = 0; i < 8; i++) {
+            if (jellyfishContainer) {
+                jellyfishContainer.innerHTML = ''; // Clear old jellyfish
+                for (let i = 0; i < 12; i++) {
                     let fish = document.createElement('div');
                     fish.className = 'jellyfish';
                     let body = document.createElement('div');
@@ -3121,18 +3260,23 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     let canvas = document.createElement('canvas');
                     canvas.width = layer.count * C_WIDTH;
                     canvas.height = layer.height;
-                    let ctx = canvas.getContext('2d');
+                    let ctx = canvas.getContext('2d', { willReadFrequently: true, alpha: true });
 
-                    // Draw ground
+                    // Clear canvas to transparent
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw ground at bottom only
                     ctx.fillStyle = layer.color;
                     ctx.beginPath();
                     ctx.moveTo(0, canvas.height);
-                    let y = canvas.height * 0.9;
+                    let y = canvas.height * 0.85; // Start higher to leave more transparent space
+                    ctx.lineTo(0, y);
                     for (let i = 0; i < canvas.width; i++) {
                         y += (Math.random() - 0.5) * 0.5;
-                        y = Math.max(canvas.height * 0.7, Math.min(canvas.height, y));
+                        y = Math.max(canvas.height * 0.6, Math.min(canvas.height * 0.9, y));
                         ctx.lineTo(i, y);
                     }
+                    ctx.lineTo(canvas.width, y);
                     ctx.lineTo(canvas.width, canvas.height);
                     ctx.closePath();
                     ctx.fill();
@@ -3177,6 +3321,8 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     canvas.style.bottom = '0';
                     canvas.style.width = `${canvas.width}px`;
                     canvas.style.height = `${canvas.height}px`;
+                    canvas.style.pointerEvents = 'none';
+                    canvas.style.backgroundColor = 'transparent';
                     layer.el.appendChild(canvas);
                 }
             });
@@ -4448,6 +4594,7 @@ function checkGravity() {
             if (!touchStartX || settings.controlScheme !== 'Touch') return;
             e.preventDefault();
 
+            if(!soundInitialized){soundInitialized=true;initSound();}
             if (document.getElementById('start-modal').classList.contains('visible') || document.getElementById('game-over-modal').classList.contains('visible')) {
                 startGame();
                 touchStartX = null; touchStartY = null; touchStartTime = null; lastTap = 0; touchLastX = null; touchLastY = null;
@@ -4490,6 +4637,7 @@ function checkGravity() {
 
         let keyMap={};
         document.addEventListener('keydown',(e)=>{
+            if(!soundInitialized){soundInitialized=true;initSound();}
             if(document.activeElement.classList.contains('key-input'))return;
             if(document.getElementById('start-modal').classList.contains('visible')||document.getElementById('game-over-modal').classList.contains('visible')){startGame();return;}
             if(isGameOver)return; const k=e.key===' '?'Space':e.key, a=Object.keys(settings.keyBindings).find(key=>settings.keyBindings[key]===k);
@@ -4507,4 +4655,14 @@ function checkGravity() {
             const k=e.key===' '?'Space':e.key, a=Object.keys(settings.keyBindings).find(key=>settings.keyBindings[key]===k);
             if(a)keyMap[a]=false; if(a==='moveLeft'||a==='moveRight'){clearTimeout(dasTimer);clearInterval(dasIntervalTimer);dasIntervalTimer=null;dasIntervalTimer=null;}
         });
+        document.addEventListener('click',(e)=>{
+            console.log('Click detected!', e.target);
+            if(!soundInitialized){soundInitialized=true;initSound();}
+            if(e.target.tagName==='BUTTON'||e.target.classList.contains('key-input')||e.target.tagName==='SELECT'||e.target.tagName==='INPUT')return;
+            if(document.getElementById('start-modal').classList.contains('visible')||document.getElementById('game-over-modal').classList.contains('visible')){
+                console.log('Starting game...');
+                startGame();
+            }
+        });
+        console.log('Event listeners registered');
         window.addEventListener('load', init);
