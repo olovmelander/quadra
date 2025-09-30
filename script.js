@@ -4291,9 +4291,71 @@ function checkLines() {
 
         // After a delay, remove the lines and check for gravity
         setTimeout(() => {
-            let newBoard = boardData.filter((_, y) => !fullLines.includes(y));
-            while (newBoard.length < ROWS + HIDDEN_ROWS) newBoard.unshift(Array(COLS).fill(0));
-            lockedPieces = findConnectedComponents(newBoard);
+            const newPieces = [];
+
+            // Remove cleared lines from each piece's shape and split disconnected parts
+            lockedPieces.forEach(piece => {
+                const pieceLinesCleared = fullLines.filter(lineY => lineY >= piece.y && lineY < piece.y + piece.shape.length);
+                if (pieceLinesCleared.length > 0) {
+                    // Remove rows from this piece's shape
+                    const localLines = pieceLinesCleared.map(lineY => lineY - piece.y);
+                    const remainingRows = [];
+                    const rowYPositions = [];
+
+                    piece.shape.forEach((row, localY) => {
+                        if (!localLines.includes(localY)) {
+                            remainingRows.push(row);
+                            rowYPositions.push(piece.y + localY);
+                        }
+                    });
+
+                    // If piece is completely gone, skip it
+                    if (remainingRows.length === 0 || remainingRows.every(row => row.every(cell => cell === 0))) {
+                        return;
+                    }
+
+                    // Split into contiguous vertical segments
+                    let segments = [];
+                    let currentSegment = [];
+                    let currentSegmentY = null;
+
+                    remainingRows.forEach((row, idx) => {
+                        const actualY = rowYPositions[idx];
+                        if (currentSegmentY === null || actualY === currentSegmentY + currentSegment.length) {
+                            if (currentSegmentY === null) currentSegmentY = actualY;
+                            currentSegment.push(row);
+                        } else {
+                            // Gap detected - save current segment and start new one
+                            segments.push({ shape: currentSegment, y: currentSegmentY });
+                            currentSegment = [row];
+                            currentSegmentY = actualY;
+                        }
+                    });
+                    if (currentSegment.length > 0) {
+                        segments.push({ shape: currentSegment, y: currentSegmentY });
+                    }
+
+                    // Create separate pieces for each segment
+                    segments.forEach(seg => {
+                        newPieces.push({
+                            x: piece.x,
+                            y: seg.y,
+                            shape: seg.shape,
+                            shapeKey: piece.shapeKey,
+                            color: piece.color
+                        });
+                    });
+                } else {
+                    // Piece not affected by line clear, but may need to move down
+                    const linesBelow = fullLines.filter(lineY => lineY >= piece.y + piece.shape.length).length;
+                    newPieces.push({
+                        ...piece,
+                        y: piece.y + linesBelow
+                    });
+                }
+            });
+
+            lockedPieces = newPieces;
             checkGravity(); // Next step in the physics chain
         }, 200);
     } else {
@@ -4322,10 +4384,16 @@ function checkGravity() {
         }
 
         fell = false;
-        // Check pieces from the bottom up.
-        const sortedPieces = [...lockedPieces].sort((a, b) => b.y - a.y);
+        // Check pieces from the bottom up - process each piece sequentially
+        const sortedPieces = [...lockedPieces].sort((a, b) => {
+            // Sort by bottom of piece first, then by y position
+            const aBottom = a.y + a.shape.length;
+            const bBottom = b.y + b.shape.length;
+            return bBottom - aBottom;
+        });
 
         // In each pass, move every piece that can fall down by one.
+        // Important: use current state of lockedPieces for collision detection
         sortedPieces.forEach(p => {
             const others = lockedPieces.filter(op => op !== p);
             if (canFall(p, others)) {
@@ -4498,6 +4566,10 @@ function checkGravity() {
             document.getElementById('settings-btn').addEventListener('click', pauseGame);
             document.getElementById('close-settings').addEventListener('click', resumeGame);
             document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
+            document.getElementById('sound-toggle').addEventListener('click', () => {
+                const m = soundManager.toggleMute();
+                document.getElementById('sound-toggle').textContent = m ? '🔇' : '🔊';
+            });
             document.getElementById('next-track-btn').addEventListener('click', () => soundManager.nextTrack());
             const ds=document.getElementById('das-delay'),dv=document.getElementById('das-delay-value'),is=document.getElementById('das-interval'),iv=document.getElementById('das-interval-value');
             ds.value=settings.dasDelay;dv.textContent=settings.dasDelay; is.value=settings.dasInterval;iv.textContent=settings.dasInterval;
