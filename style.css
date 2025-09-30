@@ -1093,11 +1093,16 @@ body {
 
 /* --- Aurora Theme --- */
 #aurora-theme {
-    background-color: #00020c;
+    background: linear-gradient(to bottom,
+        #000208 0%,
+        #00030f 30%,
+        #000515 60%,
+        #00061a 100%);
     overflow: hidden;
 }
 #aurora-stars {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1;
 }
 .aurora-star {
     position: absolute;

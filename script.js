@@ -2003,26 +2003,26 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             });
 
-            const numLayers = Math.floor(random(6, 10)); // More layers for depth and complexity
+            const numLayers = Math.floor(random(4, 6)); // Fewer layers for subtlety
             let dynamicKeyframes = '';
-        
+
             // Create shimmer particle container
             const shimmerContainer = document.createElement('div');
             shimmerContainer.className = 'aurora-shimmer-container';
-            shimmerContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none;';
+            shimmerContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 60%; z-index: 20; pointer-events: none;';
             auroraContainer.appendChild(shimmerContainer);
-        
+
             // Add shimmer particles with varied characteristics
-            const numShimmers = Math.floor(random(50, 80)); // More particles for richness
+            const numShimmers = Math.floor(random(25, 40)); // Fewer particles for subtlety
             for (let i = 0; i < numShimmers; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'aurora-shimmer';
 
-                // Randomize starting position with clustering effect
-                const clusterX = random(0, 100);
-                const clusterY = random(0, 60); // Focus on upper portions
+                // Randomize starting position with clustering effect (upper sky only)
+                const clusterX = random(10, 90);
+                const clusterY = random(5, 35); // Focus on upper third of screen
                 particle.style.left = `${clusterX + random(-15, 15)}%`;
-                particle.style.top = `${clusterY + random(-10, 10)}%`;
+                particle.style.top = `${clusterY + random(-8, 8)}%`;
 
                 // Varied timing for organic feel
                 const duration = random(12, 28);
@@ -2052,23 +2052,23 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 const nextColor = palette.colors[(colorIndex + 1) % palette.colors.length];
                 const thirdColor = palette.colors[(colorIndex + 2) % palette.colors.length];
                 
-                // Position with depth and natural variation
+                // Position with depth and natural variation (constrained to upper sky)
                 const depth = i / numLayers; // 0 (far) to 1 (close)
-                const top = random(-80, -20) - (depth * 25); // Further layers higher up
-                const width = random(120, 250) + (depth * 60); // Closer layers wider
-                const height = random(200, 320) + (depth * 50);
-                const opacity = random(0.4, 0.7) + (depth * 0.25); // Closer layers more visible
-                const blur = random(12, 28) - (depth * 10); // Closer layers less blurry
-                const zIndex = Math.floor(i * 2) + 1;
+                const top = random(-60, -10) - (depth * 15); // Keep in upper portion
+                const width = random(100, 180) + (depth * 40); // More subtle widths
+                const height = random(120, 200) + (depth * 30); // More constrained heights
+                const opacity = random(0.25, 0.45) + (depth * 0.15); // Much more subtle
+                const blur = random(15, 35) - (depth * 8); // More blur for softer look
+                const zIndex = Math.floor(i * 2) + 5;
 
                 // More organic gradient shapes with multiple focus points
-                const gradX = random(15, 85);
-                const gradY = random(25, 75);
-                const transparentStop = random(25, 45);
-                const colorStop = random(70, 95);
+                const gradX = random(20, 80);
+                const gradY = random(20, 60);
+                const transparentStop = random(35, 55);
+                const colorStop = random(75, 92);
 
-                // Create multi-stop gradient for more natural appearance
-                layer.style.background = `radial-gradient(ellipse ${random(40, 70)}% ${random(80, 120)}% at ${gradX}% ${gradY}%,
+                // Create multi-stop gradient for more natural, subtle appearance
+                layer.style.background = `radial-gradient(ellipse ${random(35, 60)}% ${random(70, 100)}% at ${gradX}% ${gradY}%,
                     transparent 0%,
                     transparent ${transparentStop}%,
                     ${color} ${colorStop}%,
@@ -2076,14 +2076,14 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
 
                 layer.style.position = 'absolute';
                 layer.style.top = `${top}%`;
-                layer.style.left = `${random(-60, 20)}%`;
+                layer.style.left = `${random(-40, 10)}%`;
                 layer.style.width = `${width}%`;
                 layer.style.height = `${height}%`;
                 layer.style.opacity = opacity;
                 layer.style.mixBlendMode = 'screen';
                 layer.style.willChange = 'transform, filter, opacity';
                 layer.style.zIndex = zIndex;
-                layer.style.filter = `blur(${blur}px) saturate(${random(1.1, 1.4)})`;
+                layer.style.filter = `blur(${blur}px) saturate(${random(0.9, 1.2)})`;
 
                 // Multiple animation layers for complex, natural motion
                 const flowDuration = random(30, 70); // Slower, more majestic
@@ -2116,27 +2116,27 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
                 flowKeyframes += '100% { transform: translateX(0%) rotate(0deg) scaleX(1); }\n';
             
-                // Generate pulsing/breathing effect with smooth transitions
+                // Generate pulsing/breathing effect with smooth, subtle transitions
                 const pulseKeyframes = `
                     0% {
-                        opacity: ${opacity * 0.65};
-                        filter: blur(${blur}px) brightness(0.85) saturate(0.95);
+                        opacity: ${opacity * 0.7};
+                        filter: blur(${blur}px) brightness(0.9) saturate(${random(0.9, 1.2)});
                     }
                     25% {
-                        opacity: ${Math.min(opacity * 1.1, 0.95)};
-                        filter: blur(${blur * 0.95}px) brightness(1.1) saturate(1.1);
+                        opacity: ${Math.min(opacity * 1.05, 0.7)};
+                        filter: blur(${blur * 0.96}px) brightness(1.05) saturate(${random(0.95, 1.25)});
                     }
                     50% {
-                        opacity: ${Math.min(opacity * 1.35, 1)};
-                        filter: blur(${blur * 0.88}px) brightness(1.4) saturate(1.25);
+                        opacity: ${Math.min(opacity * 1.2, 0.75)};
+                        filter: blur(${blur * 0.92}px) brightness(1.2) saturate(${random(1, 1.3)});
                     }
                     75% {
-                        opacity: ${Math.min(opacity * 1.1, 0.95)};
-                        filter: blur(${blur * 0.95}px) brightness(1.1) saturate(1.1);
+                        opacity: ${Math.min(opacity * 1.05, 0.7)};
+                        filter: blur(${blur * 0.96}px) brightness(1.05) saturate(${random(0.95, 1.25)});
                     }
                     100% {
-                        opacity: ${opacity * 0.65};
-                        filter: blur(${blur}px) brightness(0.85) saturate(0.95);
+                        opacity: ${opacity * 0.7};
+                        filter: blur(${blur}px) brightness(0.9) saturate(${random(0.9, 1.2)});
                     }
                 `;
             
@@ -2194,34 +2194,34 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 
                 auroraContainer.appendChild(layer);
             
-                // Add random surge effect for dynamic energy bursts
-                if (Math.random() > 0.5) { // More frequent surges
-                    const surgeDelay = random(3000, 45000);
+                // Add random surge effect for subtle dynamic energy bursts
+                if (Math.random() > 0.65) { // Less frequent, more special surges
+                    const surgeDelay = random(5000, 60000);
                     setTimeout(() => {
                         if (activeTheme === 'aurora' && layer.parentElement) {
                             const surgeName = `aurora-surge-${Date.now()}`;
-                            const surgeDuration = random(3, 7);
+                            const surgeDuration = random(4, 8);
                             const surgeKeyframes = `
                                 @keyframes ${surgeName} {
                                     0% {
                                         opacity: ${opacity};
-                                        filter: blur(${blur}px) brightness(1) saturate(${random(1.1, 1.4)});
+                                        filter: blur(${blur}px) brightness(0.9) saturate(${random(0.9, 1.2)});
                                     }
                                     15% {
-                                        opacity: ${Math.min(opacity * 1.5, 0.95)};
-                                        filter: blur(${blur * 0.85}px) brightness(1.8) saturate(${random(1.4, 1.7)});
+                                        opacity: ${Math.min(opacity * 1.3, 0.7)};
+                                        filter: blur(${blur * 0.9}px) brightness(1.4) saturate(${random(1.2, 1.5)});
                                     }
                                     50% {
-                                        opacity: ${Math.min(opacity * 2.2, 1)};
-                                        filter: blur(${blur * 0.7}px) brightness(3) saturate(${random(1.6, 2)});
+                                        opacity: ${Math.min(opacity * 1.6, 0.8)};
+                                        filter: blur(${blur * 0.85}px) brightness(1.8) saturate(${random(1.3, 1.6)});
                                     }
                                     85% {
-                                        opacity: ${Math.min(opacity * 1.5, 0.95)};
-                                        filter: blur(${blur * 0.85}px) brightness(1.8) saturate(${random(1.4, 1.7)});
+                                        opacity: ${Math.min(opacity * 1.3, 0.7)};
+                                        filter: blur(${blur * 0.9}px) brightness(1.4) saturate(${random(1.2, 1.5)});
                                     }
                                     100% {
                                         opacity: ${opacity};
-                                        filter: blur(${blur}px) brightness(1) saturate(${random(1.1, 1.4)});
+                                        filter: blur(${blur}px) brightness(0.9) saturate(${random(0.9, 1.2)});
                                     }
                                 }
                             `;
