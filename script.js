@@ -1950,7 +1950,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const auroraContainer = document.getElementById('aurora-theme');
             const starsContainer = document.getElementById('aurora-stars');
             const dynamicStyleId = 'aurora-dynamic-styles';
-
+                
             // 1. Cleanup old aurora elements and styles
             const oldStyleElement = document.getElementById(dynamicStyleId);
             if (oldStyleElement) {
@@ -1960,7 +1960,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             while (auroraContainer.lastChild && auroraContainer.lastChild !== starsContainer) {
                 auroraContainer.removeChild(auroraContainer.lastChild);
             }
-
+        
             // 2. Preserve existing star generation
             if (starsContainer && starsContainer.children.length === 0) {
                 for (let i = 0; i < 150; i++) {
@@ -1975,97 +1975,185 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     starsContainer.appendChild(star);
                 }
             }
-
-            // 3. Color System
+        
+            // 3. Enhanced Color System with palettes that transition
             const colorPalettes = [
-                // Palette 1: Classic Green & Teal
-                ['#00ff87', '#39ff14', '#00ffaa', '#00ff87', '#40e0d0', '#ff006e'],
-                // Palette 2: Green & Pink focus
-                ['#7fff00', '#00ff87', '#39ff14', '#64ffda', '#ff1493', '#ff66cc'],
-                // Palette 3: Cyan dominant
-                ['#00ffff', '#64ffda', '#00ffaa', '#00ff87', '#40e0d0', '#ff006e'],
-                // Palette 4: Balanced with a rare purple
-                ['#39ff14', '#7fff00', '#00ffaa', '#40e0d0', '#ff1493', '#9d00ff'],
-                // Palette 5: Vibrant Green & Magenta
-                ['#00ff87', '#39ff14', '#7fff00', '#00ffff', '#ff006e', '#ff66cc'],
-                // Palette 6: Teal and Purple
-                ['#64ffda', '#40e0d0', '#00ffaa', '#00ff87', '#bf00ff', '#a29bfe'],
-                // Palette 7: Heavy on greens
-                ['#00ff87', '#39ff14', '#7fff00', '#00ffaa', '#39ff14', '#40e0d0', '#ff1493']
+                // Classic Green Aurora
+                { colors: ['#00ff87', '#39ff14', '#7fff00', '#40e0d0'], name: 'emerald' },
+                // Pink-Purple Aurora
+                { colors: ['#ff1493', '#ff66cc', '#bf00ff', '#a29bfe'], name: 'magenta' },
+                // Teal-Blue Aurora  
+                { colors: ['#00ffff', '#64ffda', '#40e0d0', '#00ffaa'], name: 'cyan' },
+                // Mixed Classic (green-pink-purple)
+                { colors: ['#00ff87', '#ff1493', '#bf00ff', '#40e0d0'], name: 'mixed' },
+                // Rare Red Aurora
+                { colors: ['#ff006e', '#ff4757', '#ff1493', '#bf00ff'], name: 'ruby' }
             ];
-            const selectedPalette = colorPalettes[Math.floor(random(0, colorPalettes.length))];
-
-            const numLayers = Math.floor(random(3, 6)); // 3-5 layers
+        
+            const numLayers = Math.floor(random(5, 8)); // More layers for richness
             let dynamicKeyframes = '';
-
+        
+            // Create shimmer particle container
+            const shimmerContainer = document.createElement('div');
+            shimmerContainer.className = 'aurora-shimmer-container';
+            shimmerContainer.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none;';
+            auroraContainer.appendChild(shimmerContainer);
+        
+            // Add shimmer particles
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'aurora-shimmer';
+                particle.style.left = `${random(0, 100)}%`;
+                particle.style.top = `${random(0, 80)}%`;
+                particle.style.animationDelay = `-${random(0, 15)}s`;
+                particle.style.animationDuration = `${random(10, 20)}s`;
+                shimmerContainer.appendChild(particle);
+            }
+        
+            // Create aurora curtains with realistic motion
             for (let i = 0; i < numLayers; i++) {
                 const layer = document.createElement('div');
                 const animationName = `aurora-flow-layer-${i}-${Date.now()}`;
-
-                // 4. Dynamic Layer Styling
-                const color = selectedPalette[Math.floor(random(0, selectedPalette.length))];
-                const top = random(-60, -40);
-                const width = random(120, 180);
-                const height = random(150, 220);
-                const opacity = random(0.6, 0.9);
-                const blur = random(5, 15);
-                const zIndex = i + 1; // Simple z-index stacking
-
-                // Gradient with random center
-                const gradX = random(30, 70);
-                const gradY = random(40, 60);
-                const transparentStop = random(35, 45);
+                const pulseAnimationName = `aurora-pulse-${i}-${Date.now()}`;
+                const waveAnimationName = `aurora-wave-${i}-${Date.now()}`;
+                const colorCycleAnimationName = `aurora-color-cycle-${i}-${Date.now()}`;
+            
+                // Select palette and colors with depth-based variation
+                const paletteIndex = Math.floor(random(0, colorPalettes.length));
+                const palette = colorPalettes[paletteIndex];
+                const colorIndex = Math.floor(random(0, palette.colors.length));
+                const color = palette.colors[colorIndex];
+                const nextColor = palette.colors[(colorIndex + 1) % palette.colors.length];
+                
+                // Position with depth
+                const depth = i / numLayers; // 0 (far) to 1 (close)
+                const top = random(-70, -30) - (depth * 20); // Further layers higher up
+                const width = random(100, 200) + (depth * 50); // Closer layers wider
+                const height = random(180, 280) + (depth * 40);
+                const opacity = random(0.5, 0.8) + (depth * 0.2); // Closer layers more visible
+                const blur = random(8, 20) - (depth * 8); // Closer layers less blurry
+                const zIndex = Math.floor(i * 2) + 1;
+            
+                // Unique gradient shape for each curtain
+                const gradX = random(20, 80);
+                const gradY = random(30, 70);
+                const transparentStop = random(30, 50);
                 layer.style.background = `radial-gradient(ellipse at ${gradX}% ${gradY}%, transparent 0%, transparent ${transparentStop}%, ${color} 100%)`;
-
+            
                 layer.style.position = 'absolute';
                 layer.style.top = `${top}%`;
-                layer.style.left = `${random(-40, 0)}%`;
+                layer.style.left = `${random(-50, 10)}%`;
                 layer.style.width = `${width}%`;
                 layer.style.height = `${height}%`;
                 layer.style.opacity = opacity;
                 layer.style.mixBlendMode = 'screen';
-                layer.style.willChange = 'transform, filter';
+                layer.style.willChange = 'transform, filter, opacity';
                 layer.style.zIndex = zIndex;
-
-                // 5. Dynamic Animation Properties
-                const duration = random(18, 45);
-                const direction = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
-                layer.style.animation = `${animationName} ${duration}s ease-in-out infinite ${direction}`;
-                layer.style.filter = `blur(${blur}px)`; // Initial blur
-
-                // 6. Dynamic Keyframe Generation
-                let keyframeSteps = '0% { transform: rotate(0deg) scale(1) skewX(0deg) translateX(0%) translateY(0%); filter: blur(' + blur + 'px) brightness(1) saturate(1) hue-rotate(0deg); }\n';
-                const numKeyframes = Math.floor(random(6, 9)); // 6-8 steps
-                const keyframePercentages = [0, 100];
-                for (let j = 0; j < numKeyframes - 2; j++) {
-                    keyframePercentages.push(Math.floor(random(10, 90)));
+                layer.style.filter = `blur(${blur}px)`;
+            
+                // Multiple animation layers for complex motion
+                const flowDuration = random(25, 55); // Slower, more majestic
+                const pulseDuration = random(8, 15);
+                const waveDuration = random(12, 22);
+                const colorCycleDuration = random(35, 65);
+                
+                const flowDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
+                const waveDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
+                
+                layer.style.animation = `
+                    ${animationName} ${flowDuration}s ease-in-out infinite ${flowDirection},
+                    ${pulseAnimationName} ${pulseDuration}s ease-in-out infinite alternate,
+                    ${waveAnimationName} ${waveDuration}s ease-in-out infinite ${waveDirection},
+                    ${colorCycleAnimationName} ${colorCycleDuration}s linear infinite
+                `;
+            
+                // Generate organic flow animation (horizontal drift + rotation)
+                let flowKeyframes = '0% { transform: translateX(0%) rotate(0deg); }\n';
+                const numFlowPoints = Math.floor(random(4, 7));
+                for (let j = 1; j <= numFlowPoints; j++) {
+                    const percent = (j / numFlowPoints) * 100;
+                    const drift = random(-25, 25);
+                    const rotate = random(-12, 12);
+                    flowKeyframes += `${percent}% { transform: translateX(${drift}%) rotate(${rotate}deg); }\n`;
                 }
-                keyframePercentages.sort((a, b) => a - b);
-
-                for (let j = 1; j < keyframePercentages.length - 1; j++) {
-                    const percent = keyframePercentages[j];
-                    const rotate = random(-15, 15);
-                    const scale = random(0.85, 1.25);
-                    const skewX = random(-20, 20);
-                    const skewY = random(-8, 8);
-                    const translateX = random(-15, 15);
-                    const translateY = random(-10, 10);
-                    const hueRotate = random(15, 30);
-                    const brightness = random(1.0, 1.5);
-                    const saturate = random(0.8, 1.3);
-
-                    keyframeSteps += `${percent}% {
-                        transform: rotate(${rotate}deg) scale(${scale}) skewX(${skewX}deg) skewY(${skewY}deg) translateX(${translateX}%) translateY(${translateY}%);
-                        filter: blur(${blur}px) brightness(${brightness}) saturate(${saturate}) hue-rotate(${percent < 50 ? (percent/50) * hueRotate : (1 - (percent-50)/50) * hueRotate}deg);
-                    }\n`;
+                flowKeyframes += '100% { transform: translateX(0%) rotate(0deg); }\n';
+            
+                // Generate pulsing/breathing effect (opacity + brightness)
+                const pulseKeyframes = `
+                    0% { 
+                        opacity: ${opacity * 0.6}; 
+                        filter: blur(${blur}px) brightness(0.8) saturate(0.9);
+                    }
+                    50% { 
+                        opacity: ${Math.min(opacity * 1.4, 1)}; 
+                        filter: blur(${blur * 0.9}px) brightness(1.3) saturate(1.2);
+                    }
+                    100% { 
+                        opacity: ${opacity * 0.6}; 
+                        filter: blur(${blur}px) brightness(0.8) saturate(0.9);
+                    }
+                `;
+            
+                // Generate vertical wave motion (undulation)
+                let waveKeyframes = '0% { transform: translateY(0%) scaleY(1) skewX(0deg); }\n';
+                const numWavePoints = Math.floor(random(5, 8));
+                for (let j = 1; j <= numWavePoints; j++) {
+                    const percent = (j / numWavePoints) * 100;
+                    const wave = Math.sin((percent / 100) * Math.PI * 2) * random(8, 18);
+                    const scaleY = random(0.9, 1.15);
+                    const skewX = random(-8, 8);
+                    waveKeyframes += `${percent}% { transform: translateY(${wave}%) scaleY(${scaleY}) skewX(${skewX}deg); }\n`;
                 }
-                keyframeSteps += '100% { transform: rotate(0deg) scale(1) skewX(0deg) translateX(0%) translateY(0%); filter: blur(' + blur + 'px) brightness(1) saturate(1) hue-rotate(0deg); }\n';
-
-                dynamicKeyframes += `@keyframes ${animationName} {\n${keyframeSteps}}\n`;
+                waveKeyframes += '100% { transform: translateY(0%) scaleY(1) skewX(0deg); }\n';
+            
+                // Generate color cycling animation
+                const colorCycleKeyframes = `
+                    0% { 
+                        background: radial-gradient(ellipse at ${gradX}% ${gradY}%, transparent 0%, transparent ${transparentStop}%, ${color} 100%);
+                    }
+                    33% {
+                        background: radial-gradient(ellipse at ${random(20,80)}% ${random(30,70)}%, transparent 0%, transparent ${transparentStop}%, ${nextColor} 100%);
+                    }
+                    66% {
+                        background: radial-gradient(ellipse at ${random(20,80)}% ${random(30,70)}%, transparent 0%, transparent ${transparentStop}%, ${palette.colors[(colorIndex + 2) % palette.colors.length]} 100%);
+                    }
+                    100% { 
+                        background: radial-gradient(ellipse at ${gradX}% ${gradY}%, transparent 0%, transparent ${transparentStop}%, ${color} 100%);
+                    }
+                `;
+            
+                dynamicKeyframes += `@keyframes ${animationName} {\n${flowKeyframes}}\n`;
+                dynamicKeyframes += `@keyframes ${pulseAnimationName} {\n${pulseKeyframes}}\n`;
+                dynamicKeyframes += `@keyframes ${waveAnimationName} {\n${waveKeyframes}}\n`;
+                dynamicKeyframes += `@keyframes ${colorCycleAnimationName} {\n${colorCycleKeyframes}}\n`;
+                
                 auroraContainer.appendChild(layer);
+            
+                // Add random surge effect
+                if (Math.random() > 0.6) {
+                    setTimeout(() => {
+                        if (activeTheme === 'aurora' && layer.parentElement) {
+                            const surgeName = `aurora-surge-${Date.now()}`;
+                            const surgeKeyframes = `
+                                @keyframes ${surgeName} {
+                                    0% { opacity: ${opacity}; filter: blur(${blur}px) brightness(1); }
+                                    50% { opacity: ${Math.min(opacity * 2, 1)}; filter: blur(${blur * 0.7}px) brightness(2.5); }
+                                    100% { opacity: ${opacity}; filter: blur(${blur}px) brightness(1); }
+                                }
+                            `;
+                            const surgeStyle = document.createElement('style');
+                            surgeStyle.textContent = surgeKeyframes;
+                            document.head.appendChild(surgeStyle);
+                            
+                            layer.style.animation += `, ${surgeName} ${random(2, 4)}s ease-in-out`;
+                            
+                            setTimeout(() => surgeStyle.remove(), 5000);
+                        }
+                    }, random(5000, 30000));
+                }
             }
-
-            // 7. Inject Stylesheet
+        
+            // Inject all keyframe styles
             const styleElement = document.createElement('style');
             styleElement.id = dynamicStyleId;
             styleElement.textContent = dynamicKeyframes;
