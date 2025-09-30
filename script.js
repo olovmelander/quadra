@@ -4142,90 +4142,170 @@ function createWavesScene() {
 }
 
         function createDesertOasisScene() {
-            // 1. Twinkling Stars
+            // 1. Stars with shooting stars (reduced density)
             const starsContainer = document.getElementById('desert-stars');
             if (starsContainer && starsContainer.children.length === 0) {
-                for (let i = 0; i < 150; i++) {
-                    let star = document.createElement('div');
+                // Regular twinkling stars
+                for (let i = 0; i < 80; i++) {
+                    const star = document.createElement('div');
                     star.className = 'desert-star';
                     const size = Math.random() * 1.5 + 0.5;
                     star.style.width = `${size}px`;
                     star.style.height = `${size}px`;
                     star.style.left = `${Math.random() * 100}%`;
-                    star.style.top = `${Math.random() * 60}%`; // Only in the upper part of the sky
-                    star.style.animationDelay = `-${Math.random() * 10}s`;
+                    star.style.top = `${Math.random() * 60}%`;
+                    star.style.setProperty('--twinkle-delay', `${Math.random() * 8}s`);
+                    star.style.animationDelay = `-${Math.random() * 12}s`;
                     starsContainer.appendChild(star);
                 }
+
+                // Shooting stars (less frequent)
+                const createShootingStar = () => {
+                    if (activeTheme !== 'desert-oasis') return;
+                    const shootingStar = document.createElement('div');
+                    shootingStar.className = 'shooting-star';
+                    shootingStar.style.left = `${Math.random() * 50 + 25}%`;
+                    shootingStar.style.top = `${Math.random() * 30}%`;
+                    shootingStar.style.setProperty('--angle', `${Math.random() * 30 + 30}deg`);
+                    starsContainer.appendChild(shootingStar);
+                    shootingStar.addEventListener('animationend', () => shootingStar.remove());
+                    setTimeout(createShootingStar, Math.random() * 40000 + 40000);
+                };
+                setTimeout(createShootingStar, 20000);
             }
 
-            // 2. Drifting Sand Particles
+            // 2. Reduced sand particles
             const sandContainer = document.getElementById('desert-sand-particles');
             if (sandContainer && sandContainer.children.length === 0) {
-                for (let i = 0; i < 80; i++) {
-                    let particle = document.createElement('div');
+                for (let i = 0; i < 15; i++) {
+                    const particle = document.createElement('div');
                     particle.className = 'sand-particle';
-                    particle.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-                    particle.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-                    particle.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-                    particle.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                    const duration = Math.random() * 20 + 15;
+                    const startX = Math.random() * 100;
+                    const startY = Math.random() * 100;
+                    particle.style.setProperty('--x-start', `${startX}vw`);
+                    particle.style.setProperty('--y-start', `${startY}vh`);
+                    particle.style.setProperty('--x-drift', `${Math.random() * 30 - 15}vw`);
+                    particle.style.setProperty('--y-drift', `${Math.random() * 15 - 7.5}vh`);
+                    const duration = Math.random() * 30 + 25;
                     particle.style.animationDuration = `${duration}s`;
                     particle.style.animationDelay = `-${Math.random() * duration}s`;
                     sandContainer.appendChild(particle);
                 }
             }
 
-            // 3. Desert Fauna
+            // 3. Simplified desert fauna
             const faunaContainer = document.getElementById('desert-fauna');
             if (faunaContainer && faunaContainer.children.length === 0) {
                 // Lizards
                 for (let i = 0; i < 2; i++) {
-                    let lizard = document.createElement('div');
+                    const lizard = document.createElement('div');
                     lizard.className = 'desert-lizard';
-                    lizard.style.left = `${10 + Math.random() * 80}%`;
-                    lizard.style.animationDelay = `-${Math.random() * 30}s`;
+                    lizard.style.bottom = `${Math.random() * 15 + 8}%`;
+                    lizard.style.animationDelay = `-${Math.random() * 50}s`;
                     faunaContainer.appendChild(lizard);
                 }
-                // Moths
-                for (let i = 0; i < 7; i++) {
-                    let moth = document.createElement('div');
+
+                // Moths (reduced)
+                for (let i = 0; i < 4; i++) {
+                    const moth = document.createElement('div');
                     moth.className = 'desert-moth';
-                    moth.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-                    moth.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-                    moth.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-                    moth.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                    moth.style.animationDelay = `-${Math.random() * 20}s`;
+
+                    for (let j = 1; j <= 6; j++) {
+                        moth.style.setProperty(`--x${j}`, `${Math.random() * 90 + 5}vw`);
+                        moth.style.setProperty(`--y${j}`, `${Math.random() * 60 + 15}vh`);
+                    }
+
+                    const duration = Math.random() * 15 + 20;
+                    moth.style.animationDuration = `${duration}s`;
+                    moth.style.animationDelay = `-${Math.random() * duration}s`;
                     faunaContainer.appendChild(moth);
+                }
+
+                // Single camel
+                const camel = document.createElement('div');
+                camel.className = 'desert-camel';
+                camel.style.setProperty('--camel-y', '22%');
+                faunaContainer.appendChild(camel);
+            }
+
+            // 4. Streamlined oasis flora
+            const floraContainer = document.getElementById('desert-flora');
+            if (floraContainer && floraContainer.children.length === 0) {
+                // Palm trees (reduced to 3)
+                for (let i = 0; i < 3; i++) {
+                    const palm = document.createElement('div');
+                    palm.className = 'palm-tree';
+                    palm.style.left = `${45 + i * 5}%`;
+                    palm.style.bottom = `${15 + Math.random() * 3}%`;
+                    const height = Math.random() * 60 + 80;
+                    palm.style.height = `${height}px`;
+                    palm.style.setProperty('--sway-duration', `${Math.random() * 2 + 6}s`);
+                    palm.style.setProperty('--sway-delay', `-${Math.random() * 8}s`);
+
+                    // Add fronds
+                    for (let f = 0; f < 6; f++) {
+                        const frond = document.createElement('div');
+                        frond.className = 'palm-frond';
+                        frond.style.setProperty('--frond-rotation', `${f * 60}deg`);
+                        frond.style.setProperty('--frond-delay', `-${Math.random() * 4}s`);
+                        palm.appendChild(frond);
+                    }
+
+                    floraContainer.appendChild(palm);
+                }
+
+                // Cacti (reduced)
+                for (let i = 0; i < 4; i++) {
+                    const cactus = document.createElement('div');
+                    cactus.className = 'cactus';
+                    cactus.style.left = `${15 + Math.random() * 70}%`;
+                    cactus.style.bottom = `${Math.random() * 8}%`;
+                    cactus.style.height = `${Math.random() * 40 + 35}px`;
+                    floraContainer.appendChild(cactus);
+                }
+
+                // Desert flowers (reduced)
+                for (let i = 0; i < 5; i++) {
+                    const flower = document.createElement('div');
+                    flower.className = 'desert-flower';
+                    flower.style.left = `${Math.random() * 100}%`;
+                    flower.style.bottom = `${Math.random() * 10}%`;
+                    flower.style.setProperty('--flower-hue', Math.random() * 60 + 300);
+                    flower.style.animationDelay = `-${Math.random() * 10}s`;
+                    floraContainer.appendChild(flower);
+                }
+
+                // Rock formations (reduced)
+                for (let i = 0; i < 3; i++) {
+                    const rock = document.createElement('div');
+                    rock.className = 'desert-rock';
+                    rock.style.left = `${20 + Math.random() * 60}%`;
+                    rock.style.bottom = `${Math.random() * 12}%`;
+                    const size = Math.random() * 30 + 35;
+                    rock.style.width = `${size}px`;
+                    rock.style.height = `${size * 0.6}px`;
+                    floraContainer.appendChild(rock);
                 }
             }
 
-            // 4. Desert Flora (procedurally drawn cacti and palms)
-            const floraContainer = document.getElementById('desert-flora');
-            if (floraContainer && floraContainer.children.length === 0) {
-                 for (let i = 0; i < 8; i++) { // Cacti
-                    let cactus = document.createElement('div');
-                    cactus.className = 'cactus';
-                    cactus.style.left = `${5 + Math.random() * 90}%`;
-                    cactus.style.bottom = `${Math.random() * 10}%`;
-                    cactus.style.height = `${Math.random() * 40 + 30}px`;
-                    floraContainer.appendChild(cactus);
-                 }
-                for (let i = 0; i < 5; i++) { // Desert Flowers
-                    let flower = document.createElement('div');
-                    flower.className = 'desert-flower';
-                    flower.style.left = `${5 + Math.random() * 90}%`;
-                    flower.style.bottom = `${Math.random() * 5}%`;
-                    flower.style.animationDelay = `-${Math.random() * 15}s`;
-                    floraContainer.appendChild(flower);
-                }
-                 for (let i = 0; i < 3; i++) { // Palm trees in the oasis area
-                    let palm = document.createElement('div');
-                    palm.className = 'palm-tree';
-                    palm.style.left = `${40 + Math.random() * 20}%`; // Centered for oasis
-                    palm.style.bottom = `${5 + Math.random() * 10}%`;
-                    palm.style.height = `${Math.random() * 60 + 80}px`;
-                    floraContainer.appendChild(palm);
-                 }
+            // 5. Simplified oasis water
+            const mirageContainer = document.querySelector('#desert-oasis-theme .desert-mirage');
+            if (mirageContainer && mirageContainer.children.length === 0) {
+                const waterPool = document.createElement('div');
+                waterPool.className = 'oasis-water';
+                mirageContainer.appendChild(waterPool);
+
+                const createRipple = () => {
+                    if (activeTheme !== 'desert-oasis') return;
+                    const ripple = document.createElement('div');
+                    ripple.className = 'water-ripple';
+                    ripple.style.left = `${46 + Math.random() * 8}%`;
+                    ripple.style.top = `${45 + Math.random() * 15}%`;
+                    waterPool.appendChild(ripple);
+                    ripple.addEventListener('animationend', () => ripple.remove());
+                    setTimeout(createRipple, Math.random() * 7000 + 5000);
+                };
+                setTimeout(createRipple, 3000);
             }
         }
 
@@ -4346,22 +4426,22 @@ function createWavesScene() {
         }
 
         function createBambooGroveScene() {
-            // 1. Multi-layer bamboo stalks with physics
+            // 1. Streamlined bamboo stalks (reduced density)
             ['bamboo-grove-back', 'bamboo-grove-mid', 'bamboo-grove-front'].forEach((layerId, layerIndex) => {
                 const container = document.getElementById(layerId);
                 if (!container || container.children.length > 0) return;
 
-                const stalksCount = [25, 30, 20][layerIndex];
+                const stalksCount = [15, 20, 12][layerIndex];
                 const layerDepth = ['back', 'mid', 'front'][layerIndex];
 
                 for (let i = 0; i < stalksCount; i++) {
                     const stalk = document.createElement('div');
                     stalk.className = `bamboo-stalk bamboo-stalk-${layerDepth}`;
 
-                    const height = Math.random() * 300 + (layerIndex === 2 ? 400 : layerIndex === 1 ? 350 : 300);
-                    const leftPos = (i / stalksCount * 100) + (Math.random() * 3 - 1.5);
-                    const swayDuration = Math.random() * 4 + 4;
-                    const swayAngle = Math.random() * 2 + 1;
+                    const height = Math.random() * 250 + (layerIndex === 2 ? 380 : layerIndex === 1 ? 330 : 280);
+                    const leftPos = (i / stalksCount * 100) + (Math.random() * 4 - 2);
+                    const swayDuration = Math.random() * 3 + 5;
+                    const swayAngle = Math.random() * 1.5 + 1;
                     const swayDelay = -Math.random() * swayDuration;
 
                     stalk.style.height = `${height}px`;
@@ -4371,22 +4451,22 @@ function createWavesScene() {
                     stalk.style.animationDelay = `${swayDelay}s`;
 
                     // Add bamboo segments (nodes)
-                    const segments = Math.floor(height / 50);
+                    const segments = Math.floor(height / 55);
                     for (let s = 0; s < segments; s++) {
                         const segment = document.createElement('div');
                         segment.className = 'bamboo-node';
-                        segment.style.top = `${s * 50}px`;
+                        segment.style.top = `${s * 55}px`;
                         stalk.appendChild(segment);
                     }
 
-                    // Add leaves to some stalks
-                    if (Math.random() > 0.4) {
-                        const leafCount = Math.floor(Math.random() * 3) + 2;
+                    // Add leaves to fewer stalks
+                    if (Math.random() > 0.6) {
+                        const leafCount = Math.floor(Math.random() * 2) + 1;
                         for (let l = 0; l < leafCount; l++) {
                             const leaf = document.createElement('div');
                             leaf.className = 'bamboo-stalk-leaf';
-                            leaf.style.top = `${Math.random() * 30 + 10}%`;
-                            leaf.style.setProperty('--leaf-rotation', `${Math.random() * 60 - 30}deg`);
+                            leaf.style.top = `${Math.random() * 25 + 15}%`;
+                            leaf.style.setProperty('--leaf-rotation', `${Math.random() * 50 - 25}deg`);
                             leaf.style.animationDelay = `-${Math.random() * 3}s`;
                             stalk.appendChild(leaf);
                         }
@@ -4396,93 +4476,92 @@ function createWavesScene() {
                 }
             });
 
-            // 2. Enhanced sun dapples with synchronized movement
+            // 2. Reduced sun dapples
             const dappleContainer = document.getElementById('bamboo-sun-dapples');
             if (dappleContainer && dappleContainer.children.length === 0) {
-                for (let i = 0; i < 25; i++) {
+                for (let i = 0; i < 15; i++) {
                     const dapple = document.createElement('div');
                     dapple.className = 'sun-dapple';
                     dapple.style.left = `${Math.random() * 100}%`;
                     dapple.style.top = `${Math.random() * 100}%`;
-                    const size = Math.random() * 120 + 60;
+                    const size = Math.random() * 100 + 70;
                     dapple.style.width = `${size}px`;
                     dapple.style.height = `${size}px`;
-                    dapple.style.setProperty('--pulse-scale', Math.random() * 0.3 + 0.9);
+                    dapple.style.setProperty('--pulse-scale', Math.random() * 0.25 + 0.9);
                     dapple.style.animationDelay = `-${Math.random() * 12}s`;
                     dappleContainer.appendChild(dapple);
                 }
             }
 
-            // 3. Enhanced falling leaves with varied physics
+            // 3. Reduced falling leaves
             const leafContainer = document.getElementById('bamboo-leaves');
             if (leafContainer && leafContainer.children.length === 0) {
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < 8; i++) {
                     const leaf = document.createElement('div');
                     leaf.className = 'bamboo-leaf';
                     leaf.style.left = `${Math.random() * 100}%`;
-                    leaf.style.setProperty('--r-end', `${Math.random() * 900 - 450}deg`);
-                    leaf.style.setProperty('--x-drift', `${Math.random() * 15 - 7.5}vw`);
-                    leaf.style.setProperty('--leaf-scale', Math.random() * 0.5 + 0.75);
-                    const duration = Math.random() * 10 + 12;
+                    leaf.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
+                    leaf.style.setProperty('--x-drift', `${Math.random() * 12 - 6}vw`);
+                    leaf.style.setProperty('--leaf-scale', Math.random() * 0.4 + 0.8);
+                    const duration = Math.random() * 12 + 15;
                     leaf.style.animationDuration = `${duration}s`;
                     leaf.style.animationDelay = `-${Math.random() * duration}s`;
                     leafContainer.appendChild(leaf);
                 }
             }
 
-            // 4. Dragonflies with figure-8 paths
+            // 4. Reduced dragonflies
             const faunaContainer = document.getElementById('bamboo-fauna');
             if (faunaContainer && faunaContainer.children.length === 0) {
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 2; i++) {
                     const dragonfly = document.createElement('div');
                     dragonfly.className = 'dragonfly';
 
-                    // Create figure-8 pattern with custom properties
-                    const centerX = Math.random() * 60 + 20;
-                    const centerY = Math.random() * 50 + 20;
+                    const centerX = Math.random() * 50 + 25;
+                    const centerY = Math.random() * 40 + 25;
                     for (let j = 1; j <= 8; j++) {
                         const angle = (j / 8) * Math.PI * 2;
-                        const radius = 15 + Math.random() * 10;
+                        const radius = 12 + Math.random() * 8;
                         dragonfly.style.setProperty(`--x${j}`, `${centerX + Math.sin(angle * 2) * radius}vw`);
                         dragonfly.style.setProperty(`--y${j}`, `${centerY + Math.sin(angle) * radius * 0.5}vh`);
                     }
 
-                    const duration = Math.random() * 8 + 15;
+                    const duration = Math.random() * 10 + 18;
                     dragonfly.style.animationDuration = `${duration}s`;
                     dragonfly.style.animationDelay = `-${Math.random() * duration}s`;
                     faunaContainer.appendChild(dragonfly);
                 }
             }
 
-            // 5. Atmospheric mist particles
+            // 5. Reduced mist particles
             const mistContainer = document.querySelector('.bamboo-mist');
             if (mistContainer && mistContainer.children.length === 0) {
-                for (let i = 0; i < 25; i++) {
+                for (let i = 0; i < 12; i++) {
                     const mistParticle = document.createElement('div');
                     mistParticle.className = 'mist-particle';
                     mistParticle.style.left = `${Math.random() * 100}%`;
-                    mistParticle.style.bottom = `${Math.random() * 30}%`;
-                    mistParticle.style.setProperty('--drift-x', `${Math.random() * 50 - 25}vw`);
-                    mistParticle.style.setProperty('--drift-y', `${Math.random() * 15 - 7.5}vh`);
-                    const size = Math.random() * 150 + 100;
+                    mistParticle.style.bottom = `${Math.random() * 25}%`;
+                    mistParticle.style.setProperty('--drift-x', `${Math.random() * 40 - 20}vw`);
+                    mistParticle.style.setProperty('--drift-y', `${Math.random() * 12 - 6}vh`);
+                    const size = Math.random() * 120 + 100;
                     mistParticle.style.width = `${size}px`;
                     mistParticle.style.height = `${size}px`;
-                    const duration = Math.random() * 40 + 50;
+                    const duration = Math.random() * 50 + 60;
                     mistParticle.style.animationDuration = `${duration}s`;
                     mistParticle.style.animationDelay = `-${Math.random() * duration}s`;
                     mistContainer.appendChild(mistParticle);
                 }
             }
 
-            // 6. Stone pathway stones
+            // 6. Reduced pathway stones
             const pathContainer = document.getElementById('bamboo-path');
             if (pathContainer && pathContainer.children.length === 0) {
-                for (let i = 0; i < 8; i++) {
+                for (let i = 0; i < 5; i++) {
                     const stone = document.createElement('div');
                     stone.className = 'path-stone';
-                    stone.style.left = `${i * 12 + Math.random() * 5}%`;
-                    stone.style.bottom = `${5 + Math.random() * 3}%`;
-                    const size = Math.random() * 30 + 40;
+                    stone.style.left = `${i * 18 + 10 + Math.random() * 5}%`;
+                    stone.style.bottom = `${6 + Math.random() * 3}%`;
+                    const size = Math.random() * 25 + 35;
                     stone.style.width = `${size}px`;
                     stone.style.height = `${size * 0.3}px`;
                     pathContainer.appendChild(stone);
