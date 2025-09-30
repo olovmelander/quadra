@@ -733,27 +733,28 @@ function createCherryBlossomGardenScene() {
 }
 
 function createCandlelitMonasteryScene() {
-    // WebGL Archways
+    // 1. Stone Archways and Columns (WebGL) - Ancient weathered textures
     if (webglRenderer) {
         const archwayLayers = [
-            { zIndex: -0.9, filter: 'brightness(0.5)' },
-            { zIndex: -0.8, filter: 'brightness(0.7)' },
-            { zIndex: -0.7, filter: 'brightness(0.9)' }
+            { zIndex: -0.9, brightness: 0.4, detail: 'low' },
+            { zIndex: -0.8, brightness: 0.6, detail: 'mid' },
+            { zIndex: -0.7, brightness: 0.8, detail: 'high' }
         ];
 
         archwayLayers.forEach(layer => {
             const canvas = document.createElement('canvas');
-            const C_WIDTH = window.innerWidth * 2; // For parallax effect
+            const C_WIDTH = window.innerWidth * 2;
             const C_HEIGHT = window.innerHeight;
             canvas.width = C_WIDTH;
             canvas.height = C_HEIGHT;
             const ctx = canvas.getContext('2d');
 
-            ctx.filter = layer.filter;
-            ctx.fillStyle = 'rgba(20,10,5,0.8)';
+            // Stone texture with age marks
+            const baseColor = `rgba(${45 + layer.brightness * 30}, ${35 + layer.brightness * 25}, ${25 + layer.brightness * 20}, 0.9)`;
+            ctx.fillStyle = baseColor;
 
             const singleArchSVGWidth = 800;
-            const scaledArchWidth = 400; // From original CSS background-size
+            const scaledArchWidth = 400;
             const numRepeats = Math.ceil(C_WIDTH / scaledArchWidth);
 
             for (let i = 0; i < numRepeats; i++) {
@@ -761,11 +762,26 @@ function createCandlelitMonasteryScene() {
                 ctx.translate(i * scaledArchWidth, 0);
 
                 const scaleX = scaledArchWidth / singleArchSVGWidth;
-                const scaleY = C_HEIGHT / 600; // 600 is the viewBox height
+                const scaleY = C_HEIGHT / 600;
                 ctx.scale(scaleX, scaleY);
 
+                // Draw archways
                 const path = new Path2D("M 100 600 C 100 300, 300 300, 300 600 Z M 500 600 C 500 300, 700 300, 700 600 Z");
                 ctx.fill(path);
+
+                // Add weathered texture and cracks
+                if (layer.detail !== 'low') {
+                    ctx.strokeStyle = `rgba(30, 20, 15, ${0.3 * layer.brightness})`;
+                    ctx.lineWidth = 2;
+                    // Vertical weathering
+                    for (let j = 0; j < 3; j++) {
+                        const x = 150 + Math.random() * 100;
+                        ctx.beginPath();
+                        ctx.moveTo(x, 300);
+                        ctx.lineTo(x + (Math.random() - 0.5) * 20, 600);
+                        ctx.stroke();
+                    }
+                }
 
                 ctx.restore();
             }
@@ -774,46 +790,108 @@ function createCandlelitMonasteryScene() {
         });
     }
 
-    // 1. Candles
+    // 2. Pillar Candles - Varying heights with realistic flickering
     const candleContainer = document.getElementById('monastery-candles');
     if (candleContainer && candleContainer.children.length === 0) {
-        for (let i = 0; i < 25; i++) {
-            let candle = document.createElement('div');
-            candle.className = 'monastery-candle';
+        // Create rows of candles
+        const candleRows = [
+            { count: 8, bottom: 5, heightRange: [120, 180] },  // Front row - tallest
+            { count: 10, bottom: 15, heightRange: [90, 150] }, // Mid row
+            { count: 12, bottom: 25, heightRange: [60, 120] }  // Back row - shortest
+        ];
 
-            const height = Math.random() * 150 + 50;
-            candle.style.height = `${height}px`;
-            candle.style.left = `${Math.random() * 98}%`;
-            candle.style.bottom = `${Math.random() * 20 - 5}%`;
-            candle.style.animationDelay = `-${Math.random() * 5}s`;
+        candleRows.forEach(row => {
+            for (let i = 0; i < row.count; i++) {
+                let candle = document.createElement('div');
+                candle.className = 'monastery-candle';
 
-            let flame = document.createElement('div');
-            flame.className = 'candle-flame';
-            candle.appendChild(flame);
+                const height = Math.random() * (row.heightRange[1] - row.heightRange[0]) + row.heightRange[0];
+                candle.style.height = `${height}px`;
+                candle.style.left = `${(i / row.count) * 95 + Math.random() * 5}%`;
+                candle.style.bottom = `${row.bottom + Math.random() * 5}%`;
+                candle.style.animationDelay = `-${Math.random() * 5}s`;
 
-            candleContainer.appendChild(candle);
-        }
+                // Realistic flame with glow
+                let flame = document.createElement('div');
+                flame.className = 'candle-flame';
+                flame.style.animationDuration = `${0.8 + Math.random() * 0.4}s`;
+                candle.appendChild(flame);
+
+                candleContainer.appendChild(candle);
+            }
+        });
     }
 
-    // 2. Incense Smoke is now handled by WebGLRenderer
+    // 3. Incense Smoke is now handled by WebGLRenderer
 
-    // 3. Stained Glass Light
+    // 4. Stained Glass Windows - Colored light patterns
     const lightContainer = document.getElementById('monastery-stained-glass-light');
     if (lightContainer && lightContainer.children.length === 0) {
-        let lightBeam = document.createElement('div');
-        lightBeam.className = 'stained-glass-beam';
-        lightContainer.appendChild(lightBeam);
+        const stainedGlassColors = [
+            'rgba(180, 50, 50, 0.4)',   // Ruby red
+            'rgba(50, 100, 180, 0.4)',  // Sapphire blue
+            'rgba(180, 120, 50, 0.4)',  // Amber gold
+            'rgba(120, 50, 150, 0.4)',  // Purple
+            'rgba(50, 150, 100, 0.4)'   // Emerald green
+        ];
+
+        // Create multiple colored light beams
+        for (let i = 0; i < 3; i++) {
+            let lightBeam = document.createElement('div');
+            lightBeam.className = 'stained-glass-beam';
+            const color = stainedGlassColors[Math.floor(Math.random() * stainedGlassColors.length)];
+            lightBeam.style.background = `linear-gradient(180deg, ${color} 0%, transparent 100%)`;
+            lightBeam.style.left = `${15 + i * 35}%`;
+            lightBeam.style.width = `${150 + Math.random() * 100}px`;
+            lightBeam.style.animationDelay = `-${Math.random() * 8}s`;
+            lightContainer.appendChild(lightBeam);
+        }
     }
 
-    // 4. Dancing Shadows
+    // 5. Dancing Shadows from Candlelight
     const shadowContainer = document.getElementById('monastery-shadows');
     if (shadowContainer && shadowContainer.children.length === 0) {
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 8; i++) {
             let shadow = document.createElement('div');
             shadow.className = 'dancing-shadow';
+            shadow.style.left = `${Math.random() * 100}%`;
             shadow.style.animationDelay = `-${Math.random() * 6}s`;
+            shadow.style.animationDuration = `${4 + Math.random() * 3}s`;
             shadowContainer.appendChild(shadow);
         }
+    }
+
+    // 6. Prayer Beads - Swaying gently
+    const beadsContainer = document.getElementById('monastery-prayer-beads');
+    if (beadsContainer && beadsContainer.children.length === 0) {
+        for (let i = 0; i < 4; i++) {
+            let beads = document.createElement('div');
+            beads.className = 'prayer-beads';
+            beads.style.left = `${20 + i * 20}%`;
+            beads.style.top = `${Math.random() * 10}%`;
+            beads.style.animationDelay = `-${Math.random() * 4}s`;
+            beadsContainer.appendChild(beads);
+        }
+    }
+
+    // 7. Religious Artifacts - Silhouettes
+    const artifactContainer = document.getElementById('monastery-artifacts');
+    if (artifactContainer && artifactContainer.children.length === 0) {
+        const artifacts = [
+            { type: 'cross', left: 10, bottom: 15, size: 80 },
+            { type: 'bowl', left: 85, bottom: 20, size: 60 },
+            { type: 'bell', left: 50, bottom: 10, size: 70 }
+        ];
+
+        artifacts.forEach(artifact => {
+            let elem = document.createElement('div');
+            elem.className = `artifact artifact-${artifact.type}`;
+            elem.style.left = `${artifact.left}%`;
+            elem.style.bottom = `${artifact.bottom}%`;
+            elem.style.width = `${artifact.size}px`;
+            elem.style.height = `${artifact.size}px`;
+            artifactContainer.appendChild(elem);
+        });
     }
 }
 
@@ -3503,12 +3581,15 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
         }
 
 function createCrystalCaveScene() {
-    // 1. Layered Crystal Formations (WebGL)
+    // 1. Massive Crystal Formations (WebGL) - Various sizes from ceiling and floor
     if (webglRenderer) {
         const crystalLayers = [
-            { zIndex: -0.9, count: 15, color: 'rgba(40, 60, 100, 0.5)', height: 0.7 },
-            { zIndex: -0.8, count: 12, color: 'rgba(60, 80, 130, 0.6)', height: 0.8 },
-            { zIndex: -0.7, count: 10, color: 'rgba(80, 100, 160, 0.7)', height: 0.9 }
+            // Background layer - deep cave colors
+            { zIndex: -0.9, count: 12, colors: ['rgba(30, 20, 60, 0.6)', 'rgba(20, 30, 70, 0.6)', 'rgba(40, 20, 80, 0.6)'], height: 0.6 },
+            // Mid layer - richer colors
+            { zIndex: -0.8, count: 10, colors: ['rgba(60, 40, 100, 0.7)', 'rgba(30, 60, 90, 0.7)', 'rgba(50, 80, 100, 0.7)'], height: 0.75 },
+            // Front layer - prominent crystals
+            { zIndex: -0.7, count: 8, colors: ['rgba(80, 60, 130, 0.8)', 'rgba(50, 90, 130, 0.8)', 'rgba(70, 100, 150, 0.8)'], height: 0.85 }
         ];
 
         crystalLayers.forEach(layer => {
@@ -3518,50 +3599,92 @@ function createCrystalCaveScene() {
             canvas.height = window.innerHeight;
             const ctx = canvas.getContext('2d');
 
-            ctx.fillStyle = layer.color;
-            ctx.strokeStyle = `rgba(180, 200, 255, 0.1)`;
-            ctx.lineWidth = 1;
-
-            // Draw crystals from ceiling and floor
+            // Draw massive crystals with varied sizes
             for (let i = 0; i < layer.count; i++) {
                 const x = Math.random() * C_WIDTH;
-                const h = (Math.random() * 0.5 + 0.3) * canvas.height * layer.height;
-                const w = Math.random() * 80 + 40;
+                const color = layer.colors[Math.floor(Math.random() * layer.colors.length)];
 
-                // Ceiling
-                ctx.beginPath();
-                ctx.moveTo(x - w / 2, 0);
-                ctx.lineTo(x, h);
-                ctx.lineTo(x + w / 2, 0);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
+                // Vary crystal sizes dramatically
+                const isMassive = Math.random() > 0.6;
+                const baseWidth = isMassive ? Math.random() * 150 + 100 : Math.random() * 80 + 40;
+                const baseHeight = (Math.random() * 0.4 + 0.4) * canvas.height * layer.height;
 
-                // Floor
-                ctx.beginPath();
-                ctx.moveTo(x - w / 2, canvas.height);
-                ctx.lineTo(x, canvas.height - h);
-                ctx.lineTo(x + w / 2, canvas.height);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
+                ctx.fillStyle = color;
+                ctx.strokeStyle = `rgba(180, 200, 255, 0.15)`;
+                ctx.lineWidth = 2;
+
+                // Draw from ceiling
+                if (Math.random() > 0.3) {
+                    ctx.beginPath();
+                    ctx.moveTo(x - baseWidth / 2, 0);
+                    // Add jagged facets
+                    ctx.lineTo(x - baseWidth / 4, baseHeight * 0.3);
+                    ctx.lineTo(x, baseHeight);
+                    ctx.lineTo(x + baseWidth / 4, baseHeight * 0.4);
+                    ctx.lineTo(x + baseWidth / 2, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Add inner glow highlight
+                    const gradient = ctx.createLinearGradient(x, 0, x, baseHeight);
+                    gradient.addColorStop(0, 'rgba(200, 220, 255, 0.05)');
+                    gradient.addColorStop(0.5, 'rgba(180, 200, 255, 0.1)');
+                    gradient.addColorStop(1, 'rgba(150, 180, 255, 0.02)');
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+
+                // Draw from floor
+                if (Math.random() > 0.3) {
+                    const floorX = Math.random() * C_WIDTH;
+                    const floorWidth = isMassive ? Math.random() * 140 + 90 : Math.random() * 70 + 35;
+                    const floorHeight = (Math.random() * 0.4 + 0.35) * canvas.height * layer.height;
+
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(floorX - floorWidth / 2, canvas.height);
+                    ctx.lineTo(floorX - floorWidth / 4, canvas.height - floorHeight * 0.4);
+                    ctx.lineTo(floorX, canvas.height - floorHeight);
+                    ctx.lineTo(floorX + floorWidth / 4, canvas.height - floorHeight * 0.35);
+                    ctx.lineTo(floorX + floorWidth / 2, canvas.height);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Add inner glow
+                    const floorGradient = ctx.createLinearGradient(floorX, canvas.height, floorX, canvas.height - floorHeight);
+                    floorGradient.addColorStop(0, 'rgba(200, 220, 255, 0.05)');
+                    floorGradient.addColorStop(0.5, 'rgba(180, 200, 255, 0.1)');
+                    floorGradient.addColorStop(1, 'rgba(150, 180, 255, 0.02)');
+                    ctx.fillStyle = floorGradient;
+                    ctx.fill();
+                }
             }
             webglRenderer.addLayer(canvas, layer.zIndex);
         });
     }
 
-    // 2. Glowing Crystal Clusters
+    // 2. Glowing Crystal Clusters - Amethyst, Emerald, Sapphire
     const clusterContainer = document.getElementById('crystal-cave-glow-clusters');
     if (clusterContainer && clusterContainer.children.length === 0) {
-        const clusterColors = ['#e67eff', '#74b9ff', '#55efc4'];
-        for (let i = 0; i < 15; i++) {
+        const clusterColors = [
+            '#9b59b6', // Amethyst
+            '#d896ff', // Light Amethyst
+            '#10ac84', // Emerald
+            '#1dd1a1', // Light Emerald
+            '#3742fa', // Sapphire
+            '#5f27cd'  // Deep Sapphire
+        ];
+
+        for (let i = 0; i < 20; i++) {
             let cluster = document.createElement('div');
             cluster.className = 'crystal-cluster';
             const color = clusterColors[Math.floor(Math.random() * clusterColors.length)];
             cluster.style.setProperty('--glow-color', color);
-            cluster.style.left = `${Math.random() * 90 + 5}%`;
-            cluster.style.top = `${Math.random() * 80 + 10}%`;
-            const size = Math.random() * 50 + 30;
+            cluster.style.left = `${Math.random() * 95 + 2.5}%`;
+            cluster.style.top = `${Math.random() * 90 + 5}%`;
+            const size = Math.random() * 60 + 35;
             cluster.style.width = `${size}px`;
             cluster.style.height = `${size}px`;
             cluster.style.animationDelay = `-${Math.random() * 8}s`;
@@ -3572,15 +3695,26 @@ function createCrystalCaveScene() {
     // 3. Floating Crystal Shards are now handled by WebGLRenderer
     // 5. Sparkling Mineral Dust is now handled by WebGLRenderer
 
-    // 4. Bioluminescent Moss
+    // 4. Bioluminescent Moss - Soft breathing glow
     const mossContainer = document.getElementById('crystal-cave-moss');
     if (mossContainer && mossContainer.children.length === 0) {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 15; i++) {
             let patch = document.createElement('div');
             patch.className = 'moss-patch';
-            patch.style.left = `${Math.random() * 100}%`;
-            patch.style.top = `${Math.random() * 100}%`;
-            const size = Math.random() * 120 + 80;
+
+            // Position on cave walls (edges and corners)
+            const position = Math.random();
+            if (position < 0.4) {
+                // Left or right walls
+                patch.style.left = Math.random() > 0.5 ? `${Math.random() * 15}%` : `${85 + Math.random() * 15}%`;
+                patch.style.top = `${Math.random() * 100}%`;
+            } else {
+                // Top or bottom
+                patch.style.top = Math.random() > 0.5 ? `${Math.random() * 20}%` : `${80 + Math.random() * 20}%`;
+                patch.style.left = `${Math.random() * 100}%`;
+            }
+
+            const size = Math.random() * 150 + 100;
             patch.style.width = `${size}px`;
             patch.style.height = `${size}px`;
             patch.style.animationDelay = `-${Math.random() * 6}s`;
@@ -3588,16 +3722,21 @@ function createCrystalCaveScene() {
         }
     }
 
-    // 6. Light Refractions
+    // 6. Light Refractions - Rainbow patterns through crystals
     const refractionContainer = document.getElementById('crystal-cave-refractions');
     if (refractionContainer && refractionContainer.children.length === 0) {
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 8; i++) {
             let ray = document.createElement('div');
             ray.className = 'refraction-ray';
             ray.style.left = `${Math.random() * 100}%`;
             ray.style.top = `${Math.random() * 100}%`;
             ray.style.transform = `rotate(${Math.random() * 360}deg)`;
-            ray.style.animationDelay = `-${Math.random() * 12}s`;
+            ray.style.animationDelay = `-${Math.random() * 15}s`;
+
+            // Vary the refraction intensity
+            const intensity = Math.random() * 0.4 + 0.6;
+            ray.style.opacity = intensity;
+
             refractionContainer.appendChild(ray);
         }
     }
