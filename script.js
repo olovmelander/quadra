@@ -4630,177 +4630,127 @@ function createWavesScene() {
         function softDrop() { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x, currentPiece.y+1)) { currentPiece.y++; score+=level; dropCounter=0; } else lockPiece(); }
         function hardDrop() { if(!currentPiece||isProcessingPhysics) return; let d=0; while(isValidPosition(currentPiece,currentPiece.x,currentPiece.y+1)){currentPiece.y++;d++;} score+=d*2*level; lockPiece(); }
         function lockPiece() { if(!currentPiece) return; soundManager.playDrop(); lockedPieces.push({...currentPiece, shape:[...currentPiece.shape]}); currentPiece=null; dropCounter=0; processPhysics(); }
-function processPhysics() {
+async function processPhysics() {
     isProcessingPhysics = true;
-    // Start the physics chain by checking for line clears.
-    checkLines();
-}
+    let linesClearedThisTurn = 0;
+    let cascaded = false;
 
-function checkLines() {
-    const boardData = generateBoard(lockedPieces);
-    const fullLines = [];
-    for (let y = boardData.length - 1; y >= 0; y--) {
-        if (boardData[y].every(c => c !== 0)) {
-            fullLines.push(y);
-                }
-    }
+    while (true) {
+        const boardData = generateBoard(lockedPieces);
+        const fullLines = [];
+        for (let y = boardData.length - 1; y >= 0; y--) {
+            if (boardData[y].every(cell => cell !== 0)) {
+                fullLines.push(y);
+            }
+        }
 
-    if (fullLines.length > 0) {
+        if (fullLines.length === 0) {
+            if (cascaded) {
+                // If pieces fell, we need to re-check for lines in the new configuration.
+                cascaded = false; // Reset for the next potential cascade.
+                continue;
+            }
+            break; // No more lines to clear and no cascades, physics are stable.
+        }
+
+        // --- Line Clear Animation and Scoring ---
+        linesClearedThisTurn += fullLines.length;
         const oldLevel = level;
         lines += fullLines.length;
         linesUntilNextLevel -= fullLines.length;
         if (linesUntilNextLevel <= 0) {
             level++;
-            linesUntilNextLevel = 10;
+            linesUntilNextLevel += 10; // Use += in case of multi-level-up
             dropInterval = LEVEL_SPEEDS[Math.min(level - 1, LEVEL_SPEEDS.length - 1)];
             soundManager.playLevelUp();
             showLevelUpNotification(level);
-                }
+        }
         if (oldLevel !== level) updateBackground(level);
         score += (SCORE_VALUES[fullLines.length] || SCORE_VALUES[4]) * level;
         soundManager.playLineClear();
         showScorePopup((SCORE_VALUES[fullLines.length] || SCORE_VALUES[4]) * level);
 
-        // Animate the line flash
+        // --- Visual Feedback ---
         canvas.classList.add('line-flash');
-        setTimeout(() => canvas.classList.remove('line-flash'), 500);
-
-        // Mark lines for clearing and redraw
-        fullLines.forEach(y => { for (let x = 0; x < COLS; x++) boardData[y][x] = 'C'; });
-        board = boardData;
+        setTimeout(() => canvas.classList.remove('line-flash'), 200);
+        const markedBoard = generateBoard(lockedPieces);
+        fullLines.forEach(y => {
+            for (let x = 0; x < COLS; x++) markedBoard[y][x] = 'C';
+        });
+        board = markedBoard;
         draw();
+        await new Promise(resolve => setTimeout(resolve, 200));
 
-        // After a delay, remove the lines and check for gravity
-        setTimeout(() => {
-            const newPieces = [];
-
-            // Remove cleared lines from each piece's shape and split disconnected parts
-            lockedPieces.forEach(piece => {
-                const pieceLinesCleared = fullLines.filter(lineY => lineY >= piece.y && lineY < piece.y + piece.shape.length);
-                if (pieceLinesCleared.length > 0) {
-                    // Remove rows from this piece's shape
-                    const localLines = pieceLinesCleared.map(lineY => lineY - piece.y);
-                    const remainingRows = [];
-                    const rowYPositions = [];
-
-                    piece.shape.forEach((row, localY) => {
-                        if (!localLines.includes(localY)) {
-                            remainingRows.push(row);
-                            rowYPositions.push(piece.y + localY);
-                        }
-                    });
-
-                    // If piece is completely gone, skip it
-                    if (remainingRows.length === 0 || remainingRows.every(row => row.every(cell => cell === 0))) {
-                        return;
-                    }
-
-                    // Split into contiguous vertical segments
-                    let segments = [];
-                    let currentSegment = [];
-                    let currentSegmentY = null;
-
-                    remainingRows.forEach((row, idx) => {
-                        const actualY = rowYPositions[idx];
-                        if (currentSegmentY === null || actualY === currentSegmentY + currentSegment.length) {
-                            if (currentSegmentY === null) currentSegmentY = actualY;
-                            currentSegment.push(row);
-                        } else {
-                            // Gap detected - save current segment and start new one
-                            segments.push({ shape: currentSegment, y: currentSegmentY });
-                            currentSegment = [row];
-                            currentSegmentY = actualY;
-                        }
-                    });
-                    if (currentSegment.length > 0) {
-                        segments.push({ shape: currentSegment, y: currentSegmentY });
-                    }
-
-                    // Create separate pieces for each segment
-                    segments.forEach(seg => {
-                        newPieces.push({
-                            x: piece.x,
-                            y: seg.y,
-                            shape: seg.shape,
-                            shapeKey: piece.shapeKey,
-                            color: piece.color
-                        });
-                    });
-                } else {
-                    // Piece not affected by line clear, but may need to move down
-                    const linesBelow = fullLines.filter(lineY => lineY < piece.y).length;
-                    newPieces.push({
-                        ...piece,
-                        y: piece.y - linesBelow
-                    });
+        // --- Piece Manipulation ---
+        let newPieces = [];
+        lockedPieces.forEach(p => {
+            const newShape = [];
+            p.shape.forEach((row, localY) => {
+                const globalY = p.y + localY;
+                if (!fullLines.includes(globalY)) {
+                    newShape.push(row);
                 }
             });
 
-            lockedPieces = newPieces;
-            checkGravity(); // Next step in the physics chain
-        }, 200);
-    } else {
-        // No lines to clear, move to checking gravity
-        checkGravity();
+            if (newShape.length > 0) {
+                p.shape = newShape;
+                const linesClearedBelow = fullLines.filter(lineY => lineY > p.y).length;
+                p.y += linesClearedBelow;
+                newPieces.push(p);
+            }
+        });
+        lockedPieces = newPieces;
+
+        // After removing lines, split any pieces that are no longer contiguous.
+        lockedPieces = findConnectedComponents(generateBoard(lockedPieces));
+
+        // --- Gravity Simulation ---
+        let fell;
+        do {
+            fell = false;
+            // Sort pieces from bottom to top to ensure correct fall order.
+            lockedPieces.sort((a, b) => (b.y + b.shape.length) - (a.y + a.shape.length));
+            const currentBoard = generateBoard(lockedPieces);
+
+            for (const p of lockedPieces) {
+                let canFall = true;
+                p.shape.forEach((row, y) => {
+                    row.forEach((cell, x) => {
+                        if (cell > 0) {
+                            const boardX = p.x + x;
+                            const boardY = p.y + y + 1; // Check cell below
+                            if (boardY >= currentBoard.length || (currentBoard[boardY][boardX] !== 0 && !isPartOfPiece(boardX, boardY, p))) {
+                                canFall = false;
+                            }
+                        }
+                    });
+                });
+
+                if (canFall) {
+                    p.y++;
+                    fell = true;
+                    cascaded = true;
+                }
+            }
+            if (fell) {
+                draw();
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+        } while (fell);
     }
+    // --- Finalize ---
+    isProcessingPhysics = false;
+    updateStats();
+    spawnPiece();
 }
-
-function checkGravity() {
-    let fell = true;
-    let anyPieceFell = false;
-
-    const fallLoop = () => {
-        // Stop if the last pass resulted in no pieces falling.
-        if (!fell) {
-            // If any piece fell during the whole process, re-check for lines.
-            // Otherwise, the physics are stable, and we can spawn the next piece.
-            if (anyPieceFell) {
-                checkLines();
-            } else {
-                isProcessingPhysics = false;
-                updateStats();
-                spawnPiece();
-            }
-            return;
-        }
-
-        fell = false;
-        // Check pieces from the bottom up - process each piece sequentially
-        const sortedPieces = [...lockedPieces].sort((a, b) => {
-            // Sort by bottom of piece first, then by y position
-            const aBottom = a.y + a.shape.length;
-            const bBottom = b.y + b.shape.length;
-            return bBottom - aBottom;
-        });
-
-        // In each pass, move every piece that can fall down by one.
-        // Important: use current state of lockedPieces for collision detection
-        sortedPieces.forEach(p => {
-            const originalPiece = lockedPieces.find(lp => lp === p);
-            const others = lockedPieces.filter(op => op !== originalPiece);
-            if (canFall(originalPiece, others)) {
-                originalPiece.y++;
-                fell = true;
-                anyPieceFell = true;
-            }
-        });
-
-        // If any piece fell in this pass, redraw and check again.
-        if (fell) {
-            draw();
-            setTimeout(fallLoop, 40);
-        } else {
-            // If not, trigger the stop condition for the next loop iteration.
-            fallLoop();
-        }
-    };
-
-    fallLoop();
+function isPartOfPiece(boardX, boardY, piece) {
+    const localX = boardX - piece.x;
+    const localY = boardY - piece.y;
+    if (localY >= 0 && localY < piece.shape.length && localX >= 0 && localX < piece.shape[0].length) {
+        return piece.shape[localY][localX] > 0;
+    }
+    return false;
 }
-        function canFall(p, others) {
-            const boardData=generateBoard(others);
-            for(let y=0;y<p.shape.length;y++) for(let x=0;x<p.shape[y].length;x++) if(p.shape[y][x]>0) { const by=p.y+y+1, bx=p.x+x; if(by>=boardData.length||boardData[by][bx]!==0)return false;} return true;
-        }
         function findConnectedComponents(boardData) {
             const pieces=[], visited=Array.from({length:boardData.length},()=>Array(boardData[0].length).fill(false));
             for(let r=0;r<boardData.length;r++) for(let c=0;c<boardData[0].length;c++) {
