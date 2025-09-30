@@ -4346,52 +4346,146 @@ function createWavesScene() {
         }
 
         function createBambooGroveScene() {
-            // 1. Sun Dapples
+            // 1. Multi-layer bamboo stalks with physics
+            ['bamboo-grove-back', 'bamboo-grove-mid', 'bamboo-grove-front'].forEach((layerId, layerIndex) => {
+                const container = document.getElementById(layerId);
+                if (!container || container.children.length > 0) return;
+
+                const stalksCount = [25, 30, 20][layerIndex];
+                const layerDepth = ['back', 'mid', 'front'][layerIndex];
+
+                for (let i = 0; i < stalksCount; i++) {
+                    const stalk = document.createElement('div');
+                    stalk.className = `bamboo-stalk bamboo-stalk-${layerDepth}`;
+
+                    const height = Math.random() * 300 + (layerIndex === 2 ? 400 : layerIndex === 1 ? 350 : 300);
+                    const leftPos = (i / stalksCount * 100) + (Math.random() * 3 - 1.5);
+                    const swayDuration = Math.random() * 4 + 4;
+                    const swayAngle = Math.random() * 2 + 1;
+                    const swayDelay = -Math.random() * swayDuration;
+
+                    stalk.style.height = `${height}px`;
+                    stalk.style.left = `${leftPos}%`;
+                    stalk.style.setProperty('--sway-angle', `${swayAngle}deg`);
+                    stalk.style.animationDuration = `${swayDuration}s`;
+                    stalk.style.animationDelay = `${swayDelay}s`;
+
+                    // Add bamboo segments (nodes)
+                    const segments = Math.floor(height / 50);
+                    for (let s = 0; s < segments; s++) {
+                        const segment = document.createElement('div');
+                        segment.className = 'bamboo-node';
+                        segment.style.top = `${s * 50}px`;
+                        stalk.appendChild(segment);
+                    }
+
+                    // Add leaves to some stalks
+                    if (Math.random() > 0.4) {
+                        const leafCount = Math.floor(Math.random() * 3) + 2;
+                        for (let l = 0; l < leafCount; l++) {
+                            const leaf = document.createElement('div');
+                            leaf.className = 'bamboo-stalk-leaf';
+                            leaf.style.top = `${Math.random() * 30 + 10}%`;
+                            leaf.style.setProperty('--leaf-rotation', `${Math.random() * 60 - 30}deg`);
+                            leaf.style.animationDelay = `-${Math.random() * 3}s`;
+                            stalk.appendChild(leaf);
+                        }
+                    }
+
+                    container.appendChild(stalk);
+                }
+            });
+
+            // 2. Enhanced sun dapples with synchronized movement
             const dappleContainer = document.getElementById('bamboo-sun-dapples');
             if (dappleContainer && dappleContainer.children.length === 0) {
-                for (let i = 0; i < 30; i++) {
-                    let dapple = document.createElement('div');
+                for (let i = 0; i < 25; i++) {
+                    const dapple = document.createElement('div');
                     dapple.className = 'sun-dapple';
                     dapple.style.left = `${Math.random() * 100}%`;
                     dapple.style.top = `${Math.random() * 100}%`;
-                    const size = Math.random() * 100 + 50;
+                    const size = Math.random() * 120 + 60;
                     dapple.style.width = `${size}px`;
                     dapple.style.height = `${size}px`;
-                    dapple.style.animationDelay = `-${Math.random() * 15}s`;
+                    dapple.style.setProperty('--pulse-scale', Math.random() * 0.3 + 0.9);
+                    dapple.style.animationDelay = `-${Math.random() * 12}s`;
                     dappleContainer.appendChild(dapple);
                 }
             }
 
-            // 2. Falling Leaves
+            // 3. Enhanced falling leaves with varied physics
             const leafContainer = document.getElementById('bamboo-leaves');
             if (leafContainer && leafContainer.children.length === 0) {
-                for (let i = 0; i < 20; i++) {
-                    let leaf = document.createElement('div');
+                for (let i = 0; i < 12; i++) {
+                    const leaf = document.createElement('div');
                     leaf.className = 'bamboo-leaf';
                     leaf.style.left = `${Math.random() * 100}%`;
-                    leaf.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
-                    leaf.style.setProperty('--x-drift', `${Math.random() * 10 - 5}vw`);
-                    const duration = Math.random() * 8 + 10;
+                    leaf.style.setProperty('--r-end', `${Math.random() * 900 - 450}deg`);
+                    leaf.style.setProperty('--x-drift', `${Math.random() * 15 - 7.5}vw`);
+                    leaf.style.setProperty('--leaf-scale', Math.random() * 0.5 + 0.75);
+                    const duration = Math.random() * 10 + 12;
                     leaf.style.animationDuration = `${duration}s`;
                     leaf.style.animationDelay = `-${Math.random() * duration}s`;
                     leafContainer.appendChild(leaf);
                 }
             }
 
-            // 3. Fauna (Dragonflies)
+            // 4. Dragonflies with figure-8 paths
             const faunaContainer = document.getElementById('bamboo-fauna');
             if (faunaContainer && faunaContainer.children.length === 0) {
-                for (let i = 0; i < 5; i++) {
-                    let dragonfly = document.createElement('div');
+                for (let i = 0; i < 3; i++) {
+                    const dragonfly = document.createElement('div');
                     dragonfly.className = 'dragonfly';
-                    for(let j=1; j<=6; j++){
-                        dragonfly.style.setProperty(`--x${j}`, `${Math.random() * 90}vw`);
-                        dragonfly.style.setProperty(`--y${j}`, `${Math.random() * 80}vh`);
+
+                    // Create figure-8 pattern with custom properties
+                    const centerX = Math.random() * 60 + 20;
+                    const centerY = Math.random() * 50 + 20;
+                    for (let j = 1; j <= 8; j++) {
+                        const angle = (j / 8) * Math.PI * 2;
+                        const radius = 15 + Math.random() * 10;
+                        dragonfly.style.setProperty(`--x${j}`, `${centerX + Math.sin(angle * 2) * radius}vw`);
+                        dragonfly.style.setProperty(`--y${j}`, `${centerY + Math.sin(angle) * radius * 0.5}vh`);
                     }
-                    const duration = Math.random() * 10 + 12;
+
+                    const duration = Math.random() * 8 + 15;
                     dragonfly.style.animationDuration = `${duration}s`;
                     dragonfly.style.animationDelay = `-${Math.random() * duration}s`;
                     faunaContainer.appendChild(dragonfly);
+                }
+            }
+
+            // 5. Atmospheric mist particles
+            const mistContainer = document.querySelector('.bamboo-mist');
+            if (mistContainer && mistContainer.children.length === 0) {
+                for (let i = 0; i < 25; i++) {
+                    const mistParticle = document.createElement('div');
+                    mistParticle.className = 'mist-particle';
+                    mistParticle.style.left = `${Math.random() * 100}%`;
+                    mistParticle.style.bottom = `${Math.random() * 30}%`;
+                    mistParticle.style.setProperty('--drift-x', `${Math.random() * 50 - 25}vw`);
+                    mistParticle.style.setProperty('--drift-y', `${Math.random() * 15 - 7.5}vh`);
+                    const size = Math.random() * 150 + 100;
+                    mistParticle.style.width = `${size}px`;
+                    mistParticle.style.height = `${size}px`;
+                    const duration = Math.random() * 40 + 50;
+                    mistParticle.style.animationDuration = `${duration}s`;
+                    mistParticle.style.animationDelay = `-${Math.random() * duration}s`;
+                    mistContainer.appendChild(mistParticle);
+                }
+            }
+
+            // 6. Stone pathway stones
+            const pathContainer = document.getElementById('bamboo-path');
+            if (pathContainer && pathContainer.children.length === 0) {
+                for (let i = 0; i < 8; i++) {
+                    const stone = document.createElement('div');
+                    stone.className = 'path-stone';
+                    stone.style.left = `${i * 12 + Math.random() * 5}%`;
+                    stone.style.bottom = `${5 + Math.random() * 3}%`;
+                    const size = Math.random() * 30 + 40;
+                    stone.style.width = `${size}px`;
+                    stone.style.height = `${size * 0.3}px`;
+                    pathContainer.appendChild(stone);
                 }
             }
         }
