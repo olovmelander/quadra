@@ -4309,24 +4309,24 @@ function createWavesScene() {
 }
 
         function createDesertOasisScene() {
-            // 1. Stars with shooting stars (reduced density)
+            // 1. Stars with shooting stars
             const starsContainer = document.getElementById('desert-stars');
             if (starsContainer && starsContainer.children.length === 0) {
                 // Regular twinkling stars
-                for (let i = 0; i < 80; i++) {
+                for (let i = 0; i < 120; i++) {
                     const star = document.createElement('div');
                     star.className = 'desert-star';
-                    const size = Math.random() * 1.5 + 0.5;
+                    const size = Math.random() * 2 + 0.5;
                     star.style.width = `${size}px`;
                     star.style.height = `${size}px`;
                     star.style.left = `${Math.random() * 100}%`;
-                    star.style.top = `${Math.random() * 60}%`;
+                    star.style.top = `${Math.random() * 70}%`;
                     star.style.setProperty('--twinkle-delay', `${Math.random() * 8}s`);
                     star.style.animationDelay = `-${Math.random() * 12}s`;
                     starsContainer.appendChild(star);
                 }
 
-                // Shooting stars (less frequent)
+                // Shooting stars
                 const createShootingStar = () => {
                     if (activeTheme !== 'desert-oasis') return;
                     const shootingStar = document.createElement('div');
@@ -4336,143 +4336,134 @@ function createWavesScene() {
                     shootingStar.style.setProperty('--angle', `${Math.random() * 30 + 30}deg`);
                     starsContainer.appendChild(shootingStar);
                     shootingStar.addEventListener('animationend', () => shootingStar.remove());
-                    setTimeout(createShootingStar, Math.random() * 40000 + 40000);
+                    setTimeout(createShootingStar, Math.random() * 30000 + 30000);
                 };
-                setTimeout(createShootingStar, 20000);
+                setTimeout(createShootingStar, 15000);
             }
 
-            // 2. Reduced sand particles
+            // 2. Majestic Sand Dune Layers (WebGL) - Warm golden-orange palette
+            if (webglRenderer) {
+                const duneLayers = [
+                    // Far background dunes - lightest, most hazy
+                    { zIndex: -0.95, count: 7, colors: ['rgba(250, 210, 165, 0.45)', 'rgba(245, 205, 160, 0.4)', 'rgba(248, 215, 170, 0.42)'], height: 0.28, shadowIntensity: 0.08 },
+                    // Mid-background dunes
+                    { zIndex: -0.85, count: 6, colors: ['rgba(240, 185, 135, 0.6)', 'rgba(235, 180, 130, 0.58)', 'rgba(242, 190, 140, 0.6)'], height: 0.42, shadowIntensity: 0.15 },
+                    // Mid-foreground dunes - richer golden tones
+                    { zIndex: -0.75, count: 5, colors: ['rgba(225, 160, 105, 0.75)', 'rgba(220, 155, 100, 0.75)', 'rgba(228, 165, 110, 0.73)'], height: 0.58, shadowIntensity: 0.25 },
+                    // Foreground dunes - deepest oranges with strong shadows
+                    { zIndex: -0.65, count: 4, colors: ['rgba(210, 135, 80, 0.88)', 'rgba(205, 130, 75, 0.88)', 'rgba(215, 140, 85, 0.86)'], height: 0.72, shadowIntensity: 0.38 }
+                ];
+
+                duneLayers.forEach(layer => {
+                    const canvas = document.createElement('canvas');
+                    const C_WIDTH = 3072;
+                    canvas.width = C_WIDTH;
+                    canvas.height = window.innerHeight;
+                    const ctx = canvas.getContext('2d');
+
+                    // Draw majestic dunes with smooth curves
+                    for (let i = 0; i < layer.count; i++) {
+                        const x = (i / layer.count) * C_WIDTH + Math.random() * (C_WIDTH / layer.count) * 0.5;
+                        const color = layer.colors[Math.floor(Math.random() * layer.colors.length)];
+
+                        // Dune dimensions - wide and sweeping
+                        const duneWidth = Math.random() * 650 + 450;
+                        const duneHeight = (Math.random() * 0.35 + 0.65) * canvas.height * layer.height;
+
+                        // Create smooth dune shape with gradient for light side
+                        const lightGradient = ctx.createLinearGradient(x - duneWidth / 2, canvas.height - duneHeight, x, canvas.height);
+                        lightGradient.addColorStop(0, color);
+                        lightGradient.addColorStop(0.6, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.92) + ')'));
+                        lightGradient.addColorStop(1, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.85) + ')'));
+
+                        ctx.fillStyle = lightGradient;
+                        ctx.beginPath();
+                        ctx.moveTo(x - duneWidth / 2, canvas.height);
+
+                        // Smooth curve for windward side (lit side)
+                        ctx.quadraticCurveTo(
+                            x - duneWidth / 3,
+                            canvas.height - duneHeight * 0.7,
+                            x,
+                            canvas.height - duneHeight
+                        );
+
+                        // Sharper curve for leeward side (shadow side)
+                        ctx.quadraticCurveTo(
+                            x + duneWidth / 4,
+                            canvas.height - duneHeight * 0.5,
+                            x + duneWidth / 2,
+                            canvas.height
+                        );
+
+                        ctx.closePath();
+                        ctx.fill();
+
+                        // Add strong shadow on leeward side
+                        const shadowGradient = ctx.createLinearGradient(x, canvas.height - duneHeight, x + duneWidth / 2, canvas.height);
+                        shadowGradient.addColorStop(0, `rgba(120, 70, 40, ${layer.shadowIntensity})`);
+                        shadowGradient.addColorStop(0.5, `rgba(100, 60, 35, ${layer.shadowIntensity * 0.7})`);
+                        shadowGradient.addColorStop(1, `rgba(80, 50, 30, ${layer.shadowIntensity * 0.3})`);
+                        ctx.fillStyle = shadowGradient;
+                        ctx.beginPath();
+                        ctx.moveTo(x, canvas.height - duneHeight);
+                        ctx.quadraticCurveTo(
+                            x + duneWidth / 4,
+                            canvas.height - duneHeight * 0.5,
+                            x + duneWidth / 2,
+                            canvas.height
+                        );
+                        ctx.lineTo(x, canvas.height);
+                        ctx.closePath();
+                        ctx.fill();
+
+                        // Add bright highlight on sunlit crest
+                        const highlightGradient = ctx.createLinearGradient(x - duneWidth / 4, canvas.height - duneHeight, x, canvas.height - duneHeight * 0.95);
+                        highlightGradient.addColorStop(0, 'rgba(255, 240, 210, 0.25)');
+                        highlightGradient.addColorStop(1, 'rgba(255, 235, 200, 0)');
+                        ctx.fillStyle = highlightGradient;
+                        ctx.beginPath();
+                        ctx.moveTo(x - duneWidth / 4, canvas.height - duneHeight * 0.95);
+                        ctx.quadraticCurveTo(
+                            x - duneWidth / 6,
+                            canvas.height - duneHeight * 0.85,
+                            x,
+                            canvas.height - duneHeight
+                        );
+                        ctx.quadraticCurveTo(
+                            x - duneWidth / 8,
+                            canvas.height - duneHeight * 0.92,
+                            x - duneWidth / 4,
+                            canvas.height - duneHeight * 0.8
+                        );
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+
+                    webglRenderer.addLayer(canvas, layer.zIndex);
+                });
+            }
+
+            // 3. Flying sand particles - golden colored wind effect
             const sandContainer = document.getElementById('desert-sand-particles');
             if (sandContainer && sandContainer.children.length === 0) {
-                for (let i = 0; i < 15; i++) {
+                for (let i = 0; i < 80; i++) {
                     const particle = document.createElement('div');
                     particle.className = 'sand-particle';
                     const startX = Math.random() * 100;
                     const startY = Math.random() * 100;
                     particle.style.setProperty('--x-start', `${startX}vw`);
                     particle.style.setProperty('--y-start', `${startY}vh`);
-                    particle.style.setProperty('--x-drift', `${Math.random() * 30 - 15}vw`);
-                    particle.style.setProperty('--y-drift', `${Math.random() * 15 - 7.5}vh`);
-                    const duration = Math.random() * 30 + 25;
+                    particle.style.setProperty('--x-drift', `${Math.random() * 60 + 30}vw`);
+                    particle.style.setProperty('--y-drift', `${Math.random() * 25 - 12}vh`);
+                    const duration = Math.random() * 18 + 12;
                     particle.style.animationDuration = `${duration}s`;
                     particle.style.animationDelay = `-${Math.random() * duration}s`;
+                    const size = Math.random() * 3 + 0.8;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
                     sandContainer.appendChild(particle);
                 }
-            }
-
-            // 3. Simplified desert fauna
-            const faunaContainer = document.getElementById('desert-fauna');
-            if (faunaContainer && faunaContainer.children.length === 0) {
-                // Lizards
-                for (let i = 0; i < 2; i++) {
-                    const lizard = document.createElement('div');
-                    lizard.className = 'desert-lizard';
-                    lizard.style.bottom = `${Math.random() * 15 + 8}%`;
-                    lizard.style.animationDelay = `-${Math.random() * 50}s`;
-                    faunaContainer.appendChild(lizard);
-                }
-
-                // Moths (reduced)
-                for (let i = 0; i < 4; i++) {
-                    const moth = document.createElement('div');
-                    moth.className = 'desert-moth';
-
-                    for (let j = 1; j <= 6; j++) {
-                        moth.style.setProperty(`--x${j}`, `${Math.random() * 90 + 5}vw`);
-                        moth.style.setProperty(`--y${j}`, `${Math.random() * 60 + 15}vh`);
-                    }
-
-                    const duration = Math.random() * 15 + 20;
-                    moth.style.animationDuration = `${duration}s`;
-                    moth.style.animationDelay = `-${Math.random() * duration}s`;
-                    faunaContainer.appendChild(moth);
-                }
-
-                // Single camel
-                const camel = document.createElement('div');
-                camel.className = 'desert-camel';
-                camel.style.setProperty('--camel-y', '22%');
-                faunaContainer.appendChild(camel);
-            }
-
-            // 4. Streamlined oasis flora
-            const floraContainer = document.getElementById('desert-flora');
-            if (floraContainer && floraContainer.children.length === 0) {
-                // Palm trees (reduced to 3)
-                for (let i = 0; i < 3; i++) {
-                    const palm = document.createElement('div');
-                    palm.className = 'palm-tree';
-                    palm.style.left = `${45 + i * 5}%`;
-                    palm.style.bottom = `${15 + Math.random() * 3}%`;
-                    const height = Math.random() * 60 + 80;
-                    palm.style.height = `${height}px`;
-                    palm.style.setProperty('--sway-duration', `${Math.random() * 2 + 6}s`);
-                    palm.style.setProperty('--sway-delay', `-${Math.random() * 8}s`);
-
-                    // Add fronds
-                    for (let f = 0; f < 6; f++) {
-                        const frond = document.createElement('div');
-                        frond.className = 'palm-frond';
-                        frond.style.setProperty('--frond-rotation', `${f * 60}deg`);
-                        frond.style.setProperty('--frond-delay', `-${Math.random() * 4}s`);
-                        palm.appendChild(frond);
-                    }
-
-                    floraContainer.appendChild(palm);
-                }
-
-                // Cacti (reduced)
-                for (let i = 0; i < 4; i++) {
-                    const cactus = document.createElement('div');
-                    cactus.className = 'cactus';
-                    cactus.style.left = `${15 + Math.random() * 70}%`;
-                    cactus.style.bottom = `${Math.random() * 8}%`;
-                    cactus.style.height = `${Math.random() * 40 + 35}px`;
-                    floraContainer.appendChild(cactus);
-                }
-
-                // Desert flowers (reduced)
-                for (let i = 0; i < 5; i++) {
-                    const flower = document.createElement('div');
-                    flower.className = 'desert-flower';
-                    flower.style.left = `${Math.random() * 100}%`;
-                    flower.style.bottom = `${Math.random() * 10}%`;
-                    flower.style.setProperty('--flower-hue', Math.random() * 60 + 300);
-                    flower.style.animationDelay = `-${Math.random() * 10}s`;
-                    floraContainer.appendChild(flower);
-                }
-
-                // Rock formations (reduced)
-                for (let i = 0; i < 3; i++) {
-                    const rock = document.createElement('div');
-                    rock.className = 'desert-rock';
-                    rock.style.left = `${20 + Math.random() * 60}%`;
-                    rock.style.bottom = `${Math.random() * 12}%`;
-                    const size = Math.random() * 30 + 35;
-                    rock.style.width = `${size}px`;
-                    rock.style.height = `${size * 0.6}px`;
-                    floraContainer.appendChild(rock);
-                }
-            }
-
-            // 5. Simplified oasis water
-            const mirageContainer = document.querySelector('#desert-oasis-theme .desert-mirage');
-            if (mirageContainer && mirageContainer.children.length === 0) {
-                const waterPool = document.createElement('div');
-                waterPool.className = 'oasis-water';
-                mirageContainer.appendChild(waterPool);
-
-                const createRipple = () => {
-                    if (activeTheme !== 'desert-oasis') return;
-                    const ripple = document.createElement('div');
-                    ripple.className = 'water-ripple';
-                    ripple.style.left = `${46 + Math.random() * 8}%`;
-                    ripple.style.top = `${45 + Math.random() * 15}%`;
-                    waterPool.appendChild(ripple);
-                    ripple.addEventListener('animationend', () => ripple.remove());
-                    setTimeout(createRipple, Math.random() * 7000 + 5000);
-                };
-                setTimeout(createRipple, 3000);
             }
         }
 
