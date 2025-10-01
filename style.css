@@ -3689,7 +3689,7 @@ body {
 
 /* --- Meditation Temple Theme --- */
 #meditation-temple-theme {
-    background-color: #f4f1de;
+    background: linear-gradient(to bottom, #4a2c54 0%, #6b4268 50%, #8b6282 100%);
     overflow: hidden;
 }
 
@@ -3697,7 +3697,14 @@ body {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: linear-gradient(to top, #f6e58d, #f9d29d, #f3a683);
+    background: linear-gradient(to top,
+        #d4a574 0%,
+        #c89d7c 10%,
+        #b88b88 20%,
+        #a67b9f 35%,
+        #8b6ba8 55%,
+        #6d5b9e 75%,
+        #4a4577 100%);
     z-index: 1;
 }
 
@@ -3717,9 +3724,10 @@ body {
     position: absolute;
     bottom: 20%; left: 50%;
     transform: translateX(-50%);
-    width: 400px; height: 300px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><path d="M 200 50 L 350 150 L 320 150 L 320 280 L 80 280 L 80 150 L 50 150 Z" fill="rgba(40,30,20,0.8)"/><path d="M 200 20 L 380 130 L 20 130 Z" fill="rgba(40,30,20,0.8)"/><rect x="180" y="180" width="40" height="100" fill="rgba(20,10,5,0.9)"/></svg>');
+    width: 450px; height: 320px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 320"><defs><linearGradient id="roofGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="%23654321"/><stop offset="1" stop-color="%23352010"/></linearGradient><linearGradient id="wallGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="%23e8d5c4"/><stop offset="1" stop-color="%23c4a995"/></linearGradient></defs><rect x="150" y="180" width="150" height="120" fill="url(%23wallGrad)"/><path d="M 120 180 L 225 140 L 330 180 Z" fill="url(%23roofGrad)"/><path d="M 100 185 L 225 135 L 350 185 L 340 190 L 225 145 L 110 190 Z" fill="%23352010"/><rect x="200" y="220" width="50" height="80" fill="%232a1a0a"/><rect x="205" y="225" width="40" height="75" fill="%23ffd89a" opacity="0.4"/><circle cx="215" cy="245" r="2" fill="%23ffcc66" opacity="0.8"/><circle cx="235" cy="245" r="2" fill="%23ffcc66" opacity="0.8"/></svg>');
     z-index: 5;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
 }
 
 #meditation-temple-trees {
@@ -4054,7 +4062,14 @@ body {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: linear-gradient(to top, #74a8c3, #a7c5d9, #d3e0ea);
+    background: linear-gradient(to top,
+        #5a7fa5 0%,
+        #7394b8 15%,
+        #9eb4cd 30%,
+        #c4d3e5 50%,
+        #dce6f2 70%,
+        #e8f0f7 85%,
+        #f0f4f8 100%);
     z-index: 1;
 }
 
@@ -4062,12 +4077,16 @@ body {
     position: absolute;
     top: 10%; left: 50%;
     transform: translateX(-50%);
-    width: 150px; height: 150px;
-    background: radial-gradient(circle, #fff, #fff2d9, #ffefc4);
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, #ffffff 0%, #fff9e6 30%, #ffe4b3 60%, #ffd89b 100%);
     border-radius: 50%;
-    box-shadow: 0 0 80px #fff;
+    box-shadow:
+        0 0 40px 10px rgba(255, 245, 200, 0.8),
+        0 0 80px 20px rgba(255, 230, 150, 0.6),
+        0 0 120px 30px rgba(255, 220, 120, 0.4);
     animation: sun-pulse 12s ease-in-out infinite alternate;
     z-index: 2;
+    filter: brightness(1.1);
 }
 
 #himalayan-clouds {
@@ -4080,9 +4099,9 @@ body {
 .himalayan-cloud {
     position: absolute;
     width: 400px; height: 100px;
-    background: rgba(255, 255, 255, 0.4);
+    background: radial-gradient(ellipse, rgba(255, 255, 255, 0.5) 0%, rgba(255, 250, 240, 0.3) 60%, transparent 100%);
     border-radius: 50px;
-    filter: blur(30px);
+    filter: blur(25px);
 }
 
 #himalayan-flags {
@@ -4163,32 +4182,40 @@ body {
         move-vein 30s ease-in-out infinite alternate,
         pulse-vein 6s ease-in-out infinite alternate,
         cycle-vein-color 20s linear infinite alternate;
+    /* OPTIMIZATION: Force GPU compositing for better performance */
+    will-change: transform, filter;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 @keyframes move-vein {
     from {
-        transform: translate(var(--x-start), var(--y-start)) rotate(0deg) scale(var(--scale-start));
+        /* OPTIMIZATION: Use translate3d instead of translate for GPU acceleration */
+        transform: translate3d(var(--x-start), var(--y-start), 0) rotate(0deg) scale(var(--scale-start));
         border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
     }
     50% {
         border-radius: 60% 40% 30% 70% / 50% 60% 50% 40%;
     }
     to {
-        transform: translate(var(--x-end), var(--y-end)) rotate(360deg) scale(var(--scale-end));
+        /* OPTIMIZATION: Use translate3d instead of translate for GPU acceleration */
+        transform: translate3d(var(--x-end), var(--y-end), 0) rotate(360deg) scale(var(--scale-end));
         border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
     }
 }
 
 @keyframes pulse-vein {
     from {
+        /* OPTIMIZATION: Reduced blur radius from 80px to 50px for better performance */
         box-shadow:
             0 0 10px #0ff, 0 0 20px #0ff,
-            0 0 30px #f0f, 0 0 40px #f0f;
+            0 0 30px #f0f, 0 0 50px #f0f;
     }
     to {
+        /* OPTIMIZATION: Reduced blur radius from 80px to 50px for better performance */
         box-shadow:
             0 0 20px #0ff, 0 0 40px #0ff,
-            0 0 60px #f0f, 0 0 80px #f0f;
+            0 0 50px #f0f, 0 0 50px #f0f;
     }
 }
 
@@ -4211,18 +4238,24 @@ body {
     box-shadow: 0 0 5px #ccddff, 0 0 10px #ccddff;
     animation: drift-electric-particle 15s ease-in-out infinite alternate;
     opacity: 0;
+    /* OPTIMIZATION: Force GPU compositing for better performance */
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 @keyframes drift-electric-particle {
     from {
-        transform: translate(var(--x-start), var(--y-start));
+        /* OPTIMIZATION: Use translate3d instead of translate for GPU acceleration */
+        transform: translate3d(var(--x-start), var(--y-start), 0);
         opacity: 0;
     }
     20%, 80% {
         opacity: 0.8;
     }
     to {
-        transform: translate(var(--x-end), var(--y-end));
+        /* OPTIMIZATION: Use translate3d instead of translate for GPU acceleration */
+        transform: translate3d(var(--x-end), var(--y-end), 0);
         opacity: 0;
     }
 }

@@ -4225,6 +4225,7 @@ function createMoonlitForestScene() {
 
 function createElectricDreamsScene() {
     // 1. Create morphing, glowing veins
+    // OPTIMIZATION: Use will-change and transform3d to force GPU compositing
     const veinContainer = document.getElementById('electric-veins');
     if (veinContainer && veinContainer.children.length === 0) {
         const numVeins = 10;
@@ -4250,14 +4251,19 @@ function createElectricDreamsScene() {
             vein.style.animationDuration = `${moveDuration}s, ${pulseDuration}s, 20s`;
             vein.style.animationDelay = `-${Math.random() * moveDuration}s, -${Math.random() * pulseDuration}s, -${Math.random() * 20}s`;
 
+            // OPTIMIZATION: Force GPU compositing for better performance
+            vein.style.willChange = 'transform, filter';
+            vein.style.transform = 'translate3d(0,0,0)'; // Force GPU layer
+
             veinContainer.appendChild(vein);
         }
     }
 
     // 2. Create glowing particles
+    // OPTIMIZATION: Use transform3d and reduce particle count slightly
     const particleContainer = document.getElementById('electric-particles');
     if (particleContainer && particleContainer.children.length === 0) {
-        const numParticles = 50;
+        const numParticles = 40; // Reduced from 50 for better performance
         for (let i = 0; i < numParticles; i++) {
             let particle = document.createElement('div');
             particle.className = 'electric-particle';
@@ -4273,6 +4279,11 @@ function createElectricDreamsScene() {
             const duration = Math.random() * 10 + 10; // 10-20s
             particle.style.animationDuration = `${duration}s`;
             particle.style.animationDelay = `-${Math.random() * duration}s`;
+
+            // OPTIMIZATION: Force GPU compositing
+            particle.style.willChange = 'transform, opacity';
+            particle.style.transform = 'translate3d(0,0,0)';
+
             particleContainer.appendChild(particle);
         }
     }
