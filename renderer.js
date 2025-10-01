@@ -56,6 +56,9 @@ class TexturedQuad {
             1, 0,
         ];
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
+
+        // Cache attribute locations (set during first bindBuffers call)
+        this.attribLocations = null;
     }
 
     createTexture(source) {
@@ -73,15 +76,21 @@ class TexturedQuad {
     bindBuffers(program) {
         const gl = this.gl;
 
-        const posLoc = gl.getAttribLocation(program, "a_position");
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-        gl.enableVertexAttribArray(posLoc);
-        gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+        // Cache attribute locations on first call
+        if (!this.attribLocations) {
+            this.attribLocations = {
+                position: gl.getAttribLocation(program, "a_position"),
+                texcoord: gl.getAttribLocation(program, "a_texcoord")
+            };
+        }
 
-        const texcoordLoc = gl.getAttribLocation(program, "a_texcoord");
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+        gl.enableVertexAttribArray(this.attribLocations.position);
+        gl.vertexAttribPointer(this.attribLocations.position, 3, gl.FLOAT, false, 0, 0);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
-        gl.enableVertexAttribArray(texcoordLoc);
-        gl.vertexAttribPointer(texcoordLoc, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.attribLocations.texcoord);
+        gl.vertexAttribPointer(this.attribLocations.texcoord, 2, gl.FLOAT, false, 0, 0);
     }
 
     draw() {
@@ -184,6 +193,9 @@ class ParticleSystem {
         this.positionBuffer = gl.createBuffer();
         this.sizeBuffer = gl.createBuffer();
         this.alphaBuffer = gl.createBuffer();
+
+        // Cache attribute locations (set during first bindBuffers call)
+        this.attribLocations = null;
 
         for (let i = 0; i < numParticles; i++) {
             this.spawnParticle(i);
@@ -521,23 +533,29 @@ class ParticleSystem {
     bindBuffers(program) {
         const gl = this.gl;
 
-        const positionLocation = gl.getAttribLocation(program, "a_position");
+        // Cache attribute locations on first call
+        if (!this.attribLocations) {
+            this.attribLocations = {
+                position: gl.getAttribLocation(program, "a_position"),
+                size: gl.getAttribLocation(program, "a_size"),
+                alpha: gl.getAttribLocation(program, "a_alpha")
+            };
+        }
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.positions, gl.DYNAMIC_DRAW);
-        gl.enableVertexAttribArray(positionLocation);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.attribLocations.position);
+        gl.vertexAttribPointer(this.attribLocations.position, 2, gl.FLOAT, false, 0, 0);
 
-        const sizeLocation = gl.getAttribLocation(program, "a_size");
         gl.bindBuffer(gl.ARRAY_BUFFER, this.sizeBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.sizes, gl.DYNAMIC_DRAW);
-        gl.enableVertexAttribArray(sizeLocation);
-        gl.vertexAttribPointer(sizeLocation, 1, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.attribLocations.size);
+        gl.vertexAttribPointer(this.attribLocations.size, 1, gl.FLOAT, false, 0, 0);
 
-        const alphaLocation = gl.getAttribLocation(program, "a_alpha");
         gl.bindBuffer(gl.ARRAY_BUFFER, this.alphaBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.alphas, gl.DYNAMIC_DRAW);
-        gl.enableVertexAttribArray(alphaLocation);
-        gl.vertexAttribPointer(alphaLocation, 1, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(this.attribLocations.alpha);
+        gl.vertexAttribPointer(this.attribLocations.alpha, 1, gl.FLOAT, false, 0, 0);
     }
 
     draw() {
