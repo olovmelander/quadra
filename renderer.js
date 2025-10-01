@@ -197,6 +197,11 @@ class ParticleSystem {
         // Cache attribute locations (set during first bindBuffers call)
         this.attribLocations = null;
 
+        // Performance optimization: Track which buffers need uploading
+        // Most particle behaviors have static sizes after spawn, so we only
+        // upload the size buffer when it actually changes (e.g., crystal-growth)
+        this.sizeBufferDirty = true; // Upload on first frame
+
         for (let i = 0; i < numParticles; i++) {
             this.spawnParticle(i);
         }
@@ -215,6 +220,9 @@ class ParticleSystem {
 
         this.sizes[i] = Math.random() * (config.maxSize - config.minSize) + config.minSize;
         this.lifetimes[i] = config.lifetime === Infinity ? Infinity : Math.random() * config.lifetime;
+
+        // Mark size buffer dirty since we modified a particle's size
+        this.sizeBufferDirty = true;
 
         if (this.behavior === 'firefly') {
             this.positions[i * 2 + 1] = Math.random() * height * 0.9 + height * 0.1; // Spawn away from very top/bottom
@@ -480,6 +488,7 @@ class ParticleSystem {
                 // Grow then shrink
                 this.growthInfo[i * 2] += this.growthInfo[i * 2 + 1];
                 this.sizes[i] = Math.min(this.themeConfig.maxSize, this.growthInfo[i * 2]);
+                this.sizeBufferDirty = true; // Size is dynamically changing
 
                 // Fade in then fade out
                 if (progress < 0.5) {
@@ -510,6 +519,7 @@ class ParticleSystem {
                     this.alphas[i] = (1 - (progress - 0.2) / 0.8) * this.themeConfig.maxAlpha;
                 }
                 this.sizes[i] = this.themeConfig.minSize + progress * (this.themeConfig.maxSize - this.themeConfig.minSize);
+                this.sizeBufferDirty = true; // Size is dynamically changing
 
                 if (this.lifetimes[i] <= 0) {
                     this.spawnParticle(i);
@@ -542,16 +552,24 @@ class ParticleSystem {
             };
         }
 
+        // Position buffer - always dynamic (particles move every frame)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.positions, gl.DYNAMIC_DRAW);
         gl.enableVertexAttribArray(this.attribLocations.position);
         gl.vertexAttribPointer(this.attribLocations.position, 2, gl.FLOAT, false, 0, 0);
 
+        // Size buffer - ONLY upload when dirty (optimization)
+        // Most particle behaviors have static sizes after spawn, so we avoid
+        // unnecessary GPU uploads by only updating when sizes actually change
         gl.bindBuffer(gl.ARRAY_BUFFER, this.sizeBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.sizes, gl.DYNAMIC_DRAW);
+        if (this.sizeBufferDirty) {
+            gl.bufferData(gl.ARRAY_BUFFER, this.sizes, gl.DYNAMIC_DRAW);
+            this.sizeBufferDirty = false; // Clear dirty flag
+        }
         gl.enableVertexAttribArray(this.attribLocations.size);
         gl.vertexAttribPointer(this.attribLocations.size, 1, gl.FLOAT, false, 0, 0);
 
+        // Alpha buffer - always dynamic (alpha changes frequently for fading)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.alphaBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.alphas, gl.DYNAMIC_DRAW);
         gl.enableVertexAttribArray(this.attribLocations.alpha);
