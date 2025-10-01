@@ -4466,95 +4466,33 @@ function createWavesScene() {
         }
 
         function createMistyLakeScene() {
-            // 1. Fauna (Birds and Fish Ripples)
-            const faunaContainer = document.getElementById('misty-lake-fauna');
-            if (faunaContainer && faunaContainer.children.length === 0) {
-                // Distant birds
-                for (let i = 0; i < 3; i++) { // 3 formations of birds
-                    let birdFormation = document.createElement('div');
-                    birdFormation.className = 'bird-formation';
-                    birdFormation.style.animationDelay = `-${Math.random() * 80}s`;
-                    birdFormation.style.setProperty('--y-pos', `${Math.random() * 20 + 5}%`);
-                    faunaContainer.appendChild(birdFormation);
-                }
-
-                // Fish ripples
-                const rippleContainer = document.getElementById('misty-lake-surface');
-                if (rippleContainer) {
-                     const createFishRipple = () => {
-                        if (activeTheme !== 'misty-lake') return;
-                        let ripple = document.createElement('div');
-                        ripple.className = 'fish-ripple';
-                        ripple.style.left = `${Math.random() * 80 + 10}%`;
-                        ripple.style.top = `${Math.random() * 20 + 75}%`; // Lower part of the lake
-                        ripple.style.animationDuration = `${Math.random() * 3 + 4}s`;
-                        ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
-                        rippleContainer.appendChild(ripple);
-                        setTimeout(createFishRipple, Math.random() * 8000 + 5000);
-                    };
-                    setTimeout(createFishRipple, 3000);
-                }
-            }
-
-            // 2. Flora (Water Lilies / Reeds)
-            const floraContainer = document.getElementById('misty-lake-flora');
-            if (floraContainer && floraContainer.children.length === 0) {
-                for (let i = 0; i < 15; i++) {
-                    let reed = document.createElement('div');
-                    reed.className = 'lake-reed';
-                    reed.style.left = `${Math.random() * 100}%`;
-                    reed.style.bottom = `${Math.random() * 5 - 2}%`; // Near the shore
-                    reed.style.animationDelay = `-${Math.random() * 8}s`;
-                    floraContainer.appendChild(reed);
-                }
-            }
-
-            // 3. Rising Mist
-            const mistContainer = document.getElementById('misty-lake-mist');
-            if (mistContainer && mistContainer.children.length === 0) {
-                for (let i = 0; i < 20; i++) {
-                    let column = document.createElement('div');
-                    column.className = 'mist-column';
-                    column.style.left = `${Math.random() * 100}vw`;
-                    const duration = Math.random() * 20 + 30;
-                    column.style.animationDuration = `${duration}s`;
-                    column.style.animationDelay = `-${Math.random() * duration}s`;
-                    mistContainer.appendChild(column);
-                }
-            }
-
-            // 4. Procedural Mountains
+            // Layered mountain silhouettes with more detail
             const mountainLayers = [
-                { el: document.getElementById('misty-mountains-back'), color: 'rgba(90, 105, 130, 0.5)', peaks: 5, height: 0.45 },
-                { el: document.getElementById('misty-mountains-mid'), color: 'rgba(70, 85, 110, 0.6)', peaks: 7, height: 0.5 },
-                { el: document.getElementById('misty-mountains-front'), color: 'rgba(50, 65, 90, 0.7)', peaks: 9, height: 0.55 }
+                { el: document.getElementById('misty-mountains-back'), color: '#b8c5d6', peaks: 4, height: 0.35, roughness: 0.02 },
+                { el: document.getElementById('misty-mountains-mid'), color: '#7a8fa8', peaks: 5, height: 0.45, roughness: 0.03 },
+                { el: document.getElementById('misty-mountains-front'), color: '#5a6b7d', peaks: 6, height: 0.55, roughness: 0.04 }
             ];
 
-            mountainLayers.forEach(layer => {
+            mountainLayers.forEach((layer) => {
                 if (layer.el && layer.el.children.length === 0) {
                     const canvas = document.createElement('canvas');
-                    const C_WIDTH = 2048;
-                    canvas.width = C_WIDTH;
-                    canvas.height = window.innerHeight * 0.6; // Mountains occupy top 60%
+                    canvas.width = 4096;
+                    canvas.height = window.innerHeight * 0.5;
                     const ctx = canvas.getContext('2d');
 
                     ctx.fillStyle = layer.color;
                     ctx.beginPath();
                     ctx.moveTo(0, canvas.height);
-                    let x = 0;
-                    while (x < canvas.width) {
-                        const peakWidth = canvas.width / layer.peaks;
-                        const step = peakWidth / 20;
-                        for (let i = 0; i < 20; i++) {
-                            const sineX = (x / peakWidth) * Math.PI;
-                            // Use a gentler sine curve for rolling hills
-                            const sineY = Math.pow(Math.sin(sineX), 2) * (peakWidth/4);
-                            const noise = (Math.random() - 0.5) * step * 1.5;
-                            // Start mountains from higher up
-                            ctx.lineTo(x, canvas.height - (canvas.height * layer.height) + sineY + noise);
-                            x += step;
-                        }
+
+                    // More natural mountain profile with variation
+                    for (let x = 0; x < canvas.width; x += 15) {
+                        const progress = (x / canvas.width) * layer.peaks;
+                        const baseY = Math.sin(progress * Math.PI) * canvas.height * layer.height;
+                        const variation = (Math.sin(x * 0.01) * 0.5 + Math.sin(x * 0.02) * 0.3) * canvas.height * layer.roughness;
+                        const y = canvas.height - (baseY + variation);
+                        ctx.lineTo(x, y);
                     }
+
                     ctx.lineTo(canvas.width, canvas.height);
                     ctx.closePath();
                     ctx.fill();
@@ -4562,23 +4500,124 @@ function createWavesScene() {
                     canvas.style.position = 'absolute';
                     canvas.style.top = '0';
                     canvas.style.left = '0';
-                    canvas.style.width = '100%';
+                    canvas.style.width = '200%';
                     canvas.style.height = '100%';
                     layer.el.appendChild(canvas);
-
-                    // Add a flipped version for reflection
-                    const reflectionCanvas = document.createElement('canvas');
-                    reflectionCanvas.width = canvas.width;
-                    reflectionCanvas.height = canvas.height;
-                    const reflectCtx = reflectionCanvas.getContext('2d');
-                    reflectCtx.translate(0, reflectionCanvas.height);
-                    reflectCtx.scale(1, -1);
-                    reflectCtx.drawImage(canvas, 0, 0);
-
-                    reflectionCanvas.className = 'misty-mountain-reflection';
-                    layer.el.appendChild(reflectionCanvas);
                 }
             });
+
+            // Drifting clouds
+            const cloudsContainer = document.getElementById('misty-clouds');
+            if (cloudsContainer && cloudsContainer.children.length === 0) {
+                for (let i = 0; i < 6; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'misty-cloud';
+                    cloud.style.left = `${Math.random() * 120 - 20}%`;
+                    cloud.style.top = `${Math.random() * 30 + 5}%`;
+                    cloud.style.setProperty('--cloud-drift', `${Math.random() * 30 + 20}vw`);
+                    const size = Math.random() * 150 + 100;
+                    cloud.style.width = `${size}px`;
+                    cloud.style.height = `${size * 0.4}px`;
+                    const duration = Math.random() * 200 + 300;
+                    cloud.style.animationDuration = `${duration}s`;
+                    cloud.style.animationDelay = `-${Math.random() * duration}s`;
+                    cloudsContainer.appendChild(cloud);
+                }
+            }
+
+            // Flying birds in formation
+            const birdsContainer = document.getElementById('misty-birds');
+            if (birdsContainer && birdsContainer.children.length === 0) {
+                for (let i = 0; i < 2; i++) {
+                    const formation = document.createElement('div');
+                    formation.className = 'bird-formation';
+                    formation.style.left = `${Math.random() * 50 - 20}%`;
+                    formation.style.top = `${Math.random() * 20 + 10}%`;
+                    const duration = Math.random() * 80 + 120;
+                    formation.style.animationDuration = `${duration}s`;
+                    formation.style.animationDelay = `-${Math.random() * duration}s`;
+
+                    // V-formation of birds (5 birds)
+                    for (let j = 0; j < 5; j++) {
+                        const bird = document.createElement('div');
+                        bird.className = 'misty-bird';
+                        const vOffset = Math.abs(j - 2) * 15;
+                        bird.style.left = `${j * 25}px`;
+                        bird.style.top = `${vOffset}px`;
+                        bird.style.animationDelay = `${j * 0.1}s`;
+                        formation.appendChild(bird);
+                    }
+                    birdsContainer.appendChild(formation);
+                }
+            }
+
+            // Lake reflections (mirror effect)
+            const reflectionsContainer = document.getElementById('misty-reflections');
+            if (reflectionsContainer && reflectionsContainer.children.length === 0) {
+                // Create subtle ripple distortion on reflections
+                const rippleOverlay = document.createElement('div');
+                rippleOverlay.className = 'reflection-ripple-overlay';
+                reflectionsContainer.appendChild(rippleOverlay);
+            }
+
+            // Water lilies and reeds
+            const liliesContainer = document.getElementById('misty-water-lilies');
+            if (liliesContainer && liliesContainer.children.length === 0) {
+                for (let i = 0; i < 12; i++) {
+                    const lily = document.createElement('div');
+                    lily.className = 'water-lily';
+                    lily.style.left = `${Math.random() * 80 + 10}%`;
+                    lily.style.bottom = `${Math.random() * 30 + 5}%`;
+                    lily.style.setProperty('--bob-offset', `${Math.random() * 3 + 1}px`);
+                    lily.style.animationDuration = `${Math.random() * 2 + 4}s`;
+                    lily.style.animationDelay = `-${Math.random() * 6}s`;
+                    liliesContainer.appendChild(lily);
+                }
+            }
+
+            // Fish creating ripples
+            const fishContainer = document.getElementById('misty-fish');
+            if (fishContainer && fishContainer.children.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    const fish = document.createElement('div');
+                    fish.className = 'lake-fish';
+                    fish.style.left = `${Math.random() * 100}%`;
+                    fish.style.bottom = `${Math.random() * 40 + 10}%`;
+                    const duration = Math.random() * 15 + 20;
+                    fish.style.animationDuration = `${duration}s`;
+                    fish.style.animationDelay = `-${Math.random() * duration}s`;
+                    fishContainer.appendChild(fish);
+                }
+            }
+
+            // Lake ripples (gentle concentric circles)
+            const ripplesContainer = document.getElementById('misty-lake-ripples');
+            if (ripplesContainer && ripplesContainer.children.length === 0) {
+                for (let i = 0; i < 4; i++) {
+                    const ripple = document.createElement('div');
+                    ripple.className = 'lake-ripple';
+                    ripple.style.left = `${Math.random() * 100}%`;
+                    ripple.style.bottom = `${Math.random() * 40 + 10}%`;
+                    const duration = Math.random() * 5 + 8;
+                    ripple.style.animationDuration = `${duration}s`;
+                    ripple.style.animationDelay = `-${Math.random() * duration}s`;
+                    ripplesContainer.appendChild(ripple);
+                }
+            }
+
+            // Wispy mist columns rising from lake
+            const mistContainer = document.getElementById('misty-mist');
+            if (mistContainer && mistContainer.children.length === 0) {
+                for (let i = 0; i < 20; i++) {
+                    const column = document.createElement('div');
+                    column.className = 'mist-column';
+                    column.style.left = `${Math.random() * 100}%`;
+                    column.style.setProperty('--mist-width', `${Math.random() * 4 + 3}vw`);
+                    column.style.animationDuration = `${Math.random() * 25 + 35}s`;
+                    column.style.animationDelay = `-${Math.random() * 60}s`;
+                    mistContainer.appendChild(column);
+                }
+            }
         }
 
         function createBambooGroveScene() {
