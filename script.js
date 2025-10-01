@@ -2946,18 +2946,9 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const themeContainer = document.getElementById('sunset-theme');
             const sun = themeContainer.querySelector('.sun');
 
-            function randomizeSunPath() {
-                // This function is no longer needed as we're using fixed keyframe animation
-                // Keeping it for compatibility but it won't do anything
-            }
-
             // Set initial random path (though it won't be used)
-            randomizeSunPath();
 
             // Remove the event listener that was changing the path
-            if (sun && sun.hasAnimationIterationListener) {
-                // Do nothing - we want consistent animation now
-            }
 
             // Procedurally generate clouds (keep existing cloud code)
             const cloudLayers = [
@@ -3473,25 +3464,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     layer.el.appendChild(canvas);
                 }
             });
-        }
-        function createSunset() {
-            // Dust Motes
-            const dustContainer = document.getElementById('dust-motes');
-            if (dustContainer && dustContainer.children.length === 0) {
-                for (let i = 0; i < 50; i++) {
-                    let mote = document.createElement('div');
-                    mote.className = 'dust-mote';
-                    const size = Math.random() * 2 + 1;
-                    mote.style.width = `${size}px`;
-                    mote.style.height = `${size}px`;
-                    mote.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-                    mote.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-                    mote.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-                    mote.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                    mote.style.animationDelay = `-${Math.random() * 15}s`;
-                    dustContainer.appendChild(mote);
-                }
-            }
         }
         function createParticles() {
             const containers = {
