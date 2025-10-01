@@ -762,11 +762,43 @@ body {
         opacity: 0.8; 
         transform: scale(1);
     }
-    70% { 
-        left: 97%; bottom: -5%; 
-        opacity: 0.3; 
+    70% {
+        left: 97%; bottom: -5%;
+        opacity: 0.3;
         transform: scale(0.6);
     }
+}
+
+.sunset-god-rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 600px;
+    height: 600px;
+    transform-origin: center;
+    transform: translate(-50%, -50%);
+    animation: sunset-ray-rotation 60s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.sunset-god-ray {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom,
+        rgba(255, 220, 150, 0.25) 0%,
+        rgba(255, 200, 130, 0.15) 40%,
+        transparent 70%);
+    transform-origin: top center;
+    will-change: transform;
+}
+
+@keyframes sunset-ray-rotation {
+    from { transform: translate(-50%, -50%) rotate(-8deg); }
+    to { transform: translate(-50%, -50%) rotate(8deg); }
 }
 
 /* --- Mountain Theme --- */
