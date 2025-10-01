@@ -4341,17 +4341,84 @@ function createWavesScene() {
                 setTimeout(createShootingStar, 15000);
             }
 
-            // 2. Majestic Sand Dune Layers (WebGL) - Warm golden-orange palette
+            // 2. Distant Pyramids peeking from behind dunes (WebGL)
+            if (webglRenderer) {
+                const pyramidCanvas = document.createElement('canvas');
+                const C_WIDTH = 3072;
+                pyramidCanvas.width = C_WIDTH;
+                pyramidCanvas.height = window.innerHeight;
+                const ctx = pyramidCanvas.getContext('2d');
+
+                // Draw pyramids at different positions with variety
+                const pyramids = [
+                    { x: 0.12, scale: 0.65, color: 'rgba(160, 110, 75, 0.5)', yOffset: 0 },
+                    { x: 0.25, scale: 0.85, color: 'rgba(170, 120, 80, 0.58)', yOffset: -0.02 },
+                    { x: 0.42, scale: 1.1, color: 'rgba(155, 105, 70, 0.62)', yOffset: 0.01 },
+                    { x: 0.58, scale: 0.95, color: 'rgba(165, 115, 75, 0.6)', yOffset: -0.01 },
+                    { x: 0.73, scale: 0.75, color: 'rgba(175, 125, 85, 0.56)', yOffset: 0.02 },
+                    { x: 0.88, scale: 0.9, color: 'rgba(180, 130, 90, 0.54)', yOffset: 0 }
+                ];
+
+                pyramids.forEach(pyramid => {
+                    const baseX = pyramid.x * C_WIDTH;
+                    const baseSize = 280 * pyramid.scale;
+                    const height = 220 * pyramid.scale;
+                    const baseY = pyramidCanvas.height * (0.65 + pyramid.yOffset); // Position lower so more is hidden by dunes
+
+                    // Draw pyramid body
+                    const pyramidGradient = ctx.createLinearGradient(baseX - baseSize / 2, baseY, baseX + baseSize / 2, baseY);
+                    pyramidGradient.addColorStop(0, pyramid.color);
+                    pyramidGradient.addColorStop(0.5, pyramid.color.replace(/[\d.]+\)$/, (parseFloat(pyramid.color.match(/[\d.]+\)$/)[0]) * 0.85) + ')'));
+                    pyramidGradient.addColorStop(1, pyramid.color);
+
+                    ctx.fillStyle = pyramidGradient;
+                    ctx.beginPath();
+                    ctx.moveTo(baseX, baseY - height);
+                    ctx.lineTo(baseX + baseSize / 2, baseY);
+                    ctx.lineTo(baseX - baseSize / 2, baseY);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Add shadow on right side
+                    const shadowGradient = ctx.createLinearGradient(baseX, baseY - height, baseX + baseSize / 2, baseY);
+                    shadowGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                    shadowGradient.addColorStop(1, 'rgba(80, 50, 30, 0.35)');
+                    ctx.fillStyle = shadowGradient;
+                    ctx.beginPath();
+                    ctx.moveTo(baseX, baseY - height);
+                    ctx.lineTo(baseX + baseSize / 2, baseY);
+                    ctx.lineTo(baseX, baseY);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Add highlight on left side
+                    const highlightGradient = ctx.createLinearGradient(baseX - baseSize / 2, baseY, baseX, baseY - height);
+                    highlightGradient.addColorStop(0, 'rgba(255, 240, 200, 0)');
+                    highlightGradient.addColorStop(0.3, 'rgba(255, 235, 190, 0.12)');
+                    highlightGradient.addColorStop(1, 'rgba(255, 230, 180, 0.08)');
+                    ctx.fillStyle = highlightGradient;
+                    ctx.beginPath();
+                    ctx.moveTo(baseX, baseY - height);
+                    ctx.lineTo(baseX - baseSize / 2, baseY);
+                    ctx.lineTo(baseX, baseY);
+                    ctx.closePath();
+                    ctx.fill();
+                });
+
+                webglRenderer.addLayer(pyramidCanvas, -0.97);
+            }
+
+            // 3. Majestic Sand Dune Layers (WebGL) - Warm golden-orange palette
             if (webglRenderer) {
                 const duneLayers = [
-                    // Far background dunes - lightest, most hazy
-                    { zIndex: -0.95, count: 7, colors: ['rgba(250, 210, 165, 0.45)', 'rgba(245, 205, 160, 0.4)', 'rgba(248, 215, 170, 0.42)'], height: 0.28, shadowIntensity: 0.08 },
-                    // Mid-background dunes
-                    { zIndex: -0.85, count: 6, colors: ['rgba(240, 185, 135, 0.6)', 'rgba(235, 180, 130, 0.58)', 'rgba(242, 190, 140, 0.6)'], height: 0.42, shadowIntensity: 0.15 },
-                    // Mid-foreground dunes - richer golden tones
-                    { zIndex: -0.75, count: 5, colors: ['rgba(225, 160, 105, 0.75)', 'rgba(220, 155, 100, 0.75)', 'rgba(228, 165, 110, 0.73)'], height: 0.58, shadowIntensity: 0.25 },
-                    // Foreground dunes - deepest oranges with strong shadows
-                    { zIndex: -0.65, count: 4, colors: ['rgba(210, 135, 80, 0.88)', 'rgba(205, 130, 75, 0.88)', 'rgba(215, 140, 85, 0.86)'], height: 0.72, shadowIntensity: 0.38 }
+                    // Far background dunes - lightest, most hazy, covering pyramids
+                    { zIndex: -0.95, count: 10, colors: ['rgba(252, 218, 175, 0.5)', 'rgba(248, 212, 168, 0.48)', 'rgba(250, 220, 180, 0.49)'], height: 0.42, shadowIntensity: 0.08 },
+                    // Mid-background dunes - warmer golden tones
+                    { zIndex: -0.85, count: 9, colors: ['rgba(242, 192, 142, 0.65)', 'rgba(238, 186, 136, 0.63)', 'rgba(245, 198, 148, 0.64)'], height: 0.58, shadowIntensity: 0.16 },
+                    // Mid-foreground dunes - richer amber-gold tones, very tall
+                    { zIndex: -0.75, count: 8, colors: ['rgba(228, 165, 110, 0.78)', 'rgba(224, 158, 102, 0.78)', 'rgba(232, 172, 118, 0.76)'], height: 0.75, shadowIntensity: 0.28 },
+                    // Foreground dunes - deep burnt orange with strong shadows, most dramatic
+                    { zIndex: -0.65, count: 7, colors: ['rgba(215, 142, 88, 0.9)', 'rgba(210, 136, 82, 0.9)', 'rgba(220, 148, 94, 0.88)'], height: 0.88, shadowIntensity: 0.42 }
                 ];
 
                 duneLayers.forEach(layer => {
@@ -4366,32 +4433,44 @@ function createWavesScene() {
                         const x = (i / layer.count) * C_WIDTH + Math.random() * (C_WIDTH / layer.count) * 0.5;
                         const color = layer.colors[Math.floor(Math.random() * layer.colors.length)];
 
-                        // Dune dimensions - wide and sweeping
-                        const duneWidth = Math.random() * 650 + 450;
-                        const duneHeight = (Math.random() * 0.35 + 0.65) * canvas.height * layer.height;
+                        // Dune dimensions - wide and sweeping with dramatic height variation
+                        const duneWidth = Math.random() * 700 + 500;
+                        const duneHeight = (Math.random() * 0.5 + 0.7) * canvas.height * layer.height;
+
+                        // Add organic variation to dune peak position
+                        const peakOffset = (Math.random() - 0.5) * duneWidth * 0.15;
 
                         // Create smooth dune shape with gradient for light side
-                        const lightGradient = ctx.createLinearGradient(x - duneWidth / 2, canvas.height - duneHeight, x, canvas.height);
+                        const lightGradient = ctx.createLinearGradient(x - duneWidth / 2, canvas.height - duneHeight, x + peakOffset, canvas.height);
                         lightGradient.addColorStop(0, color);
-                        lightGradient.addColorStop(0.6, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.92) + ')'));
-                        lightGradient.addColorStop(1, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.85) + ')'));
+                        lightGradient.addColorStop(0.5, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.94) + ')'));
+                        lightGradient.addColorStop(0.8, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.88) + ')'));
+                        lightGradient.addColorStop(1, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.82) + ')'));
 
                         ctx.fillStyle = lightGradient;
                         ctx.beginPath();
                         ctx.moveTo(x - duneWidth / 2, canvas.height);
 
-                        // Smooth curve for windward side (lit side)
-                        ctx.quadraticCurveTo(
-                            x - duneWidth / 3,
-                            canvas.height - duneHeight * 0.7,
-                            x,
+                        // More organic curve for windward side using bezier curves
+                        const cp1x = x - duneWidth / 2.8 + Math.random() * 30 - 15;
+                        const cp1y = canvas.height - duneHeight * 0.4;
+                        const cp2x = x - duneWidth / 5 + Math.random() * 20 - 10;
+                        const cp2y = canvas.height - duneHeight * 0.85;
+
+                        ctx.bezierCurveTo(
+                            cp1x, cp1y,
+                            cp2x, cp2y,
+                            x + peakOffset,
                             canvas.height - duneHeight
                         );
 
                         // Sharper curve for leeward side (shadow side)
+                        const cp3x = x + peakOffset + duneWidth / 6;
+                        const cp3y = canvas.height - duneHeight * 0.6;
+
                         ctx.quadraticCurveTo(
-                            x + duneWidth / 4,
-                            canvas.height - duneHeight * 0.5,
+                            cp3x,
+                            cp3y,
                             x + duneWidth / 2,
                             canvas.height
                         );
@@ -4399,42 +4478,43 @@ function createWavesScene() {
                         ctx.closePath();
                         ctx.fill();
 
-                        // Add strong shadow on leeward side
-                        const shadowGradient = ctx.createLinearGradient(x, canvas.height - duneHeight, x + duneWidth / 2, canvas.height);
-                        shadowGradient.addColorStop(0, `rgba(120, 70, 40, ${layer.shadowIntensity})`);
-                        shadowGradient.addColorStop(0.5, `rgba(100, 60, 35, ${layer.shadowIntensity * 0.7})`);
-                        shadowGradient.addColorStop(1, `rgba(80, 50, 30, ${layer.shadowIntensity * 0.3})`);
+                        // Add strong shadow on leeward side with richer darker tones
+                        const shadowGradient = ctx.createLinearGradient(x + peakOffset, canvas.height - duneHeight, x + duneWidth / 2, canvas.height);
+                        shadowGradient.addColorStop(0, `rgba(100, 55, 30, ${layer.shadowIntensity * 1.2})`);
+                        shadowGradient.addColorStop(0.4, `rgba(85, 48, 28, ${layer.shadowIntensity * 0.9})`);
+                        shadowGradient.addColorStop(1, `rgba(70, 40, 25, ${layer.shadowIntensity * 0.4})`);
                         ctx.fillStyle = shadowGradient;
                         ctx.beginPath();
-                        ctx.moveTo(x, canvas.height - duneHeight);
+                        ctx.moveTo(x + peakOffset, canvas.height - duneHeight);
                         ctx.quadraticCurveTo(
-                            x + duneWidth / 4,
-                            canvas.height - duneHeight * 0.5,
+                            cp3x,
+                            cp3y,
                             x + duneWidth / 2,
                             canvas.height
                         );
-                        ctx.lineTo(x, canvas.height);
+                        ctx.lineTo(x + peakOffset, canvas.height);
                         ctx.closePath();
                         ctx.fill();
 
-                        // Add bright highlight on sunlit crest
-                        const highlightGradient = ctx.createLinearGradient(x - duneWidth / 4, canvas.height - duneHeight, x, canvas.height - duneHeight * 0.95);
-                        highlightGradient.addColorStop(0, 'rgba(255, 240, 210, 0.25)');
+                        // Add bright highlight on sunlit crest - warmer golden tones
+                        const highlightGradient = ctx.createLinearGradient(x + peakOffset - duneWidth / 5, canvas.height - duneHeight, x + peakOffset, canvas.height - duneHeight * 0.96);
+                        highlightGradient.addColorStop(0, 'rgba(255, 245, 220, 0.32)');
+                        highlightGradient.addColorStop(0.6, 'rgba(255, 240, 210, 0.18)');
                         highlightGradient.addColorStop(1, 'rgba(255, 235, 200, 0)');
                         ctx.fillStyle = highlightGradient;
                         ctx.beginPath();
-                        ctx.moveTo(x - duneWidth / 4, canvas.height - duneHeight * 0.95);
-                        ctx.quadraticCurveTo(
-                            x - duneWidth / 6,
-                            canvas.height - duneHeight * 0.85,
-                            x,
+                        ctx.moveTo(x + peakOffset - duneWidth / 5, canvas.height - duneHeight * 0.96);
+                        ctx.bezierCurveTo(
+                            cp2x, cp2y * 1.02,
+                            x + peakOffset - duneWidth / 8, canvas.height - duneHeight * 0.88,
+                            x + peakOffset,
                             canvas.height - duneHeight
                         );
                         ctx.quadraticCurveTo(
-                            x - duneWidth / 8,
-                            canvas.height - duneHeight * 0.92,
-                            x - duneWidth / 4,
-                            canvas.height - duneHeight * 0.8
+                            x + peakOffset - duneWidth / 10,
+                            canvas.height - duneHeight * 0.93,
+                            x + peakOffset - duneWidth / 5,
+                            canvas.height - duneHeight * 0.82
                         );
                         ctx.closePath();
                         ctx.fill();
@@ -4442,9 +4522,32 @@ function createWavesScene() {
 
                     webglRenderer.addLayer(canvas, layer.zIndex);
                 });
+
+                // Add atmospheric haze layers for depth
+                const hazeCanvas = document.createElement('canvas');
+                hazeCanvas.width = C_WIDTH;
+                hazeCanvas.height = window.innerHeight;
+                const hazeCtx = hazeCanvas.getContext('2d');
+
+                // Multiple haze layers for atmospheric perspective
+                const hazeGradient1 = hazeCtx.createLinearGradient(0, hazeCanvas.height * 0.3, 0, hazeCanvas.height * 0.7);
+                hazeGradient1.addColorStop(0, 'rgba(250, 220, 180, 0.12)');
+                hazeGradient1.addColorStop(0.5, 'rgba(245, 210, 170, 0.08)');
+                hazeGradient1.addColorStop(1, 'rgba(240, 200, 160, 0.02)');
+                hazeCtx.fillStyle = hazeGradient1;
+                hazeCtx.fillRect(0, hazeCanvas.height * 0.3, hazeCanvas.width, hazeCanvas.height * 0.4);
+
+                // Warmer haze near horizon
+                const hazeGradient2 = hazeCtx.createLinearGradient(0, hazeCanvas.height * 0.45, 0, hazeCanvas.height * 0.6);
+                hazeGradient2.addColorStop(0, 'rgba(255, 230, 190, 0.15)');
+                hazeGradient2.addColorStop(1, 'rgba(250, 220, 180, 0)');
+                hazeCtx.fillStyle = hazeGradient2;
+                hazeCtx.fillRect(0, hazeCanvas.height * 0.45, hazeCanvas.width, hazeCanvas.height * 0.15);
+
+                webglRenderer.addLayer(hazeCanvas, -0.7);
             }
 
-            // 3. Flying sand particles - golden colored wind effect
+            // 4. Flying sand particles - golden colored wind effect
             const sandContainer = document.getElementById('desert-sand-particles');
             if (sandContainer && sandContainer.children.length === 0) {
                 for (let i = 0; i < 80; i++) {
