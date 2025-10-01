@@ -573,7 +573,7 @@ body {
 
 .sun {
     position: absolute;
-    width: 120px; 
+    width: 120px;
     height: 120px;
     background: radial-gradient(circle, #fff 0%, #ffe5b4 40%, #ffb347 100%);
     border-radius: 50%;
@@ -731,7 +731,7 @@ body {
 
 .lens-flare {
     position: absolute;
-    width: 400px; 
+    width: 400px;
     height: 400px;
     background: radial-gradient(circle, rgba(255,255,240,0.3) 0%, rgba(255,255,220,0.1) 30%, transparent 60%);
     border-radius: 50%;
@@ -739,6 +739,38 @@ body {
     mix-blend-mode: screen;
     animation: flare-follow 180s ease-in-out infinite;
     z-index: 3;
+}
+
+.sunset-sunflares {
+    position: absolute;
+    width: 300%;
+    height: 300%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.sunset-sunflare {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    animation: sunflare-pulse 3s ease-in-out infinite;
+}
+
+@keyframes sunflare-pulse {
+    0%, 100% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1.15);
+    }
 }
 
 @keyframes flare-follow {
@@ -799,6 +831,52 @@ body {
 @keyframes sunset-ray-rotation {
     from { transform: translate(-50%, -50%) rotate(-8deg); }
     to { transform: translate(-50%, -50%) rotate(8deg); }
+}
+
+.sunset-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    animation: sunset-stars-visibility 180s linear infinite;
+}
+
+@keyframes sunset-stars-visibility {
+    0%, 76% {
+        opacity: 0;
+    }
+    84% {
+        opacity: 1;
+    }
+    92% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.sunset-star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    animation: sunset-star-twinkle 2s ease-in-out infinite;
+}
+
+@keyframes sunset-star-twinkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.3);
+    }
 }
 
 /* --- Mountain Theme --- */

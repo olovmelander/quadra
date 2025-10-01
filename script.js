@@ -905,7 +905,7 @@ function createCandlelitMonasteryScene() {
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
                     'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath',
-                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight'
+                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight', 'MoonlitForest'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -979,7 +979,8 @@ function createCandlelitMonasteryScene() {
                     GongBath: () => this.startGongBathMusic(trackId),
                     BreathOfStillness: () => this.startBreathOfStillnessMusic(trackId),
                     SacredJourney: () => this.startSacredJourneyMusic(trackId),
-                    ReturnToLight: () => this.startReturnToLightMusic(trackId)
+                    ReturnToLight: () => this.startReturnToLightMusic(trackId),
+                    MoonlitForest: () => this.startMoonlitForestMusic(trackId)
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
             }
@@ -1280,6 +1281,73 @@ function createCandlelitMonasteryScene() {
                 playHeartbeat();
                 setTimeout(playChimes, 1500);
                 setTimeout(playAiryPads, 5000);
+            }
+
+            startMoonlitForestMusic(trackId) {
+                // Deep grounding drone - like the earth beneath the forest
+                const playDrone = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    this.createTone(58.27, 30, 'sine', 0.12, playDrone); // A#1 - very grounding
+                    this.createTone(58.27 * 1.5, 30, 'sine', 0.06); // Perfect fifth harmonic
+                };
+
+                // Gentle night crickets - very sparse, high frequency tones
+                const playCrickets = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    if (Math.random() > 0.7) {
+                        for (let i = 0; i < random(2, 4); i++) {
+                            setTimeout(() => {
+                                if (this.isMuted || trackId !== this.currentTrackId) return;
+                                this.createTone(random(3000, 4500), random(0.05, 0.15), 'sine', random(0.008, 0.015));
+                            }, i * random(100, 300));
+                        }
+                    }
+                    setTimeout(playCrickets, random(5000, 9000));
+                };
+
+                // Moonlit breeze - soft, whispering high tones
+                const playBreeze = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    for (let i = 0; i < 4; i++) {
+                        this.createTone(random(800, 1400), random(4, 7), 'sine', random(0.003, 0.008));
+                    }
+                    setTimeout(playBreeze, random(8000, 14000));
+                };
+
+                // Meditative forest bells - very calm, pentatonic scale
+                const playBells = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const scale = [233.08, 261.63, 311.13, 349.23, 415.30]; // A#3, C4, D#4, F4, G#4 - minor pentatonic
+                    if (Math.random() > 0.5) {
+                        const note = scale[~~(Math.random() * scale.length)];
+                        this.createTone(note, random(6, 9), 'triangle', random(0.04, 0.07));
+                        // Subtle harmonic
+                        if (Math.random() > 0.6) {
+                            this.createTone(note * 2, random(5, 8), 'sine', random(0.02, 0.03));
+                        }
+                    }
+                    setTimeout(playBells, random(8000, 15000));
+                };
+
+                // Distant owl - occasional very low hooting sound
+                const playOwl = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    if (Math.random() > 0.6) {
+                        // Two-note hoot
+                        this.createTone(220, 0.4, 'sine', 0.08);
+                        setTimeout(() => {
+                            if (this.isMuted || trackId !== this.currentTrackId) return;
+                            this.createTone(196, 0.5, 'sine', 0.07);
+                        }, 600);
+                    }
+                    setTimeout(playOwl, random(20000, 35000));
+                };
+
+                playDrone();
+                setTimeout(playCrickets, 2000);
+                setTimeout(playBreeze, 5000);
+                setTimeout(playBells, 8000);
+                setTimeout(playOwl, 12000);
             }
 
             stopBackgroundMusic() {
@@ -3059,6 +3127,31 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 mountainContainer.appendChild(canvas);
             }
 
+            // Sunflares - positioned around the sun
+            const sunflareContainer = document.getElementById('sunset-sunflares');
+            if (sunflareContainer && sunflareContainer.children.length === 0) {
+                const flareConfigs = [
+                    { color: 'rgba(255, 200, 100, 0.6)', size: 150, offsetX: 0, offsetY: 0 },      // Center main flare
+                    { color: 'rgba(255, 150, 80, 0.5)', size: 100, offsetX: 80, offsetY: -40 },    // Top right
+                    { color: 'rgba(255, 220, 150, 0.4)', size: 120, offsetX: -70, offsetY: 50 },   // Bottom left
+                    { color: 'rgba(255, 180, 120, 0.5)', size: 90, offsetX: 60, offsetY: 70 },     // Bottom right
+                    { color: 'rgba(255, 240, 200, 0.3)', size: 180, offsetX: -20, offsetY: -10 },  // Slightly off-center large
+                    { color: 'rgba(255, 160, 100, 0.4)', size: 110, offsetX: -90, offsetY: -60 }   // Top left
+                ];
+
+                flareConfigs.forEach((flare, i) => {
+                    let flareEl = document.createElement('div');
+                    flareEl.className = 'sunset-sunflare';
+                    flareEl.style.width = `${flare.size}px`;
+                    flareEl.style.height = `${flare.size}px`;
+                    flareEl.style.background = `radial-gradient(circle, ${flare.color} 0%, transparent 70%)`;
+                    flareEl.style.marginLeft = `${flare.offsetX}px`;
+                    flareEl.style.marginTop = `${flare.offsetY}px`;
+                    flareEl.style.animationDelay = `-${i * 0.5}s`;
+                    sunflareContainer.appendChild(flareEl);
+                });
+            }
+
             // God Rays (keep existing code)
             const godRayContainer = document.querySelector('.sunset-god-rays');
             if (godRayContainer && godRayContainer.children.length === 0) {
@@ -3182,11 +3275,37 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
+            // Sparkling stars for night time
+            const starsContainer = document.getElementById('sunset-stars');
+            if (starsContainer && starsContainer.children.length === 0) {
+                for (let i = 0; i < 200; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'sunset-star';
+
+                    // Random size (1-3px)
+                    const size = Math.random() * 2 + 1;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+
+                    // Random position
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 60}%`; // Stars mostly in upper part of sky
+
+                    // Random animation delay for twinkling effect
+                    star.style.animationDelay = `${Math.random() * 2}s`;
+                    star.style.animationDuration = `${2 + Math.random() * 3}s`;
+
+                    starsContainer.appendChild(star);
+                }
+            }
+
             return {
                 cleanup: () => {
                     // Clean up if needed
                     const dustParticles = dustContainer.querySelectorAll('.sunset-dust-particle, .sunset-bird');
                     dustParticles.forEach(p => p.remove());
+                    const stars = starsContainer.querySelectorAll('.sunset-star');
+                    stars.forEach(s => s.remove());
                 }
             };
         }
@@ -3918,6 +4037,9 @@ function createFluidDreamsScene() {
     }
 }
 
+// Cache for moonlit forest tree backgrounds to avoid expensive regeneration
+const moonlitForestTreeCache = new Map();
+
 function createMoonlitForestScene() {
     // Define tree colors for different layers
     const treeLayers = [
@@ -3960,42 +4082,74 @@ function createMoonlitForestScene() {
         }
     };
 
-    // 1. Procedurally generate trees for parallax layers
-    treeLayers.forEach(layer => {
-        if(layer.el && !layer.el.style.backgroundImage) {
-            const C_WIDTH = 4096; // Wider canvas for more variety in parallax
-            const C_HEIGHT = layer.height;
-            let canvas = document.createElement('canvas');
-            canvas.width = C_WIDTH;
-            canvas.height = C_HEIGHT;
-            let ctx = canvas.getContext('2d');
-            ctx.strokeStyle = layer.color;
+    // 1. Procedurally generate trees for parallax layers (with caching)
+    treeLayers.forEach((layer, layerIndex) => {
+        if(layer.el) {
+            // Create a cache key based on layer properties and window dimensions
+            // v2: Added gradient fade at top for smooth sky blending
+            const cacheKey = `v2-${layerIndex}-${layer.color}-${layer.foliageColor}-${layer.count}-${layer.height}`;
 
-            // Draw ground/undergrowth silhouette
-            ctx.fillStyle = layer.foliageColor;
-            ctx.beginPath();
-            ctx.moveTo(0, C_HEIGHT);
-            let groundY = C_HEIGHT * 0.95;
-            for (let x = 0; x < C_WIDTH; x++) {
-                groundY += (Math.random() - 0.5) * 2;
-                ctx.lineTo(x, groundY);
+            // Check if we have a cached version
+            if (moonlitForestTreeCache.has(cacheKey)) {
+                const cachedData = moonlitForestTreeCache.get(cacheKey);
+                layer.el.style.backgroundImage = cachedData.backgroundImage;
+                layer.el.style.backgroundSize = cachedData.backgroundSize;
+            } else {
+                // Generate the tree background
+                const C_WIDTH = 4096; // Wider canvas for more variety in parallax
+                const C_HEIGHT = layer.height;
+                let canvas = document.createElement('canvas');
+                canvas.width = C_WIDTH;
+                canvas.height = C_HEIGHT;
+                let ctx = canvas.getContext('2d');
+                ctx.strokeStyle = layer.color;
+
+                // Draw ground/undergrowth silhouette
+                ctx.fillStyle = layer.foliageColor;
+                ctx.beginPath();
+                ctx.moveTo(0, C_HEIGHT);
+                let groundY = C_HEIGHT * 0.95;
+                for (let x = 0; x < C_WIDTH; x++) {
+                    groundY += (Math.random() - 0.5) * 2;
+                    ctx.lineTo(x, groundY);
+                }
+                ctx.lineTo(C_WIDTH, C_HEIGHT);
+                ctx.closePath();
+                ctx.fill();
+
+
+                // Draw trees
+                for(let i = 0; i < layer.count; i++) {
+                    const x = Math.random() * C_WIDTH;
+                    const y = C_HEIGHT * (0.95 + Math.random() * 0.05);
+                    const len = C_HEIGHT * (0.2 + Math.random() * 0.3);
+                    const angle = -90 + random(-10, 10);
+                    const width = 10 + Math.random() * (layer.height / 30);
+                    drawTree(ctx, x, y, len, angle, width, layer.foliageColor);
+                }
+
+                // Add gradient fade at the top to blend smoothly with sky
+                const fadeHeight = C_HEIGHT * 0.35; // Fade the top 35% of the canvas
+                const gradient = ctx.createLinearGradient(0, 0, 0, fadeHeight);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 1)'); // Fully transparent at top
+                gradient.addColorStop(0.6, 'rgba(0, 0, 0, 0.3)'); // Gradual fade
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)'); // Fully visible at bottom
+
+                ctx.globalCompositeOperation = 'destination-out'; // Use gradient as alpha mask
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, C_WIDTH, fadeHeight);
+                ctx.globalCompositeOperation = 'source-over'; // Reset to normal
+
+                const backgroundImage = `url(${canvas.toDataURL()})`;
+                const backgroundSize = `${C_WIDTH}px ${C_HEIGHT}px`;
+
+                // Cache the generated background
+                moonlitForestTreeCache.set(cacheKey, { backgroundImage, backgroundSize });
+
+                // Apply to the layer
+                layer.el.style.backgroundImage = backgroundImage;
+                layer.el.style.backgroundSize = backgroundSize;
             }
-            ctx.lineTo(C_WIDTH, C_HEIGHT);
-            ctx.closePath();
-            ctx.fill();
-
-
-            // Draw trees
-            for(let i = 0; i < layer.count; i++) {
-                const x = Math.random() * C_WIDTH;
-                const y = C_HEIGHT * (0.95 + Math.random() * 0.05);
-                const len = C_HEIGHT * (0.2 + Math.random() * 0.3);
-                const angle = -90 + random(-10, 10);
-                const width = 10 + Math.random() * (layer.height / 30);
-                drawTree(ctx, x, y, len, angle, width, layer.foliageColor);
-            }
-            layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
-            layer.el.style.backgroundSize = `${C_WIDTH}px ${C_HEIGHT}px`;
         }
     });
 

@@ -26,12 +26,16 @@ Unit tests verify code correctness and optimization implementations.
 cd tests/unit
 node test-optimization.js
 node test-god-rays.js
+node test-rainy-window-optimization.js
+node test-moonlit-forest-optimization.js
 ```
 
 **Run specific test:**
 ```bash
 node tests/unit/test-optimization.js
 node tests/unit/test-god-rays.js
+node tests/unit/test-rainy-window-optimization.js
+node tests/unit/test-moonlit-forest-optimization.js
 ```
 
 #### Available Unit Tests
@@ -56,6 +60,14 @@ node tests/unit/test-god-rays.js
 - Ensures Math.pow() replaced with multiplication
 - Confirms core animation logic integrity
 - Verifies only 1 sqrt() call remains (for drop merge)
+
+**`test-moonlit-forest-optimization.js`** - Moonlit Forest Tree Caching
+- Verifies tree background cache Map exists
+- Checks cache key generation with layer properties
+- Validates cache lookup before tree generation
+- Ensures cached backgrounds are reused
+- Confirms new backgrounds are cached
+- Verifies core tree drawing logic integrity
 
 ### Performance Benchmarks
 
@@ -88,6 +100,13 @@ Performance benchmarks provide interactive measurements and visualizations.
 - Verifies array removal efficiency (O(1) swap-and-pop)
 - Confirms style string caching
 - Interactive 5-second benchmark with detailed metrics
+
+**`benchmark-moonlit-forest.html`** - Moonlit Forest Theme Performance
+- Measures initial tree generation time
+- Tests cached background retrieval speed
+- Compares performance with/without caching
+- Validates 50x+ speedup on cached loads
+- Verifies zero visual regression
 
 ## Test Organization Philosophy
 
@@ -159,6 +178,7 @@ Current test coverage:
 | Attribute Caching | ✅ | ✅ |
 | Sunset God Rays | ✅ | ✅ |
 | Rainy Window Collision | ✅ | ✅ |
+| Moonlit Forest Trees | ✅ | ✅ |
 | Particle Systems | ✅ | ✅ |
 | Textured Quads | ✅ | ✅ |
 
@@ -172,6 +192,8 @@ To integrate unit tests into CI/CD:
   run: |
     node tests/unit/test-optimization.js
     node tests/unit/test-god-rays.js
+    node tests/unit/test-rainy-window-optimization.js
+    node tests/unit/test-moonlit-forest-optimization.js
 ```
 
 ## Troubleshooting
