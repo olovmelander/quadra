@@ -49,6 +49,14 @@ node tests/unit/test-god-rays.js
 - Confirms visual output functionality
 - Tests theme layering and interaction optimization
 
+**`test-rainy-window-optimization.js`** - Rainy Window Collision Optimization
+- Verifies squared distance comparison (no sqrt in collision)
+- Checks swap-and-pop array removal optimization
+- Validates style string caching
+- Ensures Math.pow() replaced with multiplication
+- Confirms core animation logic integrity
+- Verifies only 1 sqrt() call remains (for drop merge)
+
 ### Performance Benchmarks
 
 Performance benchmarks provide interactive measurements and visualizations.
@@ -72,6 +80,14 @@ Performance benchmarks provide interactive measurements and visualizations.
 - Monitors memory usage
 - Verifies GPU acceleration status
 - Validates visual output
+
+**`benchmark-rainy-window.html`** - Rainy Window Performance
+- Real-time FPS monitoring
+- Frame time measurement and analysis
+- Validates collision optimization (no sqrt in hot path)
+- Verifies array removal efficiency (O(1) swap-and-pop)
+- Confirms style string caching
+- Interactive 5-second benchmark with detailed metrics
 
 ## Test Organization Philosophy
 
@@ -142,6 +158,7 @@ Current test coverage:
 | WebGL Renderer | ✅ | ✅ |
 | Attribute Caching | ✅ | ✅ |
 | Sunset God Rays | ✅ | ✅ |
+| Rainy Window Collision | ✅ | ✅ |
 | Particle Systems | ✅ | ✅ |
 | Textured Quads | ✅ | ✅ |
 

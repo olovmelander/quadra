@@ -1906,6 +1906,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
             for(let i=0; i<150; i++){ drops.push(createDrop(true)); }
 
+            // Cache style strings outside animation loop (performance optimization)
+            const streakStyle = 'rgba(220, 230, 255, 0.3)';
+            const dropStyle = 'rgba(220, 230, 255, 0.6)';
+
             function animate() {
                 if (activeTheme !== 'rainy-window') {
                     return;
@@ -1921,27 +1925,38 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                         ctx.beginPath();
                         ctx.moveTo(drop.x, drop.y - drop.r * 4);
                         ctx.lineTo(drop.x, drop.y);
-                        ctx.strokeStyle = `rgba(220, 230, 255, 0.3)`;
+                        ctx.strokeStyle = streakStyle;
                         ctx.lineWidth = drop.r * 0.6;
                         ctx.stroke();
                     }
                     ctx.beginPath();
                     ctx.arc(drop.x, drop.y, drop.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(220, 230, 255, 0.6)`;
+                    ctx.fillStyle = dropStyle;
                     ctx.fill();
 
+                    // Optimized collision detection: use squared distance to avoid sqrt()
                     for (let j = i - 1; j >= 0; j--) {
                         let other = drops[j];
                         let dx = drop.x - other.x;
                         let dy = drop.y - other.y;
-                        if (Math.sqrt(dx*dx + dy*dy) < drop.r + other.r) {
-                            drop.r = Math.min(Math.sqrt(Math.pow(drop.r, 2) + Math.pow(other.r, 2)), 15);
-                            drops.splice(j, 1);
+                        let distanceSq = dx * dx + dy * dy;
+                        let combinedRadius = drop.r + other.r;
+                        let combinedRadiusSq = combinedRadius * combinedRadius;
+
+                        if (distanceSq < combinedRadiusSq) {
+                            // Merge drops: calculate new radius using Pythagorean theorem
+                            drop.r = Math.min(Math.sqrt(drop.r * drop.r + other.r * other.r), 15);
+                            // Swap-and-pop for O(1) removal instead of O(n) splice
+                            drops[j] = drops[drops.length - 1];
+                            drops.pop();
                             i--;
                             break;
                         }
                     }
-                    if (drop.y > canvas.height + 50) drops.splice(i, 1);
+                    if (drop.y > canvas.height + 50) {
+                        drops[i] = drops[drops.length - 1];
+                        drops.pop();
+                    }
                 }
                 activeThemeAnimationId = requestAnimationFrame(animate);
             }
@@ -2590,6 +2605,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
             for(let i=0; i<150; i++){ drops.push(createDrop(true)); }
 
+            // Cache style strings outside animation loop (performance optimization)
+            const streakStyle = 'rgba(220, 230, 255, 0.3)';
+            const dropStyle = 'rgba(220, 230, 255, 0.6)';
+
             function animate() {
                 if (activeTheme !== 'rainy-window') {
                     return;
@@ -2605,27 +2624,38 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                         ctx.beginPath();
                         ctx.moveTo(drop.x, drop.y - drop.r * 4);
                         ctx.lineTo(drop.x, drop.y);
-                        ctx.strokeStyle = `rgba(220, 230, 255, 0.3)`;
+                        ctx.strokeStyle = streakStyle;
                         ctx.lineWidth = drop.r * 0.6;
                         ctx.stroke();
                     }
                     ctx.beginPath();
                     ctx.arc(drop.x, drop.y, drop.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(220, 230, 255, 0.6)`;
+                    ctx.fillStyle = dropStyle;
                     ctx.fill();
 
+                    // Optimized collision detection: use squared distance to avoid sqrt()
                     for (let j = i - 1; j >= 0; j--) {
                         let other = drops[j];
                         let dx = drop.x - other.x;
                         let dy = drop.y - other.y;
-                        if (Math.sqrt(dx*dx + dy*dy) < drop.r + other.r) {
-                            drop.r = Math.min(Math.sqrt(Math.pow(drop.r, 2) + Math.pow(other.r, 2)), 15);
-                            drops.splice(j, 1);
+                        let distanceSq = dx * dx + dy * dy;
+                        let combinedRadius = drop.r + other.r;
+                        let combinedRadiusSq = combinedRadius * combinedRadius;
+
+                        if (distanceSq < combinedRadiusSq) {
+                            // Merge drops: calculate new radius using Pythagorean theorem
+                            drop.r = Math.min(Math.sqrt(drop.r * drop.r + other.r * other.r), 15);
+                            // Swap-and-pop for O(1) removal instead of O(n) splice
+                            drops[j] = drops[drops.length - 1];
+                            drops.pop();
                             i--;
                             break;
                         }
                     }
-                    if (drop.y > canvas.height + 50) drops.splice(i, 1);
+                    if (drop.y > canvas.height + 50) {
+                        drops[i] = drops[drops.length - 1];
+                        drops.pop();
+                    }
                 }
                 activeThemeAnimationId = requestAnimationFrame(animate);
             }
