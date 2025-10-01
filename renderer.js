@@ -197,6 +197,11 @@ class ParticleSystem {
         // Cache attribute locations (set during first bindBuffers call)
         this.attribLocations = null;
 
+        // Performance optimization: Track which buffers need uploading
+        // Most particle behaviors have static sizes after spawn, so we only
+        // upload the size buffer when it actually changes (e.g., crystal-growth)
+        this.sizeBufferDirty = true; // Upload on first frame
+
         for (let i = 0; i < numParticles; i++) {
             this.spawnParticle(i);
         }
@@ -215,6 +220,9 @@ class ParticleSystem {
 
         this.sizes[i] = Math.random() * (config.maxSize - config.minSize) + config.minSize;
         this.lifetimes[i] = config.lifetime === Infinity ? Infinity : Math.random() * config.lifetime;
+
+        // Mark size buffer dirty since we modified a particle's size
+        this.sizeBufferDirty = true;
 
         if (this.behavior === 'firefly') {
             this.positions[i * 2 + 1] = Math.random() * height * 0.9 + height * 0.1; // Spawn away from very top/bottom
@@ -480,6 +488,7 @@ class ParticleSystem {
                 // Grow then shrink
                 this.growthInfo[i * 2] += this.growthInfo[i * 2 + 1];
                 this.sizes[i] = Math.min(this.themeConfig.maxSize, this.growthInfo[i * 2]);
+                this.sizeBufferDirty = true; // Size is dynamically changing
 
                 // Fade in then fade out
                 if (progress < 0.5) {
@@ -510,6 +519,7 @@ class ParticleSystem {
                     this.alphas[i] = (1 - (progress - 0.2) / 0.8) * this.themeConfig.maxAlpha;
                 }
                 this.sizes[i] = this.themeConfig.minSize + progress * (this.themeConfig.maxSize - this.themeConfig.minSize);
+                this.sizeBufferDirty = true; // Size is dynamically changing
 
                 if (this.lifetimes[i] <= 0) {
                     this.spawnParticle(i);
@@ -542,16 +552,24 @@ class ParticleSystem {
             };
         }
 
+        // Position buffer - always dynamic (particles move every frame)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.positions, gl.DYNAMIC_DRAW);
         gl.enableVertexAttribArray(this.attribLocations.position);
         gl.vertexAttribPointer(this.attribLocations.position, 2, gl.FLOAT, false, 0, 0);
 
+        // Size buffer - ONLY upload when dirty (optimization)
+        // Most particle behaviors have static sizes after spawn, so we avoid
+        // unnecessary GPU uploads by only updating when sizes actually change
         gl.bindBuffer(gl.ARRAY_BUFFER, this.sizeBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.sizes, gl.DYNAMIC_DRAW);
+        if (this.sizeBufferDirty) {
+            gl.bufferData(gl.ARRAY_BUFFER, this.sizes, gl.DYNAMIC_DRAW);
+            this.sizeBufferDirty = false; // Clear dirty flag
+        }
         gl.enableVertexAttribArray(this.attribLocations.size);
         gl.vertexAttribPointer(this.attribLocations.size, 1, gl.FLOAT, false, 0, 0);
 
+        // Alpha buffer - always dynamic (alpha changes frequently for fading)
         gl.bindBuffer(gl.ARRAY_BUFFER, this.alphaBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.alphas, gl.DYNAMIC_DRAW);
         gl.enableVertexAttribArray(this.attribLocations.alpha);
@@ -566,7 +584,7 @@ class ParticleSystem {
 class WebGLRenderer {
     constructor(canvas) {
         this.canvas = canvas;
-        this.gl = this.canvas.getContext('webgl', { depth: true, antialias: true }) || this.canvas.getContext('experimental-webgl', { depth: true, antialias: true });
+        this.gl = this.canvas.getContext('webgl', { alpha: true, depth: true, antialias: true, premultipliedAlpha: false }) || this.canvas.getContext('experimental-webgl', { alpha: true, depth: true, antialias: true, premultipliedAlpha: false });
 
         if (!this.gl) {
             console.error("WebGL not supported!");
@@ -574,6 +592,8 @@ class WebGLRenderer {
         }
 
         this.gl.enable(this.gl.DEPTH_TEST);
+        this.gl.enable(this.gl.BLEND);
+        this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
         this.textureProgram = this.createProgram(TEXTURE_VERTEX_SHADER, TEXTURE_FRAGMENT_SHADER);
         this.textureProgram.uniforms = {
@@ -690,8 +710,9 @@ class WebGLRenderer {
     }
 
     loadTheme(themeName, themeData = null) {
+        // Note: texturedQuads are now cleared by the caller before scene creation
+        // Only clear particle systems here
         this.particleSystems = [];
-        this.texturedQuads = [];
         this.stop();
 
         const setupParticles = (islandData) => {
@@ -752,18 +773,48 @@ class WebGLRenderer {
         }
 
         if (themeName === 'himalayan-peak') {
+            // Sparkling snow particles with golden highlights
             const snowConfig = {
                 behavior: 'horizontal-drift',
-                speed: 1.5, // Faster, sharper wind
+                speed: 1.5,
                 minSize: 1.0,
-                maxSize: 3.0,
-                minAlpha: 0.4,
-                maxAlpha: 0.9,
-                lifetime: Infinity, // They reset when off-screen
+                maxSize: 3.5,
+                minAlpha: 0.5,
+                maxAlpha: 1.0,
+                lifetime: Infinity,
                 zIndex: -0.6,
                 color: [1.0, 1.0, 1.0]
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 250, snowConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 300, snowConfig));
+
+            // Golden sun-lit particles (catching light)
+            const sunlitConfig = {
+                behavior: 'horizontal-drift',
+                speed: 1.2,
+                minSize: 1.5,
+                maxSize: 4.0,
+                minAlpha: 0.3,
+                maxAlpha: 0.8,
+                lifetime: Infinity,
+                zIndex: -0.5,
+                color: [1.0, 0.95, 0.7] // Golden tint
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 100, sunlitConfig));
+
+            // Slow-falling ice crystals
+            const crystalConfig = {
+                behavior: 'petal',
+                speed: 0.3,
+                minSize: 2.0,
+                maxSize: 5.0,
+                minAlpha: 0.6,
+                maxAlpha: 1.0,
+                lifetime: 2000,
+                zIndex: -0.4,
+                color: [0.95, 0.97, 1.0]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 60, crystalConfig));
+
             this.start();
         } else if (themeName === 'ice-temple') {
             const snowCrystalConfig = {
@@ -850,18 +901,62 @@ class WebGLRenderer {
 
             this.start();
         } else if (themeName === 'meditation-temple') {
+            // Enhanced incense smoke
             const smokeConfig = {
                 behavior: 'incense-smoke',
                 speed: 1.0,
                 minSize: 2.0,
-                maxSize: 15.0,
+                maxSize: 18.0,
                 minAlpha: 0.0,
-                maxAlpha: 0.15,
-                lifetime: 1200, // 20 seconds
+                maxAlpha: 0.2,
+                lifetime: 1200,
                 zIndex: -0.1,
-                color: [0.9, 0.9, 0.95]
+                color: [0.85, 0.8, 0.9] // Slight purple tint
             };
-            this.particleSystems.push(new ParticleSystem(this.gl, 20, smokeConfig));
+            this.particleSystems.push(new ParticleSystem(this.gl, 25, smokeConfig));
+
+            // Fireflies
+            const fireflyConfig = {
+                behavior: 'firefly',
+                speed: 0.3,
+                minSize: 3.0,
+                maxSize: 6.0,
+                minAlpha: 0.4,
+                maxAlpha: 1.0,
+                lifetime: Infinity,
+                zIndex: -0.3,
+                color: [1.0, 0.95, 0.6] // Warm golden glow
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 40, fireflyConfig));
+
+            // Floating cherry blossom petals
+            const petalConfig = {
+                behavior: 'petal',
+                speed: 0.4,
+                minSize: 3.0,
+                maxSize: 7.0,
+                minAlpha: 0.5,
+                maxAlpha: 0.9,
+                lifetime: 2500,
+                zIndex: -0.2,
+                color: [1.0, 0.85, 0.9] // Soft pink
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 50, petalConfig));
+
+            // Mystical light orbs
+            const orbConfig = {
+                behavior: 'firefly',
+                speed: 0.15,
+                minSize: 4.0,
+                maxSize: 8.0,
+                minAlpha: 0.3,
+                maxAlpha: 0.7,
+                lifetime: Infinity,
+                zIndex: -0.4,
+                color: [0.7, 0.6, 1.0] // Soft purple/blue
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 20, orbConfig));
+
             this.start();
         } else if (themeName === 'crystal-cave') {
             const shardConfig = {
@@ -1007,5 +1102,6 @@ class WebGLRenderer {
 
             this.start();
         }
+        // Note: electric-dreams theme uses DOM-based CSS animations, not WebGL particles
     }
 }

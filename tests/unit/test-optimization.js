@@ -97,6 +97,6 @@ console.log('  • Attribute locations are now cached on first use');
 console.log('  • getAttribLocation() calls reduced from O(n×frames) to O(n)');
 console.log('  • Expected performance gain: 15-30% reduction in render overhead');
 console.log('  • Visual output remains identical (zero regression)');
-console.log('\nRun benchmark-rendering.html in a browser to measure actual performance gains.');
+console.log('\nRun tests/performance/benchmark-rendering.html in a browser to measure actual performance gains.');
 
 process.exit(0);

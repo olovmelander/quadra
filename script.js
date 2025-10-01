@@ -905,7 +905,7 @@ function createCandlelitMonasteryScene() {
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
                     'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath',
-                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight'
+                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight', 'MoonlitForest'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -979,7 +979,8 @@ function createCandlelitMonasteryScene() {
                     GongBath: () => this.startGongBathMusic(trackId),
                     BreathOfStillness: () => this.startBreathOfStillnessMusic(trackId),
                     SacredJourney: () => this.startSacredJourneyMusic(trackId),
-                    ReturnToLight: () => this.startReturnToLightMusic(trackId)
+                    ReturnToLight: () => this.startReturnToLightMusic(trackId),
+                    MoonlitForest: () => this.startMoonlitForestMusic(trackId)
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
             }
@@ -1280,6 +1281,73 @@ function createCandlelitMonasteryScene() {
                 playHeartbeat();
                 setTimeout(playChimes, 1500);
                 setTimeout(playAiryPads, 5000);
+            }
+
+            startMoonlitForestMusic(trackId) {
+                // Deep grounding drone - like the earth beneath the forest
+                const playDrone = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    this.createTone(58.27, 30, 'sine', 0.12, playDrone); // A#1 - very grounding
+                    this.createTone(58.27 * 1.5, 30, 'sine', 0.06); // Perfect fifth harmonic
+                };
+
+                // Gentle night crickets - very sparse, high frequency tones
+                const playCrickets = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    if (Math.random() > 0.7) {
+                        for (let i = 0; i < random(2, 4); i++) {
+                            setTimeout(() => {
+                                if (this.isMuted || trackId !== this.currentTrackId) return;
+                                this.createTone(random(3000, 4500), random(0.05, 0.15), 'sine', random(0.008, 0.015));
+                            }, i * random(100, 300));
+                        }
+                    }
+                    setTimeout(playCrickets, random(5000, 9000));
+                };
+
+                // Moonlit breeze - soft, whispering high tones
+                const playBreeze = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    for (let i = 0; i < 4; i++) {
+                        this.createTone(random(800, 1400), random(4, 7), 'sine', random(0.003, 0.008));
+                    }
+                    setTimeout(playBreeze, random(8000, 14000));
+                };
+
+                // Meditative forest bells - very calm, pentatonic scale
+                const playBells = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    const scale = [233.08, 261.63, 311.13, 349.23, 415.30]; // A#3, C4, D#4, F4, G#4 - minor pentatonic
+                    if (Math.random() > 0.5) {
+                        const note = scale[~~(Math.random() * scale.length)];
+                        this.createTone(note, random(6, 9), 'triangle', random(0.04, 0.07));
+                        // Subtle harmonic
+                        if (Math.random() > 0.6) {
+                            this.createTone(note * 2, random(5, 8), 'sine', random(0.02, 0.03));
+                        }
+                    }
+                    setTimeout(playBells, random(8000, 15000));
+                };
+
+                // Distant owl - occasional very low hooting sound
+                const playOwl = () => {
+                    if (this.isMuted || trackId !== this.currentTrackId) return;
+                    if (Math.random() > 0.6) {
+                        // Two-note hoot
+                        this.createTone(220, 0.4, 'sine', 0.08);
+                        setTimeout(() => {
+                            if (this.isMuted || trackId !== this.currentTrackId) return;
+                            this.createTone(196, 0.5, 'sine', 0.07);
+                        }, 600);
+                    }
+                    setTimeout(playOwl, random(20000, 35000));
+                };
+
+                playDrone();
+                setTimeout(playCrickets, 2000);
+                setTimeout(playBreeze, 5000);
+                setTimeout(playBells, 8000);
+                setTimeout(playOwl, 12000);
             }
 
             stopBackgroundMusic() {
@@ -1906,6 +1974,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
             for(let i=0; i<150; i++){ drops.push(createDrop(true)); }
 
+            // Cache style strings outside animation loop (performance optimization)
+            const streakStyle = 'rgba(220, 230, 255, 0.3)';
+            const dropStyle = 'rgba(220, 230, 255, 0.6)';
+
             function animate() {
                 if (activeTheme !== 'rainy-window') {
                     return;
@@ -1921,27 +1993,38 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                         ctx.beginPath();
                         ctx.moveTo(drop.x, drop.y - drop.r * 4);
                         ctx.lineTo(drop.x, drop.y);
-                        ctx.strokeStyle = `rgba(220, 230, 255, 0.3)`;
+                        ctx.strokeStyle = streakStyle;
                         ctx.lineWidth = drop.r * 0.6;
                         ctx.stroke();
                     }
                     ctx.beginPath();
                     ctx.arc(drop.x, drop.y, drop.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(220, 230, 255, 0.6)`;
+                    ctx.fillStyle = dropStyle;
                     ctx.fill();
 
+                    // Optimized collision detection: use squared distance to avoid sqrt()
                     for (let j = i - 1; j >= 0; j--) {
                         let other = drops[j];
                         let dx = drop.x - other.x;
                         let dy = drop.y - other.y;
-                        if (Math.sqrt(dx*dx + dy*dy) < drop.r + other.r) {
-                            drop.r = Math.min(Math.sqrt(Math.pow(drop.r, 2) + Math.pow(other.r, 2)), 15);
-                            drops.splice(j, 1);
+                        let distanceSq = dx * dx + dy * dy;
+                        let combinedRadius = drop.r + other.r;
+                        let combinedRadiusSq = combinedRadius * combinedRadius;
+
+                        if (distanceSq < combinedRadiusSq) {
+                            // Merge drops: calculate new radius using Pythagorean theorem
+                            drop.r = Math.min(Math.sqrt(drop.r * drop.r + other.r * other.r), 15);
+                            // Swap-and-pop for O(1) removal instead of O(n) splice
+                            drops[j] = drops[drops.length - 1];
+                            drops.pop();
                             i--;
                             break;
                         }
                     }
-                    if (drop.y > canvas.height + 50) drops.splice(i, 1);
+                    if (drop.y > canvas.height + 50) {
+                        drops[i] = drops[drops.length - 1];
+                        drops.pop();
+                    }
                 }
                 activeThemeAnimationId = requestAnimationFrame(animate);
             }
@@ -2590,6 +2673,10 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
             for(let i=0; i<150; i++){ drops.push(createDrop(true)); }
 
+            // Cache style strings outside animation loop (performance optimization)
+            const streakStyle = 'rgba(220, 230, 255, 0.3)';
+            const dropStyle = 'rgba(220, 230, 255, 0.6)';
+
             function animate() {
                 if (activeTheme !== 'rainy-window') {
                     return;
@@ -2605,27 +2692,38 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                         ctx.beginPath();
                         ctx.moveTo(drop.x, drop.y - drop.r * 4);
                         ctx.lineTo(drop.x, drop.y);
-                        ctx.strokeStyle = `rgba(220, 230, 255, 0.3)`;
+                        ctx.strokeStyle = streakStyle;
                         ctx.lineWidth = drop.r * 0.6;
                         ctx.stroke();
                     }
                     ctx.beginPath();
                     ctx.arc(drop.x, drop.y, drop.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(220, 230, 255, 0.6)`;
+                    ctx.fillStyle = dropStyle;
                     ctx.fill();
 
+                    // Optimized collision detection: use squared distance to avoid sqrt()
                     for (let j = i - 1; j >= 0; j--) {
                         let other = drops[j];
                         let dx = drop.x - other.x;
                         let dy = drop.y - other.y;
-                        if (Math.sqrt(dx*dx + dy*dy) < drop.r + other.r) {
-                            drop.r = Math.min(Math.sqrt(Math.pow(drop.r, 2) + Math.pow(other.r, 2)), 15);
-                            drops.splice(j, 1);
+                        let distanceSq = dx * dx + dy * dy;
+                        let combinedRadius = drop.r + other.r;
+                        let combinedRadiusSq = combinedRadius * combinedRadius;
+
+                        if (distanceSq < combinedRadiusSq) {
+                            // Merge drops: calculate new radius using Pythagorean theorem
+                            drop.r = Math.min(Math.sqrt(drop.r * drop.r + other.r * other.r), 15);
+                            // Swap-and-pop for O(1) removal instead of O(n) splice
+                            drops[j] = drops[drops.length - 1];
+                            drops.pop();
                             i--;
                             break;
                         }
                     }
-                    if (drop.y > canvas.height + 50) drops.splice(i, 1);
+                    if (drop.y > canvas.height + 50) {
+                        drops[i] = drops[drops.length - 1];
+                        drops.pop();
+                    }
                 }
                 activeThemeAnimationId = requestAnimationFrame(animate);
             }
@@ -3029,6 +3127,31 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 mountainContainer.appendChild(canvas);
             }
 
+            // Sunflares - positioned around the sun
+            const sunflareContainer = document.getElementById('sunset-sunflares');
+            if (sunflareContainer && sunflareContainer.children.length === 0) {
+                const flareConfigs = [
+                    { color: 'rgba(255, 200, 100, 0.6)', size: 150, offsetX: 0, offsetY: 0 },      // Center main flare
+                    { color: 'rgba(255, 150, 80, 0.5)', size: 100, offsetX: 80, offsetY: -40 },    // Top right
+                    { color: 'rgba(255, 220, 150, 0.4)', size: 120, offsetX: -70, offsetY: 50 },   // Bottom left
+                    { color: 'rgba(255, 180, 120, 0.5)', size: 90, offsetX: 60, offsetY: 70 },     // Bottom right
+                    { color: 'rgba(255, 240, 200, 0.3)', size: 180, offsetX: -20, offsetY: -10 },  // Slightly off-center large
+                    { color: 'rgba(255, 160, 100, 0.4)', size: 110, offsetX: -90, offsetY: -60 }   // Top left
+                ];
+
+                flareConfigs.forEach((flare, i) => {
+                    let flareEl = document.createElement('div');
+                    flareEl.className = 'sunset-sunflare';
+                    flareEl.style.width = `${flare.size}px`;
+                    flareEl.style.height = `${flare.size}px`;
+                    flareEl.style.background = `radial-gradient(circle, ${flare.color} 0%, transparent 70%)`;
+                    flareEl.style.marginLeft = `${flare.offsetX}px`;
+                    flareEl.style.marginTop = `${flare.offsetY}px`;
+                    flareEl.style.animationDelay = `-${i * 0.5}s`;
+                    sunflareContainer.appendChild(flareEl);
+                });
+            }
+
             // God Rays (keep existing code)
             const godRayContainer = document.querySelector('.sunset-god-rays');
             if (godRayContainer && godRayContainer.children.length === 0) {
@@ -3152,11 +3275,37 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
+            // Sparkling stars for night time
+            const starsContainer = document.getElementById('sunset-stars');
+            if (starsContainer && starsContainer.children.length === 0) {
+                for (let i = 0; i < 200; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'sunset-star';
+
+                    // Random size (1-3px)
+                    const size = Math.random() * 2 + 1;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+
+                    // Random position
+                    star.style.left = `${Math.random() * 100}%`;
+                    star.style.top = `${Math.random() * 60}%`; // Stars mostly in upper part of sky
+
+                    // Random animation delay for twinkling effect
+                    star.style.animationDelay = `${Math.random() * 2}s`;
+                    star.style.animationDuration = `${2 + Math.random() * 3}s`;
+
+                    starsContainer.appendChild(star);
+                }
+            }
+
             return {
                 cleanup: () => {
                     // Clean up if needed
                     const dustParticles = dustContainer.querySelectorAll('.sunset-dust-particle, .sunset-bird');
                     dustParticles.forEach(p => p.remove());
+                    const stars = starsContainer.querySelectorAll('.sunset-star');
+                    stars.forEach(s => s.remove());
                 }
             };
         }
@@ -3888,6 +4037,9 @@ function createFluidDreamsScene() {
     }
 }
 
+// Cache for moonlit forest tree backgrounds to avoid expensive regeneration
+const moonlitForestTreeCache = new Map();
+
 function createMoonlitForestScene() {
     // Define tree colors for different layers
     const treeLayers = [
@@ -3930,42 +4082,74 @@ function createMoonlitForestScene() {
         }
     };
 
-    // 1. Procedurally generate trees for parallax layers
-    treeLayers.forEach(layer => {
-        if(layer.el && !layer.el.style.backgroundImage) {
-            const C_WIDTH = 4096; // Wider canvas for more variety in parallax
-            const C_HEIGHT = layer.height;
-            let canvas = document.createElement('canvas');
-            canvas.width = C_WIDTH;
-            canvas.height = C_HEIGHT;
-            let ctx = canvas.getContext('2d');
-            ctx.strokeStyle = layer.color;
+    // 1. Procedurally generate trees for parallax layers (with caching)
+    treeLayers.forEach((layer, layerIndex) => {
+        if(layer.el) {
+            // Create a cache key based on layer properties and window dimensions
+            // v2: Added gradient fade at top for smooth sky blending
+            const cacheKey = `v2-${layerIndex}-${layer.color}-${layer.foliageColor}-${layer.count}-${layer.height}`;
 
-            // Draw ground/undergrowth silhouette
-            ctx.fillStyle = layer.foliageColor;
-            ctx.beginPath();
-            ctx.moveTo(0, C_HEIGHT);
-            let groundY = C_HEIGHT * 0.95;
-            for (let x = 0; x < C_WIDTH; x++) {
-                groundY += (Math.random() - 0.5) * 2;
-                ctx.lineTo(x, groundY);
+            // Check if we have a cached version
+            if (moonlitForestTreeCache.has(cacheKey)) {
+                const cachedData = moonlitForestTreeCache.get(cacheKey);
+                layer.el.style.backgroundImage = cachedData.backgroundImage;
+                layer.el.style.backgroundSize = cachedData.backgroundSize;
+            } else {
+                // Generate the tree background
+                const C_WIDTH = 4096; // Wider canvas for more variety in parallax
+                const C_HEIGHT = layer.height;
+                let canvas = document.createElement('canvas');
+                canvas.width = C_WIDTH;
+                canvas.height = C_HEIGHT;
+                let ctx = canvas.getContext('2d');
+                ctx.strokeStyle = layer.color;
+
+                // Draw ground/undergrowth silhouette
+                ctx.fillStyle = layer.foliageColor;
+                ctx.beginPath();
+                ctx.moveTo(0, C_HEIGHT);
+                let groundY = C_HEIGHT * 0.95;
+                for (let x = 0; x < C_WIDTH; x++) {
+                    groundY += (Math.random() - 0.5) * 2;
+                    ctx.lineTo(x, groundY);
+                }
+                ctx.lineTo(C_WIDTH, C_HEIGHT);
+                ctx.closePath();
+                ctx.fill();
+
+
+                // Draw trees
+                for(let i = 0; i < layer.count; i++) {
+                    const x = Math.random() * C_WIDTH;
+                    const y = C_HEIGHT * (0.95 + Math.random() * 0.05);
+                    const len = C_HEIGHT * (0.2 + Math.random() * 0.3);
+                    const angle = -90 + random(-10, 10);
+                    const width = 10 + Math.random() * (layer.height / 30);
+                    drawTree(ctx, x, y, len, angle, width, layer.foliageColor);
+                }
+
+                // Add gradient fade at the top to blend smoothly with sky
+                const fadeHeight = C_HEIGHT * 0.35; // Fade the top 35% of the canvas
+                const gradient = ctx.createLinearGradient(0, 0, 0, fadeHeight);
+                gradient.addColorStop(0, 'rgba(0, 0, 0, 1)'); // Fully transparent at top
+                gradient.addColorStop(0.6, 'rgba(0, 0, 0, 0.3)'); // Gradual fade
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)'); // Fully visible at bottom
+
+                ctx.globalCompositeOperation = 'destination-out'; // Use gradient as alpha mask
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, C_WIDTH, fadeHeight);
+                ctx.globalCompositeOperation = 'source-over'; // Reset to normal
+
+                const backgroundImage = `url(${canvas.toDataURL()})`;
+                const backgroundSize = `${C_WIDTH}px ${C_HEIGHT}px`;
+
+                // Cache the generated background
+                moonlitForestTreeCache.set(cacheKey, { backgroundImage, backgroundSize });
+
+                // Apply to the layer
+                layer.el.style.backgroundImage = backgroundImage;
+                layer.el.style.backgroundSize = backgroundSize;
             }
-            ctx.lineTo(C_WIDTH, C_HEIGHT);
-            ctx.closePath();
-            ctx.fill();
-
-
-            // Draw trees
-            for(let i = 0; i < layer.count; i++) {
-                const x = Math.random() * C_WIDTH;
-                const y = C_HEIGHT * (0.95 + Math.random() * 0.05);
-                const len = C_HEIGHT * (0.2 + Math.random() * 0.3);
-                const angle = -90 + random(-10, 10);
-                const width = 10 + Math.random() * (layer.height / 30);
-                drawTree(ctx, x, y, len, angle, width, layer.foliageColor);
-            }
-            layer.el.style.backgroundImage = `url(${canvas.toDataURL()})`;
-            layer.el.style.backgroundSize = `${C_WIDTH}px ${C_HEIGHT}px`;
         }
     });
 
@@ -4041,6 +4225,7 @@ function createMoonlitForestScene() {
 
 function createElectricDreamsScene() {
     // 1. Create morphing, glowing veins
+    // OPTIMIZATION: Use will-change and transform3d to force GPU compositing
     const veinContainer = document.getElementById('electric-veins');
     if (veinContainer && veinContainer.children.length === 0) {
         const numVeins = 10;
@@ -4066,14 +4251,19 @@ function createElectricDreamsScene() {
             vein.style.animationDuration = `${moveDuration}s, ${pulseDuration}s, 20s`;
             vein.style.animationDelay = `-${Math.random() * moveDuration}s, -${Math.random() * pulseDuration}s, -${Math.random() * 20}s`;
 
+            // OPTIMIZATION: Force GPU compositing for better performance
+            vein.style.willChange = 'transform, filter';
+            vein.style.transform = 'translate3d(0,0,0)'; // Force GPU layer
+
             veinContainer.appendChild(vein);
         }
     }
 
     // 2. Create glowing particles
+    // OPTIMIZATION: Use transform3d and reduce particle count slightly
     const particleContainer = document.getElementById('electric-particles');
     if (particleContainer && particleContainer.children.length === 0) {
-        const numParticles = 50;
+        const numParticles = 40; // Reduced from 50 for better performance
         for (let i = 0; i < numParticles; i++) {
             let particle = document.createElement('div');
             particle.className = 'electric-particle';
@@ -4089,6 +4279,11 @@ function createElectricDreamsScene() {
             const duration = Math.random() * 10 + 10; // 10-20s
             particle.style.animationDuration = `${duration}s`;
             particle.style.animationDelay = `-${Math.random() * duration}s`;
+
+            // OPTIMIZATION: Force GPU compositing
+            particle.style.willChange = 'transform, opacity';
+            particle.style.transform = 'translate3d(0,0,0)';
+
             particleContainer.appendChild(particle);
         }
     }
@@ -4114,24 +4309,24 @@ function createWavesScene() {
 }
 
         function createDesertOasisScene() {
-            // 1. Stars with shooting stars (reduced density)
+            // 1. Stars with shooting stars
             const starsContainer = document.getElementById('desert-stars');
             if (starsContainer && starsContainer.children.length === 0) {
                 // Regular twinkling stars
-                for (let i = 0; i < 80; i++) {
+                for (let i = 0; i < 120; i++) {
                     const star = document.createElement('div');
                     star.className = 'desert-star';
-                    const size = Math.random() * 1.5 + 0.5;
+                    const size = Math.random() * 2 + 0.5;
                     star.style.width = `${size}px`;
                     star.style.height = `${size}px`;
                     star.style.left = `${Math.random() * 100}%`;
-                    star.style.top = `${Math.random() * 60}%`;
+                    star.style.top = `${Math.random() * 70}%`;
                     star.style.setProperty('--twinkle-delay', `${Math.random() * 8}s`);
                     star.style.animationDelay = `-${Math.random() * 12}s`;
                     starsContainer.appendChild(star);
                 }
 
-                // Shooting stars (less frequent)
+                // Shooting stars
                 const createShootingStar = () => {
                     if (activeTheme !== 'desert-oasis') return;
                     const shootingStar = document.createElement('div');
@@ -4141,236 +4336,268 @@ function createWavesScene() {
                     shootingStar.style.setProperty('--angle', `${Math.random() * 30 + 30}deg`);
                     starsContainer.appendChild(shootingStar);
                     shootingStar.addEventListener('animationend', () => shootingStar.remove());
-                    setTimeout(createShootingStar, Math.random() * 40000 + 40000);
+                    setTimeout(createShootingStar, Math.random() * 30000 + 30000);
                 };
-                setTimeout(createShootingStar, 20000);
+                setTimeout(createShootingStar, 15000);
             }
 
-            // 2. Reduced sand particles
+            // 2. Distant Pyramids peeking from behind dunes (WebGL)
+            if (webglRenderer) {
+                const pyramidCanvas = document.createElement('canvas');
+                const C_WIDTH = 3072;
+                pyramidCanvas.width = C_WIDTH;
+                pyramidCanvas.height = window.innerHeight;
+                const ctx = pyramidCanvas.getContext('2d');
+
+                // Draw pyramids at different positions with variety
+                const pyramids = [
+                    { x: 0.12, scale: 0.65, color: 'rgba(160, 110, 75, 0.5)', yOffset: 0 },
+                    { x: 0.25, scale: 0.85, color: 'rgba(170, 120, 80, 0.58)', yOffset: -0.02 },
+                    { x: 0.42, scale: 1.1, color: 'rgba(155, 105, 70, 0.62)', yOffset: 0.01 },
+                    { x: 0.58, scale: 0.95, color: 'rgba(165, 115, 75, 0.6)', yOffset: -0.01 },
+                    { x: 0.73, scale: 0.75, color: 'rgba(175, 125, 85, 0.56)', yOffset: 0.02 },
+                    { x: 0.88, scale: 0.9, color: 'rgba(180, 130, 90, 0.54)', yOffset: 0 }
+                ];
+
+                pyramids.forEach(pyramid => {
+                    const baseX = pyramid.x * C_WIDTH;
+                    const baseSize = 280 * pyramid.scale;
+                    const height = 220 * pyramid.scale;
+                    const baseY = pyramidCanvas.height * (0.65 + pyramid.yOffset); // Position lower so more is hidden by dunes
+
+                    // Draw pyramid body
+                    const pyramidGradient = ctx.createLinearGradient(baseX - baseSize / 2, baseY, baseX + baseSize / 2, baseY);
+                    pyramidGradient.addColorStop(0, pyramid.color);
+                    pyramidGradient.addColorStop(0.5, pyramid.color.replace(/[\d.]+\)$/, (parseFloat(pyramid.color.match(/[\d.]+\)$/)[0]) * 0.85) + ')'));
+                    pyramidGradient.addColorStop(1, pyramid.color);
+
+                    ctx.fillStyle = pyramidGradient;
+                    ctx.beginPath();
+                    ctx.moveTo(baseX, baseY - height);
+                    ctx.lineTo(baseX + baseSize / 2, baseY);
+                    ctx.lineTo(baseX - baseSize / 2, baseY);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Add shadow on right side
+                    const shadowGradient = ctx.createLinearGradient(baseX, baseY - height, baseX + baseSize / 2, baseY);
+                    shadowGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                    shadowGradient.addColorStop(1, 'rgba(80, 50, 30, 0.35)');
+                    ctx.fillStyle = shadowGradient;
+                    ctx.beginPath();
+                    ctx.moveTo(baseX, baseY - height);
+                    ctx.lineTo(baseX + baseSize / 2, baseY);
+                    ctx.lineTo(baseX, baseY);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Add highlight on left side
+                    const highlightGradient = ctx.createLinearGradient(baseX - baseSize / 2, baseY, baseX, baseY - height);
+                    highlightGradient.addColorStop(0, 'rgba(255, 240, 200, 0)');
+                    highlightGradient.addColorStop(0.3, 'rgba(255, 235, 190, 0.12)');
+                    highlightGradient.addColorStop(1, 'rgba(255, 230, 180, 0.08)');
+                    ctx.fillStyle = highlightGradient;
+                    ctx.beginPath();
+                    ctx.moveTo(baseX, baseY - height);
+                    ctx.lineTo(baseX - baseSize / 2, baseY);
+                    ctx.lineTo(baseX, baseY);
+                    ctx.closePath();
+                    ctx.fill();
+                });
+
+                webglRenderer.addLayer(pyramidCanvas, -0.97);
+            }
+
+            // 3. Majestic Sand Dune Layers (WebGL) - Warm golden-orange palette
+            if (webglRenderer) {
+                const duneLayers = [
+                    // Far background dunes - lightest, most hazy, covering pyramids
+                    { zIndex: -0.95, count: 10, colors: ['rgba(252, 218, 175, 0.5)', 'rgba(248, 212, 168, 0.48)', 'rgba(250, 220, 180, 0.49)'], height: 0.42, shadowIntensity: 0.08 },
+                    // Mid-background dunes - warmer golden tones
+                    { zIndex: -0.85, count: 9, colors: ['rgba(242, 192, 142, 0.65)', 'rgba(238, 186, 136, 0.63)', 'rgba(245, 198, 148, 0.64)'], height: 0.58, shadowIntensity: 0.16 },
+                    // Mid-foreground dunes - richer amber-gold tones, very tall
+                    { zIndex: -0.75, count: 8, colors: ['rgba(228, 165, 110, 0.78)', 'rgba(224, 158, 102, 0.78)', 'rgba(232, 172, 118, 0.76)'], height: 0.75, shadowIntensity: 0.28 },
+                    // Foreground dunes - deep burnt orange with strong shadows, most dramatic
+                    { zIndex: -0.65, count: 7, colors: ['rgba(215, 142, 88, 0.9)', 'rgba(210, 136, 82, 0.9)', 'rgba(220, 148, 94, 0.88)'], height: 0.88, shadowIntensity: 0.42 }
+                ];
+
+                duneLayers.forEach(layer => {
+                    const canvas = document.createElement('canvas');
+                    const C_WIDTH = 3072;
+                    canvas.width = C_WIDTH;
+                    canvas.height = window.innerHeight;
+                    const ctx = canvas.getContext('2d');
+
+                    // Draw majestic dunes with smooth curves
+                    for (let i = 0; i < layer.count; i++) {
+                        const x = (i / layer.count) * C_WIDTH + Math.random() * (C_WIDTH / layer.count) * 0.5;
+                        const color = layer.colors[Math.floor(Math.random() * layer.colors.length)];
+
+                        // Dune dimensions - wide and sweeping with dramatic height variation
+                        const duneWidth = Math.random() * 700 + 500;
+                        const duneHeight = (Math.random() * 0.5 + 0.7) * canvas.height * layer.height;
+
+                        // Add organic variation to dune peak position
+                        const peakOffset = (Math.random() - 0.5) * duneWidth * 0.15;
+
+                        // Create smooth dune shape with gradient for light side
+                        const lightGradient = ctx.createLinearGradient(x - duneWidth / 2, canvas.height - duneHeight, x + peakOffset, canvas.height);
+                        lightGradient.addColorStop(0, color);
+                        lightGradient.addColorStop(0.5, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.94) + ')'));
+                        lightGradient.addColorStop(0.8, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.88) + ')'));
+                        lightGradient.addColorStop(1, color.replace(/[\d.]+\)$/, (parseFloat(color.match(/[\d.]+\)$/)[0]) * 0.82) + ')'));
+
+                        ctx.fillStyle = lightGradient;
+                        ctx.beginPath();
+                        ctx.moveTo(x - duneWidth / 2, canvas.height);
+
+                        // More organic curve for windward side using bezier curves
+                        const cp1x = x - duneWidth / 2.8 + Math.random() * 30 - 15;
+                        const cp1y = canvas.height - duneHeight * 0.4;
+                        const cp2x = x - duneWidth / 5 + Math.random() * 20 - 10;
+                        const cp2y = canvas.height - duneHeight * 0.85;
+
+                        ctx.bezierCurveTo(
+                            cp1x, cp1y,
+                            cp2x, cp2y,
+                            x + peakOffset,
+                            canvas.height - duneHeight
+                        );
+
+                        // Sharper curve for leeward side (shadow side)
+                        const cp3x = x + peakOffset + duneWidth / 6;
+                        const cp3y = canvas.height - duneHeight * 0.6;
+
+                        ctx.quadraticCurveTo(
+                            cp3x,
+                            cp3y,
+                            x + duneWidth / 2,
+                            canvas.height
+                        );
+
+                        ctx.closePath();
+                        ctx.fill();
+
+                        // Add strong shadow on leeward side with richer darker tones
+                        const shadowGradient = ctx.createLinearGradient(x + peakOffset, canvas.height - duneHeight, x + duneWidth / 2, canvas.height);
+                        shadowGradient.addColorStop(0, `rgba(100, 55, 30, ${layer.shadowIntensity * 1.2})`);
+                        shadowGradient.addColorStop(0.4, `rgba(85, 48, 28, ${layer.shadowIntensity * 0.9})`);
+                        shadowGradient.addColorStop(1, `rgba(70, 40, 25, ${layer.shadowIntensity * 0.4})`);
+                        ctx.fillStyle = shadowGradient;
+                        ctx.beginPath();
+                        ctx.moveTo(x + peakOffset, canvas.height - duneHeight);
+                        ctx.quadraticCurveTo(
+                            cp3x,
+                            cp3y,
+                            x + duneWidth / 2,
+                            canvas.height
+                        );
+                        ctx.lineTo(x + peakOffset, canvas.height);
+                        ctx.closePath();
+                        ctx.fill();
+
+                        // Add bright highlight on sunlit crest - warmer golden tones
+                        const highlightGradient = ctx.createLinearGradient(x + peakOffset - duneWidth / 5, canvas.height - duneHeight, x + peakOffset, canvas.height - duneHeight * 0.96);
+                        highlightGradient.addColorStop(0, 'rgba(255, 245, 220, 0.32)');
+                        highlightGradient.addColorStop(0.6, 'rgba(255, 240, 210, 0.18)');
+                        highlightGradient.addColorStop(1, 'rgba(255, 235, 200, 0)');
+                        ctx.fillStyle = highlightGradient;
+                        ctx.beginPath();
+                        ctx.moveTo(x + peakOffset - duneWidth / 5, canvas.height - duneHeight * 0.96);
+                        ctx.bezierCurveTo(
+                            cp2x, cp2y * 1.02,
+                            x + peakOffset - duneWidth / 8, canvas.height - duneHeight * 0.88,
+                            x + peakOffset,
+                            canvas.height - duneHeight
+                        );
+                        ctx.quadraticCurveTo(
+                            x + peakOffset - duneWidth / 10,
+                            canvas.height - duneHeight * 0.93,
+                            x + peakOffset - duneWidth / 5,
+                            canvas.height - duneHeight * 0.82
+                        );
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+
+                    webglRenderer.addLayer(canvas, layer.zIndex);
+                });
+
+                // Add atmospheric haze layers for depth
+                const hazeCanvas = document.createElement('canvas');
+                hazeCanvas.width = C_WIDTH;
+                hazeCanvas.height = window.innerHeight;
+                const hazeCtx = hazeCanvas.getContext('2d');
+
+                // Multiple haze layers for atmospheric perspective
+                const hazeGradient1 = hazeCtx.createLinearGradient(0, hazeCanvas.height * 0.3, 0, hazeCanvas.height * 0.7);
+                hazeGradient1.addColorStop(0, 'rgba(250, 220, 180, 0.12)');
+                hazeGradient1.addColorStop(0.5, 'rgba(245, 210, 170, 0.08)');
+                hazeGradient1.addColorStop(1, 'rgba(240, 200, 160, 0.02)');
+                hazeCtx.fillStyle = hazeGradient1;
+                hazeCtx.fillRect(0, hazeCanvas.height * 0.3, hazeCanvas.width, hazeCanvas.height * 0.4);
+
+                // Warmer haze near horizon
+                const hazeGradient2 = hazeCtx.createLinearGradient(0, hazeCanvas.height * 0.45, 0, hazeCanvas.height * 0.6);
+                hazeGradient2.addColorStop(0, 'rgba(255, 230, 190, 0.15)');
+                hazeGradient2.addColorStop(1, 'rgba(250, 220, 180, 0)');
+                hazeCtx.fillStyle = hazeGradient2;
+                hazeCtx.fillRect(0, hazeCanvas.height * 0.45, hazeCanvas.width, hazeCanvas.height * 0.15);
+
+                webglRenderer.addLayer(hazeCanvas, -0.7);
+            }
+
+            // 4. Flying sand particles - golden colored wind effect
             const sandContainer = document.getElementById('desert-sand-particles');
             if (sandContainer && sandContainer.children.length === 0) {
-                for (let i = 0; i < 15; i++) {
+                for (let i = 0; i < 80; i++) {
                     const particle = document.createElement('div');
                     particle.className = 'sand-particle';
                     const startX = Math.random() * 100;
                     const startY = Math.random() * 100;
                     particle.style.setProperty('--x-start', `${startX}vw`);
                     particle.style.setProperty('--y-start', `${startY}vh`);
-                    particle.style.setProperty('--x-drift', `${Math.random() * 30 - 15}vw`);
-                    particle.style.setProperty('--y-drift', `${Math.random() * 15 - 7.5}vh`);
-                    const duration = Math.random() * 30 + 25;
+                    particle.style.setProperty('--x-drift', `${Math.random() * 60 + 30}vw`);
+                    particle.style.setProperty('--y-drift', `${Math.random() * 25 - 12}vh`);
+                    const duration = Math.random() * 18 + 12;
                     particle.style.animationDuration = `${duration}s`;
                     particle.style.animationDelay = `-${Math.random() * duration}s`;
+                    const size = Math.random() * 3 + 0.8;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
                     sandContainer.appendChild(particle);
                 }
-            }
-
-            // 3. Simplified desert fauna
-            const faunaContainer = document.getElementById('desert-fauna');
-            if (faunaContainer && faunaContainer.children.length === 0) {
-                // Lizards
-                for (let i = 0; i < 2; i++) {
-                    const lizard = document.createElement('div');
-                    lizard.className = 'desert-lizard';
-                    lizard.style.bottom = `${Math.random() * 15 + 8}%`;
-                    lizard.style.animationDelay = `-${Math.random() * 50}s`;
-                    faunaContainer.appendChild(lizard);
-                }
-
-                // Moths (reduced)
-                for (let i = 0; i < 4; i++) {
-                    const moth = document.createElement('div');
-                    moth.className = 'desert-moth';
-
-                    for (let j = 1; j <= 6; j++) {
-                        moth.style.setProperty(`--x${j}`, `${Math.random() * 90 + 5}vw`);
-                        moth.style.setProperty(`--y${j}`, `${Math.random() * 60 + 15}vh`);
-                    }
-
-                    const duration = Math.random() * 15 + 20;
-                    moth.style.animationDuration = `${duration}s`;
-                    moth.style.animationDelay = `-${Math.random() * duration}s`;
-                    faunaContainer.appendChild(moth);
-                }
-
-                // Single camel
-                const camel = document.createElement('div');
-                camel.className = 'desert-camel';
-                camel.style.setProperty('--camel-y', '22%');
-                faunaContainer.appendChild(camel);
-            }
-
-            // 4. Streamlined oasis flora
-            const floraContainer = document.getElementById('desert-flora');
-            if (floraContainer && floraContainer.children.length === 0) {
-                // Palm trees (reduced to 3)
-                for (let i = 0; i < 3; i++) {
-                    const palm = document.createElement('div');
-                    palm.className = 'palm-tree';
-                    palm.style.left = `${45 + i * 5}%`;
-                    palm.style.bottom = `${15 + Math.random() * 3}%`;
-                    const height = Math.random() * 60 + 80;
-                    palm.style.height = `${height}px`;
-                    palm.style.setProperty('--sway-duration', `${Math.random() * 2 + 6}s`);
-                    palm.style.setProperty('--sway-delay', `-${Math.random() * 8}s`);
-
-                    // Add fronds
-                    for (let f = 0; f < 6; f++) {
-                        const frond = document.createElement('div');
-                        frond.className = 'palm-frond';
-                        frond.style.setProperty('--frond-rotation', `${f * 60}deg`);
-                        frond.style.setProperty('--frond-delay', `-${Math.random() * 4}s`);
-                        palm.appendChild(frond);
-                    }
-
-                    floraContainer.appendChild(palm);
-                }
-
-                // Cacti (reduced)
-                for (let i = 0; i < 4; i++) {
-                    const cactus = document.createElement('div');
-                    cactus.className = 'cactus';
-                    cactus.style.left = `${15 + Math.random() * 70}%`;
-                    cactus.style.bottom = `${Math.random() * 8}%`;
-                    cactus.style.height = `${Math.random() * 40 + 35}px`;
-                    floraContainer.appendChild(cactus);
-                }
-
-                // Desert flowers (reduced)
-                for (let i = 0; i < 5; i++) {
-                    const flower = document.createElement('div');
-                    flower.className = 'desert-flower';
-                    flower.style.left = `${Math.random() * 100}%`;
-                    flower.style.bottom = `${Math.random() * 10}%`;
-                    flower.style.setProperty('--flower-hue', Math.random() * 60 + 300);
-                    flower.style.animationDelay = `-${Math.random() * 10}s`;
-                    floraContainer.appendChild(flower);
-                }
-
-                // Rock formations (reduced)
-                for (let i = 0; i < 3; i++) {
-                    const rock = document.createElement('div');
-                    rock.className = 'desert-rock';
-                    rock.style.left = `${20 + Math.random() * 60}%`;
-                    rock.style.bottom = `${Math.random() * 12}%`;
-                    const size = Math.random() * 30 + 35;
-                    rock.style.width = `${size}px`;
-                    rock.style.height = `${size * 0.6}px`;
-                    floraContainer.appendChild(rock);
-                }
-            }
-
-            // 5. Simplified oasis water
-            const mirageContainer = document.querySelector('#desert-oasis-theme .desert-mirage');
-            if (mirageContainer && mirageContainer.children.length === 0) {
-                const waterPool = document.createElement('div');
-                waterPool.className = 'oasis-water';
-                mirageContainer.appendChild(waterPool);
-
-                const createRipple = () => {
-                    if (activeTheme !== 'desert-oasis') return;
-                    const ripple = document.createElement('div');
-                    ripple.className = 'water-ripple';
-                    ripple.style.left = `${46 + Math.random() * 8}%`;
-                    ripple.style.top = `${45 + Math.random() * 15}%`;
-                    waterPool.appendChild(ripple);
-                    ripple.addEventListener('animationend', () => ripple.remove());
-                    setTimeout(createRipple, Math.random() * 7000 + 5000);
-                };
-                setTimeout(createRipple, 3000);
             }
         }
 
         function createMistyLakeScene() {
-            // 1. Fauna (Birds and Fish Ripples)
-            const faunaContainer = document.getElementById('misty-lake-fauna');
-            if (faunaContainer && faunaContainer.children.length === 0) {
-                // Distant birds
-                for (let i = 0; i < 3; i++) { // 3 formations of birds
-                    let birdFormation = document.createElement('div');
-                    birdFormation.className = 'bird-formation';
-                    birdFormation.style.animationDelay = `-${Math.random() * 80}s`;
-                    birdFormation.style.setProperty('--y-pos', `${Math.random() * 20 + 5}%`);
-                    faunaContainer.appendChild(birdFormation);
-                }
-
-                // Fish ripples
-                const rippleContainer = document.getElementById('misty-lake-surface');
-                if (rippleContainer) {
-                     const createFishRipple = () => {
-                        if (activeTheme !== 'misty-lake') return;
-                        let ripple = document.createElement('div');
-                        ripple.className = 'fish-ripple';
-                        ripple.style.left = `${Math.random() * 80 + 10}%`;
-                        ripple.style.top = `${Math.random() * 20 + 75}%`; // Lower part of the lake
-                        ripple.style.animationDuration = `${Math.random() * 3 + 4}s`;
-                        ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
-                        rippleContainer.appendChild(ripple);
-                        setTimeout(createFishRipple, Math.random() * 8000 + 5000);
-                    };
-                    setTimeout(createFishRipple, 3000);
-                }
-            }
-
-            // 2. Flora (Water Lilies / Reeds)
-            const floraContainer = document.getElementById('misty-lake-flora');
-            if (floraContainer && floraContainer.children.length === 0) {
-                for (let i = 0; i < 15; i++) {
-                    let reed = document.createElement('div');
-                    reed.className = 'lake-reed';
-                    reed.style.left = `${Math.random() * 100}%`;
-                    reed.style.bottom = `${Math.random() * 5 - 2}%`; // Near the shore
-                    reed.style.animationDelay = `-${Math.random() * 8}s`;
-                    floraContainer.appendChild(reed);
-                }
-            }
-
-            // 3. Rising Mist
-            const mistContainer = document.getElementById('misty-lake-mist');
-            if (mistContainer && mistContainer.children.length === 0) {
-                for (let i = 0; i < 20; i++) {
-                    let column = document.createElement('div');
-                    column.className = 'mist-column';
-                    column.style.left = `${Math.random() * 100}vw`;
-                    const duration = Math.random() * 20 + 30;
-                    column.style.animationDuration = `${duration}s`;
-                    column.style.animationDelay = `-${Math.random() * duration}s`;
-                    mistContainer.appendChild(column);
-                }
-            }
-
-            // 4. Procedural Mountains
+            // Layered mountain silhouettes with more detail
             const mountainLayers = [
-                { el: document.getElementById('misty-mountains-back'), color: 'rgba(90, 105, 130, 0.5)', peaks: 5, height: 0.45 },
-                { el: document.getElementById('misty-mountains-mid'), color: 'rgba(70, 85, 110, 0.6)', peaks: 7, height: 0.5 },
-                { el: document.getElementById('misty-mountains-front'), color: 'rgba(50, 65, 90, 0.7)', peaks: 9, height: 0.55 }
+                { el: document.getElementById('misty-mountains-back'), color: '#b8c5d6', peaks: 4, height: 0.35, roughness: 0.02 },
+                { el: document.getElementById('misty-mountains-mid'), color: '#7a8fa8', peaks: 5, height: 0.45, roughness: 0.03 },
+                { el: document.getElementById('misty-mountains-front'), color: '#5a6b7d', peaks: 6, height: 0.55, roughness: 0.04 }
             ];
 
-            mountainLayers.forEach(layer => {
+            mountainLayers.forEach((layer) => {
                 if (layer.el && layer.el.children.length === 0) {
                     const canvas = document.createElement('canvas');
-                    const C_WIDTH = 2048;
-                    canvas.width = C_WIDTH;
-                    canvas.height = window.innerHeight * 0.6; // Mountains occupy top 60%
+                    canvas.width = 4096;
+                    canvas.height = window.innerHeight * 0.5;
                     const ctx = canvas.getContext('2d');
 
                     ctx.fillStyle = layer.color;
                     ctx.beginPath();
                     ctx.moveTo(0, canvas.height);
-                    let x = 0;
-                    while (x < canvas.width) {
-                        const peakWidth = canvas.width / layer.peaks;
-                        const step = peakWidth / 20;
-                        for (let i = 0; i < 20; i++) {
-                            const sineX = (x / peakWidth) * Math.PI;
-                            // Use a gentler sine curve for rolling hills
-                            const sineY = Math.pow(Math.sin(sineX), 2) * (peakWidth/4);
-                            const noise = (Math.random() - 0.5) * step * 1.5;
-                            // Start mountains from higher up
-                            ctx.lineTo(x, canvas.height - (canvas.height * layer.height) + sineY + noise);
-                            x += step;
-                        }
+
+                    // More natural mountain profile with variation
+                    for (let x = 0; x < canvas.width; x += 15) {
+                        const progress = (x / canvas.width) * layer.peaks;
+                        const baseY = Math.sin(progress * Math.PI) * canvas.height * layer.height;
+                        const variation = (Math.sin(x * 0.01) * 0.5 + Math.sin(x * 0.02) * 0.3) * canvas.height * layer.roughness;
+                        const y = canvas.height - (baseY + variation);
+                        ctx.lineTo(x, y);
                     }
+
                     ctx.lineTo(canvas.width, canvas.height);
                     ctx.closePath();
                     ctx.fill();
@@ -4378,23 +4605,124 @@ function createWavesScene() {
                     canvas.style.position = 'absolute';
                     canvas.style.top = '0';
                     canvas.style.left = '0';
-                    canvas.style.width = '100%';
+                    canvas.style.width = '200%';
                     canvas.style.height = '100%';
                     layer.el.appendChild(canvas);
-
-                    // Add a flipped version for reflection
-                    const reflectionCanvas = document.createElement('canvas');
-                    reflectionCanvas.width = canvas.width;
-                    reflectionCanvas.height = canvas.height;
-                    const reflectCtx = reflectionCanvas.getContext('2d');
-                    reflectCtx.translate(0, reflectionCanvas.height);
-                    reflectCtx.scale(1, -1);
-                    reflectCtx.drawImage(canvas, 0, 0);
-
-                    reflectionCanvas.className = 'misty-mountain-reflection';
-                    layer.el.appendChild(reflectionCanvas);
                 }
             });
+
+            // Drifting clouds
+            const cloudsContainer = document.getElementById('misty-clouds');
+            if (cloudsContainer && cloudsContainer.children.length === 0) {
+                for (let i = 0; i < 6; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'misty-cloud';
+                    cloud.style.left = `${Math.random() * 120 - 20}%`;
+                    cloud.style.top = `${Math.random() * 30 + 5}%`;
+                    cloud.style.setProperty('--cloud-drift', `${Math.random() * 30 + 20}vw`);
+                    const size = Math.random() * 150 + 100;
+                    cloud.style.width = `${size}px`;
+                    cloud.style.height = `${size * 0.4}px`;
+                    const duration = Math.random() * 200 + 300;
+                    cloud.style.animationDuration = `${duration}s`;
+                    cloud.style.animationDelay = `-${Math.random() * duration}s`;
+                    cloudsContainer.appendChild(cloud);
+                }
+            }
+
+            // Flying birds in formation
+            const birdsContainer = document.getElementById('misty-birds');
+            if (birdsContainer && birdsContainer.children.length === 0) {
+                for (let i = 0; i < 2; i++) {
+                    const formation = document.createElement('div');
+                    formation.className = 'bird-formation';
+                    formation.style.left = `${Math.random() * 50 - 20}%`;
+                    formation.style.top = `${Math.random() * 20 + 10}%`;
+                    const duration = Math.random() * 80 + 120;
+                    formation.style.animationDuration = `${duration}s`;
+                    formation.style.animationDelay = `-${Math.random() * duration}s`;
+
+                    // V-formation of birds (5 birds)
+                    for (let j = 0; j < 5; j++) {
+                        const bird = document.createElement('div');
+                        bird.className = 'misty-bird';
+                        const vOffset = Math.abs(j - 2) * 15;
+                        bird.style.left = `${j * 25}px`;
+                        bird.style.top = `${vOffset}px`;
+                        bird.style.animationDelay = `${j * 0.1}s`;
+                        formation.appendChild(bird);
+                    }
+                    birdsContainer.appendChild(formation);
+                }
+            }
+
+            // Lake reflections (mirror effect)
+            const reflectionsContainer = document.getElementById('misty-reflections');
+            if (reflectionsContainer && reflectionsContainer.children.length === 0) {
+                // Create subtle ripple distortion on reflections
+                const rippleOverlay = document.createElement('div');
+                rippleOverlay.className = 'reflection-ripple-overlay';
+                reflectionsContainer.appendChild(rippleOverlay);
+            }
+
+            // Water lilies and reeds
+            const liliesContainer = document.getElementById('misty-water-lilies');
+            if (liliesContainer && liliesContainer.children.length === 0) {
+                for (let i = 0; i < 12; i++) {
+                    const lily = document.createElement('div');
+                    lily.className = 'water-lily';
+                    lily.style.left = `${Math.random() * 80 + 10}%`;
+                    lily.style.bottom = `${Math.random() * 30 + 5}%`;
+                    lily.style.setProperty('--bob-offset', `${Math.random() * 3 + 1}px`);
+                    lily.style.animationDuration = `${Math.random() * 2 + 4}s`;
+                    lily.style.animationDelay = `-${Math.random() * 6}s`;
+                    liliesContainer.appendChild(lily);
+                }
+            }
+
+            // Fish creating ripples
+            const fishContainer = document.getElementById('misty-fish');
+            if (fishContainer && fishContainer.children.length === 0) {
+                for (let i = 0; i < 5; i++) {
+                    const fish = document.createElement('div');
+                    fish.className = 'lake-fish';
+                    fish.style.left = `${Math.random() * 100}%`;
+                    fish.style.bottom = `${Math.random() * 40 + 10}%`;
+                    const duration = Math.random() * 15 + 20;
+                    fish.style.animationDuration = `${duration}s`;
+                    fish.style.animationDelay = `-${Math.random() * duration}s`;
+                    fishContainer.appendChild(fish);
+                }
+            }
+
+            // Lake ripples (gentle concentric circles)
+            const ripplesContainer = document.getElementById('misty-lake-ripples');
+            if (ripplesContainer && ripplesContainer.children.length === 0) {
+                for (let i = 0; i < 4; i++) {
+                    const ripple = document.createElement('div');
+                    ripple.className = 'lake-ripple';
+                    ripple.style.left = `${Math.random() * 100}%`;
+                    ripple.style.bottom = `${Math.random() * 40 + 10}%`;
+                    const duration = Math.random() * 5 + 8;
+                    ripple.style.animationDuration = `${duration}s`;
+                    ripple.style.animationDelay = `-${Math.random() * duration}s`;
+                    ripplesContainer.appendChild(ripple);
+                }
+            }
+
+            // Wispy mist columns rising from lake
+            const mistContainer = document.getElementById('misty-mist');
+            if (mistContainer && mistContainer.children.length === 0) {
+                for (let i = 0; i < 20; i++) {
+                    const column = document.createElement('div');
+                    column.className = 'mist-column';
+                    column.style.left = `${Math.random() * 100}%`;
+                    column.style.setProperty('--mist-width', `${Math.random() * 4 + 3}vw`);
+                    column.style.animationDuration = `${Math.random() * 25 + 35}s`;
+                    column.style.animationDelay = `-${Math.random() * 60}s`;
+                    mistContainer.appendChild(column);
+                }
+            }
         }
 
         function createBambooGroveScene() {
@@ -4586,12 +4914,12 @@ function createWavesScene() {
             if (!isValidPosition(currentPiece)) gameOver();
         }
         function generateBoard(pieces) {
-            const b = Array.from({length:ROWS+HIDDEN_ROWS},()=>Array(COLS).fill(0));
-            for (const p of pieces) { p.shape.forEach((r,y)=>r.forEach((v,x) => { if(v>0){ const bx=p.x+x, by=p.y+y; if(by>=0&&by<b.length&&bx>=0&&bx<COLS) b[by][bx]=p.shapeKey; } })); } return b;
+            const b = Array.from({length:ROWS+HIDDEN_ROWS},()=>Array(COLS).fill(null));
+            for (const p of pieces) { p.shape.forEach((r,y)=>r.forEach((v,x) => { if(v>0){ const bx=p.x+x, by=p.y+y; if(by>=0&&by<b.length&&bx>=0&&bx<COLS) b[by][bx]={color:p.shapeKey, id:p.pieceId||p.shapeKey}; } })); } return b;
         }
         function isValidPosition(p, cX=p.x, cY=p.y) {
             const boardData = generateBoard(lockedPieces);
-            for (let y=0; y<p.shape.length; y++) for (let x=0; x<p.shape[y].length; x++) if (p.shape[y][x]>0) { const bx=cX+x, by=cY+y; if (bx<0||bx>=COLS||by>=boardData.length||(boardData[by]&&boardData[by][bx]!==0)) return false; } return true;
+            for (let y=0; y<p.shape.length; y++) for (let x=0; x<p.shape[y].length; x++) if (p.shape[y][x]>0) { const bx=cX+x, by=cY+y; if (bx<0||bx>=COLS||by>=boardData.length||(boardData[by]&&boardData[by][bx]!==null)) return false; } return true;
         }
         function move(dir) { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x+dir, currentPiece.y)) { currentPiece.x+=dir; soundManager.playMove(); } }
         function rotate(dir='right') {
@@ -4601,7 +4929,7 @@ function createWavesScene() {
         }
         function softDrop() { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x, currentPiece.y+1)) { currentPiece.y++; score+=level; dropCounter=0; } else lockPiece(); }
         function hardDrop() { if(!currentPiece||isProcessingPhysics) return; let d=0; while(isValidPosition(currentPiece,currentPiece.x,currentPiece.y+1)){currentPiece.y++;d++;} score+=d*2*level; lockPiece(); }
-        function lockPiece() { if(!currentPiece) return; soundManager.playDrop(); lockedPieces.push({...currentPiece, shape:[...currentPiece.shape]}); currentPiece=null; dropCounter=0; processPhysics(); }
+        function lockPiece() { if(!currentPiece) return; soundManager.playDrop(); lockedPieces.push({...currentPiece, shape:[...currentPiece.shape], pieceId: Date.now() + Math.random()}); currentPiece=null; dropCounter=0; processPhysics(); }
 async function processPhysics() {
     isProcessingPhysics = true;
     let linesClearedThisTurn = 0;
@@ -4611,7 +4939,7 @@ async function processPhysics() {
         const boardData = generateBoard(lockedPieces);
         const fullLines = [];
         for (let y = boardData.length - 1; y >= 0; y--) {
-            if (boardData[y].every(cell => cell !== 0)) {
+            if (boardData[y].every(cell => cell !== null)) {
                 fullLines.push(y);
             }
         }
@@ -4647,7 +4975,7 @@ async function processPhysics() {
         setTimeout(() => canvas.classList.remove('line-flash'), 200);
         const markedBoard = generateBoard(lockedPieces);
         fullLines.forEach(y => {
-            for (let x = 0; x < COLS; x++) markedBoard[y][x] = 'C';
+            for (let x = 0; x < COLS; x++) markedBoard[y][x] = {color:'C', id:'cleared'};
         });
         board = markedBoard;
         draw();
@@ -4691,7 +5019,7 @@ async function processPhysics() {
                         if (cell > 0) {
                             const boardX = p.x + x;
                             const boardY = p.y + y + 1; // Check cell below
-                            if (boardY >= currentBoard.length || (currentBoard[boardY][boardX] !== 0 && !isPartOfPiece(boardX, boardY, p))) {
+                            if (boardY >= currentBoard.length || (currentBoard[boardY][boardX] !== null && !isPartOfPiece(boardX, boardY, p))) {
                                 canFall = false;
                             }
                         }
@@ -4726,17 +5054,17 @@ function isPartOfPiece(boardX, boardY, piece) {
         function findConnectedComponents(boardData) {
             const pieces=[], visited=Array.from({length:boardData.length},()=>Array(boardData[0].length).fill(false));
             for(let r=0;r<boardData.length;r++) for(let c=0;c<boardData[0].length;c++) {
-                if(boardData[r][c]!==0&&!visited[r][c]) {
-                    const shapeKey=boardData[r][c], component=[], queue=[[r,c]]; visited[r][c]=true;
+                if(boardData[r][c]!==null&&!visited[r][c]) {
+                    const cellData=boardData[r][c], component=[], queue=[[r,c]]; visited[r][c]=true;
                     let minR=r,maxR=r,minC=c,maxC=c;
                     while(queue.length>0) {
                         const [row,col]=queue.shift(); component.push({r:row,c:col});
                         minR=Math.min(minR,row); maxR=Math.max(maxR,row); minC=Math.min(minC,col); maxC=Math.max(maxC,col);
-                        [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{ const nr=row+dr,nc=col+dc; if(nr>=0&&nr<boardData.length&&nc>=0&&nc<boardData[0].length&&!visited[nr][nc]&&boardData[nr][nc]===shapeKey){visited[nr][nc]=true;queue.push([nr,nc]);}});
+                        [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{ const nr=row+dr,nc=col+dc; if(nr>=0&&nr<boardData.length&&nc>=0&&nc<boardData[0].length&&!visited[nr][nc]&&boardData[nr][nc]!==null&&boardData[nr][nc].id===cellData.id){visited[nr][nc]=true;queue.push([nr,nc]);}});
                     }
                     const shape=Array.from({length:maxR-minR+1},()=>Array(maxC-minC+1).fill(0));
                     component.forEach(({r,c})=>{shape[r-minR][c-minC]=1});
-                    pieces.push({x:minC, y:minR, shape, shapeKey, color:COLORS[shapeKey]});
+                    pieces.push({x:minC, y:minR, shape, shapeKey:cellData.color, color:COLORS[cellData.color], pieceId:cellData.id});
                 }
             }
             return pieces;
@@ -4749,24 +5077,31 @@ function isPartOfPiece(boardX, boardY, piece) {
             for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,0);ctx.lineTo(x*BLOCK_SIZE,canvas.height);ctx.stroke();}
             for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*BLOCK_SIZE);ctx.lineTo(canvas.width,y*BLOCK_SIZE);ctx.stroke();}
             const boardData=generateBoard(lockedPieces);
-            boardData.forEach((row,y)=>{ if(y<HIDDEN_ROWS)return; row.forEach((c,x)=>{ if(c!==0&&c!=='C')drawBlock(x,y-HIDDEN_ROWS,COLORS[c]); else if(c==='C')drawBlock(x,y-HIDDEN_ROWS,'#ffffff');});});
+            boardData.forEach((row,y)=>{ if(y<HIDDEN_ROWS)return; row.forEach((cell,x)=>{ if(cell!==null&&cell.color!=='C')drawBlock(x,y-HIDDEN_ROWS,COLORS[cell.color],boardData,false,null,0,0,x,y); else if(cell!==null&&cell.color==='C')drawBlock(x,y-HIDDEN_ROWS,'#ffffff',boardData,false,null,0,0,x,y);});});
             if(currentPiece) {
                 let ghostY=currentPiece.y; while(isValidPosition(currentPiece,currentPiece.x,ghostY+1))ghostY++;
-                currentPiece.shape.forEach((r,y)=>r.forEach((c,x)=>{ if(c>0&&ghostY+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,ghostY+y-HIDDEN_ROWS,'rgba(255,255,255,0.2)',true); if(c>0&&currentPiece.y+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,currentPiece.y+y-HIDDEN_ROWS,currentPiece.color);}));
+                currentPiece.shape.forEach((r,y)=>r.forEach((c,x)=>{ if(c>0&&ghostY+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,ghostY+y-HIDDEN_ROWS,'rgba(255,255,255,0.2)',null,true); if(c>0&&currentPiece.y+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,currentPiece.y+y-HIDDEN_ROWS,currentPiece.color,null,false,currentPiece.shape,currentPiece.x,currentPiece.y-HIDDEN_ROWS,x,y);}));
             }
         }
-        function drawBlock(x,y,c,isGhost=false) {
+        function drawBlock(x,y,c,boardData=null,isGhost=false,shape=null,pieceX=0,pieceY=0,blockX=0,blockY=0) {
             ctx.fillStyle=c; ctx.fillRect(x*BLOCK_SIZE,y*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
             if(!isGhost){
-                const highlightSize = Math.max(1, BLOCK_SIZE / 5);
-                const highlightOffset = Math.max(1, BLOCK_SIZE / 15);
-                ctx.fillStyle='rgba(255,255,255,0.3)';
-                ctx.fillRect(x*BLOCK_SIZE+highlightOffset,y*BLOCK_SIZE+highlightOffset,highlightSize,highlightSize);
-
-                const borderOffset = Math.max(0.5, BLOCK_SIZE / 30);
-                ctx.strokeStyle='rgba(0,0,0,0.5)';
-                ctx.lineWidth= Math.max(1, BLOCK_SIZE / 15);
-                ctx.strokeRect(x*BLOCK_SIZE+borderOffset,y*BLOCK_SIZE+borderOffset,BLOCK_SIZE-(2*borderOffset),BLOCK_SIZE-(2*borderOffset));
+                ctx.strokeStyle='rgba(0,0,0,0.7)';
+                ctx.lineWidth=3;
+                if(shape){
+                    if(blockY===0||!shape[blockY-1]||!shape[blockY-1][blockX]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.stroke();}
+                    if(blockY===shape.length-1||!shape[blockY+1]||!shape[blockY+1][blockX]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                    if(blockX===0||!shape[blockY][blockX-1]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo(x*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                    if(blockX===shape[blockY].length-1||!shape[blockY][blockX+1]){ctx.beginPath();ctx.moveTo((x+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                }else if(boardData){
+                    const by=y+HIDDEN_ROWS;
+                    const currentCell=boardData[by]?boardData[by][blockX]:null;
+                    const currentId=currentCell?currentCell.id:null;
+                    if(by===0||!boardData[by-1]||boardData[by-1][blockX]===null||boardData[by-1][blockX].id!==currentId){ctx.beginPath();ctx.moveTo(blockX*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((blockX+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.stroke();}
+                    if(by===boardData.length-1||!boardData[by+1]||boardData[by+1][blockX]===null||boardData[by+1][blockX].id!==currentId){ctx.beginPath();ctx.moveTo(blockX*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.lineTo((blockX+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                    if(blockX===0||boardData[by][blockX-1]===null||boardData[by][blockX-1].id!==currentId){ctx.beginPath();ctx.moveTo(blockX*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo(blockX*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                    if(blockX===boardData[by].length-1||boardData[by][blockX+1]===null||boardData[by][blockX+1].id!==currentId){ctx.beginPath();ctx.moveTo((blockX+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((blockX+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                }
             }
         }
         function drawNextPieces() {
