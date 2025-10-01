@@ -2946,18 +2946,9 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             const themeContainer = document.getElementById('sunset-theme');
             const sun = themeContainer.querySelector('.sun');
 
-            function randomizeSunPath() {
-                // This function is no longer needed as we're using fixed keyframe animation
-                // Keeping it for compatibility but it won't do anything
-            }
-
             // Set initial random path (though it won't be used)
-            randomizeSunPath();
 
             // Remove the event listener that was changing the path
-            if (sun && sun.hasAnimationIterationListener) {
-                // Do nothing - we want consistent animation now
-            }
 
             // Procedurally generate clouds (keep existing cloud code)
             const cloudLayers = [
@@ -3473,25 +3464,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                     layer.el.appendChild(canvas);
                 }
             });
-        }
-        function createSunset() {
-            // Dust Motes
-            const dustContainer = document.getElementById('dust-motes');
-            if (dustContainer && dustContainer.children.length === 0) {
-                for (let i = 0; i < 50; i++) {
-                    let mote = document.createElement('div');
-                    mote.className = 'dust-mote';
-                    const size = Math.random() * 2 + 1;
-                    mote.style.width = `${size}px`;
-                    mote.style.height = `${size}px`;
-                    mote.style.setProperty('--x-start', `${Math.random() * 100}vw`);
-                    mote.style.setProperty('--y-start', `${Math.random() * 100}vh`);
-                    mote.style.setProperty('--x-end', `${Math.random() * 100}vw`);
-                    mote.style.setProperty('--y-end', `${Math.random() * 100}vh`);
-                    mote.style.animationDelay = `-${Math.random() * 15}s`;
-                    dustContainer.appendChild(mote);
-                }
-            }
         }
         function createParticles() {
             const containers = {
@@ -4630,134 +4602,127 @@ function createWavesScene() {
         function softDrop() { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x, currentPiece.y+1)) { currentPiece.y++; score+=level; dropCounter=0; } else lockPiece(); }
         function hardDrop() { if(!currentPiece||isProcessingPhysics) return; let d=0; while(isValidPosition(currentPiece,currentPiece.x,currentPiece.y+1)){currentPiece.y++;d++;} score+=d*2*level; lockPiece(); }
         function lockPiece() { if(!currentPiece) return; soundManager.playDrop(); lockedPieces.push({...currentPiece, shape:[...currentPiece.shape]}); currentPiece=null; dropCounter=0; processPhysics(); }
-function processPhysics() {
+async function processPhysics() {
     isProcessingPhysics = true;
-    // Start the physics chain by checking for line clears.
-    checkLines();
-}
+    let linesClearedThisTurn = 0;
+    let cascaded = false;
 
-function checkLines() {
-    const boardData = generateBoard(lockedPieces);
-    const fullLines = [];
-    for (let y = boardData.length - 1; y >= 0; y--) {
-        if (boardData[y].every(c => c !== 0)) {
-            fullLines.push(y);
-                }
-    }
+    while (true) {
+        const boardData = generateBoard(lockedPieces);
+        const fullLines = [];
+        for (let y = boardData.length - 1; y >= 0; y--) {
+            if (boardData[y].every(cell => cell !== 0)) {
+                fullLines.push(y);
+            }
+        }
 
-    if (fullLines.length > 0) {
+        if (fullLines.length === 0) {
+            if (cascaded) {
+                // If pieces fell, we need to re-check for lines in the new configuration.
+                cascaded = false; // Reset for the next potential cascade.
+                continue;
+            }
+            break; // No more lines to clear and no cascades, physics are stable.
+        }
+
+        // --- Line Clear Animation and Scoring ---
+        linesClearedThisTurn += fullLines.length;
         const oldLevel = level;
         lines += fullLines.length;
         linesUntilNextLevel -= fullLines.length;
         if (linesUntilNextLevel <= 0) {
             level++;
-            linesUntilNextLevel = 10;
+            linesUntilNextLevel += 10; // Use += in case of multi-level-up
             dropInterval = LEVEL_SPEEDS[Math.min(level - 1, LEVEL_SPEEDS.length - 1)];
             soundManager.playLevelUp();
             showLevelUpNotification(level);
-                }
+        }
         if (oldLevel !== level) updateBackground(level);
         score += (SCORE_VALUES[fullLines.length] || SCORE_VALUES[4]) * level;
         soundManager.playLineClear();
         showScorePopup((SCORE_VALUES[fullLines.length] || SCORE_VALUES[4]) * level);
 
-        // Animate the line flash
+        // --- Visual Feedback ---
         canvas.classList.add('line-flash');
-        setTimeout(() => canvas.classList.remove('line-flash'), 500);
-
-        // Mark lines for clearing and redraw
-        fullLines.forEach(y => { for (let x = 0; x < COLS; x++) boardData[y][x] = 'C'; });
-        board = boardData;
+        setTimeout(() => canvas.classList.remove('line-flash'), 200);
+        const markedBoard = generateBoard(lockedPieces);
+        fullLines.forEach(y => {
+            for (let x = 0; x < COLS; x++) markedBoard[y][x] = 'C';
+        });
+        board = markedBoard;
         draw();
+        await new Promise(resolve => setTimeout(resolve, 200));
 
-        // After a delay, remove the lines and check for gravity
-        setTimeout(() => {
-            // Get a fresh board from current pieces (without 'C' markers)
-            const freshBoard = generateBoard(lockedPieces);
-
-            // Remove cleared lines from the board
-            fullLines.sort((a, b) => b - a).forEach(lineY => {
-                freshBoard.splice(lineY, 1);
+        // --- Piece Manipulation ---
+        let newPieces = [];
+        lockedPieces.forEach(p => {
+            const newShape = [];
+            p.shape.forEach((row, localY) => {
+                const globalY = p.y + localY;
+                if (!fullLines.includes(globalY)) {
+                    newShape.push(row);
+                }
             });
 
-            // Add empty lines at the top
-            for (let i = 0; i < fullLines.length; i++) {
-                freshBoard.unshift(Array(COLS).fill(0));
+            if (newShape.length > 0) {
+                p.shape = newShape;
+                const linesClearedBelow = fullLines.filter(lineY => lineY > p.y).length;
+                p.y += linesClearedBelow;
+                newPieces.push(p);
             }
+        });
+        lockedPieces = newPieces;
 
-            // Use findConnectedComponents to rebuild all pieces from the board
-            // This automatically handles splitting disconnected parts
-            lockedPieces = findConnectedComponents(freshBoard);
+        // After removing lines, split any pieces that are no longer contiguous.
+        lockedPieces = findConnectedComponents(generateBoard(lockedPieces));
 
-            checkGravity(); // Next step in the physics chain
-        }, 200);
-    } else {
-        // No lines to clear, move to checking gravity
-        checkGravity();
+        // --- Gravity Simulation ---
+        let fell;
+        do {
+            fell = false;
+            // Sort pieces from bottom to top to ensure correct fall order.
+            lockedPieces.sort((a, b) => (b.y + b.shape.length) - (a.y + a.shape.length));
+            const currentBoard = generateBoard(lockedPieces);
+
+            for (const p of lockedPieces) {
+                let canFall = true;
+                p.shape.forEach((row, y) => {
+                    row.forEach((cell, x) => {
+                        if (cell > 0) {
+                            const boardX = p.x + x;
+                            const boardY = p.y + y + 1; // Check cell below
+                            if (boardY >= currentBoard.length || (currentBoard[boardY][boardX] !== 0 && !isPartOfPiece(boardX, boardY, p))) {
+                                canFall = false;
+                            }
+                        }
+                    });
+                });
+
+                if (canFall) {
+                    p.y++;
+                    fell = true;
+                    cascaded = true;
+                }
+            }
+            if (fell) {
+                draw();
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+        } while (fell);
     }
+    // --- Finalize ---
+    isProcessingPhysics = false;
+    updateStats();
+    spawnPiece();
 }
-
-function checkGravity() {
-    let fell = true;
-    let anyPieceFell = false;
-
-    const fallLoop = () => {
-        // Stop if the last pass resulted in no pieces falling.
-        if (!fell) {
-            // If any piece fell during the whole process, re-check for lines.
-            // Otherwise, the physics are stable, and we can spawn the next piece.
-            if (anyPieceFell) {
-                checkLines();
-            } else {
-                isProcessingPhysics = false;
-                updateStats();
-                spawnPiece();
-            }
-            return;
-        }
-
-        fell = false;
-        // Check pieces from the bottom up - process each piece sequentially
-        const sortedPieces = [...lockedPieces].sort((a, b) => {
-            // Sort by bottom of piece first, then by y position
-            const aBottom = a.y + a.shape.length;
-            const bBottom = b.y + b.shape.length;
-            return bBottom - aBottom;
-        });
-
-        // In each pass, move every piece that can fall down by one.
-        // Important: check all pieces with current positions before moving any
-        const piecesToFall = [];
-        sortedPieces.forEach(p => {
-            const others = lockedPieces.filter(op => op !== p);
-            if (canFall(p, others)) {
-                piecesToFall.push(p);
-            }
-        });
-
-        // Now move all pieces that can fall
-        piecesToFall.forEach(p => {
-            p.y++;
-            fell = true;
-            anyPieceFell = true;
-        });
-
-        // If any piece fell in this pass, redraw and check again.
-        if (fell) {
-            draw();
-            setTimeout(fallLoop, 40);
-        } else {
-            // If not, trigger the stop condition for the next loop iteration.
-            fallLoop();
-        }
-    };
-
-    fallLoop();
+function isPartOfPiece(boardX, boardY, piece) {
+    const localX = boardX - piece.x;
+    const localY = boardY - piece.y;
+    if (localY >= 0 && localY < piece.shape.length && localX >= 0 && localX < piece.shape[0].length) {
+        return piece.shape[localY][localX] > 0;
+    }
+    return false;
 }
-        function canFall(p, others) {
-            const boardData=generateBoard(others);
-            for(let y=0;y<p.shape.length;y++) for(let x=0;x<p.shape[y].length;x++) if(p.shape[y][x]>0) { const by=p.y+y+1, bx=p.x+x; if(by>=boardData.length||boardData[by][bx]!==0)return false;} return true;
-        }
         function findConnectedComponents(boardData) {
             const pieces=[], visited=Array.from({length:boardData.length},()=>Array(boardData[0].length).fill(false));
             for(let r=0;r<boardData.length;r++) for(let c=0;c<boardData[0].length;c++) {
