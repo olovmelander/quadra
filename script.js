@@ -4809,12 +4809,12 @@ function createWavesScene() {
             if (!isValidPosition(currentPiece)) gameOver();
         }
         function generateBoard(pieces) {
-            const b = Array.from({length:ROWS+HIDDEN_ROWS},()=>Array(COLS).fill(0));
-            for (const p of pieces) { p.shape.forEach((r,y)=>r.forEach((v,x) => { if(v>0){ const bx=p.x+x, by=p.y+y; if(by>=0&&by<b.length&&bx>=0&&bx<COLS) b[by][bx]=p.shapeKey; } })); } return b;
+            const b = Array.from({length:ROWS+HIDDEN_ROWS},()=>Array(COLS).fill(null));
+            for (const p of pieces) { p.shape.forEach((r,y)=>r.forEach((v,x) => { if(v>0){ const bx=p.x+x, by=p.y+y; if(by>=0&&by<b.length&&bx>=0&&bx<COLS) b[by][bx]={color:p.shapeKey, id:p.pieceId||p.shapeKey}; } })); } return b;
         }
         function isValidPosition(p, cX=p.x, cY=p.y) {
             const boardData = generateBoard(lockedPieces);
-            for (let y=0; y<p.shape.length; y++) for (let x=0; x<p.shape[y].length; x++) if (p.shape[y][x]>0) { const bx=cX+x, by=cY+y; if (bx<0||bx>=COLS||by>=boardData.length||(boardData[by]&&boardData[by][bx]!==0)) return false; } return true;
+            for (let y=0; y<p.shape.length; y++) for (let x=0; x<p.shape[y].length; x++) if (p.shape[y][x]>0) { const bx=cX+x, by=cY+y; if (bx<0||bx>=COLS||by>=boardData.length||(boardData[by]&&boardData[by][bx]!==null)) return false; } return true;
         }
         function move(dir) { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x+dir, currentPiece.y)) { currentPiece.x+=dir; soundManager.playMove(); } }
         function rotate(dir='right') {
@@ -4824,7 +4824,7 @@ function createWavesScene() {
         }
         function softDrop() { if(!currentPiece||isProcessingPhysics) return; if(isValidPosition(currentPiece, currentPiece.x, currentPiece.y+1)) { currentPiece.y++; score+=level; dropCounter=0; } else lockPiece(); }
         function hardDrop() { if(!currentPiece||isProcessingPhysics) return; let d=0; while(isValidPosition(currentPiece,currentPiece.x,currentPiece.y+1)){currentPiece.y++;d++;} score+=d*2*level; lockPiece(); }
-        function lockPiece() { if(!currentPiece) return; soundManager.playDrop(); lockedPieces.push({...currentPiece, shape:[...currentPiece.shape]}); currentPiece=null; dropCounter=0; processPhysics(); }
+        function lockPiece() { if(!currentPiece) return; soundManager.playDrop(); lockedPieces.push({...currentPiece, shape:[...currentPiece.shape], pieceId: Date.now() + Math.random()}); currentPiece=null; dropCounter=0; processPhysics(); }
 async function processPhysics() {
     isProcessingPhysics = true;
     let linesClearedThisTurn = 0;
@@ -4834,7 +4834,7 @@ async function processPhysics() {
         const boardData = generateBoard(lockedPieces);
         const fullLines = [];
         for (let y = boardData.length - 1; y >= 0; y--) {
-            if (boardData[y].every(cell => cell !== 0)) {
+            if (boardData[y].every(cell => cell !== null)) {
                 fullLines.push(y);
             }
         }
@@ -4870,7 +4870,7 @@ async function processPhysics() {
         setTimeout(() => canvas.classList.remove('line-flash'), 200);
         const markedBoard = generateBoard(lockedPieces);
         fullLines.forEach(y => {
-            for (let x = 0; x < COLS; x++) markedBoard[y][x] = 'C';
+            for (let x = 0; x < COLS; x++) markedBoard[y][x] = {color:'C', id:'cleared'};
         });
         board = markedBoard;
         draw();
@@ -4914,7 +4914,7 @@ async function processPhysics() {
                         if (cell > 0) {
                             const boardX = p.x + x;
                             const boardY = p.y + y + 1; // Check cell below
-                            if (boardY >= currentBoard.length || (currentBoard[boardY][boardX] !== 0 && !isPartOfPiece(boardX, boardY, p))) {
+                            if (boardY >= currentBoard.length || (currentBoard[boardY][boardX] !== null && !isPartOfPiece(boardX, boardY, p))) {
                                 canFall = false;
                             }
                         }
@@ -4949,17 +4949,17 @@ function isPartOfPiece(boardX, boardY, piece) {
         function findConnectedComponents(boardData) {
             const pieces=[], visited=Array.from({length:boardData.length},()=>Array(boardData[0].length).fill(false));
             for(let r=0;r<boardData.length;r++) for(let c=0;c<boardData[0].length;c++) {
-                if(boardData[r][c]!==0&&!visited[r][c]) {
-                    const shapeKey=boardData[r][c], component=[], queue=[[r,c]]; visited[r][c]=true;
+                if(boardData[r][c]!==null&&!visited[r][c]) {
+                    const cellData=boardData[r][c], component=[], queue=[[r,c]]; visited[r][c]=true;
                     let minR=r,maxR=r,minC=c,maxC=c;
                     while(queue.length>0) {
                         const [row,col]=queue.shift(); component.push({r:row,c:col});
                         minR=Math.min(minR,row); maxR=Math.max(maxR,row); minC=Math.min(minC,col); maxC=Math.max(maxC,col);
-                        [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{ const nr=row+dr,nc=col+dc; if(nr>=0&&nr<boardData.length&&nc>=0&&nc<boardData[0].length&&!visited[nr][nc]&&boardData[nr][nc]===shapeKey){visited[nr][nc]=true;queue.push([nr,nc]);}});
+                        [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{ const nr=row+dr,nc=col+dc; if(nr>=0&&nr<boardData.length&&nc>=0&&nc<boardData[0].length&&!visited[nr][nc]&&boardData[nr][nc]!==null&&boardData[nr][nc].id===cellData.id){visited[nr][nc]=true;queue.push([nr,nc]);}});
                     }
                     const shape=Array.from({length:maxR-minR+1},()=>Array(maxC-minC+1).fill(0));
                     component.forEach(({r,c})=>{shape[r-minR][c-minC]=1});
-                    pieces.push({x:minC, y:minR, shape, shapeKey, color:COLORS[shapeKey]});
+                    pieces.push({x:minC, y:minR, shape, shapeKey:cellData.color, color:COLORS[cellData.color], pieceId:cellData.id});
                 }
             }
             return pieces;
@@ -4972,24 +4972,31 @@ function isPartOfPiece(boardX, boardY, piece) {
             for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,0);ctx.lineTo(x*BLOCK_SIZE,canvas.height);ctx.stroke();}
             for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*BLOCK_SIZE);ctx.lineTo(canvas.width,y*BLOCK_SIZE);ctx.stroke();}
             const boardData=generateBoard(lockedPieces);
-            boardData.forEach((row,y)=>{ if(y<HIDDEN_ROWS)return; row.forEach((c,x)=>{ if(c!==0&&c!=='C')drawBlock(x,y-HIDDEN_ROWS,COLORS[c]); else if(c==='C')drawBlock(x,y-HIDDEN_ROWS,'#ffffff');});});
+            boardData.forEach((row,y)=>{ if(y<HIDDEN_ROWS)return; row.forEach((cell,x)=>{ if(cell!==null&&cell.color!=='C')drawBlock(x,y-HIDDEN_ROWS,COLORS[cell.color],boardData,false,null,0,0,x,y); else if(cell!==null&&cell.color==='C')drawBlock(x,y-HIDDEN_ROWS,'#ffffff',boardData,false,null,0,0,x,y);});});
             if(currentPiece) {
                 let ghostY=currentPiece.y; while(isValidPosition(currentPiece,currentPiece.x,ghostY+1))ghostY++;
-                currentPiece.shape.forEach((r,y)=>r.forEach((c,x)=>{ if(c>0&&ghostY+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,ghostY+y-HIDDEN_ROWS,'rgba(255,255,255,0.2)',true); if(c>0&&currentPiece.y+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,currentPiece.y+y-HIDDEN_ROWS,currentPiece.color);}));
+                currentPiece.shape.forEach((r,y)=>r.forEach((c,x)=>{ if(c>0&&ghostY+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,ghostY+y-HIDDEN_ROWS,'rgba(255,255,255,0.2)',null,true); if(c>0&&currentPiece.y+y>=HIDDEN_ROWS)drawBlock(currentPiece.x+x,currentPiece.y+y-HIDDEN_ROWS,currentPiece.color,null,false,currentPiece.shape,currentPiece.x,currentPiece.y-HIDDEN_ROWS,x,y);}));
             }
         }
-        function drawBlock(x,y,c,isGhost=false) {
+        function drawBlock(x,y,c,boardData=null,isGhost=false,shape=null,pieceX=0,pieceY=0,blockX=0,blockY=0) {
             ctx.fillStyle=c; ctx.fillRect(x*BLOCK_SIZE,y*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
             if(!isGhost){
-                const highlightSize = Math.max(1, BLOCK_SIZE / 5);
-                const highlightOffset = Math.max(1, BLOCK_SIZE / 15);
-                ctx.fillStyle='rgba(255,255,255,0.3)';
-                ctx.fillRect(x*BLOCK_SIZE+highlightOffset,y*BLOCK_SIZE+highlightOffset,highlightSize,highlightSize);
-
-                const borderOffset = Math.max(0.5, BLOCK_SIZE / 30);
-                ctx.strokeStyle='rgba(0,0,0,0.5)';
-                ctx.lineWidth= Math.max(1, BLOCK_SIZE / 15);
-                ctx.strokeRect(x*BLOCK_SIZE+borderOffset,y*BLOCK_SIZE+borderOffset,BLOCK_SIZE-(2*borderOffset),BLOCK_SIZE-(2*borderOffset));
+                ctx.strokeStyle='rgba(0,0,0,0.7)';
+                ctx.lineWidth=3;
+                if(shape){
+                    if(blockY===0||!shape[blockY-1]||!shape[blockY-1][blockX]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.stroke();}
+                    if(blockY===shape.length-1||!shape[blockY+1]||!shape[blockY+1][blockX]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                    if(blockX===0||!shape[blockY][blockX-1]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo(x*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                    if(blockX===shape[blockY].length-1||!shape[blockY][blockX+1]){ctx.beginPath();ctx.moveTo((x+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                }else if(boardData){
+                    const by=y+HIDDEN_ROWS;
+                    const currentCell=boardData[by]?boardData[by][blockX]:null;
+                    const currentId=currentCell?currentCell.id:null;
+                    if(by===0||!boardData[by-1]||boardData[by-1][blockX]===null||boardData[by-1][blockX].id!==currentId){ctx.beginPath();ctx.moveTo(blockX*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((blockX+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.stroke();}
+                    if(by===boardData.length-1||!boardData[by+1]||boardData[by+1][blockX]===null||boardData[by+1][blockX].id!==currentId){ctx.beginPath();ctx.moveTo(blockX*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.lineTo((blockX+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                    if(blockX===0||boardData[by][blockX-1]===null||boardData[by][blockX-1].id!==currentId){ctx.beginPath();ctx.moveTo(blockX*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo(blockX*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                    if(blockX===boardData[by].length-1||boardData[by][blockX+1]===null||boardData[by][blockX+1].id!==currentId){ctx.beginPath();ctx.moveTo((blockX+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((blockX+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
+                }
             }
         }
         function drawNextPieces() {
