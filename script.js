@@ -1396,7 +1396,7 @@ function createCandlelitMonasteryScene() {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest', 'wolfhour', 'lunara'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest', 'wolfhour', 'lunara', 'pyrestorm', 'neon-dusk'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -3750,7 +3750,8 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 'cherry-blossom-garden': createCherryBlossomGardenScene, 'floating-islands': createFloatingIslandsScene,
                 'meditation-temple': createMeditationTempleScene, 'moonlit-greenhouse': createMoonlitGreenhouseScene,
                 'ice-temple': createIceTempleScene, 'himalayan-peak': createHimalayanPeakScene, 'electric-dreams': createElectricDreamsScene,
-                'moonlit-forest': createMoonlitForestScene, 'wolfhour': createWolfhourScene, 'lunara': createLunaraScene
+                'moonlit-forest': createMoonlitForestScene, 'wolfhour': createWolfhourScene, 'lunara': createLunaraScene,
+                'pyrestorm': createPyrestormScene, 'neon-dusk': createNeonDuskScene
             };
 
             let themeData = null;
@@ -4769,6 +4770,328 @@ function createLunaraScene() {
             tree.style.setProperty('--sway-duration', `${Math.random() * 3 + 4}s`);
             tree.style.setProperty('--sway-delay', `${Math.random() * 2}s`);
             forestRight.appendChild(tree);
+        }
+    }
+}
+
+function createPyrestormScene() {
+    // Layer 2 - Volcano Peaks with eruptions
+    const volcanoContainer = document.getElementById('pyrestorm-volcano-peaks');
+    if (volcanoContainer && volcanoContainer.children.length === 0) {
+        const volcanoCount = 5;
+        const positions = [10, 25, 45, 65, 85];
+
+        for (let i = 0; i < volcanoCount; i++) {
+            // Create volcano shape
+            const volcano = document.createElement('div');
+            volcano.className = 'pyrestorm-volcano';
+            volcano.style.left = `${positions[i]}%`;
+            const scale = 0.7 + Math.random() * 0.6;
+            volcano.style.transform = `scale(${scale})`;
+
+            // Add glowing cracks
+            const crackCount = 3 + Math.floor(Math.random() * 4);
+            for (let j = 0; j < crackCount; j++) {
+                const crack = document.createElement('div');
+                crack.className = 'pyrestorm-volcano-crack';
+                const crackHeight = 50 + Math.random() * 150;
+                crack.style.height = `${crackHeight}px`;
+                crack.style.left = `${-50 + Math.random() * 100}px`;
+                crack.style.bottom = `${Math.random() * 100}px`;
+                crack.style.animationDelay = `${Math.random() * 3}s`;
+                volcano.appendChild(crack);
+            }
+
+            // Add eruption effect
+            const eruption = document.createElement('div');
+            eruption.className = 'pyrestorm-eruption';
+            eruption.style.left = '50%';
+            eruption.style.bottom = '350px';
+            eruption.style.transform = 'translateX(-50%)';
+            eruption.style.setProperty('--eruption-duration', `${8 + Math.random() * 7}s`);
+            eruption.style.setProperty('--eruption-delay', `${Math.random() * 10}s`);
+            volcano.appendChild(eruption);
+
+            volcanoContainer.appendChild(volcano);
+        }
+    }
+
+    // Layer 3 - Lava Rivers
+    const lavaRiversContainer = document.getElementById('pyrestorm-lava-rivers');
+    if (lavaRiversContainer && lavaRiversContainer.children.length === 0) {
+        const riverCount = 8;
+
+        for (let i = 0; i < riverCount; i++) {
+            const river = document.createElement('div');
+            river.className = 'pyrestorm-lava-river';
+            river.style.left = `${i * 15}%`;
+            river.style.setProperty('--flow-speed', `${10 + Math.random() * 10}s`);
+            river.style.animationDelay = `${Math.random() * 5}s`;
+            river.style.width = `${100 + Math.random() * 100}px`;
+
+            // Add lava splashes
+            const splashCount = 2 + Math.floor(Math.random() * 3);
+            for (let j = 0; j < splashCount; j++) {
+                const splash = document.createElement('div');
+                splash.className = 'pyrestorm-lava-splash';
+                splash.style.left = `${Math.random() * 100}%`;
+                splash.style.bottom = `${20 + Math.random() * 40}%`;
+                splash.style.setProperty('--splash-duration', `${2 + Math.random() * 3}s`);
+                splash.style.setProperty('--splash-delay', `${Math.random() * 4}s`);
+                river.appendChild(splash);
+            }
+
+            lavaRiversContainer.appendChild(river);
+        }
+    }
+
+    // Layer 4 - Foreground Rocks
+    const rocksContainer = document.getElementById('pyrestorm-foreground-rocks');
+    if (rocksContainer && rocksContainer.children.length === 0) {
+        const rockCount = 6;
+        const rockPositions = [5, 18, 35, 55, 72, 88];
+
+        for (let i = 0; i < rockCount; i++) {
+            const rock = document.createElement('div');
+            rock.className = 'pyrestorm-rock';
+            const width = 80 + Math.random() * 120;
+            const height = 100 + Math.random() * 150;
+            rock.style.width = `${width}px`;
+            rock.style.height = `${height}px`;
+            rock.style.left = `${rockPositions[i]}%`;
+
+            // Add glowing cracks
+            const crackCount = 1 + Math.floor(Math.random() * 3);
+            for (let j = 0; j < crackCount; j++) {
+                const crack = document.createElement('div');
+                crack.className = 'pyrestorm-rock-crack';
+                crack.style.top = `${20 + Math.random() * 60}%`;
+                crack.style.setProperty('--crack-duration', `${3 + Math.random() * 3}s`);
+                crack.style.setProperty('--crack-delay', `${Math.random() * 4}s`);
+                rock.appendChild(crack);
+            }
+
+            rocksContainer.appendChild(rock);
+        }
+    }
+
+    // Layer 5a - Embers
+    const embersContainer = document.getElementById('pyrestorm-embers');
+    if (embersContainer && embersContainer.children.length === 0) {
+        const emberCount = 100;
+
+        for (let i = 0; i < emberCount; i++) {
+            const ember = document.createElement('div');
+            ember.className = 'pyrestorm-ember';
+            const size = 2 + Math.random() * 4;
+            ember.style.width = `${size}px`;
+            ember.style.height = `${size}px`;
+            ember.style.left = `${Math.random() * 100}%`;
+            ember.style.bottom = `${Math.random() * 30}%`;
+            ember.style.setProperty('--ember-duration', `${8 + Math.random() * 12}s`);
+            ember.style.setProperty('--ember-delay', `${Math.random() * 10}s`);
+            ember.style.setProperty('--ember-drift', `${-50 + Math.random() * 100}px`);
+            embersContainer.appendChild(ember);
+        }
+    }
+
+    // Layer 5b - Smoke Plumes
+    const smokeContainer = document.getElementById('pyrestorm-smoke');
+    if (smokeContainer && smokeContainer.children.length === 0) {
+        const smokeCount = 15;
+
+        for (let i = 0; i < smokeCount; i++) {
+            const smoke = document.createElement('div');
+            smoke.className = 'pyrestorm-smoke-plume';
+            smoke.style.left = `${Math.random() * 100}%`;
+            smoke.style.bottom = `${Math.random() * 40}%`;
+            const width = 150 + Math.random() * 200;
+            const height = 250 + Math.random() * 150;
+            smoke.style.width = `${width}px`;
+            smoke.style.height = `${height}px`;
+            smoke.style.setProperty('--smoke-duration', `${12 + Math.random() * 15}s`);
+            smoke.style.setProperty('--smoke-delay', `${Math.random() * 12}s`);
+            smoke.style.setProperty('--smoke-drift', `${-100 + Math.random() * 200}px`);
+            smokeContainer.appendChild(smoke);
+        }
+    }
+}
+
+function createNeonDuskScene() {
+    // Layer 1 - Twinkling Stars
+    const starsContainer = document.getElementById('neon-dusk-stars');
+    if (starsContainer && starsContainer.children.length === 0) {
+        const starCount = 150;
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'neon-dusk-star';
+            const size = Math.random() * 2.5 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 60}%`;
+            star.style.setProperty('--twinkle-duration', `${Math.random() * 3 + 2}s`);
+            star.style.setProperty('--twinkle-delay', `${Math.random() * 5}s`);
+            starsContainer.appendChild(star);
+        }
+    }
+
+    // Layer 2 - Neon Purple Clouds
+    const cloudsContainer = document.getElementById('neon-dusk-clouds');
+    if (cloudsContainer && cloudsContainer.children.length === 0) {
+        const cloudCount = 8;
+        for (let i = 0; i < cloudCount; i++) {
+            const cloud = document.createElement('div');
+            cloud.className = 'neon-dusk-cloud';
+            cloud.style.top = `${10 + Math.random() * 50}%`;
+            const duration = Math.random() * 40 + 60;
+            cloud.style.setProperty('--cloud-duration', `${duration}s`);
+            cloud.style.setProperty('--cloud-delay', `-${Math.random() * duration}s`);
+            cloudsContainer.appendChild(cloud);
+        }
+    }
+
+    // Layer 3 - Shooting Meteors
+    const meteorsContainer = document.getElementById('neon-dusk-meteors');
+    if (meteorsContainer && meteorsContainer.children.length === 0) {
+        const meteorCount = 6;
+
+        // Function to spawn meteors periodically
+        const spawnMeteor = () => {
+            if (activeTheme !== 'neon-dusk') return;
+
+            const meteor = document.createElement('div');
+            meteor.className = 'neon-dusk-meteor';
+            meteor.style.left = `${Math.random() * 100}%`;
+            meteor.style.top = `${Math.random() * 60}%`;
+            const duration = Math.random() * 2 + 2;
+            meteor.style.setProperty('--meteor-duration', `${duration}s`);
+            meteor.style.setProperty('--meteor-delay', '0s');
+            meteorsContainer.appendChild(meteor);
+
+            // Remove after animation completes
+            setTimeout(() => {
+                if (meteor.parentNode) {
+                    meteor.parentNode.removeChild(meteor);
+                }
+            }, duration * 1000);
+        };
+
+        // Spawn initial meteors
+        for (let i = 0; i < meteorCount; i++) {
+            setTimeout(spawnMeteor, Math.random() * 5000);
+        }
+
+        // Continuously spawn meteors
+        const meteorInterval = setInterval(() => {
+            if (activeTheme === 'neon-dusk') {
+                spawnMeteor();
+            } else {
+                clearInterval(meteorInterval);
+            }
+        }, 4000);
+    }
+
+    // Layer 4 - Mountain Silhouettes (Back, Mid, Front)
+    // Back Mountains
+    const mountainsBack = document.getElementById('neon-dusk-mountains-back');
+    if (mountainsBack && mountainsBack.children.length === 0) {
+        const mountain = document.createElement('div');
+        mountain.className = 'neon-dusk-mountain-back';
+        mountain.style.width = '100%';
+        mountain.style.height = '100%';
+        mountain.style.setProperty('--p1', '8%');
+        mountain.style.setProperty('--h1', '65%');
+        mountain.style.setProperty('--p2', '18%');
+        mountain.style.setProperty('--h2', '45%');
+        mountain.style.setProperty('--p3', '28%');
+        mountain.style.setProperty('--h3', '55%');
+        mountain.style.setProperty('--p4', '38%');
+        mountain.style.setProperty('--h4', '35%');
+        mountain.style.setProperty('--p5', '48%');
+        mountain.style.setProperty('--h5', '50%');
+        mountain.style.setProperty('--p6', '58%');
+        mountain.style.setProperty('--h6', '40%');
+        mountain.style.setProperty('--p7', '68%');
+        mountain.style.setProperty('--h7', '55%');
+        mountain.style.setProperty('--p8', '78%');
+        mountain.style.setProperty('--h8', '45%');
+        mountain.style.setProperty('--p9', '88%');
+        mountain.style.setProperty('--h9', '60%');
+        mountainsBack.appendChild(mountain);
+    }
+
+    // Mid Mountains
+    const mountainsMid = document.getElementById('neon-dusk-mountains-mid');
+    if (mountainsMid && mountainsMid.children.length === 0) {
+        const mountain = document.createElement('div');
+        mountain.className = 'neon-dusk-mountain-mid';
+        mountain.style.width = '100%';
+        mountain.style.height = '100%';
+        mountain.style.setProperty('--p1', '12%');
+        mountain.style.setProperty('--h1', '60%');
+        mountain.style.setProperty('--p2', '22%');
+        mountain.style.setProperty('--h2', '40%');
+        mountain.style.setProperty('--p3', '32%');
+        mountain.style.setProperty('--h3', '50%');
+        mountain.style.setProperty('--p4', '42%');
+        mountain.style.setProperty('--h4', '30%');
+        mountain.style.setProperty('--p5', '52%');
+        mountain.style.setProperty('--h5', '45%');
+        mountain.style.setProperty('--p6', '62%');
+        mountain.style.setProperty('--h6', '35%');
+        mountain.style.setProperty('--p7', '72%');
+        mountain.style.setProperty('--h7', '50%');
+        mountain.style.setProperty('--p8', '82%');
+        mountain.style.setProperty('--h8', '40%');
+        mountainsMid.appendChild(mountain);
+    }
+
+    // Front Mountains
+    const mountainsFront = document.getElementById('neon-dusk-mountains-front');
+    if (mountainsFront && mountainsFront.children.length === 0) {
+        const mountain = document.createElement('div');
+        mountain.className = 'neon-dusk-mountain-front';
+        mountain.style.width = '100%';
+        mountain.style.height = '100%';
+        mountain.style.setProperty('--p1', '10%');
+        mountain.style.setProperty('--h1', '55%');
+        mountain.style.setProperty('--p2', '20%');
+        mountain.style.setProperty('--h2', '35%');
+        mountain.style.setProperty('--p3', '30%');
+        mountain.style.setProperty('--h3', '45%');
+        mountain.style.setProperty('--p4', '40%');
+        mountain.style.setProperty('--h4', '25%');
+        mountain.style.setProperty('--p5', '50%');
+        mountain.style.setProperty('--h5', '40%');
+        mountain.style.setProperty('--p6', '60%');
+        mountain.style.setProperty('--h6', '30%');
+        mountain.style.setProperty('--p7', '70%');
+        mountain.style.setProperty('--h7', '45%');
+        mountain.style.setProperty('--p8', '80%');
+        mountain.style.setProperty('--h8', '35%');
+        mountain.style.setProperty('--p9', '90%');
+        mountain.style.setProperty('--h9', '50%');
+        mountainsFront.appendChild(mountain);
+    }
+
+    // Layer 5 - Floating Neon Particles / Polygons
+    const particlesContainer = document.getElementById('neon-dusk-particles');
+    if (particlesContainer && particlesContainer.children.length === 0) {
+        const particleCount = 40;
+        const colors = ['#00ffff', '#ff00ff', '#00ff88', '#ff0088', '#ffff00'];
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'neon-dusk-particle';
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.bottom = `${Math.random() * 100}%`;
+            const particleColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.setProperty('--particle-color', particleColor);
+            particle.style.setProperty('--particle-duration', `${Math.random() * 10 + 15}s`);
+            particle.style.setProperty('--particle-delay', `${Math.random() * 10}s`);
+            particle.style.setProperty('--drift-x', `${Math.random() * 200 - 100}px`);
+            particlesContainer.appendChild(particle);
         }
     }
 }
