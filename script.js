@@ -4309,7 +4309,71 @@ function createWolfhourScene() {
         nebulaMid.style.backgroundImage = `url(${canvas.toDataURL()})`;
     }
 
-    // 3. Create jagged mountain silhouettes
+    // 3. Create mystical light rays
+    const lightRaysContainer = document.getElementById('wolfhour-light-rays');
+    if (lightRaysContainer && lightRaysContainer.children.length === 0) {
+        const rayCount = 12;
+        for (let i = 0; i < rayCount; i++) {
+            const ray = document.createElement('div');
+            ray.className = 'wolfhour-light-ray';
+            ray.style.left = `${Math.random() * 100}%`;
+            const angleStart = Math.random() * 6 - 3;
+            const angleEnd = angleStart + (Math.random() * 4 - 2);
+            ray.style.setProperty('--ray-angle-start', `${angleStart}deg`);
+            ray.style.setProperty('--ray-angle-end', `${angleEnd}deg`);
+            ray.style.setProperty('--ray-duration', `${Math.random() * 6 + 8}s`);
+            ray.style.setProperty('--ray-delay', `${Math.random() * 10}s`);
+            lightRaysContainer.appendChild(ray);
+        }
+    }
+
+    // 4. Create cosmic rifts (glowing cracks in space)
+    const cosmicRiftsContainer = document.getElementById('wolfhour-cosmic-rifts');
+    if (cosmicRiftsContainer && cosmicRiftsContainer.children.length === 0) {
+        const riftCount = 8;
+        for (let i = 0; i < riftCount; i++) {
+            const rift = document.createElement('div');
+            rift.className = 'wolfhour-cosmic-rift';
+            rift.style.left = `${Math.random() * 100}%`;
+            rift.style.top = `${Math.random() * 60}%`;
+            rift.style.setProperty('--rift-length', `${Math.random() * 100 + 100}px`);
+            rift.style.setProperty('--rift-duration', `${Math.random() * 3 + 3}s`);
+            rift.style.setProperty('--rift-delay', `${Math.random() * 5}s`);
+            rift.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
+            cosmicRiftsContainer.appendChild(rift);
+        }
+    }
+
+    // 5. Create ethereal spirits
+    const spiritsContainer = document.getElementById('wolfhour-spirits');
+    if (spiritsContainer && spiritsContainer.children.length === 0) {
+        const spiritCount = 6;
+        for (let i = 0; i < spiritCount; i++) {
+            const spirit = document.createElement('div');
+            spirit.className = 'wolfhour-spirit';
+            spirit.style.left = `${Math.random() * 100}%`;
+            spirit.style.top = `${Math.random() * 80 + 10}%`;
+
+            const xStart = Math.random() * 40 - 20;
+            const xMid = Math.random() * 80 - 40;
+            const xEnd = Math.random() * 120 - 60;
+            const yStart = Math.random() * 20;
+            const yMid = -(Math.random() * 100 + 50);
+            const yEnd = -(Math.random() * 200 + 100);
+
+            spirit.style.setProperty('--spirit-x-start', `${xStart}px`);
+            spirit.style.setProperty('--spirit-x-mid', `${xMid}px`);
+            spirit.style.setProperty('--spirit-x-end', `${xEnd}px`);
+            spirit.style.setProperty('--spirit-y-start', `${yStart}px`);
+            spirit.style.setProperty('--spirit-y-mid', `${yMid}px`);
+            spirit.style.setProperty('--spirit-y-end', `${yEnd}px`);
+            spirit.style.setProperty('--spirit-duration', `${Math.random() * 15 + 20}s`);
+            spirit.style.setProperty('--spirit-delay', `${Math.random() * 20}s`);
+            spiritsContainer.appendChild(spirit);
+        }
+    }
+
+    // 6. Create jagged mountain silhouettes
     const mountainsDistant = document.getElementById('wolfhour-mountains-distant');
     if (mountainsDistant && !mountainsDistant.style.backgroundImage) {
         const canvas = document.createElement('canvas');
