@@ -15,20 +15,32 @@ function random(min, max) {
 // The old startForestAnimations, stopForestAnimations, and Firefly class have been removed.
 
 function createHimalayanPeakScene() {
-    // 1. Procedural Peaks for WebGL
+    // 1. Procedural Peaks for WebGL - with canvas caching optimization
     if (webglRenderer) {
         const peakLayers = [
             // z-index values are for WebGL depth, not CSS z-index. Closer to -1 is further away.
-            { zIndex: -0.9, color: 'rgba(60, 70, 90, 0.7)', jaggedness: 0.3, snowLine: 0.4 },
-            { zIndex: -0.8, color: 'rgba(80, 90, 110, 0.8)', jaggedness: 0.5, snowLine: 0.3 },
-            { zIndex: -0.7, color: 'rgba(100, 110, 130, 0.9)', jaggedness: 0.7, snowLine: 0.2 }
+            { zIndex: -0.9, color: 'rgba(60, 70, 90, 0.7)', jaggedness: 0.3, snowLine: 0.4, seed: 12345 },
+            { zIndex: -0.8, color: 'rgba(80, 90, 110, 0.8)', jaggedness: 0.5, snowLine: 0.3, seed: 23456 },
+            { zIndex: -0.7, color: 'rgba(100, 110, 130, 0.9)', jaggedness: 0.7, snowLine: 0.2, seed: 34567 }
         ];
 
         peakLayers.forEach(layer => {
-            const canvas = document.createElement('canvas');
-            // We can use a smaller canvas for the texture source
             const C_WIDTH = 2048;
             const C_HEIGHT = window.innerHeight > 1080 ? 1080 : window.innerHeight; // Cap height for performance
+
+            // Create cache key based on layer properties and dimensions
+            const cacheKey = `peak-${layer.zIndex}-${layer.color}-${layer.jaggedness}-${layer.snowLine}-${C_WIDTH}x${C_HEIGHT}`;
+
+            // Check if we have this peak cached
+            if (himalayanPeakCache.has(cacheKey)) {
+                const cachedCanvas = himalayanPeakCache.get(cacheKey);
+                webglRenderer.addLayer(cachedCanvas, layer.zIndex);
+                return;
+            }
+
+            // Generate new peak with seeded random for deterministic output
+            const rng = seededRandom(layer.seed);
+            const canvas = document.createElement('canvas');
             canvas.width = C_WIDTH;
             canvas.height = C_HEIGHT;
             const ctx = canvas.getContext('2d');
@@ -40,7 +52,7 @@ function createHimalayanPeakScene() {
             for (let x = 0; x < C_WIDTH; x++) {
                 const angle = x / C_WIDTH * Math.PI * 4;
                 y = canvas.height * 0.7 - Math.sin(angle) * 100 - Math.cos(angle * 0.5) * 50;
-                y += (Math.random() - 0.5) * layer.jaggedness * 20;
+                y += (rng() - 0.5) * layer.jaggedness * 20;
                 ctx.lineTo(x, y);
 
                 // Draw snow caps
@@ -53,6 +65,9 @@ function createHimalayanPeakScene() {
             ctx.lineTo(C_WIDTH, canvas.height);
             ctx.closePath();
             ctx.fill();
+
+            // Cache the generated canvas
+            himalayanPeakCache.set(cacheKey, canvas);
 
             // Add the generated canvas as a layer to the WebGL renderer
             webglRenderer.addLayer(canvas, layer.zIndex);
@@ -109,12 +124,24 @@ function createIceTempleScene() {
     // 1. Ice Crystal Architecture (WebGL)
     if (webglRenderer) {
         const crystalLayers = [
-            { zIndex: -0.9, count: 20, color: 'rgba(150, 180, 220, 0.3)' },
-            { zIndex: -0.8, count: 15, color: 'rgba(180, 210, 240, 0.4)' },
-            { zIndex: -0.7, count: 10, color: 'rgba(210, 230, 255, 0.5)' }
+            { zIndex: -0.9, count: 20, color: 'rgba(150, 180, 220, 0.3)', seed: 45678 },
+            { zIndex: -0.8, count: 15, color: 'rgba(180, 210, 240, 0.4)', seed: 56789 },
+            { zIndex: -0.7, count: 10, color: 'rgba(210, 230, 255, 0.5)', seed: 67890 }
         ];
 
         crystalLayers.forEach(layer => {
+            // Create cache key based on layer properties and dimensions
+            const cacheKey = `ice-temple-${layer.zIndex}-${layer.count}-${layer.color}-${window.innerWidth}x${window.innerHeight}`;
+
+            // Check if we have a cached canvas for this configuration
+            if (iceTempleCache.has(cacheKey)) {
+                const cachedCanvas = iceTempleCache.get(cacheKey);
+                webglRenderer.addLayer(cachedCanvas, layer.zIndex);
+                return;
+            }
+
+            // Generate canvas with seeded random for deterministic output
+            const rng = seededRandom(layer.seed);
             const canvas = document.createElement('canvas');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -123,28 +150,31 @@ function createIceTempleScene() {
             ctx.lineWidth = 0.5;
 
             for (let i = 0; i < layer.count; i++) {
-                const x = Math.random() * canvas.width;
-                const h = Math.random() * canvas.height * 0.6 + canvas.height * 0.2;
-                const w = Math.random() * 60 + 30;
+                const x = rng() * canvas.width;
+                const h = rng() * canvas.height * 0.6 + canvas.height * 0.2;
+                const w = rng() * 60 + 30;
                 ctx.fillStyle = layer.color;
 
                 // Draw sharp, geometric crystals from floor and ceiling
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
-                ctx.lineTo(x - w, h * (Math.random() * 0.3 + 0.2));
-                ctx.lineTo(x + w, h * (Math.random() * 0.3 + 0.2));
+                ctx.lineTo(x - w, h * (rng() * 0.3 + 0.2));
+                ctx.lineTo(x + w, h * (rng() * 0.3 + 0.2));
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
 
                 ctx.beginPath();
                 ctx.moveTo(x, canvas.height);
-                ctx.lineTo(x - w, canvas.height - h * (Math.random() * 0.3 + 0.2));
-                ctx.lineTo(x + w, canvas.height - h * (Math.random() * 0.3 + 0.2));
+                ctx.lineTo(x - w, canvas.height - h * (rng() * 0.3 + 0.2));
+                ctx.lineTo(x + w, canvas.height - h * (rng() * 0.3 + 0.2));
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
             }
+
+            // Cache the generated canvas for future use
+            iceTempleCache.set(cacheKey, canvas);
             webglRenderer.addLayer(canvas, layer.zIndex);
         });
     }
@@ -648,8 +678,8 @@ function createCherryBlossomGardenScene() {
             { count: 5, color: '#3b2a2a', bloomColors: ['#ff8fab', '#ff7f9e', '#e7738c'], baseWidth: 22 }
         ];
 
-        const drawBranch = (x1, y1, len, angle, width, colors) => {
-            if (width < 2) return;
+        const drawBranch = (x1, y1, len, angle, width, colors, depth = 0) => {
+            if (width < 2 || depth > 10) return; // Add depth limit to prevent stack overflow
 
             ctx.beginPath();
             ctx.lineWidth = width;
@@ -681,8 +711,8 @@ function createCherryBlossomGardenScene() {
             }
 
             const newLen = len * (0.75 + Math.random() * 0.1);
-            drawBranch(x2, y2, newLen, angle + (Math.random() * 20 + 10), width * 0.75, colors);
-            drawBranch(x2, y2, newLen, angle - (Math.random() * 20 + 10), width * 0.75, colors);
+            drawBranch(x2, y2, newLen, angle + (Math.random() * 20 + 10), width * 0.75, colors, depth + 1);
+            drawBranch(x2, y2, newLen, angle - (Math.random() * 20 + 10), width * 0.75, colors, depth + 1);
         };
 
         treeLayers.forEach(layer => {
@@ -1366,12 +1396,13 @@ function createCandlelitMonasteryScene() {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest', 'wolfhour', 'lunara'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
         let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false, isPaused = false;
-        let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null;
+        let lastRenderedLevel = 0; // Track last level for canvas style optimization
+        let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null, softDropTimer = null;
 let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null, activeThemeData = null;
 
         let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
@@ -2088,6 +2119,9 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
+            // Regenerate grid cache when canvas size changes
+            generateGridCache();
+
             // Redraw the game with new sizes if the game is active
             if (!isGameOver && currentPiece) {
                 draw();
@@ -2095,7 +2129,42 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
         }
 
+        function generateGridCache() {
+            // Create offscreen canvas for grid if it doesn't exist
+            if (!gridCache) {
+                gridCache = document.createElement('canvas');
+                gridCacheCtx = gridCache.getContext('2d');
+            }
+
+            // Set cache canvas to match game canvas size
+            gridCache.width = canvas.width;
+            gridCache.height = canvas.height;
+
+            // Draw grid lines onto cache
+            gridCacheCtx.strokeStyle = 'rgba(255,255,255,0.05)';
+            gridCacheCtx.lineWidth = 1;
+
+            // Draw vertical lines
+            for (let x = 0; x <= COLS; x++) {
+                gridCacheCtx.beginPath();
+                gridCacheCtx.moveTo(x * BLOCK_SIZE, 0);
+                gridCacheCtx.lineTo(x * BLOCK_SIZE, canvas.height);
+                gridCacheCtx.stroke();
+            }
+
+            // Draw horizontal lines
+            for (let y = 0; y <= ROWS; y++) {
+                gridCacheCtx.beginPath();
+                gridCacheCtx.moveTo(0, y * BLOCK_SIZE);
+                gridCacheCtx.lineTo(canvas.width, y * BLOCK_SIZE);
+                gridCacheCtx.stroke();
+            }
+        }
+
         let soundInitialized = false;
+        let gridCache = null;  // Offscreen canvas for cached grid
+        let gridCacheCtx = null;
+
         function init() {
             canvas = document.getElementById('game-canvas'); ctx = canvas.getContext('2d');
             nextCanvases = Array.from({length: 5}, (_, i) => document.getElementById(`next-${i}`));
@@ -3681,7 +3750,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 'cherry-blossom-garden': createCherryBlossomGardenScene, 'floating-islands': createFloatingIslandsScene,
                 'meditation-temple': createMeditationTempleScene, 'moonlit-greenhouse': createMoonlitGreenhouseScene,
                 'ice-temple': createIceTempleScene, 'himalayan-peak': createHimalayanPeakScene, 'electric-dreams': createElectricDreamsScene,
-                'moonlit-forest': createMoonlitForestScene
+                'moonlit-forest': createMoonlitForestScene, 'wolfhour': createWolfhourScene, 'lunara': createLunaraScene
             };
 
             let themeData = null;
@@ -4040,6 +4109,24 @@ function createFluidDreamsScene() {
 // Cache for moonlit forest tree backgrounds to avoid expensive regeneration
 const moonlitForestTreeCache = new Map();
 
+// Cache for Wolfhour backgrounds to avoid expensive canvas regeneration
+const wolfhourBackgroundCache = new Map();
+
+// Cache for Himalayan Peak backgrounds to avoid expensive canvas regeneration
+const himalayanPeakCache = new Map();
+
+// Cache for Ice Temple backgrounds to avoid expensive canvas regeneration
+const iceTempleCache = new Map();
+
+// Seeded random number generator for deterministic procedural generation
+function seededRandom(seed) {
+    let state = seed;
+    return function() {
+        state = (state * 1664525 + 1013904223) % 4294967296;
+        return state / 4294967296;
+    };
+}
+
 function createMoonlitForestScene() {
     // Define tree colors for different layers
     const treeLayers = [
@@ -4219,6 +4306,469 @@ function createMoonlitForestScene() {
             leaf.style.animationDuration = `${duration}s`;
             leaf.style.animationDelay = `-${Math.random() * duration}s`;
             themeContainer.appendChild(leaf);
+        }
+    }
+}
+
+function createWolfhourScene() {
+    // 1. Create dense star field
+    const starsContainer = document.getElementById('wolfhour-stars');
+    if (starsContainer && starsContainer.children.length === 0) {
+        const starCount = 300;
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'wolfhour-star';
+            const size = Math.random() * 2 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.setProperty('--min-opacity', `${Math.random() * 0.3 + 0.2}`);
+            star.style.setProperty('--max-opacity', `${Math.random() * 0.3 + 0.7}`);
+            star.style.setProperty('--twinkle-duration', `${Math.random() * 3 + 2}s`);
+            star.style.setProperty('--twinkle-delay', `${Math.random() * 5}s`);
+            starsContainer.appendChild(star);
+        }
+
+        // Create shooting stars periodically
+        setInterval(() => {
+            if (activeTheme !== 'wolfhour') return;
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'wolfhour-shooting-star';
+            shootingStar.style.left = `${Math.random() * 100}%`;
+            shootingStar.style.top = `${Math.random() * 40}%`;
+            const distance = Math.random() * 300 + 200;
+            shootingStar.style.setProperty('--shoot-x', `${-distance}px`);
+            shootingStar.style.setProperty('--shoot-y', `${distance}px`);
+            shootingStar.style.setProperty('--shoot-duration', `${Math.random() * 1 + 1.5}s`);
+            starsContainer.appendChild(shootingStar);
+            setTimeout(() => shootingStar.remove(), 3000);
+        }, 8000);
+    }
+
+    // 2. Create nebula clouds using canvas (with caching)
+    const nebulaBack = document.getElementById('wolfhour-nebula-back');
+    const nebulaMid = document.getElementById('wolfhour-nebula-mid');
+
+    if (nebulaBack) {
+        const cacheKey = 'wolfhour-nebula-back-2000x800';
+
+        if (wolfhourBackgroundCache.has(cacheKey)) {
+            // Use cached version
+            nebulaBack.style.backgroundImage = wolfhourBackgroundCache.get(cacheKey);
+        } else {
+            // Generate with seeded random for deterministic output
+            const rng = seededRandom(12345);
+            const canvas = document.createElement('canvas');
+            canvas.width = 2000;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            // Create wispy nebula texture
+            for (let i = 0; i < 50; i++) {
+                const x = rng() * canvas.width;
+                const y = rng() * canvas.height;
+                const radius = rng() * 200 + 100;
+                const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                const opacity = rng() * 0.15 + 0.05;
+                gradient.addColorStop(0, `rgba(200, 200, 200, ${opacity})`);
+                gradient.addColorStop(0.5, `rgba(150, 150, 150, ${opacity * 0.5})`);
+                gradient.addColorStop(1, 'rgba(100, 100, 100, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const dataURL = `url(${canvas.toDataURL()})`;
+            wolfhourBackgroundCache.set(cacheKey, dataURL);
+            nebulaBack.style.backgroundImage = dataURL;
+        }
+    }
+
+    if (nebulaMid) {
+        const cacheKey = 'wolfhour-nebula-mid-2000x800';
+
+        if (wolfhourBackgroundCache.has(cacheKey)) {
+            // Use cached version
+            nebulaMid.style.backgroundImage = wolfhourBackgroundCache.get(cacheKey);
+        } else {
+            // Generate with seeded random for deterministic output
+            const rng = seededRandom(54321);
+            const canvas = document.createElement('canvas');
+            canvas.width = 2000;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            // Create denser nebula for mid layer
+            for (let i = 0; i < 40; i++) {
+                const x = rng() * canvas.width;
+                const y = rng() * canvas.height;
+                const radius = rng() * 250 + 150;
+                const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                const opacity = rng() * 0.2 + 0.1;
+                gradient.addColorStop(0, `rgba(220, 220, 220, ${opacity})`);
+                gradient.addColorStop(0.5, `rgba(180, 180, 180, ${opacity * 0.6})`);
+                gradient.addColorStop(1, 'rgba(120, 120, 120, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const dataURL = `url(${canvas.toDataURL()})`;
+            wolfhourBackgroundCache.set(cacheKey, dataURL);
+            nebulaMid.style.backgroundImage = dataURL;
+        }
+    }
+
+    // 3. Create mystical light rays
+    const lightRaysContainer = document.getElementById('wolfhour-light-rays');
+    if (lightRaysContainer && lightRaysContainer.children.length === 0) {
+        const rayCount = 12;
+        for (let i = 0; i < rayCount; i++) {
+            const ray = document.createElement('div');
+            ray.className = 'wolfhour-light-ray';
+            ray.style.left = `${Math.random() * 100}%`;
+            const angleStart = Math.random() * 6 - 3;
+            const angleEnd = angleStart + (Math.random() * 4 - 2);
+            ray.style.setProperty('--ray-angle-start', `${angleStart}deg`);
+            ray.style.setProperty('--ray-angle-end', `${angleEnd}deg`);
+            ray.style.setProperty('--ray-duration', `${Math.random() * 6 + 8}s`);
+            ray.style.setProperty('--ray-delay', `${Math.random() * 10}s`);
+            lightRaysContainer.appendChild(ray);
+        }
+    }
+
+    // 4. Create cosmic rifts (glowing cracks in space)
+    const cosmicRiftsContainer = document.getElementById('wolfhour-cosmic-rifts');
+    if (cosmicRiftsContainer && cosmicRiftsContainer.children.length === 0) {
+        const riftCount = 8;
+        for (let i = 0; i < riftCount; i++) {
+            const rift = document.createElement('div');
+            rift.className = 'wolfhour-cosmic-rift';
+            rift.style.left = `${Math.random() * 100}%`;
+            rift.style.top = `${Math.random() * 60}%`;
+            rift.style.setProperty('--rift-length', `${Math.random() * 100 + 100}px`);
+            rift.style.setProperty('--rift-duration', `${Math.random() * 3 + 3}s`);
+            rift.style.setProperty('--rift-delay', `${Math.random() * 5}s`);
+            rift.style.transform = `rotate(${Math.random() * 30 - 15}deg)`;
+            cosmicRiftsContainer.appendChild(rift);
+        }
+    }
+
+    // 5. Create ethereal spirits
+    const spiritsContainer = document.getElementById('wolfhour-spirits');
+    if (spiritsContainer && spiritsContainer.children.length === 0) {
+        const spiritCount = 6;
+        for (let i = 0; i < spiritCount; i++) {
+            const spirit = document.createElement('div');
+            spirit.className = 'wolfhour-spirit';
+            spirit.style.left = `${Math.random() * 100}%`;
+            spirit.style.top = `${Math.random() * 80 + 10}%`;
+
+            const xStart = Math.random() * 40 - 20;
+            const xMid = Math.random() * 80 - 40;
+            const xEnd = Math.random() * 120 - 60;
+            const yStart = Math.random() * 20;
+            const yMid = -(Math.random() * 100 + 50);
+            const yEnd = -(Math.random() * 200 + 100);
+
+            spirit.style.setProperty('--spirit-x-start', `${xStart}px`);
+            spirit.style.setProperty('--spirit-x-mid', `${xMid}px`);
+            spirit.style.setProperty('--spirit-x-end', `${xEnd}px`);
+            spirit.style.setProperty('--spirit-y-start', `${yStart}px`);
+            spirit.style.setProperty('--spirit-y-mid', `${yMid}px`);
+            spirit.style.setProperty('--spirit-y-end', `${yEnd}px`);
+            spirit.style.setProperty('--spirit-duration', `${Math.random() * 15 + 20}s`);
+            spirit.style.setProperty('--spirit-delay', `${Math.random() * 20}s`);
+            spiritsContainer.appendChild(spirit);
+        }
+    }
+
+    // 6. Create jagged mountain silhouettes (with caching)
+    const mountainsDistant = document.getElementById('wolfhour-mountains-distant');
+    if (mountainsDistant) {
+        const cacheKey = 'wolfhour-mountains-distant-4000x800';
+
+        if (wolfhourBackgroundCache.has(cacheKey)) {
+            // Use cached version
+            const cachedData = wolfhourBackgroundCache.get(cacheKey);
+            mountainsDistant.style.backgroundImage = cachedData.backgroundImage;
+            mountainsDistant.style.backgroundSize = cachedData.backgroundSize;
+        } else {
+            // Generate with seeded random for deterministic output
+            const rng = seededRandom(11111);
+            const canvas = document.createElement('canvas');
+            canvas.width = 4000;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#404040';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+
+            // Create jagged peaks
+            for (let x = 0; x < canvas.width; x += 20) {
+                const y = canvas.height - (rng() * 300 + 200) - Math.sin(x * 0.01) * 100;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            const backgroundImage = `url(${canvas.toDataURL()})`;
+            const backgroundSize = '2000px 100%';
+            wolfhourBackgroundCache.set(cacheKey, { backgroundImage, backgroundSize });
+            mountainsDistant.style.backgroundImage = backgroundImage;
+            mountainsDistant.style.backgroundSize = backgroundSize;
+        }
+    }
+
+    const mountainsFore = document.getElementById('wolfhour-mountains-fore');
+    if (mountainsFore) {
+        const cacheKey = 'wolfhour-mountains-fore-4000x600';
+
+        if (wolfhourBackgroundCache.has(cacheKey)) {
+            // Use cached version
+            const cachedData = wolfhourBackgroundCache.get(cacheKey);
+            mountainsFore.style.backgroundImage = cachedData.backgroundImage;
+            mountainsFore.style.backgroundSize = cachedData.backgroundSize;
+        } else {
+            // Generate with seeded random for deterministic output
+            const rng = seededRandom(22222);
+            const canvas = document.createElement('canvas');
+            canvas.width = 4000;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+
+            // Create sharper, darker peaks
+            for (let x = 0; x < canvas.width; x += 15) {
+                const y = canvas.height - (rng() * 400 + 150) - Math.cos(x * 0.015) * 80;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            const backgroundImage = `url(${canvas.toDataURL()})`;
+            const backgroundSize = '2000px 100%';
+            wolfhourBackgroundCache.set(cacheKey, { backgroundImage, backgroundSize });
+            mountainsFore.style.backgroundImage = backgroundImage;
+            mountainsFore.style.backgroundSize = backgroundSize;
+        }
+    }
+}
+
+// Cache for Lunara background elements
+const lunaraBackgroundCache = new Map();
+
+function createLunaraScene() {
+    // 1. Create twinkling stars
+    const starsContainer = document.getElementById('lunara-stars');
+    if (starsContainer && starsContainer.children.length === 0) {
+        const starCount = 200;
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'lunara-star';
+            const size = Math.random() * 2 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.setProperty('--twinkle-duration', `${Math.random() * 3 + 2}s`);
+            star.style.setProperty('--twinkle-delay', `${Math.random() * 5}s`);
+            starsContainer.appendChild(star);
+        }
+    }
+
+    // 2. Create aurora-like streaks
+    const auroraContainer = document.getElementById('lunara-aurora');
+    if (auroraContainer && auroraContainer.children.length === 0) {
+        const auroraCount = 5;
+        for (let i = 0; i < auroraCount; i++) {
+            const aurora = document.createElement('div');
+            aurora.className = 'lunara-aurora';
+            aurora.style.left = `${Math.random() * 100}%`;
+            aurora.style.top = `${Math.random() * 40}%`;
+            aurora.style.setProperty('--aurora-duration', `${Math.random() * 10 + 15}s`);
+            aurora.style.setProperty('--aurora-delay', `${Math.random() * 5}s`);
+            auroraContainer.appendChild(aurora);
+        }
+    }
+
+    // 3. Create twin planets with glow
+    const planetsContainer = document.getElementById('lunara-planets');
+    if (planetsContainer && planetsContainer.children.length === 0) {
+        const cacheKey = 'lunara-planets-canvas';
+
+        if (lunaraBackgroundCache.has(cacheKey)) {
+            planetsContainer.style.backgroundImage = lunaraBackgroundCache.get(cacheKey);
+        } else {
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Large purple planet
+            const planet1X = canvas.width * 0.35;
+            const planet1Y = canvas.height * 0.25;
+            const planet1Radius = Math.min(canvas.width, canvas.height) * 0.2;
+
+            // Draw glow
+            const glow1 = ctx.createRadialGradient(planet1X, planet1Y, planet1Radius * 0.8, planet1X, planet1Y, planet1Radius * 1.5);
+            glow1.addColorStop(0, 'rgba(200, 150, 255, 0.3)');
+            glow1.addColorStop(1, 'rgba(200, 150, 255, 0)');
+            ctx.fillStyle = glow1;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw planet
+            const planet1Grad = ctx.createRadialGradient(planet1X - planet1Radius * 0.3, planet1Y - planet1Radius * 0.3, planet1Radius * 0.2, planet1X, planet1Y, planet1Radius);
+            planet1Grad.addColorStop(0, '#d8b5ff');
+            planet1Grad.addColorStop(0.5, '#a855f7');
+            planet1Grad.addColorStop(1, '#6b21a8');
+            ctx.fillStyle = planet1Grad;
+            ctx.beginPath();
+            ctx.arc(planet1X, planet1Y, planet1Radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Smaller pink planet
+            const planet2X = canvas.width * 0.5;
+            const planet2Y = canvas.height * 0.2;
+            const planet2Radius = Math.min(canvas.width, canvas.height) * 0.12;
+
+            // Draw glow
+            const glow2 = ctx.createRadialGradient(planet2X, planet2Y, planet2Radius * 0.8, planet2X, planet2Y, planet2Radius * 1.5);
+            glow2.addColorStop(0, 'rgba(255, 200, 240, 0.3)');
+            glow2.addColorStop(1, 'rgba(255, 200, 240, 0)');
+            ctx.fillStyle = glow2;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw planet
+            const planet2Grad = ctx.createRadialGradient(planet2X - planet2Radius * 0.3, planet2Y - planet2Radius * 0.3, planet2Radius * 0.2, planet2X, planet2Y, planet2Radius);
+            planet2Grad.addColorStop(0, '#ffd4f0');
+            planet2Grad.addColorStop(0.5, '#f472b6');
+            planet2Grad.addColorStop(1, '#be185d');
+            ctx.fillStyle = planet2Grad;
+            ctx.beginPath();
+            ctx.arc(planet2X, planet2Y, planet2Radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            const dataURL = `url(${canvas.toDataURL()})`;
+            lunaraBackgroundCache.set(cacheKey, dataURL);
+            planetsContainer.style.backgroundImage = dataURL;
+        }
+    }
+
+    // 4. Create distant mountains with caching
+    const mountainsDistant = document.getElementById('lunara-mountains-distant');
+    if (mountainsDistant) {
+        const cacheKey = 'lunara-mountains-distant-3000x600';
+
+        if (lunaraBackgroundCache.has(cacheKey)) {
+            const cachedData = lunaraBackgroundCache.get(cacheKey);
+            mountainsDistant.style.backgroundImage = cachedData.backgroundImage;
+            mountainsDistant.style.backgroundSize = cachedData.backgroundSize;
+        } else {
+            const rng = seededRandom(33333);
+            const canvas = document.createElement('canvas');
+            canvas.width = 3000;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#b794f6');
+            gradient.addColorStop(1, '#9f7aea');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+
+            for (let x = 0; x < canvas.width; x += 30) {
+                const y = canvas.height - (rng() * 200 + 150) - Math.sin(x * 0.008) * 80;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            const backgroundImage = `url(${canvas.toDataURL()})`;
+            const backgroundSize = '150% 100%';
+            lunaraBackgroundCache.set(cacheKey, { backgroundImage, backgroundSize });
+            mountainsDistant.style.backgroundImage = backgroundImage;
+            mountainsDistant.style.backgroundSize = backgroundSize;
+        }
+    }
+
+    // 5. Create mid-ground mountains
+    const mountainsMid = document.getElementById('lunara-mountains-mid');
+    if (mountainsMid) {
+        const cacheKey = 'lunara-mountains-mid-3000x700';
+
+        if (lunaraBackgroundCache.has(cacheKey)) {
+            const cachedData = lunaraBackgroundCache.get(cacheKey);
+            mountainsMid.style.backgroundImage = cachedData.backgroundImage;
+            mountainsMid.style.backgroundSize = cachedData.backgroundSize;
+        } else {
+            const rng = seededRandom(44444);
+            const canvas = document.createElement('canvas');
+            canvas.width = 3000;
+            canvas.height = 700;
+            const ctx = canvas.getContext('2d');
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#9f7aea');
+            gradient.addColorStop(1, '#7c3aed');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+
+            for (let x = 0; x < canvas.width; x += 25) {
+                const y = canvas.height - (rng() * 300 + 200) - Math.cos(x * 0.01) * 100;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            const backgroundImage = `url(${canvas.toDataURL()})`;
+            const backgroundSize = '150% 100%';
+            lunaraBackgroundCache.set(cacheKey, { backgroundImage, backgroundSize });
+            mountainsMid.style.backgroundImage = backgroundImage;
+            mountainsMid.style.backgroundSize = backgroundSize;
+        }
+    }
+
+    // 6. Create snow-covered pine trees (left side)
+    const forestLeft = document.getElementById('lunara-forest-left');
+    if (forestLeft && forestLeft.children.length === 0) {
+        const treeCount = 8;
+        for (let i = 0; i < treeCount; i++) {
+            const tree = document.createElement('div');
+            tree.className = 'lunara-tree';
+            const height = Math.random() * 200 + 250;
+            tree.style.height = `${height}px`;
+            tree.style.left = `${i * 12}%`;
+            tree.style.bottom = '0';
+            tree.style.setProperty('--sway-duration', `${Math.random() * 3 + 4}s`);
+            tree.style.setProperty('--sway-delay', `${Math.random() * 2}s`);
+            forestLeft.appendChild(tree);
+        }
+    }
+
+    // 7. Create snow-covered pine trees (right side)
+    const forestRight = document.getElementById('lunara-forest-right');
+    if (forestRight && forestRight.children.length === 0) {
+        const treeCount = 8;
+        for (let i = 0; i < treeCount; i++) {
+            const tree = document.createElement('div');
+            tree.className = 'lunara-tree';
+            const height = Math.random() * 200 + 250;
+            tree.style.height = `${height}px`;
+            tree.style.right = `${i * 12}%`;
+            tree.style.bottom = '0';
+            tree.style.setProperty('--sway-duration', `${Math.random() * 3 + 4}s`);
+            tree.style.setProperty('--sway-delay', `${Math.random() * 2}s`);
+            forestRight.appendChild(tree);
         }
     }
 }
@@ -4897,6 +5447,7 @@ function createWavesScene() {
             score = 0; lines = 0; level = 1; linesUntilNextLevel = 10;
             dropInterval = LEVEL_SPEEDS[0]; dropCounter = 0; piecesPlaced = 0;
             isGameOver = false; isProcessingPhysics = false; inputQueue = null;
+            lastRenderedLevel = 0; // Reset to trigger canvas style update
             startTime = Date.now(); fillBag(); updateStats(); spawnPiece();
             stopRandomThemeChanger();
             if (settings.backgroundMode === 'Specific') {
@@ -5069,13 +5620,33 @@ function isPartOfPiece(boardX, boardY, piece) {
             }
             return pieces;
         }
+        function updateCanvasStyle() {
+            // Update canvas border and shadow based on level
+            // Only called when level actually changes (optimization)
+            if (level>=10) {
+                canvas.style.borderColor = '#ef4444';
+                canvas.style.boxShadow = '0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.4)';
+            }
+            else if (level>=5) {
+                canvas.style.borderColor = '#fbbf24';
+                canvas.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.4)';
+            }
+            else {
+                canvas.style.borderColor = '#8b5cf6';
+                canvas.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)';
+            }
+            lastRenderedLevel = level;
+        }
         function draw() {
-            if (level>=10) { canvas.style.borderColor = '#ef4444'; canvas.style.boxShadow = '0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.4)';}
-            else if (level>=5) { canvas.style.borderColor = '#fbbf24'; canvas.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.4)';}
-            else { canvas.style.borderColor = '#8b5cf6'; canvas.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)';}
-            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
-            for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,0);ctx.lineTo(x*BLOCK_SIZE,canvas.height);ctx.stroke();}
-            for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*BLOCK_SIZE);ctx.lineTo(canvas.width,y*BLOCK_SIZE);ctx.stroke();}
+            // Only update canvas styles when level changes (performance optimization)
+            if (level !== lastRenderedLevel) {
+                updateCanvasStyle();
+            }
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            // Use cached grid instead of redrawing it every frame
+            if (gridCache) {
+                ctx.drawImage(gridCache, 0, 0);
+            }
             const boardData=generateBoard(lockedPieces);
             boardData.forEach((row,y)=>{ if(y<HIDDEN_ROWS)return; row.forEach((cell,x)=>{ if(cell!==null&&cell.color!=='C')drawBlock(x,y-HIDDEN_ROWS,COLORS[cell.color],boardData,false,null,0,0,x,y); else if(cell!==null&&cell.color==='C')drawBlock(x,y-HIDDEN_ROWS,'#ffffff',boardData,false,null,0,0,x,y);});});
             if(currentPiece) {
@@ -5087,7 +5658,7 @@ function isPartOfPiece(boardX, boardY, piece) {
             ctx.fillStyle=c; ctx.fillRect(x*BLOCK_SIZE,y*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
             if(!isGhost){
                 ctx.strokeStyle='rgba(0,0,0,0.7)';
-                ctx.lineWidth=3;
+                ctx.lineWidth=2;
                 if(shape){
                     if(blockY===0||!shape[blockY-1]||!shape[blockY-1][blockX]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.stroke();}
                     if(blockY===shape.length-1||!shape[blockY+1]||!shape[blockY+1][blockX]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
@@ -5120,7 +5691,7 @@ function isPartOfPiece(boardX, boardY, piece) {
                                 ctx2.fillRect(ox+x*bs+highlightOffset,oy+y*bs+highlightOffset,highlightSize,highlightSize);
                             }
                             ctx2.strokeStyle='rgba(0,0,0,0.5)';
-                            ctx2.lineWidth=Math.max(0.5, bs/12);
+                            ctx2.lineWidth=Math.max(0.5, bs/15);
                             ctx2.strokeRect(ox+x*bs,oy+y*bs,bs,bs);
                         }
                     }));
@@ -5387,14 +5958,16 @@ function isPartOfPiece(boardX, boardY, piece) {
             switch(a){
                 case'moveLeft':move(-1);dasTimer=setTimeout(()=>{dasIntervalTimer=setInterval(()=>move(-1),settings.dasInterval);},settings.dasDelay);break;
                 case'moveRight':move(1);dasTimer=setTimeout(()=>{dasIntervalTimer=setInterval(()=>move(1),settings.dasInterval);},settings.dasDelay);break;
-                case'softDrop':softDrop();break; case'rotateRight':rotate('right');break; case'rotateLeft':rotate('left');break; case'flip':rotate('flip');break;
+                case'softDrop':softDrop();softDropTimer=setInterval(()=>softDrop(),50);break; case'rotateRight':rotate('right');break; case'rotateLeft':rotate('left');break; case'flip':rotate('flip');break;
                 case'hardDrop':e.preventDefault();hardDrop();break;
                 case'toggleMusic':const m=soundManager.toggleMute();document.getElementById('sound-toggle').textContent=m?'🔇':'🔊';break;
             }
         });
         document.addEventListener('keyup',(e)=>{
             const k=e.key===' '?'Space':e.key, a=Object.keys(settings.keyBindings).find(key=>settings.keyBindings[key]===k);
-            if(a)keyMap[a]=false; if(a==='moveLeft'||a==='moveRight'){clearTimeout(dasTimer);clearInterval(dasIntervalTimer);dasIntervalTimer=null;dasIntervalTimer=null;}
+            if(a)keyMap[a]=false;
+            if(a==='moveLeft'||a==='moveRight'){clearTimeout(dasTimer);clearInterval(dasIntervalTimer);dasIntervalTimer=null;dasIntervalTimer=null;}
+            if(a==='softDrop'){clearInterval(softDropTimer);softDropTimer=null;}
         });
         document.addEventListener('click',(e)=>{
             console.log('Click detected!', e.target);

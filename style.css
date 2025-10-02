@@ -46,6 +46,7 @@ body {
     visibility: hidden;
     transition: opacity 2.5s ease-in-out, visibility 0s linear 2.5s; /* Fade out, then hide */
     will-change: opacity, visibility; /* Optimization for browsers */
+    z-index: 1; /* Ensure theme container is above background but below particles */
 }
 
 .theme-canvas {
@@ -4970,9 +4971,8 @@ body {
 
 /* --- Cherry Blossom Garden Theme --- */
 #cherry-blossom-garden-theme {
-    background: #007FFF; /* Vibrant blue fallback */
+    background: transparent; /* Allow WebGL canvas to show through */
     overflow: hidden;
-    position: relative;
 }
 
 #cherry-blossom-sky {
@@ -5379,4 +5379,505 @@ body {
         transform: translate(var(--x-end), var(--y-end));
         opacity: 0;
     }
+}
+
+/* --- Wolfhour Theme --- */
+#wolfhour-theme {
+    background: transparent;
+    overflow: hidden;
+}
+
+#wolfhour-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0a0a0a;
+    z-index: 1;
+}
+
+#wolfhour-stars {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.wolfhour-star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: wolfhour-twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+    animation-delay: var(--twinkle-delay, 0s);
+}
+
+@keyframes wolfhour-twinkle {
+    0%, 100% { opacity: var(--min-opacity, 0.3); }
+    50% { opacity: var(--max-opacity, 1); }
+}
+
+.wolfhour-shooting-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 4px 2px rgba(255,255,255,0.8);
+    animation: wolfhour-shoot var(--shoot-duration, 2s) linear;
+    z-index: 3;
+}
+
+@keyframes wolfhour-shoot {
+    from {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    to {
+        transform: translate(var(--shoot-x, -200px), var(--shoot-y, 200px));
+        opacity: 0;
+    }
+}
+
+#wolfhour-nebula-back, #wolfhour-nebula-mid {
+    position: absolute;
+    top: 0; left: 0;
+    width: 200%; height: 100%;
+    opacity: 0.4;
+    z-index: 3;
+    animation: wolfhour-nebula-drift linear infinite;
+    background-repeat: repeat-x;
+    background-size: 1000px 100%;
+}
+
+#wolfhour-nebula-back {
+    animation-duration: 180s;
+    opacity: 0.3;
+}
+
+#wolfhour-nebula-mid {
+    animation-duration: 120s;
+    opacity: 0.5;
+    z-index: 4;
+}
+
+@keyframes wolfhour-nebula-drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@keyframes wolfhour-nebula-breathe {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.5; }
+}
+
+#wolfhour-mountains-distant {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 60%;
+    z-index: 5;
+    animation: wolfhour-parallax-slow 200s linear infinite;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    opacity: 0.6;
+}
+
+#wolfhour-mountains-fore {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 50%;
+    z-index: 7;
+    animation: wolfhour-parallax-fast 100s linear infinite;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    opacity: 0.9;
+}
+
+@keyframes wolfhour-parallax-slow {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@keyframes wolfhour-parallax-fast {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+#wolfhour-fog {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 30%;
+    background: linear-gradient(to top, rgba(120,120,120,0.15) 0%, transparent 100%);
+    z-index: 6;
+    animation: wolfhour-fog-drift 80s linear infinite;
+}
+
+@keyframes wolfhour-fog-drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+#wolfhour-grain {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.03;
+    z-index: 10;
+    pointer-events: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.5"/></svg>');
+    animation: wolfhour-grain-shift 0.5s steps(4) infinite;
+}
+
+@keyframes wolfhour-grain-shift {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-2px, 2px); }
+    50% { transform: translate(2px, -2px); }
+    75% { transform: translate(-2px, -2px); }
+}
+
+/* Mystical light rays from sky */
+#wolfhour-light-rays {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.wolfhour-light-ray {
+    position: absolute;
+    top: -20%;
+    width: 2px;
+    height: 120%;
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(200, 200, 200, 0.15) 20%,
+        rgba(180, 180, 180, 0.1) 50%,
+        transparent 100%);
+    transform-origin: top center;
+    animation: wolfhour-ray-sway var(--ray-duration, 8s) ease-in-out infinite;
+    animation-delay: var(--ray-delay, 0s);
+    filter: blur(1px);
+}
+
+@keyframes wolfhour-ray-sway {
+    0%, 100% {
+        transform: rotate(var(--ray-angle-start, 0deg)) translateX(0);
+        opacity: 0.3;
+    }
+    50% {
+        transform: rotate(var(--ray-angle-end, 3deg)) translateX(10px);
+        opacity: 0.6;
+    }
+}
+
+/* Cosmic rifts - glowing cracks in space */
+#wolfhour-cosmic-rifts {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.wolfhour-cosmic-rift {
+    position: absolute;
+    width: 1px;
+    height: var(--rift-length, 150px);
+    background: linear-gradient(to bottom,
+        transparent 0%,
+        rgba(220, 220, 220, 0.4) 30%,
+        rgba(200, 200, 200, 0.6) 50%,
+        rgba(220, 220, 220, 0.4) 70%,
+        transparent 100%);
+    box-shadow: 0 0 10px rgba(200, 200, 200, 0.5),
+                0 0 20px rgba(200, 200, 200, 0.3);
+    animation: wolfhour-rift-pulse var(--rift-duration, 4s) ease-in-out infinite;
+    animation-delay: var(--rift-delay, 0s);
+    filter: blur(0.5px);
+}
+
+@keyframes wolfhour-rift-pulse {
+    0%, 100% {
+        opacity: 0.2;
+        transform: scaleY(0.8);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scaleY(1.2);
+    }
+}
+
+/* Ethereal spirits floating */
+#wolfhour-spirits {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 8;
+    pointer-events: none;
+}
+
+.wolfhour-spirit {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(200, 200, 200, 0.2) 50%,
+        transparent 100%);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3),
+                0 0 30px rgba(200, 200, 200, 0.2);
+    animation: wolfhour-spirit-float var(--spirit-duration, 20s) ease-in-out infinite;
+    animation-delay: var(--spirit-delay, 0s);
+    filter: blur(2px);
+}
+
+@keyframes wolfhour-spirit-float {
+    0% {
+        transform: translate(var(--spirit-x-start, 0), var(--spirit-y-start, 0)) scale(0.8);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.7;
+        transform: translate(var(--spirit-x-mid, 50px), var(--spirit-y-mid, -100px)) scale(1.2);
+    }
+    90% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(var(--spirit-x-end, 100px), var(--spirit-y-end, -200px)) scale(0.8);
+        opacity: 0;
+    }
+}
+
+/* --- Lunara Theme --- */
+#lunara-theme {
+    background: transparent;
+    overflow: hidden;
+}
+
+#lunara-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to bottom, #1a0b2e 0%, #2d1b4e 40%, #4a2472 70%, #6b3a9e 100%);
+    z-index: 1;
+}
+
+#lunara-stars {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.lunara-star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: lunara-star-twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+    animation-delay: var(--twinkle-delay, 0s);
+    box-shadow: 0 0 4px rgba(255,255,255,0.8);
+}
+
+@keyframes lunara-star-twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+#lunara-aurora {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 50%;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.lunara-aurora {
+    position: absolute;
+    width: 300px;
+    height: 600px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(200, 150, 255, 0.3) 20%,
+        rgba(255, 150, 240, 0.4) 50%,
+        rgba(200, 150, 255, 0.3) 80%,
+        transparent 100%);
+    filter: blur(30px);
+    animation: lunara-aurora-flow var(--aurora-duration, 20s) ease-in-out infinite;
+    animation-delay: var(--aurora-delay, 0s);
+    transform-origin: top center;
+    opacity: 0.6;
+}
+
+@keyframes lunara-aurora-flow {
+    0%, 100% {
+        transform: translateX(-20px) translateY(0) skewX(-5deg);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translateX(20px) translateY(-30px) skewX(5deg);
+        opacity: 0.8;
+    }
+}
+
+#lunara-planets {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 4;
+    background-size: cover;
+    background-position: center top;
+    animation: lunara-planet-pulse 30s ease-in-out infinite;
+}
+
+@keyframes lunara-planet-pulse {
+    0%, 100% { opacity: 0.95; filter: brightness(1); }
+    50% { opacity: 1; filter: brightness(1.1); }
+}
+
+#lunara-mountains-distant {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 150%; height: 50%;
+    z-index: 5;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    opacity: 0.7;
+    animation: lunara-parallax-slow 250s linear infinite;
+}
+
+#lunara-mountains-mid {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 150%; height: 55%;
+    z-index: 6;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    opacity: 0.85;
+    animation: lunara-parallax-mid 180s linear infinite;
+}
+
+@keyframes lunara-parallax-slow {
+    from { transform: translateX(0); }
+    to { transform: translateX(-33.33%); }
+}
+
+@keyframes lunara-parallax-mid {
+    from { transform: translateX(0); }
+    to { transform: translateX(-33.33%); }
+}
+
+#lunara-forest-left, #lunara-forest-right {
+    position: absolute;
+    bottom: 0;
+    width: 50%;
+    height: 60%;
+    z-index: 7;
+    pointer-events: none;
+}
+
+#lunara-forest-left {
+    left: 0;
+}
+
+#lunara-forest-right {
+    right: 0;
+}
+
+.lunara-tree {
+    position: absolute;
+    width: 0;
+    height: 200px;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 250px solid #5b4187;
+    filter: drop-shadow(0 0 20px rgba(200, 150, 255, 0.3));
+    animation: lunara-tree-sway var(--sway-duration, 5s) ease-in-out infinite;
+    animation-delay: var(--sway-delay, 0s);
+    transform-origin: bottom center;
+}
+
+.lunara-tree::before {
+    content: '';
+    position: absolute;
+    bottom: -250px;
+    left: -25px;
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 280px solid #4a2d6e;
+}
+
+.lunara-tree::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -15px;
+    width: 30px;
+    height: 15px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
+    border-radius: 50%;
+    filter: blur(3px);
+}
+
+@keyframes lunara-tree-sway {
+    0%, 100% { transform: rotate(-1deg); }
+    50% { transform: rotate(1deg); }
+}
+
+#lunara-snowfield {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 25%;
+    background: linear-gradient(to top,
+        rgba(200, 180, 230, 0.4) 0%,
+        rgba(150, 120, 200, 0.2) 50%,
+        transparent 100%);
+    z-index: 8;
+    animation: lunara-snowfield-shimmer 8s ease-in-out infinite;
+}
+
+@keyframes lunara-snowfield-shimmer {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; filter: brightness(1.15); }
+}
+
+#lunara-fog {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 30%;
+    background: linear-gradient(to top,
+        rgba(180, 150, 220, 0.2) 0%,
+        rgba(150, 120, 200, 0.1) 50%,
+        transparent 100%);
+    z-index: 9;
+    animation: lunara-fog-drift 120s linear infinite;
+}
+
+@keyframes lunara-fog-drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+#lunara-grain {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.04;
+    z-index: 10;
+    pointer-events: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.5"/></svg>');
+    animation: lunara-grain-shift 0.6s steps(3) infinite;
+}
+
+@keyframes lunara-grain-shift {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(-1px, 1px); }
+    66% { transform: translate(1px, -1px); }
 }
