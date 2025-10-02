@@ -124,12 +124,24 @@ function createIceTempleScene() {
     // 1. Ice Crystal Architecture (WebGL)
     if (webglRenderer) {
         const crystalLayers = [
-            { zIndex: -0.9, count: 20, color: 'rgba(150, 180, 220, 0.3)' },
-            { zIndex: -0.8, count: 15, color: 'rgba(180, 210, 240, 0.4)' },
-            { zIndex: -0.7, count: 10, color: 'rgba(210, 230, 255, 0.5)' }
+            { zIndex: -0.9, count: 20, color: 'rgba(150, 180, 220, 0.3)', seed: 45678 },
+            { zIndex: -0.8, count: 15, color: 'rgba(180, 210, 240, 0.4)', seed: 56789 },
+            { zIndex: -0.7, count: 10, color: 'rgba(210, 230, 255, 0.5)', seed: 67890 }
         ];
 
         crystalLayers.forEach(layer => {
+            // Create cache key based on layer properties and dimensions
+            const cacheKey = `ice-temple-${layer.zIndex}-${layer.count}-${layer.color}-${window.innerWidth}x${window.innerHeight}`;
+
+            // Check if we have a cached canvas for this configuration
+            if (iceTempleCache.has(cacheKey)) {
+                const cachedCanvas = iceTempleCache.get(cacheKey);
+                webglRenderer.addLayer(cachedCanvas, layer.zIndex);
+                return;
+            }
+
+            // Generate canvas with seeded random for deterministic output
+            const rng = seededRandom(layer.seed);
             const canvas = document.createElement('canvas');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -138,28 +150,31 @@ function createIceTempleScene() {
             ctx.lineWidth = 0.5;
 
             for (let i = 0; i < layer.count; i++) {
-                const x = Math.random() * canvas.width;
-                const h = Math.random() * canvas.height * 0.6 + canvas.height * 0.2;
-                const w = Math.random() * 60 + 30;
+                const x = rng() * canvas.width;
+                const h = rng() * canvas.height * 0.6 + canvas.height * 0.2;
+                const w = rng() * 60 + 30;
                 ctx.fillStyle = layer.color;
 
                 // Draw sharp, geometric crystals from floor and ceiling
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
-                ctx.lineTo(x - w, h * (Math.random() * 0.3 + 0.2));
-                ctx.lineTo(x + w, h * (Math.random() * 0.3 + 0.2));
+                ctx.lineTo(x - w, h * (rng() * 0.3 + 0.2));
+                ctx.lineTo(x + w, h * (rng() * 0.3 + 0.2));
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
 
                 ctx.beginPath();
                 ctx.moveTo(x, canvas.height);
-                ctx.lineTo(x - w, canvas.height - h * (Math.random() * 0.3 + 0.2));
-                ctx.lineTo(x + w, canvas.height - h * (Math.random() * 0.3 + 0.2));
+                ctx.lineTo(x - w, canvas.height - h * (rng() * 0.3 + 0.2));
+                ctx.lineTo(x + w, canvas.height - h * (rng() * 0.3 + 0.2));
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
             }
+
+            // Cache the generated canvas for future use
+            iceTempleCache.set(cacheKey, canvas);
             webglRenderer.addLayer(canvas, layer.zIndex);
         });
     }
@@ -4099,6 +4114,9 @@ const wolfhourBackgroundCache = new Map();
 
 // Cache for Himalayan Peak backgrounds to avoid expensive canvas regeneration
 const himalayanPeakCache = new Map();
+
+// Cache for Ice Temple backgrounds to avoid expensive canvas regeneration
+const iceTempleCache = new Map();
 
 // Seeded random number generator for deterministic procedural generation
 function seededRandom(seed) {
