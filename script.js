@@ -648,8 +648,8 @@ function createCherryBlossomGardenScene() {
             { count: 5, color: '#3b2a2a', bloomColors: ['#ff8fab', '#ff7f9e', '#e7738c'], baseWidth: 22 }
         ];
 
-        const drawBranch = (x1, y1, len, angle, width, colors) => {
-            if (width < 2) return;
+        const drawBranch = (x1, y1, len, angle, width, colors, depth = 0) => {
+            if (width < 2 || depth > 10) return; // Add depth limit to prevent stack overflow
 
             ctx.beginPath();
             ctx.lineWidth = width;
@@ -681,8 +681,8 @@ function createCherryBlossomGardenScene() {
             }
 
             const newLen = len * (0.75 + Math.random() * 0.1);
-            drawBranch(x2, y2, newLen, angle + (Math.random() * 20 + 10), width * 0.75, colors);
-            drawBranch(x2, y2, newLen, angle - (Math.random() * 20 + 10), width * 0.75, colors);
+            drawBranch(x2, y2, newLen, angle + (Math.random() * 20 + 10), width * 0.75, colors, depth + 1);
+            drawBranch(x2, y2, newLen, angle - (Math.random() * 20 + 10), width * 0.75, colors, depth + 1);
         };
 
         treeLayers.forEach(layer => {
