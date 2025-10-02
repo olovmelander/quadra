@@ -5087,7 +5087,7 @@ function isPartOfPiece(boardX, boardY, piece) {
             ctx.fillStyle=c; ctx.fillRect(x*BLOCK_SIZE,y*BLOCK_SIZE,BLOCK_SIZE,BLOCK_SIZE);
             if(!isGhost){
                 ctx.strokeStyle='rgba(0,0,0,0.7)';
-                ctx.lineWidth=3;
+                ctx.lineWidth=2;
                 if(shape){
                     if(blockY===0||!shape[blockY-1]||!shape[blockY-1][blockX]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,y*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,y*BLOCK_SIZE);ctx.stroke();}
                     if(blockY===shape.length-1||!shape[blockY+1]||!shape[blockY+1][blockX]){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.lineTo((x+1)*BLOCK_SIZE,(y+1)*BLOCK_SIZE);ctx.stroke();}
@@ -5120,7 +5120,7 @@ function isPartOfPiece(boardX, boardY, piece) {
                                 ctx2.fillRect(ox+x*bs+highlightOffset,oy+y*bs+highlightOffset,highlightSize,highlightSize);
                             }
                             ctx2.strokeStyle='rgba(0,0,0,0.5)';
-                            ctx2.lineWidth=Math.max(0.5, bs/12);
+                            ctx2.lineWidth=Math.max(0.5, bs/15);
                             ctx2.strokeRect(ox+x*bs,oy+y*bs,bs,bs);
                         }
                     }));
