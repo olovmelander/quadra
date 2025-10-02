@@ -15,20 +15,32 @@ function random(min, max) {
 // The old startForestAnimations, stopForestAnimations, and Firefly class have been removed.
 
 function createHimalayanPeakScene() {
-    // 1. Procedural Peaks for WebGL
+    // 1. Procedural Peaks for WebGL - with canvas caching optimization
     if (webglRenderer) {
         const peakLayers = [
             // z-index values are for WebGL depth, not CSS z-index. Closer to -1 is further away.
-            { zIndex: -0.9, color: 'rgba(60, 70, 90, 0.7)', jaggedness: 0.3, snowLine: 0.4 },
-            { zIndex: -0.8, color: 'rgba(80, 90, 110, 0.8)', jaggedness: 0.5, snowLine: 0.3 },
-            { zIndex: -0.7, color: 'rgba(100, 110, 130, 0.9)', jaggedness: 0.7, snowLine: 0.2 }
+            { zIndex: -0.9, color: 'rgba(60, 70, 90, 0.7)', jaggedness: 0.3, snowLine: 0.4, seed: 12345 },
+            { zIndex: -0.8, color: 'rgba(80, 90, 110, 0.8)', jaggedness: 0.5, snowLine: 0.3, seed: 23456 },
+            { zIndex: -0.7, color: 'rgba(100, 110, 130, 0.9)', jaggedness: 0.7, snowLine: 0.2, seed: 34567 }
         ];
 
         peakLayers.forEach(layer => {
-            const canvas = document.createElement('canvas');
-            // We can use a smaller canvas for the texture source
             const C_WIDTH = 2048;
             const C_HEIGHT = window.innerHeight > 1080 ? 1080 : window.innerHeight; // Cap height for performance
+
+            // Create cache key based on layer properties and dimensions
+            const cacheKey = `peak-${layer.zIndex}-${layer.color}-${layer.jaggedness}-${layer.snowLine}-${C_WIDTH}x${C_HEIGHT}`;
+
+            // Check if we have this peak cached
+            if (himalayanPeakCache.has(cacheKey)) {
+                const cachedCanvas = himalayanPeakCache.get(cacheKey);
+                webglRenderer.addLayer(cachedCanvas, layer.zIndex);
+                return;
+            }
+
+            // Generate new peak with seeded random for deterministic output
+            const rng = seededRandom(layer.seed);
+            const canvas = document.createElement('canvas');
             canvas.width = C_WIDTH;
             canvas.height = C_HEIGHT;
             const ctx = canvas.getContext('2d');
@@ -40,7 +52,7 @@ function createHimalayanPeakScene() {
             for (let x = 0; x < C_WIDTH; x++) {
                 const angle = x / C_WIDTH * Math.PI * 4;
                 y = canvas.height * 0.7 - Math.sin(angle) * 100 - Math.cos(angle * 0.5) * 50;
-                y += (Math.random() - 0.5) * layer.jaggedness * 20;
+                y += (rng() - 0.5) * layer.jaggedness * 20;
                 ctx.lineTo(x, y);
 
                 // Draw snow caps
@@ -53,6 +65,9 @@ function createHimalayanPeakScene() {
             ctx.lineTo(C_WIDTH, canvas.height);
             ctx.closePath();
             ctx.fill();
+
+            // Cache the generated canvas
+            himalayanPeakCache.set(cacheKey, canvas);
 
             // Add the generated canvas as a layer to the WebGL renderer
             webglRenderer.addLayer(canvas, layer.zIndex);
@@ -4042,6 +4057,9 @@ const moonlitForestTreeCache = new Map();
 
 // Cache for Wolfhour backgrounds to avoid expensive canvas regeneration
 const wolfhourBackgroundCache = new Map();
+
+// Cache for Himalayan Peak backgrounds to avoid expensive canvas regeneration
+const himalayanPeakCache = new Map();
 
 // Seeded random number generator for deterministic procedural generation
 function seededRandom(seed) {
