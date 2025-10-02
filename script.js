@@ -4040,6 +4040,18 @@ function createFluidDreamsScene() {
 // Cache for moonlit forest tree backgrounds to avoid expensive regeneration
 const moonlitForestTreeCache = new Map();
 
+// Cache for Wolfhour backgrounds to avoid expensive canvas regeneration
+const wolfhourBackgroundCache = new Map();
+
+// Seeded random number generator for deterministic procedural generation
+function seededRandom(seed) {
+    let state = seed;
+    return function() {
+        state = (state * 1664525 + 1013904223) % 4294967296;
+        return state / 4294967296;
+    };
+}
+
 function createMoonlitForestScene() {
     // Define tree colors for different layers
     const treeLayers = [
@@ -4259,54 +4271,76 @@ function createWolfhourScene() {
         }, 8000);
     }
 
-    // 2. Create nebula clouds using canvas
+    // 2. Create nebula clouds using canvas (with caching)
     const nebulaBack = document.getElementById('wolfhour-nebula-back');
     const nebulaMid = document.getElementById('wolfhour-nebula-mid');
 
-    if (nebulaBack && !nebulaBack.style.backgroundImage) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 2000;
-        canvas.height = 800;
-        const ctx = canvas.getContext('2d');
+    if (nebulaBack) {
+        const cacheKey = 'wolfhour-nebula-back-2000x800';
 
-        // Create wispy nebula texture
-        for (let i = 0; i < 50; i++) {
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height;
-            const radius = Math.random() * 200 + 100;
-            const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-            const opacity = Math.random() * 0.15 + 0.05;
-            gradient.addColorStop(0, `rgba(200, 200, 200, ${opacity})`);
-            gradient.addColorStop(0.5, `rgba(150, 150, 150, ${opacity * 0.5})`);
-            gradient.addColorStop(1, 'rgba(100, 100, 100, 0)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (wolfhourBackgroundCache.has(cacheKey)) {
+            // Use cached version
+            nebulaBack.style.backgroundImage = wolfhourBackgroundCache.get(cacheKey);
+        } else {
+            // Generate with seeded random for deterministic output
+            const rng = seededRandom(12345);
+            const canvas = document.createElement('canvas');
+            canvas.width = 2000;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            // Create wispy nebula texture
+            for (let i = 0; i < 50; i++) {
+                const x = rng() * canvas.width;
+                const y = rng() * canvas.height;
+                const radius = rng() * 200 + 100;
+                const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                const opacity = rng() * 0.15 + 0.05;
+                gradient.addColorStop(0, `rgba(200, 200, 200, ${opacity})`);
+                gradient.addColorStop(0.5, `rgba(150, 150, 150, ${opacity * 0.5})`);
+                gradient.addColorStop(1, 'rgba(100, 100, 100, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const dataURL = `url(${canvas.toDataURL()})`;
+            wolfhourBackgroundCache.set(cacheKey, dataURL);
+            nebulaBack.style.backgroundImage = dataURL;
         }
-
-        nebulaBack.style.backgroundImage = `url(${canvas.toDataURL()})`;
     }
 
-    if (nebulaMid && !nebulaMid.style.backgroundImage) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 2000;
-        canvas.height = 800;
-        const ctx = canvas.getContext('2d');
+    if (nebulaMid) {
+        const cacheKey = 'wolfhour-nebula-mid-2000x800';
 
-        // Create denser nebula for mid layer
-        for (let i = 0; i < 40; i++) {
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height;
-            const radius = Math.random() * 250 + 150;
-            const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-            const opacity = Math.random() * 0.2 + 0.1;
-            gradient.addColorStop(0, `rgba(220, 220, 220, ${opacity})`);
-            gradient.addColorStop(0.5, `rgba(180, 180, 180, ${opacity * 0.6})`);
-            gradient.addColorStop(1, 'rgba(120, 120, 120, 0)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (wolfhourBackgroundCache.has(cacheKey)) {
+            // Use cached version
+            nebulaMid.style.backgroundImage = wolfhourBackgroundCache.get(cacheKey);
+        } else {
+            // Generate with seeded random for deterministic output
+            const rng = seededRandom(54321);
+            const canvas = document.createElement('canvas');
+            canvas.width = 2000;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            // Create denser nebula for mid layer
+            for (let i = 0; i < 40; i++) {
+                const x = rng() * canvas.width;
+                const y = rng() * canvas.height;
+                const radius = rng() * 250 + 150;
+                const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+                const opacity = rng() * 0.2 + 0.1;
+                gradient.addColorStop(0, `rgba(220, 220, 220, ${opacity})`);
+                gradient.addColorStop(0.5, `rgba(180, 180, 180, ${opacity * 0.6})`);
+                gradient.addColorStop(1, 'rgba(120, 120, 120, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const dataURL = `url(${canvas.toDataURL()})`;
+            wolfhourBackgroundCache.set(cacheKey, dataURL);
+            nebulaMid.style.backgroundImage = dataURL;
         }
-
-        nebulaMid.style.backgroundImage = `url(${canvas.toDataURL()})`;
     }
 
     // 3. Create mystical light rays
@@ -4373,53 +4407,81 @@ function createWolfhourScene() {
         }
     }
 
-    // 6. Create jagged mountain silhouettes
+    // 6. Create jagged mountain silhouettes (with caching)
     const mountainsDistant = document.getElementById('wolfhour-mountains-distant');
-    if (mountainsDistant && !mountainsDistant.style.backgroundImage) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 4000;
-        canvas.height = 800;
-        const ctx = canvas.getContext('2d');
+    if (mountainsDistant) {
+        const cacheKey = 'wolfhour-mountains-distant-4000x800';
 
-        ctx.fillStyle = '#404040';
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height);
+        if (wolfhourBackgroundCache.has(cacheKey)) {
+            // Use cached version
+            const cachedData = wolfhourBackgroundCache.get(cacheKey);
+            mountainsDistant.style.backgroundImage = cachedData.backgroundImage;
+            mountainsDistant.style.backgroundSize = cachedData.backgroundSize;
+        } else {
+            // Generate with seeded random for deterministic output
+            const rng = seededRandom(11111);
+            const canvas = document.createElement('canvas');
+            canvas.width = 4000;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
 
-        // Create jagged peaks
-        for (let x = 0; x < canvas.width; x += 20) {
-            const y = canvas.height - (Math.random() * 300 + 200) - Math.sin(x * 0.01) * 100;
-            ctx.lineTo(x, y);
+            ctx.fillStyle = '#404040';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+
+            // Create jagged peaks
+            for (let x = 0; x < canvas.width; x += 20) {
+                const y = canvas.height - (rng() * 300 + 200) - Math.sin(x * 0.01) * 100;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            const backgroundImage = `url(${canvas.toDataURL()})`;
+            const backgroundSize = '2000px 100%';
+            wolfhourBackgroundCache.set(cacheKey, { backgroundImage, backgroundSize });
+            mountainsDistant.style.backgroundImage = backgroundImage;
+            mountainsDistant.style.backgroundSize = backgroundSize;
         }
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.closePath();
-        ctx.fill();
-
-        mountainsDistant.style.backgroundImage = `url(${canvas.toDataURL()})`;
-        mountainsDistant.style.backgroundSize = '2000px 100%';
     }
 
     const mountainsFore = document.getElementById('wolfhour-mountains-fore');
-    if (mountainsFore && !mountainsFore.style.backgroundImage) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 4000;
-        canvas.height = 600;
-        const ctx = canvas.getContext('2d');
+    if (mountainsFore) {
+        const cacheKey = 'wolfhour-mountains-fore-4000x600';
 
-        ctx.fillStyle = '#1a1a1a';
-        ctx.beginPath();
-        ctx.moveTo(0, canvas.height);
+        if (wolfhourBackgroundCache.has(cacheKey)) {
+            // Use cached version
+            const cachedData = wolfhourBackgroundCache.get(cacheKey);
+            mountainsFore.style.backgroundImage = cachedData.backgroundImage;
+            mountainsFore.style.backgroundSize = cachedData.backgroundSize;
+        } else {
+            // Generate with seeded random for deterministic output
+            const rng = seededRandom(22222);
+            const canvas = document.createElement('canvas');
+            canvas.width = 4000;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
 
-        // Create sharper, darker peaks
-        for (let x = 0; x < canvas.width; x += 15) {
-            const y = canvas.height - (Math.random() * 400 + 150) - Math.cos(x * 0.015) * 80;
-            ctx.lineTo(x, y);
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+
+            // Create sharper, darker peaks
+            for (let x = 0; x < canvas.width; x += 15) {
+                const y = canvas.height - (rng() * 400 + 150) - Math.cos(x * 0.015) * 80;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            const backgroundImage = `url(${canvas.toDataURL()})`;
+            const backgroundSize = '2000px 100%';
+            wolfhourBackgroundCache.set(cacheKey, { backgroundImage, backgroundSize });
+            mountainsFore.style.backgroundImage = backgroundImage;
+            mountainsFore.style.backgroundSize = backgroundSize;
         }
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.closePath();
-        ctx.fill();
-
-        mountainsFore.style.backgroundImage = `url(${canvas.toDataURL()})`;
-        mountainsFore.style.backgroundSize = '2000px 100%';
     }
 }
 
