@@ -1371,7 +1371,7 @@ function createCandlelitMonasteryScene() {
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
         let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false, isPaused = false;
-        let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null;
+        let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null, softDropTimer = null;
 let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null, activeThemeData = null;
 
         let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
@@ -5387,14 +5387,16 @@ function isPartOfPiece(boardX, boardY, piece) {
             switch(a){
                 case'moveLeft':move(-1);dasTimer=setTimeout(()=>{dasIntervalTimer=setInterval(()=>move(-1),settings.dasInterval);},settings.dasDelay);break;
                 case'moveRight':move(1);dasTimer=setTimeout(()=>{dasIntervalTimer=setInterval(()=>move(1),settings.dasInterval);},settings.dasDelay);break;
-                case'softDrop':softDrop();break; case'rotateRight':rotate('right');break; case'rotateLeft':rotate('left');break; case'flip':rotate('flip');break;
+                case'softDrop':softDrop();softDropTimer=setInterval(()=>softDrop(),50);break; case'rotateRight':rotate('right');break; case'rotateLeft':rotate('left');break; case'flip':rotate('flip');break;
                 case'hardDrop':e.preventDefault();hardDrop();break;
                 case'toggleMusic':const m=soundManager.toggleMute();document.getElementById('sound-toggle').textContent=m?'🔇':'🔊';break;
             }
         });
         document.addEventListener('keyup',(e)=>{
             const k=e.key===' '?'Space':e.key, a=Object.keys(settings.keyBindings).find(key=>settings.keyBindings[key]===k);
-            if(a)keyMap[a]=false; if(a==='moveLeft'||a==='moveRight'){clearTimeout(dasTimer);clearInterval(dasIntervalTimer);dasIntervalTimer=null;dasIntervalTimer=null;}
+            if(a)keyMap[a]=false;
+            if(a==='moveLeft'||a==='moveRight'){clearTimeout(dasTimer);clearInterval(dasIntervalTimer);dasIntervalTimer=null;dasIntervalTimer=null;}
+            if(a==='softDrop'){clearInterval(softDropTimer);softDropTimer=null;}
         });
         document.addEventListener('click',(e)=>{
             console.log('Click detected!', e.target);
