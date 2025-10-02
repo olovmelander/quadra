@@ -39,15 +39,12 @@ To validate your optimization, you must:
 
 When finished, add a new markdown file in the [optimization-reports](optimization-reports/) folder.
 
-**Important guidelines:**
-
 - Each optimization must have its own new report file so previous work is not overwritten.
 - Always use the [optimization-reports/template.md](optimization-reports/template.md) file as the base structure for your report.
-- Use the following naming convention:
-  - `optimization-YYYY-MM-DD.md` (e.g., `optimization-2025-10-02.md`)
-  - If multiple optimizations are done on the same day, add a suffix:
-    - `optimization-YYYY-MM-DD-1.md`
-    - `optimization-YYYY-MM-DD-2.md`
+- Use a clear, descriptive filename that indicates what was optimized. Examples:
+  - `rainy-window-optimization.md`
+  - `particle-buffer-optimization.md`
+  - `wolfhour-canvas-caching.md`
 
 Each report should summarize:
 
