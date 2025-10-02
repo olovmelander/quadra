@@ -2103,6 +2103,9 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
+            // Regenerate grid cache when canvas size changes
+            generateGridCache();
+
             // Redraw the game with new sizes if the game is active
             if (!isGameOver && currentPiece) {
                 draw();
@@ -2110,7 +2113,42 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
             }
         }
 
+        function generateGridCache() {
+            // Create offscreen canvas for grid if it doesn't exist
+            if (!gridCache) {
+                gridCache = document.createElement('canvas');
+                gridCacheCtx = gridCache.getContext('2d');
+            }
+
+            // Set cache canvas to match game canvas size
+            gridCache.width = canvas.width;
+            gridCache.height = canvas.height;
+
+            // Draw grid lines onto cache
+            gridCacheCtx.strokeStyle = 'rgba(255,255,255,0.05)';
+            gridCacheCtx.lineWidth = 1;
+
+            // Draw vertical lines
+            for (let x = 0; x <= COLS; x++) {
+                gridCacheCtx.beginPath();
+                gridCacheCtx.moveTo(x * BLOCK_SIZE, 0);
+                gridCacheCtx.lineTo(x * BLOCK_SIZE, canvas.height);
+                gridCacheCtx.stroke();
+            }
+
+            // Draw horizontal lines
+            for (let y = 0; y <= ROWS; y++) {
+                gridCacheCtx.beginPath();
+                gridCacheCtx.moveTo(0, y * BLOCK_SIZE);
+                gridCacheCtx.lineTo(canvas.width, y * BLOCK_SIZE);
+                gridCacheCtx.stroke();
+            }
+        }
+
         let soundInitialized = false;
+        let gridCache = null;  // Offscreen canvas for cached grid
+        let gridCacheCtx = null;
+
         function init() {
             canvas = document.getElementById('game-canvas'); ctx = canvas.getContext('2d');
             nextCanvases = Array.from({length: 5}, (_, i) => document.getElementById(`next-${i}`));
@@ -5353,9 +5391,11 @@ function isPartOfPiece(boardX, boardY, piece) {
             if (level>=10) { canvas.style.borderColor = '#ef4444'; canvas.style.boxShadow = '0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.4)';}
             else if (level>=5) { canvas.style.borderColor = '#fbbf24'; canvas.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.4)';}
             else { canvas.style.borderColor = '#8b5cf6'; canvas.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)';}
-            ctx.clearRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
-            for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*BLOCK_SIZE,0);ctx.lineTo(x*BLOCK_SIZE,canvas.height);ctx.stroke();}
-            for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*BLOCK_SIZE);ctx.lineTo(canvas.width,y*BLOCK_SIZE);ctx.stroke();}
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            // Use cached grid instead of redrawing it every frame
+            if (gridCache) {
+                ctx.drawImage(gridCache, 0, 0);
+            }
             const boardData=generateBoard(lockedPieces);
             boardData.forEach((row,y)=>{ if(y<HIDDEN_ROWS)return; row.forEach((cell,x)=>{ if(cell!==null&&cell.color!=='C')drawBlock(x,y-HIDDEN_ROWS,COLORS[cell.color],boardData,false,null,0,0,x,y); else if(cell!==null&&cell.color==='C')drawBlock(x,y-HIDDEN_ROWS,'#ffffff',boardData,false,null,0,0,x,y);});});
             if(currentPiece) {
