@@ -1386,6 +1386,7 @@ function createCandlelitMonasteryScene() {
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
         let dropCounter = 0, lastTime = 0, startTime, piecesPlaced = 0, isGameOver = false, isPaused = false;
+        let lastRenderedLevel = 0; // Track last level for canvas style optimization
         let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null, softDropTimer = null;
 let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null, activeThemeData = null;
 
@@ -5215,6 +5216,7 @@ function createWavesScene() {
             score = 0; lines = 0; level = 1; linesUntilNextLevel = 10;
             dropInterval = LEVEL_SPEEDS[0]; dropCounter = 0; piecesPlaced = 0;
             isGameOver = false; isProcessingPhysics = false; inputQueue = null;
+            lastRenderedLevel = 0; // Reset to trigger canvas style update
             startTime = Date.now(); fillBag(); updateStats(); spawnPiece();
             stopRandomThemeChanger();
             if (settings.backgroundMode === 'Specific') {
@@ -5387,10 +5389,28 @@ function isPartOfPiece(boardX, boardY, piece) {
             }
             return pieces;
         }
+        function updateCanvasStyle() {
+            // Update canvas border and shadow based on level
+            // Only called when level actually changes (optimization)
+            if (level>=10) {
+                canvas.style.borderColor = '#ef4444';
+                canvas.style.boxShadow = '0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.4)';
+            }
+            else if (level>=5) {
+                canvas.style.borderColor = '#fbbf24';
+                canvas.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.4)';
+            }
+            else {
+                canvas.style.borderColor = '#8b5cf6';
+                canvas.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)';
+            }
+            lastRenderedLevel = level;
+        }
         function draw() {
-            if (level>=10) { canvas.style.borderColor = '#ef4444'; canvas.style.boxShadow = '0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(239, 68, 68, 0.4)';}
-            else if (level>=5) { canvas.style.borderColor = '#fbbf24'; canvas.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.4)';}
-            else { canvas.style.borderColor = '#8b5cf6'; canvas.style.boxShadow = '0 0 30px rgba(139, 92, 246, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)';}
+            // Only update canvas styles when level changes (performance optimization)
+            if (level !== lastRenderedLevel) {
+                updateCanvasStyle();
+            }
             ctx.clearRect(0,0,canvas.width,canvas.height);
             // Use cached grid instead of redrawing it every frame
             if (gridCache) {

@@ -1,5 +1,20 @@
 # Performance Optimization Report
 
+> ⚠️ **Naming Reminder:**
+> Save this file in the `optimization-reports` folder using a **descriptive name** based on the feature or system optimized.
+> Use lowercase letters, hyphens (`-`) between words, and end with `.md`.
+>
+> ✅ Examples:
+> - `rainy-window-optimization.md`
+> - `particle-buffer-optimization.md`
+> - `wolfhour-canvas-caching.md`
+>
+> ❌ Not allowed:
+> - `optimization-2025-10-02.md`
+> - `OPTIMIZATION_REPORT.md`
+
+---
+
 **Date:** YYYY-MM-DD
 **Author:** Your Name
 **File(s) Optimized:** path/to/file.js (line X–Y)
