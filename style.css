@@ -5506,7 +5506,7 @@ body {
     position: absolute;
     bottom: 0; left: 0;
     width: 200%; height: 30%;
-    background: linear-gradient(to top, rgba(255,255,255,0.1) 0%, transparent 100%);
+    background: linear-gradient(to top, rgba(120,120,120,0.15) 0%, transparent 100%);
     z-index: 6;
     animation: wolfhour-fog-drift 80s linear infinite;
 }
