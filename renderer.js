@@ -1101,6 +1101,92 @@ class WebGLRenderer {
             });
 
             this.start();
+        } else if (themeName === 'wolfhour') {
+            // Background cosmic dust - very slow and subtle
+            const cosmicDustBackConfig = {
+                behavior: 'ambient',
+                speed: 0.08,
+                minSize: 0.5,
+                maxSize: 1.2,
+                minAlpha: 0.1,
+                maxAlpha: 0.25,
+                lifetime: Infinity,
+                zIndex: -0.6,
+                color: [0.7, 0.7, 0.7]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 120, cosmicDustBackConfig));
+
+            // Mid-layer cosmic dust - slightly more visible
+            const cosmicDustMidConfig = {
+                behavior: 'ambient',
+                speed: 0.12,
+                minSize: 0.8,
+                maxSize: 1.8,
+                minAlpha: 0.15,
+                maxAlpha: 0.35,
+                lifetime: Infinity,
+                zIndex: -0.4,
+                color: [0.8, 0.8, 0.8]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 100, cosmicDustMidConfig));
+
+            // Foreground cosmic dust - most visible
+            const cosmicDustForeConfig = {
+                behavior: 'ambient',
+                speed: 0.15,
+                minSize: 1.0,
+                maxSize: 2.5,
+                minAlpha: 0.2,
+                maxAlpha: 0.45,
+                lifetime: Infinity,
+                zIndex: -0.2,
+                color: [0.9, 0.9, 0.9]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 80, cosmicDustForeConfig));
+
+            // Mystical floating orbs (larger, slower)
+            const orbConfig = {
+                behavior: 'firefly',
+                speed: 0.06,
+                minSize: 2.0,
+                maxSize: 4.0,
+                minAlpha: 0.15,
+                maxAlpha: 0.4,
+                lifetime: Infinity,
+                zIndex: -0.35,
+                color: [0.85, 0.85, 0.85]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 40, orbConfig));
+
+            // Glowing embers - subtle but mystical
+            const emberConfig = {
+                behavior: 'firefly',
+                speed: 0.1,
+                minSize: 1.2,
+                maxSize: 2.8,
+                minAlpha: 0.25,
+                maxAlpha: 0.55,
+                lifetime: Infinity,
+                zIndex: -0.3,
+                color: [0.95, 0.95, 0.95]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 50, emberConfig));
+
+            // Drifting wisps (horizontal movement)
+            const wispConfig = {
+                behavior: 'horizontal-drift',
+                speed: 0.5,
+                minSize: 1.5,
+                maxSize: 3.5,
+                minAlpha: 0.1,
+                maxAlpha: 0.3,
+                lifetime: Infinity,
+                zIndex: -0.5,
+                color: [0.75, 0.75, 0.75]
+            };
+            this.particleSystems.push(new ParticleSystem(this.gl, 60, wispConfig));
+
+            this.start();
         }
         // Note: electric-dreams theme uses DOM-based CSS animations, not WebGL particles
     }

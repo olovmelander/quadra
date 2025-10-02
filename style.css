@@ -5380,3 +5380,156 @@ body {
         opacity: 0;
     }
 }
+
+/* --- Wolfhour Theme --- */
+#wolfhour-theme {
+    background: transparent;
+    overflow: hidden;
+}
+
+#wolfhour-sky {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0a0a0a;
+    z-index: 1;
+}
+
+#wolfhour-stars {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.wolfhour-star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: wolfhour-twinkle var(--twinkle-duration, 3s) ease-in-out infinite;
+    animation-delay: var(--twinkle-delay, 0s);
+}
+
+@keyframes wolfhour-twinkle {
+    0%, 100% { opacity: var(--min-opacity, 0.3); }
+    50% { opacity: var(--max-opacity, 1); }
+}
+
+.wolfhour-shooting-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 4px 2px rgba(255,255,255,0.8);
+    animation: wolfhour-shoot var(--shoot-duration, 2s) linear;
+    z-index: 3;
+}
+
+@keyframes wolfhour-shoot {
+    from {
+        transform: translate(0, 0);
+        opacity: 1;
+    }
+    to {
+        transform: translate(var(--shoot-x, -200px), var(--shoot-y, 200px));
+        opacity: 0;
+    }
+}
+
+#wolfhour-nebula-back, #wolfhour-nebula-mid {
+    position: absolute;
+    top: 0; left: 0;
+    width: 200%; height: 100%;
+    opacity: 0.4;
+    z-index: 3;
+    animation: wolfhour-nebula-drift linear infinite;
+    background-repeat: repeat-x;
+    background-size: 1000px 100%;
+}
+
+#wolfhour-nebula-back {
+    animation-duration: 180s;
+    opacity: 0.3;
+}
+
+#wolfhour-nebula-mid {
+    animation-duration: 120s;
+    opacity: 0.5;
+    z-index: 4;
+}
+
+@keyframes wolfhour-nebula-drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@keyframes wolfhour-nebula-breathe {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.5; }
+}
+
+#wolfhour-mountains-distant {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 60%;
+    z-index: 5;
+    animation: wolfhour-parallax-slow 200s linear infinite;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    opacity: 0.6;
+}
+
+#wolfhour-mountains-fore {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 50%;
+    z-index: 7;
+    animation: wolfhour-parallax-fast 100s linear infinite;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    opacity: 0.9;
+}
+
+@keyframes wolfhour-parallax-slow {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@keyframes wolfhour-parallax-fast {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+#wolfhour-fog {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 200%; height: 30%;
+    background: linear-gradient(to top, rgba(255,255,255,0.1) 0%, transparent 100%);
+    z-index: 6;
+    animation: wolfhour-fog-drift 80s linear infinite;
+}
+
+@keyframes wolfhour-fog-drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+#wolfhour-grain {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0.03;
+    z-index: 10;
+    pointer-events: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.5"/></svg>');
+    animation: wolfhour-grain-shift 0.5s steps(4) infinite;
+}
+
+@keyframes wolfhour-grain-shift {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-2px, 2px); }
+    50% { transform: translate(2px, -2px); }
+    75% { transform: translate(-2px, -2px); }
+}

@@ -1366,7 +1366,7 @@ function createCandlelitMonasteryScene() {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest', 'wolfhour'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -3681,7 +3681,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 'cherry-blossom-garden': createCherryBlossomGardenScene, 'floating-islands': createFloatingIslandsScene,
                 'meditation-temple': createMeditationTempleScene, 'moonlit-greenhouse': createMoonlitGreenhouseScene,
                 'ice-temple': createIceTempleScene, 'himalayan-peak': createHimalayanPeakScene, 'electric-dreams': createElectricDreamsScene,
-                'moonlit-forest': createMoonlitForestScene
+                'moonlit-forest': createMoonlitForestScene, 'wolfhour': createWolfhourScene
             };
 
             let themeData = null;
@@ -4220,6 +4220,142 @@ function createMoonlitForestScene() {
             leaf.style.animationDelay = `-${Math.random() * duration}s`;
             themeContainer.appendChild(leaf);
         }
+    }
+}
+
+function createWolfhourScene() {
+    // 1. Create dense star field
+    const starsContainer = document.getElementById('wolfhour-stars');
+    if (starsContainer && starsContainer.children.length === 0) {
+        const starCount = 300;
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'wolfhour-star';
+            const size = Math.random() * 2 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.setProperty('--min-opacity', `${Math.random() * 0.3 + 0.2}`);
+            star.style.setProperty('--max-opacity', `${Math.random() * 0.3 + 0.7}`);
+            star.style.setProperty('--twinkle-duration', `${Math.random() * 3 + 2}s`);
+            star.style.setProperty('--twinkle-delay', `${Math.random() * 5}s`);
+            starsContainer.appendChild(star);
+        }
+
+        // Create shooting stars periodically
+        setInterval(() => {
+            if (activeTheme !== 'wolfhour') return;
+            const shootingStar = document.createElement('div');
+            shootingStar.className = 'wolfhour-shooting-star';
+            shootingStar.style.left = `${Math.random() * 100}%`;
+            shootingStar.style.top = `${Math.random() * 40}%`;
+            const distance = Math.random() * 300 + 200;
+            shootingStar.style.setProperty('--shoot-x', `${-distance}px`);
+            shootingStar.style.setProperty('--shoot-y', `${distance}px`);
+            shootingStar.style.setProperty('--shoot-duration', `${Math.random() * 1 + 1.5}s`);
+            starsContainer.appendChild(shootingStar);
+            setTimeout(() => shootingStar.remove(), 3000);
+        }, 8000);
+    }
+
+    // 2. Create nebula clouds using canvas
+    const nebulaBack = document.getElementById('wolfhour-nebula-back');
+    const nebulaMid = document.getElementById('wolfhour-nebula-mid');
+
+    if (nebulaBack && !nebulaBack.style.backgroundImage) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 2000;
+        canvas.height = 800;
+        const ctx = canvas.getContext('2d');
+
+        // Create wispy nebula texture
+        for (let i = 0; i < 50; i++) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const radius = Math.random() * 200 + 100;
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            const opacity = Math.random() * 0.15 + 0.05;
+            gradient.addColorStop(0, `rgba(200, 200, 200, ${opacity})`);
+            gradient.addColorStop(0.5, `rgba(150, 150, 150, ${opacity * 0.5})`);
+            gradient.addColorStop(1, 'rgba(100, 100, 100, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        nebulaBack.style.backgroundImage = `url(${canvas.toDataURL()})`;
+    }
+
+    if (nebulaMid && !nebulaMid.style.backgroundImage) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 2000;
+        canvas.height = 800;
+        const ctx = canvas.getContext('2d');
+
+        // Create denser nebula for mid layer
+        for (let i = 0; i < 40; i++) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const radius = Math.random() * 250 + 150;
+            const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+            const opacity = Math.random() * 0.2 + 0.1;
+            gradient.addColorStop(0, `rgba(220, 220, 220, ${opacity})`);
+            gradient.addColorStop(0.5, `rgba(180, 180, 180, ${opacity * 0.6})`);
+            gradient.addColorStop(1, 'rgba(120, 120, 120, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        nebulaMid.style.backgroundImage = `url(${canvas.toDataURL()})`;
+    }
+
+    // 3. Create jagged mountain silhouettes
+    const mountainsDistant = document.getElementById('wolfhour-mountains-distant');
+    if (mountainsDistant && !mountainsDistant.style.backgroundImage) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 4000;
+        canvas.height = 800;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#404040';
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height);
+
+        // Create jagged peaks
+        for (let x = 0; x < canvas.width; x += 20) {
+            const y = canvas.height - (Math.random() * 300 + 200) - Math.sin(x * 0.01) * 100;
+            ctx.lineTo(x, y);
+        }
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.closePath();
+        ctx.fill();
+
+        mountainsDistant.style.backgroundImage = `url(${canvas.toDataURL()})`;
+        mountainsDistant.style.backgroundSize = '2000px 100%';
+    }
+
+    const mountainsFore = document.getElementById('wolfhour-mountains-fore');
+    if (mountainsFore && !mountainsFore.style.backgroundImage) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 4000;
+        canvas.height = 600;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height);
+
+        // Create sharper, darker peaks
+        for (let x = 0; x < canvas.width; x += 15) {
+            const y = canvas.height - (Math.random() * 400 + 150) - Math.cos(x * 0.015) * 80;
+            ctx.lineTo(x, y);
+        }
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.closePath();
+        ctx.fill();
+
+        mountainsFore.style.backgroundImage = `url(${canvas.toDataURL()})`;
+        mountainsFore.style.backgroundSize = '2000px 100%';
     }
 }
 
