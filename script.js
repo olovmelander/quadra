@@ -1066,16 +1066,12 @@ function createCandlelitMonasteryScene() {
         class SoundManager {
             constructor() {
                 this.audioContext = null; this.isMuted = false; this.musicInterval = null;
-                this.musicTrack = 'Ambient'; this.soundSet = 'Zen';
+                this.musicTrack = 'EchoesOfTheSoul'; this.soundSet = 'Zen';
                 this.musicVolume = 1.0; this.sfxVolume = 1.0;
                 this.currentTrackId = null;
                 this.audioElement = null; // HTML5 Audio element for playing MP3 files
                 this.trackNames = [
-                    'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
-                    'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
-                    'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath',
-                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight', 'MoonlitForest',
-                    'EchoesOfTheSoul', 'EtherealEchoes'
+                    'EchoesOfTheSoul', 'EtherealEchoes', 'FallingPieces'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -1138,26 +1134,11 @@ function createCandlelitMonasteryScene() {
                 this.currentTrackId = Symbol();
                 const trackId = this.currentTrackId;
                 const tracks = {
-                    Ambient: () => this.startAmbientMusic(trackId),
-                    Decay: () => this.startDecayMusic(trackId), Nostalgia: () => this.startNostalgiaMusic(trackId),
-                    Zen: () => this.startZenMusic(trackId), Nebula: () => this.startNebulaMusic(trackId),
-                    Aurora: () => this.startAuroraMusic(trackId), Galaxy: () => this.startGalaxyMusic(trackId),
-                    Rainfall: () => this.startRainfallMusic(trackId), Koi: () => this.startKoiMusic(trackId),
-                    Meadow: () => this.startMeadowMusic(trackId), MiracleTone: () => this.startMiracleToneMusic(trackId),
-                    HealingDrone: () => this.startHealingDroneMusic(trackId),
-                    CosmicChimes: () => this.startCosmicChimesMusic(trackId),
-                    SingingBowl: () => this.startSingingBowlMusic(trackId),
-                    Starlight: () => this.startStarlightMusic(trackId),
-                    SwedishForest: () => this.startSwedishForestMusic(trackId),
-                    GongBath: () => this.startGongBathMusic(trackId),
-                    BreathOfStillness: () => this.startBreathOfStillnessMusic(trackId),
-                    SacredJourney: () => this.startSacredJourneyMusic(trackId),
-                    ReturnToLight: () => this.startReturnToLightMusic(trackId),
-                    MoonlitForest: () => this.startMoonlitForestMusic(trackId),
                     EchoesOfTheSoul: () => this.playAudioFile('songs/Echoes of the Soul.mp3'),
-                    EtherealEchoes: () => this.playAudioFile('songs/Ethereal Echoes.mp3')
+                    EtherealEchoes: () => this.playAudioFile('songs/Ethereal Echoes.mp3'),
+                    FallingPieces: () => this.playAudioFile('songs/Falling Pieces.mp3')
                 };
-                (tracks[this.musicTrack] || tracks.Nebula)(trackId);
+                (tracks[this.musicTrack] || tracks.EchoesOfTheSoul)(trackId);
             }
             startGongBathMusic(trackId) {
                 const baseNotes = [41.20, 48.99, 55.00, 61.74]; // E1, G1, A1, B1
