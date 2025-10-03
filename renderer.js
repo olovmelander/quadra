@@ -1,5 +1,5 @@
 // =================================================================================
-// RENDERER.JS - WebGL Rendering Engine for Quadra
+// RENDERER.JS - WebGL Rendering Engine for Serenity Blocks
 // =================================================================================
 
 const TEXTURE_VERTEX_SHADER = `

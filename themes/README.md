@@ -1,6 +1,6 @@
 # 🎨 Themes
 
-This directory contains theme templates and documentation for Quadra's visual backgrounds.
+This directory contains theme templates and documentation for Serenity Blocks' visual backgrounds.
 
 ## 📋 Template
 

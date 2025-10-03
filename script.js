@@ -1,5 +1,5 @@
 // =================================================================================
-// THEMES.JS - Advanced Animation Logic for Meditative Quadra
+// THEMES.JS - Advanced Animation Logic for Serenity Blocks
 // =================================================================================
 
 // A helper function for random numbers in a range
@@ -6169,8 +6169,8 @@ function isPartOfPiece(boardX, boardY, piece) {
         }
         function listenForKey(el) { document.querySelectorAll('.key-input').forEach(e=>e.classList.remove('listening')); el.classList.add('listening'); el.textContent='Press a key...'; }
         function handleKeybinding(e,el){ e.preventDefault(); const a=el.id.substring(4), k=e.key===' '?'Space':e.key; if(Object.values(settings.keyBindings).includes(k)&&settings.keyBindings[a]!==k){ el.textContent=settings.keyBindings[a];el.classList.remove('listening');return; } settings.keyBindings[a]=k; el.textContent=k; el.classList.remove('listening'); saveSettings(); updateControlsDisplay(); }
-        function saveSettings(){localStorage.setItem('quadraSettings',JSON.stringify(settings));}
-        function loadSettings(){ const s=localStorage.getItem('quadraSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; soundManager.musicVolume=settings.musicVolume; soundManager.sfxVolume=settings.sfxVolume; }
+        function saveSettings(){localStorage.setItem('serenityBlocksSettings',JSON.stringify(settings));}
+        function loadSettings(){ const s=localStorage.getItem('serenityBlocksSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; soundManager.musicVolume=settings.musicVolume; soundManager.sfxVolume=settings.sfxVolume; }
         function updateControlsDisplay() {
             const l = document.getElementById('controls-list');
             l.innerHTML = '';
