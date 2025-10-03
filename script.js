@@ -4078,6 +4078,58 @@ function createCrystalCaveScene() {
 }
 
 function createLanternFestivalScene() {
+    // Check if already initialized with pooled elements
+    if (lanternFestivalElementPool.initialized) {
+        // Reuse existing elements - just make sure they're in the right containers
+        const lanternLayers = [
+            { container: document.getElementById('lanterns-back'), count: 20 },
+            { container: document.getElementById('lanterns-mid'), count: 15 },
+            { container: document.getElementById('lanterns-front'), count: 10 }
+        ];
+
+        let lanternIndex = 0;
+        lanternLayers.forEach(layer => {
+            if (layer.container) {
+                // Reattach pooled lanterns to this layer
+                for (let i = 0; i < layer.count; i++) {
+                    if (lanternFestivalElementPool.lanterns[lanternIndex]) {
+                        layer.container.appendChild(lanternFestivalElementPool.lanterns[lanternIndex]);
+                        lanternIndex++;
+                    }
+                }
+            }
+        });
+
+        // Reattach reflections
+        const waterContainer = document.getElementById('lantern-water');
+        if (waterContainer) {
+            lanternFestivalElementPool.reflections.forEach(reflection => {
+                waterContainer.appendChild(reflection);
+            });
+        }
+
+        // Reattach petals
+        const petalContainer = document.getElementById('lantern-petals');
+        if (petalContainer) {
+            lanternFestivalElementPool.petals.forEach(petal => {
+                petalContainer.appendChild(petal);
+            });
+        }
+
+        // Reattach embers
+        const emberContainer = document.getElementById('lantern-embers');
+        if (emberContainer) {
+            lanternFestivalElementPool.embers.forEach(ember => {
+                emberContainer.appendChild(ember);
+            });
+        }
+
+        return; // Skip expensive generation
+    }
+
+    // First time - create elements with seeded random for deterministic output
+    const rng = seededRandom(88888); // Seed for lantern festival
+
     // 1. Lanterns
     const lanternLayers = [
         { container: document.getElementById('lanterns-back'), count: 20, minSize: 20, maxSize: 40, minDuration: 40, maxDuration: 60 },
@@ -4103,26 +4155,27 @@ function createLanternFestivalScene() {
                 const lantern = document.createElement('div');
                 lantern.className = 'lantern';
 
-                const color = lanternColors[Math.floor(Math.random() * lanternColors.length)];
-                const shape = lanternShapes[Math.floor(Math.random() * lanternShapes.length)];
+                const color = lanternColors[Math.floor(rng() * lanternColors.length)];
+                const shape = lanternShapes[Math.floor(rng() * lanternShapes.length)];
                 lantern.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 80"><g fill="${encodeURIComponent(color)}" opacity="0.9">${shape}</g></svg>')`;
 
-                const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
+                const size = rng() * (layer.maxSize - layer.minSize) + layer.minSize;
                 lantern.style.width = `${size}px`;
                 lantern.style.height = `${size * 1.2}px`;
 
-                const xPos = Math.random() * 100;
+                const xPos = rng() * 100;
                 lantern.style.left = `${xPos}%`;
 
-                const duration = Math.random() * (layer.maxDuration - layer.minDuration) + layer.minDuration;
+                const duration = rng() * (layer.maxDuration - layer.minDuration) + layer.minDuration;
                 lantern.style.animationDuration = `${duration}s`;
-                lantern.style.animationDelay = `-${Math.random() * duration}s`;
+                lantern.style.animationDelay = `-${rng() * duration}s`;
 
-                lantern.style.setProperty('--x-sway1', `${(Math.random() - 0.5) * 10}vw`);
-                lantern.style.setProperty('--x-sway2', `${(Math.random() - 0.5) * 10}vw`);
-                lantern.style.setProperty('--start-opacity', `${Math.random() * 0.5 + 0.5}`);
+                lantern.style.setProperty('--x-sway1', `${(rng() - 0.5) * 10}vw`);
+                lantern.style.setProperty('--x-sway2', `${(rng() - 0.5) * 10}vw`);
+                lantern.style.setProperty('--start-opacity', `${rng() * 0.5 + 0.5}`);
 
                 layer.container.appendChild(lantern);
+                lanternFestivalElementPool.lanterns.push(lantern); // Store in pool
 
                 // Add reflection for front lanterns
                 if (layer.container.id === 'lanterns-front' && waterContainer) {
@@ -4134,12 +4187,13 @@ function createLanternFestivalScene() {
 
                     // Match animation properties
                     reflection.style.animationDuration = `${duration}s, 4s`;
-                    reflection.style.animationDelay = `-${Math.random() * duration}s, -${Math.random() * 4}s`;
-                    reflection.style.setProperty('--x-sway1', `${(Math.random() - 0.5) * 10}vw`);
-                    reflection.style.setProperty('--x-sway2', `${(Math.random() - 0.5) * 10}vw`);
+                    reflection.style.animationDelay = `-${rng() * duration}s, -${rng() * 4}s`;
+                    reflection.style.setProperty('--x-sway1', `${(rng() - 0.5) * 10}vw`);
+                    reflection.style.setProperty('--x-sway2', `${(rng() - 0.5) * 10}vw`);
                     reflection.style.setProperty('--start-opacity', `0.4`); // Reflections are fainter
 
                     waterContainer.appendChild(reflection);
+                    lanternFestivalElementPool.reflections.push(reflection); // Store in pool
                 }
             }
         }
@@ -4151,16 +4205,17 @@ function createLanternFestivalScene() {
         for (let i = 0; i < 20; i++) {
             let petal = document.createElement('div');
             petal.className = 'lantern-petal';
-            petal.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+            petal.style.setProperty('--x-start', `${rng() * 100}vw`);
             petal.style.setProperty('--y-start', `-10vh`);
-            petal.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+            petal.style.setProperty('--x-end', `${rng() * 100}vw`);
             petal.style.setProperty('--y-end', `110vh`);
-            petal.style.setProperty('--r-start', `${Math.random() * 360}deg`);
-            petal.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
-            const duration = Math.random() * 10 + 15;
+            petal.style.setProperty('--r-start', `${rng() * 360}deg`);
+            petal.style.setProperty('--r-end', `${rng() * 720 - 360}deg`);
+            const duration = rng() * 10 + 15;
             petal.style.animationDuration = `${duration}s`;
-            petal.style.animationDelay = `-${Math.random() * duration}s`;
+            petal.style.animationDelay = `-${rng() * duration}s`;
             petalContainer.appendChild(petal);
+            lanternFestivalElementPool.petals.push(petal); // Store in pool
         }
     }
 
@@ -4170,14 +4225,18 @@ function createLanternFestivalScene() {
         for (let i = 0; i < 40; i++) {
             let ember = document.createElement('div');
             ember.className = 'lantern-ember';
-            ember.style.left = `${Math.random() * 100}%`;
-            ember.style.bottom = `-${Math.random() * 20}vh`; // Start from below or near bottom
-            const duration = Math.random() * 8 + 6;
+            ember.style.left = `${rng() * 100}%`;
+            ember.style.bottom = `-${rng() * 20}vh`; // Start from below or near bottom
+            const duration = rng() * 8 + 6;
             ember.style.animationDuration = `${duration}s`;
-            ember.style.animationDelay = `-${Math.random() * duration}s`;
+            ember.style.animationDelay = `-${rng() * duration}s`;
             emberContainer.appendChild(ember);
+            lanternFestivalElementPool.embers.push(ember); // Store in pool
         }
     }
+
+    // Mark as initialized
+    lanternFestivalElementPool.initialized = true;
 }
 
 function createFluidDreamsScene() {
@@ -4265,6 +4324,15 @@ const iceTempleCache = new Map();
 
 // Cache for Crystal Cave backgrounds to avoid expensive canvas regeneration
 const crystalCaveCache = new Map();
+
+// Element pool for Lantern Festival to avoid expensive DOM regeneration
+const lanternFestivalElementPool = {
+    initialized: false,
+    lanterns: [],
+    reflections: [],
+    petals: [],
+    embers: []
+};
 
 // Seeded random number generator for deterministic procedural generation
 function seededRandom(seed) {
