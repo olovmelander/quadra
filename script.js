@@ -1536,7 +1536,7 @@ function createCandlelitMonasteryScene() {
         const COLORS = { I: '#00ff00', O: '#ff9900', T: '#0000ff', S: '#00ffff', Z: '#ff0000', J: '#ffff00', L: '#cc00cc' };
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
-        const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
+        const LEVEL_SPEEDS = [ 1000, 900, 800, 700, 600, 500, 450, 400, 360, 320, 290, 260, 240, 220, 200, 185, 170, 155, 145, 135, 125, 115, 105, 95, 90, 85, 80, 75, 70, 65, 62, 59, 56, 53, 50, 48, 46, 44, 42, 40 ];
         const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest', 'wolfhour', 'lunara', 'pyrestorm', 'neon-dusk', 'stillwater'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
