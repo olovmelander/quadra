@@ -6416,6 +6416,19 @@ function isPartOfPiece(boardX, boardY, piece) {
             document.getElementById('close-settings').addEventListener('click', resumeGame);
             document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
             document.getElementById('next-track-btn').addEventListener('click', () => soundManager.nextTrack());
+            document.getElementById('random-theme-btn').addEventListener('click', () => {
+                let newTheme;
+                do { newTheme = THEMES[Math.floor(Math.random() * THEMES.length)]; } while (newTheme === activeTheme);
+                setBackground(newTheme);
+                if (settings.backgroundMode === 'Specific') {
+                    settings.backgroundTheme = newTheme;
+                    document.getElementById('background-theme').value = newTheme;
+                    saveSettings();
+                } else if (settings.backgroundMode === 'Random') {
+                    // Restart the random timer when manually triggered
+                    startRandomThemeChanger();
+                }
+            });
             const ds=document.getElementById('das-delay'),dv=document.getElementById('das-delay-value'),is=document.getElementById('das-interval'),iv=document.getElementById('das-interval-value');
             ds.value=settings.dasDelay;dv.textContent=settings.dasDelay; is.value=settings.dasInterval;iv.textContent=settings.dasInterval;
             ds.addEventListener('input',(e)=>{settings.dasDelay=parseInt(e.target.value);dv.textContent=settings.dasDelay;saveSettings();});
