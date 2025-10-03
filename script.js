@@ -1,5 +1,5 @@
 // =================================================================================
-// THEMES.JS - Advanced Animation Logic for Meditative Quadra
+// THEMES.JS - Advanced Animation Logic for Serenity Blocks
 // =================================================================================
 
 // A helper function for random numbers in a range
@@ -121,73 +121,38 @@ function createHimalayanPeakScene() {
 }
 
 function createIceTempleScene() {
-    // 1. Ice Crystal Architecture (WebGL)
-    if (webglRenderer) {
-        const crystalLayers = [
-            { zIndex: -0.9, count: 20, color: 'rgba(150, 180, 220, 0.3)', seed: 45678 },
-            { zIndex: -0.8, count: 15, color: 'rgba(180, 210, 240, 0.4)', seed: 56789 },
-            { zIndex: -0.7, count: 10, color: 'rgba(210, 230, 255, 0.5)', seed: 67890 }
-        ];
-
-        crystalLayers.forEach(layer => {
-            // Create cache key based on layer properties and dimensions
-            const cacheKey = `ice-temple-${layer.zIndex}-${layer.count}-${layer.color}-${window.innerWidth}x${window.innerHeight}`;
-
-            // Check if we have a cached canvas for this configuration
-            if (iceTempleCache.has(cacheKey)) {
-                const cachedCanvas = iceTempleCache.get(cacheKey);
-                webglRenderer.addLayer(cachedCanvas, layer.zIndex);
-                return;
-            }
-
-            // Generate canvas with seeded random for deterministic output
-            const rng = seededRandom(layer.seed);
-            const canvas = document.createElement('canvas');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.lineWidth = 0.5;
-
-            for (let i = 0; i < layer.count; i++) {
-                const x = rng() * canvas.width;
-                const h = rng() * canvas.height * 0.6 + canvas.height * 0.2;
-                const w = rng() * 60 + 30;
-                ctx.fillStyle = layer.color;
-
-                // Draw sharp, geometric crystals from floor and ceiling
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x - w, h * (rng() * 0.3 + 0.2));
-                ctx.lineTo(x + w, h * (rng() * 0.3 + 0.2));
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.beginPath();
-                ctx.moveTo(x, canvas.height);
-                ctx.lineTo(x - w, canvas.height - h * (rng() * 0.3 + 0.2));
-                ctx.lineTo(x + w, canvas.height - h * (rng() * 0.3 + 0.2));
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            }
-
-            // Cache the generated canvas for future use
-            iceTempleCache.set(cacheKey, canvas);
-            webglRenderer.addLayer(canvas, layer.zIndex);
-        });
+    // LAYER 1: Starfield Background with Twinkling
+    const starsContainer = document.getElementById('ice-temple-stars');
+    if (starsContainer && starsContainer.children.length === 0) {
+        const starCount = 250;
+        const rng = seededRandom(11111);
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'ice-temple-star';
+            const size = rng() * 1.5 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${rng() * 100}%`;
+            star.style.top = `${rng() * 100}%`;
+            star.style.setProperty('--min-opacity', `${rng() * 0.2 + 0.3}`);
+            star.style.setProperty('--max-opacity', `${rng() * 0.2 + 0.6}`);
+            star.style.setProperty('--twinkle-duration', `${rng() * 2 + 3}s`);
+            star.style.setProperty('--twinkle-delay', `${rng() * 5}s`);
+            starsContainer.appendChild(star);
+        }
     }
 
-    // 2. Aurora
+    // LAYER 2: Aurora Borealis
     const auroraContainer = document.getElementById('ice-temple-aurora');
     if (auroraContainer && auroraContainer.children.length === 0) {
-        const colors = ['#74b9ff', '#55efc4', '#a29bfe'];
-        for (let i = 0; i < 3; i++) {
+        const colors = ['#74b9ff', '#55efc4', '#a29bfe', '#8b7bd8'];
+        for (let i = 0; i < 4; i++) {
             let curtain = document.createElement('div');
             curtain.className = 'ice-aurora-curtain';
             curtain.style.setProperty('--aurora-color', colors[i]);
-            curtain.style.animationDuration = `${20 + i * 5}s`;
+            curtain.style.setProperty('--aurora-duration', `${20 + i * 5}s`);
+            curtain.style.setProperty('--aurora-delay', `${i * 5}s`);
+            curtain.style.left = `${i * 25}%`;
             if (i % 2 === 1) {
                 curtain.style.animationDirection = 'alternate-reverse';
             }
@@ -195,47 +160,219 @@ function createIceTempleScene() {
         }
     }
 
-    // 3. Frozen Waterfalls
-    const waterfallContainer = document.getElementById('ice-temple-waterfalls');
-    if (waterfallContainer && waterfallContainer.children.length === 0) {
-        for (let i = 0; i < 4; i++) {
-            let fall = document.createElement('div');
-            fall.className = 'frozen-waterfall';
-            fall.style.left = `${10 + i * 22 + Math.random() * 5}%`;
-            fall.style.animationDelay = `-${Math.random() * 10}s`;
-            waterfallContainer.appendChild(fall);
+    // LAYER 3: Distant Ice Mountains with Canvas
+    const mountainsDistant = document.getElementById('ice-temple-mountains-distant');
+    if (mountainsDistant) {
+        const cacheKey = 'ice-temple-mountains-distant-3000x800';
+
+        if (iceTempleCache.has(cacheKey)) {
+            const cachedData = iceTempleCache.get(cacheKey);
+            mountainsDistant.style.backgroundImage = cachedData.backgroundImage;
+            mountainsDistant.style.backgroundSize = cachedData.backgroundSize;
+        } else {
+            const rng = seededRandom(22222);
+            const canvas = document.createElement('canvas');
+            canvas.width = 3000;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'rgba(26, 58, 90, 0.6)';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+
+            // Create jagged mountain silhouette
+            for (let x = 0; x <= canvas.width; x += 80 + rng() * 40) {
+                const peakHeight = rng() * 300 + 200;
+                ctx.lineTo(x, canvas.height - peakHeight);
+                ctx.lineTo(x + 40 + rng() * 30, canvas.height - peakHeight + rng() * 100);
+            }
+
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            const dataURL = `url(${canvas.toDataURL()})`;
+            iceTempleCache.set(cacheKey, {
+                backgroundImage: dataURL,
+                backgroundSize: '3000px 800px'
+            });
+            mountainsDistant.style.backgroundImage = dataURL;
+            mountainsDistant.style.backgroundSize = '3000px 800px';
         }
     }
 
-    // 4. Snow Crystals and Growing Ice are now handled by WebGLRenderer
+    // LAYER 4: Midground Crystal Formations (WebGL)
+    if (webglRenderer) {
+        const cacheKey = `ice-temple-mid-crystals-${window.innerWidth}x${window.innerHeight}`;
 
-    // 5. Prismatic Light Refractions
+        if (iceTempleCache.has(cacheKey)) {
+            const cachedCanvas = iceTempleCache.get(cacheKey);
+            webglRenderer.addLayer(cachedCanvas, -0.6);
+        } else {
+            const rng = seededRandom(33333);
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            // Draw translucent geometric crystal towers
+            for (let i = 0; i < 12; i++) {
+                const x = rng() * canvas.width;
+                const baseY = canvas.height * (0.5 + rng() * 0.3);
+                const height = rng() * 250 + 150;
+                const width = rng() * 50 + 30;
+
+                // Add glow effect
+                ctx.shadowColor = 'rgba(116, 185, 255, 0.8)';
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+
+                ctx.fillStyle = 'rgba(116, 185, 255, 0.4)';
+                ctx.strokeStyle = 'rgba(227, 242, 255, 0.6)';
+                ctx.lineWidth = 1;
+
+                // Hexagonal crystal
+                ctx.beginPath();
+                for (let j = 0; j < 6; j++) {
+                    const angle = (Math.PI / 3) * j;
+                    const px = x + Math.cos(angle) * width;
+                    const py = baseY - height + Math.sin(angle) * width * 0.3;
+                    if (j === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Crystal shaft
+                ctx.fillStyle = 'rgba(116, 185, 255, 0.3)';
+                ctx.fillRect(x - width * 0.4, baseY - height, width * 0.8, height);
+
+                // Reset shadow for next iteration
+                ctx.shadowBlur = 0;
+            }
+
+            iceTempleCache.set(cacheKey, canvas);
+            webglRenderer.addLayer(canvas, -0.6);
+        }
+    }
+
+    // LAYER 5: Foreground Ice Architecture (Stalactites & Stalagmites)
+    if (webglRenderer) {
+        const cacheKey = `ice-temple-foreground-${window.innerWidth}x${window.innerHeight}`;
+
+        if (iceTempleCache.has(cacheKey)) {
+            const cachedCanvas = iceTempleCache.get(cacheKey);
+            webglRenderer.addLayer(cachedCanvas, -0.3);
+        } else {
+            const rng = seededRandom(44444);
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1.5;
+
+            // Add glow effect for ice architecture
+            ctx.shadowColor = 'rgba(200, 230, 255, 0.9)';
+            ctx.shadowBlur = 25;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+            // Stalactites from ceiling
+            for (let i = 0; i < 8; i++) {
+                const x = rng() * canvas.width;
+                const h = rng() * canvas.height * 0.4 + canvas.height * 0.15;
+                const w = rng() * 60 + 40;
+
+                ctx.fillStyle = 'rgba(227, 242, 255, 0.7)';
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x - w, h * 0.3);
+                ctx.lineTo(x, h);
+                ctx.lineTo(x + w, h * 0.3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            // Stalagmites from floor
+            for (let i = 0; i < 8; i++) {
+                const x = rng() * canvas.width;
+                const h = rng() * canvas.height * 0.4 + canvas.height * 0.15;
+                const w = rng() * 60 + 40;
+
+                ctx.fillStyle = 'rgba(227, 242, 255, 0.7)';
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height);
+                ctx.lineTo(x - w, canvas.height - h * 0.3);
+                ctx.lineTo(x, canvas.height - h);
+                ctx.lineTo(x + w, canvas.height - h * 0.3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            // Reset shadow
+            ctx.shadowBlur = 0;
+
+            iceTempleCache.set(cacheKey, canvas);
+            webglRenderer.addLayer(canvas, -0.3);
+        }
+    }
+
+    // LAYER 6: Frozen Mist Overlay
+    const mistContainer = document.getElementById('ice-temple-mist');
+    if (mistContainer && mistContainer.children.length === 0) {
+        for (let i = 0; i < 3; i++) {
+            const mist = document.createElement('div');
+            mist.className = 'ice-temple-mist-layer';
+            mist.style.setProperty('--mist-duration', `${15 + i * 5}s`);
+            mist.style.setProperty('--mist-delay', `${i * 5}s`);
+            mist.style.opacity = `${0.1 + i * 0.05}`;
+            if (i % 2 === 0) {
+                mist.style.animationDirection = 'reverse';
+            }
+            mistContainer.appendChild(mist);
+        }
+    }
+
+    // LAYER 7: Snowfall Particles
+    const snowContainer = document.getElementById('ice-temple-snow');
+    if (snowContainer && snowContainer.children.length === 0) {
+        const rng = seededRandom(55555);
+        for (let i = 0; i < 40; i++) {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'ice-temple-snowflake';
+            const size = rng() * 2 + 1;
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+            snowflake.style.left = `${rng() * 100}%`;
+            snowflake.style.setProperty('--fall-duration', `${rng() * 10 + 10}s`);
+            snowflake.style.setProperty('--fall-delay', `${rng() * 10}s`);
+            snowflake.style.setProperty('--sway-amount', `${rng() * 40 - 20}px`);
+            snowContainer.appendChild(snowflake);
+        }
+    }
+
+    // LAYER 8: Prismatic Light Refractions
     const refractionContainer = document.getElementById('ice-temple-refractions');
     if (refractionContainer && refractionContainer.children.length === 0) {
-        for (let i = 0; i < 15; i++) {
+        const colors = ['rgba(116, 185, 255, 0.4)', 'rgba(255, 255, 255, 0.5)', 'rgba(162, 155, 254, 0.4)'];
+        const rng = seededRandom(66666);
+        for (let i = 0; i < 12; i++) {
             let ray = document.createElement('div');
             ray.className = 'ice-refraction-ray';
-            ray.style.left = `${Math.random() * 100}%`;
-            ray.style.top = `${Math.random() * 100}%`;
-            ray.style.transform = `rotate(${Math.random() * 360}deg)`;
-            ray.style.animationDelay = `-${Math.random() * 10}s`;
+            ray.style.left = `${rng() * 100}%`;
+            ray.style.top = `${rng() * 100}%`;
+            ray.style.setProperty('--ray-color', colors[i % colors.length]);
+            ray.style.setProperty('--ray-angle', `${rng() * 360}deg`);
+            ray.style.setProperty('--ray-rotation-duration', `${rng() * 30 + 30}s`);
+            ray.style.setProperty('--ray-pulse-duration', `${rng() * 3 + 2}s`);
+            ray.style.setProperty('--ray-delay', `${rng() * 10}s`);
             refractionContainer.appendChild(ray);
-        }
-    }
-
-    // 6. Ice Sculptures
-    const sculptureContainer = document.getElementById('ice-temple-sculptures');
-    if (sculptureContainer && sculptureContainer.children.length === 0) {
-        const sculptureSVG = [
-            'M50 0 L100 100 L0 100 Z', // Pyramid
-            'M50 0 C0 50, 100 50, 50 100 C100 50, 0 50, 50 0' // Swirl
-        ];
-        for (let i = 0; i < 2; i++) {
-            let sculpture = document.createElement('div');
-            sculpture.className = 'ice-sculpture';
-            sculpture.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="${sculptureSVG[i]}" fill="rgba(200, 220, 255, 0.3)"/></svg>')`;
-            sculpture.style.left = `${20 + i * 60}%`;
-            sculptureContainer.appendChild(sculpture);
         }
     }
 }
@@ -930,6 +1067,7 @@ function createCandlelitMonasteryScene() {
             constructor() {
                 this.audioContext = null; this.isMuted = false; this.musicInterval = null;
                 this.musicTrack = 'Ambient'; this.soundSet = 'Zen';
+                this.musicVolume = 1.0; this.sfxVolume = 1.0;
                 this.currentTrackId = null;
                 this.trackNames = [
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
@@ -957,12 +1095,15 @@ function createCandlelitMonasteryScene() {
                 };
             }
             init() { if (!this.audioContext) this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
-            createTone(frequency, duration = 0.1, type = 'sine', volume = 0.3, onended = null) {
+            createTone(frequency, duration = 0.1, type = 'sine', volume = 0.3, onended = null, isMusic = false) {
                 if (!this.audioContext || this.isMuted) return;
+                const volumeMultiplier = isMusic ? this.musicVolume : this.sfxVolume;
+                const adjustedVolume = volume * volumeMultiplier;
+                if (adjustedVolume <= 0) return;
                 const osc = this.audioContext.createOscillator(), gain = this.audioContext.createGain();
                 osc.connect(gain); gain.connect(this.audioContext.destination);
                 osc.type = type; osc.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-                gain.gain.setValueAtTime(volume, this.audioContext.currentTime);
+                gain.gain.setValueAtTime(adjustedVolume, this.audioContext.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
                 osc.start(); osc.stop(this.audioContext.currentTime + duration);
                 if (onended) osc.onended = onended;
@@ -1025,10 +1166,10 @@ function createCandlelitMonasteryScene() {
                     const mainVolume = random(0.1, 0.2);
 
                     // Main gong tone - sine for a smoother fundamental
-                    this.createTone(baseFreq, duration, 'sine', mainVolume);
+                    this.createTone(baseFreq, duration, 'sine', mainVolume, null, true);
 
                     // Subtle lower octave sine for fundamental depth
-                    this.createTone(baseFreq / 2, duration * 1.1, 'sine', mainVolume * 0.6);
+                    this.createTone(baseFreq / 2, duration * 1.1, 'sine', mainVolume * 0.6, null, true);
 
                     // Inharmonic overtones for shimmer
                     for (let i = 2; i < 9; i++) {
@@ -1039,7 +1180,7 @@ function createCandlelitMonasteryScene() {
                             const overtoneDuration = duration * random(0.7, 1.1);
                              setTimeout(() => {
                                 if (this.isMuted || trackId !== this.currentTrackId) return;
-                                this.createTone(overtoneFreq, overtoneDuration, 'sine', overtoneVolume);
+                                this.createTone(overtoneFreq, overtoneDuration, 'sine', overtoneVolume, null, true);
                             }, random(100, 400)); // Stagger the overtones more
                         }
                     }
@@ -1052,71 +1193,71 @@ function createCandlelitMonasteryScene() {
             }
             startNebulaMusic(trackId) {
                 const b = [65, 73, 82, 73], m = [262, 294, 330, 349, 392, 440, 494, 523]; let bi=0, mi=0;
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(b[bi++ % b.length], 0.4, 'triangle', 0.1); if (bi % 2 === 0) this.createTone(m[mi++ % m.length], 0.2, 'sine', 0.15); }, 250);
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(b[bi++ % b.length], 0.4, 'triangle', 0.1, null, true); if (bi % 2 === 0) this.createTone(m[mi++ % m.length], 0.2, 'sine', 0.15, null, true); }, 250);
                 this.musicInterval = interval;
             }
 
             startAmbientMusic(trackId) {
                 const s=[261, 311, 349, 392, 466], d=130;
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(s[~~(Math.random()*s.length)], 0.8, 'sine', 0.15); if(Math.random()>0.7)this.createTone(s[~~(Math.random()*s.length)]/2,1.2,'sine',0.1); if(Math.random()>0.9)this.createTone(d,2.5,'sine',0.08); }, 900);
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(s[~~(Math.random()*s.length)], 0.8, 'sine', 0.15, null, true); if(Math.random()>0.7)this.createTone(s[~~(Math.random()*s.length)]/2,1.2,'sine',0.1, null, true); if(Math.random()>0.9)this.createTone(d,2.5,'sine',0.08, null, true); }, 900);
                 this.musicInterval = interval;
             }
             startDecayMusic(trackId) {
                 const n=[220, 277.18, 329.63];
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const note=n[~~(Math.random()*n.length)]; this.createTone(note*(1+(Math.random()-0.5)*0.005), 4, 'sine', Math.random()*0.05+0.05); }, 2000+Math.random()*2000);
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const note=n[~~(Math.random()*n.length)]; this.createTone(note*(1+(Math.random()-0.5)*0.005), 4, 'sine', Math.random()*0.05+0.05, null, true); }, 2000+Math.random()*2000);
                 this.musicInterval = interval;
             }
             startNostalgiaMusic(trackId) {
                 const m=[293.66, 329.63, 293.66, 220, 146.83]; let mi=0;
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const n=m[mi++ % m.length]; this.createTone(n, 2.5, 'triangle', 0.1); if(Math.random()>0.6) this.createTone(n*2,2.5,'sine',0.05); }, 1500);
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const n=m[mi++ % m.length]; this.createTone(n, 2.5, 'triangle', 0.1, null, true); if(Math.random()>0.6) this.createTone(n*2,2.5,'sine',0.05, null, true); }, 1500);
                 this.musicInterval = interval;
             }
             startZenMusic(trackId) {
                 const scale = [261.63, 392.00, 440.00, 523.25], drone = 110;
                 const interval = setInterval(() => {
                     if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; }
-                    if (Math.random() > 0.8) this.createTone(drone, 10, 'sine', 0.05);
-                    if (Math.random() > 0.7) this.createTone(scale[~~(Math.random()*scale.length)], 3, 'sine', 0.1);
+                    if (Math.random() > 0.8) this.createTone(drone, 10, 'sine', 0.05, null, true);
+                    if (Math.random() > 0.7) this.createTone(scale[~~(Math.random()*scale.length)], 3, 'sine', 0.1, null, true);
                 }, 4000);
                  this.musicInterval = interval;
             }
              startAuroraMusic(trackId) {
-                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 100 + 80, 8, 'sine', Math.random() * 0.1, play); };
+                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 100 + 80, 8, 'sine', Math.random() * 0.1, play, true); };
                 play();
             }
             startGalaxyMusic(trackId) {
-                const playDrone = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(55, 15, 'sawtooth', 0.03, playDrone); };
-                const playSparkles = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 1000 + 1000, 0.1, 'triangle', Math.random() * 0.05); setTimeout(playSparkles, Math.random() * 2000 + 500); };
+                const playDrone = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(55, 15, 'sawtooth', 0.03, playDrone, true); };
+                const playSparkles = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 1000 + 1000, 0.1, 'triangle', Math.random() * 0.05, null, true); setTimeout(playSparkles, Math.random() * 2000 + 500); };
                 playDrone(); playSparkles();
             }
             startRainfallMusic(trackId) {
                 const notes = [523, 587, 659, 784]; let idx = 0;
-                const playNote = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(notes[idx % notes.length], 0.5, 'sine', 0.1); idx++; setTimeout(playNote, Math.random() * 800 + 400); };
+                const playNote = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(notes[idx % notes.length], 0.5, 'sine', 0.1, null, true); idx++; setTimeout(playNote, Math.random() * 800 + 400); };
                 playNote();
             }
             startKoiMusic(trackId) {
                 const scale = [261, 329, 392, 523, 587];
-                const playPluck = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(scale[~~(Math.random()*scale.length)], 1.5, 'triangle', 0.15); setTimeout(playPluck, Math.random() * 2000 + 1000); };
+                const playPluck = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(scale[~~(Math.random()*scale.length)], 1.5, 'triangle', 0.15, null, true); setTimeout(playPluck, Math.random() * 2000 + 1000); };
                 playPluck();
             }
             startMeadowMusic(trackId) {
                 const padScale = [130.81, 196.00, 261.63];
                 const bellScale = [523.25, 659.25, 783.99];
-                const playPad = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(padScale[~~(Math.random()*padScale.length)], 12, 'sine', 0.1, playPad); };
-                const playBell = () => { if(this.isMuted || trackId !== this.currentTrackId) return; if(Math.random() > 0.6) this.createTone(bellScale[~~(Math.random()*bellScale.length)], 3, 'sine', 0.08); setTimeout(playBell, Math.random() * 5000 + 3000); };
+                const playPad = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(padScale[~~(Math.random()*padScale.length)], 12, 'sine', 0.1, playPad, true); };
+                const playBell = () => { if(this.isMuted || trackId !== this.currentTrackId) return; if(Math.random() > 0.6) this.createTone(bellScale[~~(Math.random()*bellScale.length)], 3, 'sine', 0.08, null, true); setTimeout(playBell, Math.random() * 5000 + 3000); };
                 playPad(); playBell();
             }
             startMiracleToneMusic(trackId) {
                 const play = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(528, 10, 'sine', 0.1);
-                    this.createTone(264, 10, 'sine', 0.05);
+                    this.createTone(528, 10, 'sine', 0.1, null, true);
+                    this.createTone(264, 10, 'sine', 0.05, null, true);
                     setTimeout(() => { if (!this.isMuted && trackId === this.currentTrackId) play(); }, 12000);
                 };
                 play();
             }
             startHealingDroneMusic(trackId) {
-                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(174, 15, 'sine', 0.15, play); };
+                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(174, 15, 'sine', 0.15, play, true); };
                 play();
             }
 
@@ -1125,7 +1266,7 @@ function createCandlelitMonasteryScene() {
                 const playChime = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const freq = scale[~~(Math.random() * scale.length)];
-                    this.createTone(freq, 4, 'triangle', Math.random() * 0.08 + 0.02);
+                    this.createTone(freq, 4, 'triangle', Math.random() * 0.08 + 0.02, null, true);
                     setTimeout(playChime, Math.random() * 5000 + 3000);
                 };
                 playChime();
@@ -1136,12 +1277,12 @@ function createCandlelitMonasteryScene() {
                 const strikeNote = 329.63;
                 const playDrone = () => {
                     if(this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(drone, 15, 'sine', 0.1, playDrone);
+                    this.createTone(drone, 15, 'sine', 0.1, playDrone, true);
                 };
                 const playStrike = () => {
                     if(this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(strikeNote, 8, 'sine', 0.1);
-                    this.createTone(strikeNote * 2, 8, 'sine', 0.05);
+                    this.createTone(strikeNote, 8, 'sine', 0.1, null, true);
+                    this.createTone(strikeNote * 2, 8, 'sine', 0.05, null, true);
                     setTimeout(playStrike, Math.random() * 15000 + 10000);
                 };
                 playDrone();
@@ -1153,9 +1294,9 @@ function createCandlelitMonasteryScene() {
                 const playNote = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const note = scale[~~(Math.random() * scale.length)];
-                    this.createTone(note, 2, 'triangle', Math.random() * 0.1 + 0.05);
+                    this.createTone(note, 2, 'triangle', Math.random() * 0.1 + 0.05, null, true);
                     if (Math.random() > 0.8) {
-                        this.createTone(note / 2, 3, 'sine', 0.05);
+                        this.createTone(note / 2, 3, 'sine', 0.05, null, true);
                     }
                     setTimeout(playNote, Math.random() * 3000 + 1500);
                 };
@@ -1166,13 +1307,13 @@ function createCandlelitMonasteryScene() {
                 const droneFreq = 60;
                 const playDrone = () => {
                     if(this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(droneFreq, 20, 'sawtooth', 0.04, playDrone);
+                    this.createTone(droneFreq, 20, 'sawtooth', 0.04, playDrone, true);
                 };
 
                 const playWind = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     for (let i = 0; i < 5; i++) {
-                        this.createTone(80 + Math.random() * 40, 2 + Math.random() * 3, 'sine', 0.005 + Math.random() * 0.01);
+                        this.createTone(80 + Math.random() * 40, 2 + Math.random() * 3, 'sine', 0.005 + Math.random() * 0.01, null, true);
                     }
                     setTimeout(playWind, Math.random() * 4000 + 2000);
                 };
@@ -1182,8 +1323,8 @@ function createCandlelitMonasteryScene() {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     if (Math.random() > 0.6) {
                         const note = scale[~~(Math.random() * scale.length)];
-                        this.createTone(note, 5, 'triangle', 0.08);
-                        if (Math.random() > 0.5) { this.createTone(note/2, 5, 'sine', 0.04); }
+                        this.createTone(note, 5, 'triangle', 0.08, null, true);
+                        if (Math.random() > 0.5) { this.createTone(note/2, 5, 'sine', 0.04, null, true); }
                     }
                     setTimeout(playTones, Math.random() * 8000 + 5000);
                 };
@@ -1197,15 +1338,15 @@ function createCandlelitMonasteryScene() {
                 const droneFreq = 55; // A1, a very grounding frequency
                 const playDrone = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(droneFreq, 25, 'sine', 0.15, playDrone); // Long, soft drone
-                    this.createTone(droneFreq * 2, 25, 'sine', 0.05); // Add a subtle harmonic
+                    this.createTone(droneFreq, 25, 'sine', 0.15, playDrone, true); // Long, soft drone
+                    this.createTone(droneFreq * 2, 25, 'sine', 0.05, null, true); // Add a subtle harmonic
                 };
 
                 // "Wind" - multiple, slightly detuned high-frequency sines
                 const playWind = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     for (let i = 0; i < 6; i++) {
-                        this.createTone(1000 + random(-200, 200), random(5, 10), 'sine', random(0.001, 0.005));
+                        this.createTone(1000 + random(-200, 200), random(5, 10), 'sine', random(0.001, 0.005), null, true);
                     }
                     setTimeout(playWind, random(4000, 7000));
                 };
@@ -1215,7 +1356,7 @@ function createCandlelitMonasteryScene() {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const scale = [220, 277, 330, 370]; // A3, C#4, E4, F#4
                     const note = scale[~~(Math.random() * scale.length)];
-                    this.createTone(note, random(10, 15), 'sine', random(0.05, 0.1));
+                    this.createTone(note, random(10, 15), 'sine', random(0.05, 0.1), null, true);
                     setTimeout(playPads, random(8000, 12000));
                 };
 
@@ -1229,8 +1370,8 @@ function createCandlelitMonasteryScene() {
                 const playDrum = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     // A low, soft thump using a sawtooth wave for a bit of attack
-                    this.createTone(70, 0.4, 'sawtooth', 0.15);
-                    this.createTone(65, 0.5, 'sine', 0.1);
+                    this.createTone(70, 0.4, 'sawtooth', 0.15, null, true);
+                    this.createTone(65, 0.5, 'sine', 0.1, null, true);
                     setTimeout(playDrum, random(4000, 6000)); // Slow, spacious rhythm
                 };
 
@@ -1240,7 +1381,7 @@ function createCandlelitMonasteryScene() {
                     // Simulate a rattle with very short bursts of noise-like triangle waves
                     for (let i = 0; i < 5; i++) {
                         setTimeout(() => {
-                           this.createTone(random(800, 1200), 0.05, 'triangle', random(0.01, 0.03));
+                           this.createTone(random(800, 1200), 0.05, 'triangle', random(0.01, 0.03), null, true);
                         }, i * random(30, 60));
                     }
                     setTimeout(playRattle, random(5000, 9000));
@@ -1250,10 +1391,10 @@ function createCandlelitMonasteryScene() {
                 const playDrone = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const baseFreq = 65; // C2
-                    this.createTone(baseFreq, 12, 'sawtooth', 0.08);
+                    this.createTone(baseFreq, 12, 'sawtooth', 0.08, null, true);
                     // Add harmonics to create a richer, throat-like texture
-                    this.createTone(baseFreq * 3, 12, 'sine', 0.04);
-                    this.createTone(baseFreq * 5, 12, 'sine', 0.02);
+                    this.createTone(baseFreq * 3, 12, 'sine', 0.04, null, true);
+                    this.createTone(baseFreq * 5, 12, 'sine', 0.02, null, true);
                     setTimeout(playDrone, random(15000, 20000));
                 };
 
@@ -1262,7 +1403,7 @@ function createCandlelitMonasteryScene() {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const scale = [261, 329, 392, 440]; // Minor pentatonic feel
                     const note = scale[~~(Math.random() * scale.length)];
-                    this.createTone(note, random(3, 5), 'sine', 0.07);
+                    this.createTone(note, random(3, 5), 'sine', 0.07, null, true);
                     setTimeout(playFlute, random(10000, 15000));
                 };
 
@@ -1276,10 +1417,10 @@ function createCandlelitMonasteryScene() {
                 // Heartbeat Pulse
                 const playHeartbeat = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(45, 0.15, 'sine', 0.2); // First beat
+                    this.createTone(45, 0.15, 'sine', 0.2, null, true); // First beat
                     setTimeout(() => {
                         if (this.isMuted || trackId !== this.currentTrackId) return;
-                        this.createTone(45, 0.1, 'sine', 0.15); // Second beat, slightly softer
+                        this.createTone(45, 0.1, 'sine', 0.15, null, true); // Second beat, slightly softer
                     }, 350);
                     setTimeout(playHeartbeat, 1200); // ~50 BPM
                 };
@@ -1290,10 +1431,10 @@ function createCandlelitMonasteryScene() {
                     const scale = [523.25, 659.25, 783.99, 987.77, 1046.50]; // C5, E5, G5, B5, C6
                     const note = scale[~~(Math.random() * scale.length)];
                     // Use triangle for a softer, bell-like tone
-                    this.createTone(note, random(4, 6), 'triangle', random(0.05, 0.1));
+                    this.createTone(note, random(4, 6), 'triangle', random(0.05, 0.1), null, true);
                     // Add a higher, shimmering harmonic
                      if (Math.random() > 0.6) {
-                        this.createTone(note * 2, random(3, 5), 'sine', random(0.02, 0.04));
+                        this.createTone(note * 2, random(3, 5), 'sine', random(0.02, 0.04), null, true);
                     }
                     setTimeout(playChimes, random(3000, 5000));
                 };
@@ -1302,9 +1443,9 @@ function createCandlelitMonasteryScene() {
                 const playAiryPads = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const baseFreq = 261.63; // C4
-                    this.createTone(baseFreq, 15, 'sine', 0.06);
-                    this.createTone(baseFreq * 1.5, 15, 'sine', 0.04); // Perfect fifth for harmony
-                    this.createTone(baseFreq * 2, 15, 'sine', 0.03); // Octave
+                    this.createTone(baseFreq, 15, 'sine', 0.06, null, true);
+                    this.createTone(baseFreq * 1.5, 15, 'sine', 0.04, null, true); // Perfect fifth for harmony
+                    this.createTone(baseFreq * 2, 15, 'sine', 0.03, null, true); // Octave
                     setTimeout(playAiryPads, random(18000, 25000));
                 };
 
@@ -1317,8 +1458,8 @@ function createCandlelitMonasteryScene() {
                 // Deep grounding drone - like the earth beneath the forest
                 const playDrone = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(58.27, 30, 'sine', 0.12, playDrone); // A#1 - very grounding
-                    this.createTone(58.27 * 1.5, 30, 'sine', 0.06); // Perfect fifth harmonic
+                    this.createTone(58.27, 30, 'sine', 0.12, playDrone, true); // A#1 - very grounding
+                    this.createTone(58.27 * 1.5, 30, 'sine', 0.06, null, true); // Perfect fifth harmonic
                 };
 
                 // Gentle night crickets - very sparse, high frequency tones
@@ -1328,7 +1469,7 @@ function createCandlelitMonasteryScene() {
                         for (let i = 0; i < random(2, 4); i++) {
                             setTimeout(() => {
                                 if (this.isMuted || trackId !== this.currentTrackId) return;
-                                this.createTone(random(3000, 4500), random(0.05, 0.15), 'sine', random(0.008, 0.015));
+                                this.createTone(random(3000, 4500), random(0.05, 0.15), 'sine', random(0.008, 0.015), null, true);
                             }, i * random(100, 300));
                         }
                     }
@@ -1339,7 +1480,7 @@ function createCandlelitMonasteryScene() {
                 const playBreeze = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     for (let i = 0; i < 4; i++) {
-                        this.createTone(random(800, 1400), random(4, 7), 'sine', random(0.003, 0.008));
+                        this.createTone(random(800, 1400), random(4, 7), 'sine', random(0.003, 0.008), null, true);
                     }
                     setTimeout(playBreeze, random(8000, 14000));
                 };
@@ -1350,10 +1491,10 @@ function createCandlelitMonasteryScene() {
                     const scale = [233.08, 261.63, 311.13, 349.23, 415.30]; // A#3, C4, D#4, F4, G#4 - minor pentatonic
                     if (Math.random() > 0.5) {
                         const note = scale[~~(Math.random() * scale.length)];
-                        this.createTone(note, random(6, 9), 'triangle', random(0.04, 0.07));
+                        this.createTone(note, random(6, 9), 'triangle', random(0.04, 0.07), null, true);
                         // Subtle harmonic
                         if (Math.random() > 0.6) {
-                            this.createTone(note * 2, random(5, 8), 'sine', random(0.02, 0.03));
+                            this.createTone(note * 2, random(5, 8), 'sine', random(0.02, 0.03), null, true);
                         }
                     }
                     setTimeout(playBells, random(8000, 15000));
@@ -1364,10 +1505,10 @@ function createCandlelitMonasteryScene() {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     if (Math.random() > 0.6) {
                         // Two-note hoot
-                        this.createTone(220, 0.4, 'sine', 0.08);
+                        this.createTone(220, 0.4, 'sine', 0.08, null, true);
                         setTimeout(() => {
                             if (this.isMuted || trackId !== this.currentTrackId) return;
-                            this.createTone(196, 0.5, 'sine', 0.07);
+                            this.createTone(196, 0.5, 'sine', 0.07, null, true);
                         }, 600);
                     }
                     setTimeout(playOwl, random(20000, 35000));
@@ -1396,7 +1537,7 @@ function createCandlelitMonasteryScene() {
         const SHAPES = { I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], O: [[1,1],[1,1]], T: [[0,0,0],[1,1,1],[0,1,0]], S: [[0,1,1],[1,1,0],[0,0,0]], Z: [[1,1,0],[0,1,1],[0,0,0]], J: [[0,0,0],[1,1,1],[0,0,1]], L: [[0,0,0],[1,1,1],[1,0,0]] };
         const PIECE_KEYS = 'IOTZSLJ', SCORE_VALUES = { 1: 100, 2: 300, 3: 500, 4: 800 };
         const LEVEL_SPEEDS = [ 1000, 850, 700, 550, 400, 300, 200, 150, 100, 80, 60, 50, 40, 35, 30 ];
-        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest', 'wolfhour', 'lunara', 'pyrestorm', 'neon-dusk'];
+        const THEMES = ['forest', 'ocean', 'sunset', 'mountain', 'zen', 'winter', 'fall', 'summer', 'spring', 'aurora', 'galaxy', 'rainy-window', 'koi-pond', 'meadow', 'cosmic-chimes', 'singing-bowl', 'starlight', 'swedish-forest', 'geode', 'bioluminescence', 'desert-oasis', 'bamboo-grove', 'misty-lake', 'waves', 'fluid-dreams', 'lantern-festival', 'crystal-cave', 'candlelit-monastery', 'cherry-blossom-garden', 'floating-islands', 'meditation-temple', 'moonlit-greenhouse', 'ice-temple', 'himalayan-peak', 'electric-dreams', 'moonlit-forest', 'wolfhour', 'lunara', 'pyrestorm', 'neon-dusk', 'stillwater'];
 
         let canvas, ctx, nextCanvases = [], board, lockedPieces = [], currentPiece = null;
         let nextPieces = [], score = 0, lines = 0, level = 1, dropInterval = 1000;
@@ -1405,7 +1546,7 @@ function createCandlelitMonasteryScene() {
         let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null, softDropTimer = null;
 let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null, activeThemeData = null;
 
-        let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
+        let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', musicVolume: 1.0, sfxVolume: 1.0, backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space' } };
         const soundManager = new SoundManager();
 let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, touchLastX = null, touchLastY = null;
 
@@ -2275,20 +2416,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
-            // Shooting Stars
-            const shootingStarContainer = document.getElementById('shooting-stars');
-            if (shootingStarContainer && shootingStarContainer.children.length === 0) {
-                for (let i = 0; i < 5; i++) {
-                    let star = document.createElement('div');
-                    star.className = 'shooting-star';
-                    star.style.top = `${Math.random() * 100}%`;
-                    const duration = Math.random() * 5 + 5;
-                    star.style.animationDuration = `${duration}s`;
-                    star.style.animationDelay = `${Math.random() * 20}s`;
-                    star.style.width = `${Math.random() * 100 + 100}px`;
-                    shootingStarContainer.appendChild(star);
-                }
-            }
         }
         function createAuroraScene() {
             const auroraContainer = document.getElementById('aurora-theme');
@@ -3751,7 +3878,7 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 'meditation-temple': createMeditationTempleScene, 'moonlit-greenhouse': createMoonlitGreenhouseScene,
                 'ice-temple': createIceTempleScene, 'himalayan-peak': createHimalayanPeakScene, 'electric-dreams': createElectricDreamsScene,
                 'moonlit-forest': createMoonlitForestScene, 'wolfhour': createWolfhourScene, 'lunara': createLunaraScene,
-                'pyrestorm': createPyrestormScene, 'neon-dusk': createNeonDuskScene
+                'pyrestorm': createPyrestormScene, 'neon-dusk': createNeonDuskScene, 'stillwater': createStillwaterScene
             };
 
             let themeData = null;
@@ -5096,6 +5223,195 @@ function createNeonDuskScene() {
     }
 }
 
+function createStillwaterScene() {
+    // Layer 1 - Distant Trees (Deep forest background with organic shapes)
+    const distantTreesContainer = document.getElementById('stillwater-distant-trees');
+    if (distantTreesContainer && distantTreesContainer.children.length === 0) {
+        const clusters = [
+            { start: 0, end: 20, baseHeight: 140 },
+            { start: 25, end: 45, baseHeight: 120 },
+            { start: 50, end: 70, baseHeight: 135 },
+            { start: 75, end: 95, baseHeight: 125 }
+        ];
+
+        clusters.forEach(cluster => {
+            const tree = document.createElement('div');
+            tree.className = 'stillwater-distant-tree-cluster';
+            tree.style.left = `${cluster.start}%`;
+            tree.style.width = `${cluster.end - cluster.start}%`;
+            tree.style.setProperty('--height', `${cluster.baseHeight}px`);
+            tree.style.setProperty('--sway-duration', `${Math.random() * 20 + 40}s`);
+            tree.style.setProperty('--sway-delay', `-${Math.random() * 20}s`);
+            distantTreesContainer.appendChild(tree);
+        });
+    }
+
+    // Layer 2 - Mid Trees (Varied organic silhouettes)
+    const midTreesContainer = document.getElementById('stillwater-mid-trees');
+    if (midTreesContainer && midTreesContainer.children.length === 0) {
+        const treePositions = [5, 12, 23, 35, 42, 56, 63, 71, 82, 90];
+        treePositions.forEach((pos, i) => {
+            const tree = document.createElement('div');
+            tree.className = 'stillwater-mid-tree';
+            const height = Math.random() * 80 + 160;
+            const width = Math.random() * 35 + 25;
+            tree.style.left = `${pos}%`;
+            tree.style.setProperty('--tree-height', `${height}px`);
+            tree.style.setProperty('--tree-width', `${width}px`);
+            tree.style.setProperty('--sway-duration', `${Math.random() * 15 + 30}s`);
+            tree.style.setProperty('--sway-delay', `-${Math.random() * 15}s`);
+            tree.style.setProperty('--sway-amount', `${Math.random() * 1 + 0.5}deg`);
+            midTreesContainer.appendChild(tree);
+        });
+    }
+
+    // Layer 3 - Close Trees (Defined trunks with organic shapes)
+    const closeTreesContainer = document.getElementById('stillwater-close-trees');
+    if (closeTreesContainer && closeTreesContainer.children.length === 0) {
+        const treePosi = [8, 28, 48, 68, 88];
+        treePosi.forEach((pos, i) => {
+            const tree = document.createElement('div');
+            tree.className = 'stillwater-close-tree';
+            const height = Math.random() * 100 + 200;
+            tree.style.left = `${pos}%`;
+            tree.style.setProperty('--tree-height', `${height}px`);
+            tree.style.setProperty('--sway-duration', `${Math.random() * 12 + 25}s`);
+            tree.style.setProperty('--sway-delay', `-${Math.random() * 12}s`);
+            closeTreesContainer.appendChild(tree);
+        });
+    }
+
+    // Layer 4 - Foreground Trees (Large, prominent trunks)
+    const foregroundTreesContainer = document.getElementById('stillwater-foreground-trees');
+    if (foregroundTreesContainer && foregroundTreesContainer.children.length === 0) {
+        const positions = [2, 18, 38, 62, 78, 94];
+        positions.forEach((pos, i) => {
+            const tree = document.createElement('div');
+            tree.className = 'stillwater-foreground-tree';
+            const height = Math.random() * 150 + 250;
+            const width = Math.random() * 30 + 25;
+            tree.style.left = `${pos}%`;
+            tree.style.setProperty('--tree-height', `${height}px`);
+            tree.style.setProperty('--tree-width', `${width}px`);
+            tree.style.setProperty('--sway-duration', `${Math.random() * 10 + 20}s`);
+            tree.style.setProperty('--sway-delay', `-${Math.random() * 10}s`);
+            foregroundTreesContainer.appendChild(tree);
+        });
+    }
+
+    // Layer 5 - Rocks along waterline
+    const rocksContainer = document.getElementById('stillwater-rocks');
+    if (rocksContainer && rocksContainer.children.length === 0) {
+        const rockCount = 15;
+        for (let i = 0; i < rockCount; i++) {
+            const rock = document.createElement('div');
+            rock.className = 'stillwater-rock';
+            const size = Math.random() * 25 + 15;
+            rock.style.width = `${size}px`;
+            rock.style.height = `${size * 0.6}px`;
+            rock.style.left = `${Math.random() * 100}%`;
+            rock.style.borderRadius = `${Math.random() * 50}% ${Math.random() * 50}% ${Math.random() * 50}% ${Math.random() * 50}%`;
+            rocksContainer.appendChild(rock);
+        }
+    }
+
+    // Layer 6 - Water Ripples
+    const ripplesContainer = document.getElementById('stillwater-water-ripples');
+    if (ripplesContainer && ripplesContainer.children.length === 0) {
+        const rippleCount = 8;
+        for (let i = 0; i < rippleCount; i++) {
+            const ripple = document.createElement('div');
+            ripple.className = 'stillwater-water-ripple';
+            ripple.style.left = `${Math.random() * 100}%`;
+            ripple.style.top = `${Math.random() * 80 + 10}%`;
+            ripple.style.animationDelay = `${Math.random() * 12}s`;
+            ripple.style.animationDuration = `${Math.random() * 8 + 10}s`;
+            ripplesContainer.appendChild(ripple);
+        }
+    }
+
+    // Layer 8 - Multi-layer Mist
+    ['stillwater-mist-back', 'stillwater-mist-mid', 'stillwater-mist-front'].forEach((id, index) => {
+        const mistContainer = document.getElementById(id);
+        if (mistContainer && mistContainer.children.length === 0) {
+            const mist = document.createElement('div');
+            mist.className = `stillwater-mist-layer-${index}`;
+            mist.style.animationDelay = `-${index * 15}s`;
+            mistContainer.appendChild(mist);
+        }
+    });
+
+    // Layer 9 - Floating Particles (Dust motes, spores)
+    const particlesContainer = document.getElementById('stillwater-particles');
+    if (particlesContainer && particlesContainer.children.length === 0) {
+        // Dust motes
+        const dustCount = 50;
+        for (let i = 0; i < dustCount; i++) {
+            const dust = document.createElement('div');
+            dust.className = 'stillwater-dust-mote';
+            const size = Math.random() * 2 + 1;
+            dust.style.width = `${size}px`;
+            dust.style.height = `${size}px`;
+            dust.style.left = `${Math.random() * 100}%`;
+            dust.style.top = `${Math.random() * 100}%`;
+            dust.style.setProperty('--drift-x', `${Math.random() * 100 - 50}px`);
+            dust.style.setProperty('--drift-y', `${Math.random() * 150 - 75}px`);
+            dust.style.setProperty('--float-duration', `${Math.random() * 20 + 20}s`);
+            dust.style.animationDelay = `${Math.random() * 20}s`;
+            particlesContainer.appendChild(dust);
+        }
+
+        // Fireflies (mystical blinking lights)
+        const fireflyCount = 15;
+        for (let i = 0; i < fireflyCount; i++) {
+            const firefly = document.createElement('div');
+            firefly.className = 'stillwater-firefly';
+            const size = Math.random() * 4 + 3;
+            firefly.style.width = `${size}px`;
+            firefly.style.height = `${size}px`;
+            firefly.style.left = `${Math.random() * 100}%`;
+            firefly.style.top = `${Math.random() * 80 + 10}%`;
+            firefly.style.setProperty('--drift-x', `${Math.random() * 120 - 60}px`);
+            firefly.style.setProperty('--drift-y', `${Math.random() * 80 - 40}px`);
+            firefly.style.setProperty('--float-duration', `${Math.random() * 15 + 15}s`);
+            firefly.style.setProperty('--blink-duration', `${Math.random() * 3 + 2}s`);
+            firefly.style.animationDelay = `${Math.random() * 15}s`;
+            particlesContainer.appendChild(firefly);
+        }
+
+        // Mystical orbs (larger glowing particles)
+        const orbCount = 8;
+        for (let i = 0; i < orbCount; i++) {
+            const orb = document.createElement('div');
+            orb.className = 'stillwater-mystical-orb';
+            const size = Math.random() * 12 + 8;
+            orb.style.width = `${size}px`;
+            orb.style.height = `${size}px`;
+            orb.style.left = `${Math.random() * 100}%`;
+            orb.style.top = `${Math.random() * 70 + 15}%`;
+            orb.style.setProperty('--drift-x', `${Math.random() * 150 - 75}px`);
+            orb.style.setProperty('--drift-y', `${Math.random() * 100 - 50}px`);
+            orb.style.setProperty('--float-duration', `${Math.random() * 25 + 25}s`);
+            orb.style.setProperty('--pulse-duration', `${Math.random() * 4 + 3}s`);
+            orb.style.animationDelay = `${Math.random() * 20}s`;
+            particlesContainer.appendChild(orb);
+        }
+
+        // Light rays (mystical beams through mist)
+        const rayCount = 5;
+        for (let i = 0; i < rayCount; i++) {
+            const ray = document.createElement('div');
+            ray.className = 'stillwater-light-ray';
+            ray.style.left = `${Math.random() * 100}%`;
+            ray.style.top = `${Math.random() * 40}%`;
+            ray.style.setProperty('--ray-angle', `${Math.random() * 30 - 15}deg`);
+            ray.style.setProperty('--ray-duration', `${Math.random() * 10 + 15}s`);
+            ray.style.animationDelay = `${Math.random() * 15}s`;
+            particlesContainer.appendChild(ray);
+        }
+    }
+}
+
 function createElectricDreamsScene() {
     // 1. Create morphing, glowing veins
     // OPTIMIZATION: Use will-change and transform3d to force GPU compositing
@@ -6099,15 +6415,15 @@ function isPartOfPiece(boardX, boardY, piece) {
             document.getElementById('settings-btn').addEventListener('click', pauseGame);
             document.getElementById('close-settings').addEventListener('click', resumeGame);
             document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
-            document.getElementById('sound-toggle').addEventListener('click', () => {
-                const m = soundManager.toggleMute();
-                document.getElementById('sound-toggle').textContent = m ? '🔇' : '🔊';
-            });
             document.getElementById('next-track-btn').addEventListener('click', () => soundManager.nextTrack());
             const ds=document.getElementById('das-delay'),dv=document.getElementById('das-delay-value'),is=document.getElementById('das-interval'),iv=document.getElementById('das-interval-value');
             ds.value=settings.dasDelay;dv.textContent=settings.dasDelay; is.value=settings.dasInterval;iv.textContent=settings.dasInterval;
             ds.addEventListener('input',(e)=>{settings.dasDelay=parseInt(e.target.value);dv.textContent=settings.dasDelay;saveSettings();});
             is.addEventListener('input',(e)=>{settings.dasInterval=parseInt(e.target.value);iv.textContent=settings.dasInterval;saveSettings();});
+            const mvs=document.getElementById('music-volume'),mvv=document.getElementById('music-volume-value'),svs=document.getElementById('sfx-volume'),svv=document.getElementById('sfx-volume-value');
+            mvs.value=settings.musicVolume*100;mvv.textContent=Math.round(settings.musicVolume*100); svs.value=settings.sfxVolume*100;svv.textContent=Math.round(settings.sfxVolume*100);
+            mvs.addEventListener('input',(e)=>{settings.musicVolume=parseInt(e.target.value)/100;soundManager.musicVolume=settings.musicVolume;mvv.textContent=e.target.value;saveSettings();});
+            svs.addEventListener('input',(e)=>{settings.sfxVolume=parseInt(e.target.value)/100;soundManager.sfxVolume=settings.sfxVolume;svv.textContent=e.target.value;saveSettings();});
             const mt=document.getElementById('music-track');
             mt.value=settings.musicTrack;
             mt.addEventListener('change',(e)=>{settings.musicTrack=e.target.value;soundManager.setTrack(settings.musicTrack);saveSettings();});
@@ -6165,12 +6481,12 @@ function isPartOfPiece(boardX, boardY, piece) {
         }
         function listenForKey(el) { document.querySelectorAll('.key-input').forEach(e=>e.classList.remove('listening')); el.classList.add('listening'); el.textContent='Press a key...'; }
         function handleKeybinding(e,el){ e.preventDefault(); const a=el.id.substring(4), k=e.key===' '?'Space':e.key; if(Object.values(settings.keyBindings).includes(k)&&settings.keyBindings[a]!==k){ el.textContent=settings.keyBindings[a];el.classList.remove('listening');return; } settings.keyBindings[a]=k; el.textContent=k; el.classList.remove('listening'); saveSettings(); updateControlsDisplay(); }
-        function saveSettings(){localStorage.setItem('quadraSettings',JSON.stringify(settings));}
-        function loadSettings(){ const s=localStorage.getItem('quadraSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; }
+        function saveSettings(){localStorage.setItem('serenityBlocksSettings',JSON.stringify(settings));}
+        function loadSettings(){ const s=localStorage.getItem('serenityBlocksSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; soundManager.musicVolume=settings.musicVolume; soundManager.sfxVolume=settings.sfxVolume; }
         function updateControlsDisplay() {
             const l = document.getElementById('controls-list');
             l.innerHTML = '';
-            const o = ['moveLeft', 'moveRight', 'rotateRight', 'rotateLeft', 'flip', 'softDrop', 'hardDrop', 'toggleMusic'];
+            const o = ['moveLeft', 'moveRight', 'rotateRight', 'rotateLeft', 'flip', 'softDrop', 'hardDrop'];
             if (settings.controlScheme === 'Keyboard') {
                 document.querySelectorAll('.key-input').forEach(el => el.parentElement.style.display = 'contents');
                 o.forEach(a => {
@@ -6283,7 +6599,6 @@ function isPartOfPiece(boardX, boardY, piece) {
                 case'moveRight':move(1);dasTimer=setTimeout(()=>{dasIntervalTimer=setInterval(()=>move(1),settings.dasInterval);},settings.dasDelay);break;
                 case'softDrop':softDrop();softDropTimer=setInterval(()=>softDrop(),50);break; case'rotateRight':rotate('right');break; case'rotateLeft':rotate('left');break; case'flip':rotate('flip');break;
                 case'hardDrop':e.preventDefault();hardDrop();break;
-                case'toggleMusic':const m=soundManager.toggleMute();document.getElementById('sound-toggle').textContent=m?'🔇':'🔊';break;
             }
         });
         document.addEventListener('keyup',(e)=>{

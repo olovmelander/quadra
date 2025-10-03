@@ -1,6 +1,6 @@
-# Contributing to Quadra
+# Contributing to Serenity Blocks
 
-Thank you for your interest in improving Quadra! This guide will help you contribute performance optimizations effectively.
+Thank you for your interest in improving Serenity Blocks! This guide will help you contribute performance optimizations effectively.
 
 ## Performance Optimization Task
 

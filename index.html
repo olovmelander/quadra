@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quadra - Meditative Edition</title>
+    <title>Serenity Blocks</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -127,7 +127,6 @@
                 <div class="nebula" id="nebula-layer-2"></div>
                 <div class="nebula" id="nebula-layer-3"></div>
             </div>
-            <div id="shooting-stars"></div>
         </div>
         <div id="rainy-window-theme" class="theme-container">
             <div class="rainy-bg"></div>
@@ -312,10 +311,12 @@
         </div>
         <div id="ice-temple-theme" class="theme-container">
             <div id="ice-temple-sky"></div>
+            <div id="ice-temple-stars"></div>
             <div id="ice-temple-aurora"></div>
+            <div id="ice-temple-mountains-distant"></div>
+            <div id="ice-temple-mist"></div>
+            <div id="ice-temple-snow"></div>
             <div id="ice-temple-refractions"></div>
-            <div id="ice-temple-waterfalls"></div>
-            <div id="ice-temple-sculptures"></div>
         </div>
         <div id="himalayan-peak-theme" class="theme-container">
             <div id="himalayan-sky"></div>
@@ -393,6 +394,25 @@
             <div id="neon-dusk-chromatic"></div>
             <div id="neon-dusk-horizon-glow"></div>
         </div>
+        <div id="stillwater-theme" class="theme-container">
+            <div id="stillwater-sky"></div>
+            <div id="stillwater-sky-glow"></div>
+            <div id="stillwater-distant-trees"></div>
+            <div id="stillwater-mid-trees"></div>
+            <div id="stillwater-close-trees"></div>
+            <div id="stillwater-foreground-trees"></div>
+            <div id="stillwater-waterline"></div>
+            <div id="stillwater-rocks"></div>
+            <div id="stillwater-water"></div>
+            <div id="stillwater-figure"></div>
+            <div id="stillwater-reflection"></div>
+            <div id="stillwater-water-ripples"></div>
+            <div id="stillwater-mist-back"></div>
+            <div id="stillwater-mist-mid"></div>
+            <div id="stillwater-mist-front"></div>
+            <div id="stillwater-particles"></div>
+            <div id="stillwater-glow"></div>
+        </div>
     </div>
 
     <div class="game-container">
@@ -410,7 +430,6 @@
                 <h2>CONTROLS</h2>
                 <div class="controls-info"><div id="controls-list"></div></div>
             </div>
-            <button id="sound-toggle" class="action-btn">🔊</button>
             <button id="next-track-btn" class="action-btn">🎵</button>
             <button id="fullscreen-toggle" class="action-btn">⛶</button>
             <button id="settings-btn" class="action-btn">⚙️</button>
@@ -432,7 +451,7 @@
 
     <div id="start-modal" class="modal visible">
         <div class="modal-content">
-            <h1>QUADRA</h1>
+            <h1>SERENITY BLOCKS</h1>
             <p>Press any key or tap to start</p>
         </div>
     </div>
@@ -458,6 +477,18 @@
                         <label for="das-interval">DAS Interval (ms):</label>
                         <div class="slider-container">
                             <input type="range" id="das-interval" min="10" max="100" step="5"><span id="das-interval-value">50</span>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label for="music-volume">Music Volume:</label>
+                        <div class="slider-container">
+                            <input type="range" id="music-volume" min="0" max="100" step="1"><span id="music-volume-value">100</span>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label for="sfx-volume">SFX Volume:</label>
+                        <div class="slider-container">
+                            <input type="range" id="sfx-volume" min="0" max="100" step="1"><span id="sfx-volume-value">100</span>
                         </div>
                     </div>
                     <div class="setting">
@@ -544,6 +575,7 @@
                             <option value="lunara">Lunara</option>
                             <option value="pyrestorm">Pyrestorm</option>
                             <option value="neon-dusk">Neon Dusk</option>
+                            <option value="stillwater">Stillwater</option>
                         </select>
                     </div>
                     <div class="setting"><label>Move Left:</label> <div id="key-moveLeft" class="key-input" tabindex="0">ArrowLeft</div></div>
@@ -553,7 +585,6 @@
                     <div class="setting"><label>Flip (180°):</label> <div id="key-flip" class="key-input" tabindex="0">a</div></div>
                     <div class="setting"><label>Soft Drop:</label> <div id="key-softDrop" class="key-input" tabindex="0">ArrowDown</div></div>
                     <div class="setting"><label>Hard Drop:</label> <div id="key-hardDrop" class="key-input" tabindex="0">Space</div></div>
-                    <div class="setting"><label>Toggle Music:</label> <div id="key-toggleMusic" class="key-input" tabindex="0">M</div></div>
                     <div class="setting">
                         <label for="control-scheme">Controls:</label>
                         <select id="control-scheme" class="setting-select">
