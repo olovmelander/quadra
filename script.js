@@ -1069,11 +1069,13 @@ function createCandlelitMonasteryScene() {
                 this.musicTrack = 'Ambient'; this.soundSet = 'Zen';
                 this.musicVolume = 1.0; this.sfxVolume = 1.0;
                 this.currentTrackId = null;
+                this.audioElement = null; // HTML5 Audio element for playing MP3 files
                 this.trackNames = [
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
                     'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath',
-                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight', 'MoonlitForest'
+                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight', 'MoonlitForest',
+                    'EchoesOfTheSoul', 'EtherealEchoes'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -1151,7 +1153,9 @@ function createCandlelitMonasteryScene() {
                     BreathOfStillness: () => this.startBreathOfStillnessMusic(trackId),
                     SacredJourney: () => this.startSacredJourneyMusic(trackId),
                     ReturnToLight: () => this.startReturnToLightMusic(trackId),
-                    MoonlitForest: () => this.startMoonlitForestMusic(trackId)
+                    MoonlitForest: () => this.startMoonlitForestMusic(trackId),
+                    EchoesOfTheSoul: () => this.playAudioFile('songs/Echoes of the Soul.mp3'),
+                    EtherealEchoes: () => this.playAudioFile('songs/Ethereal Echoes.mp3')
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
             }
@@ -1521,14 +1525,50 @@ function createCandlelitMonasteryScene() {
                 setTimeout(playOwl, 12000);
             }
 
+            playAudioFile(filename) {
+                // Stop any existing music first
+                this.stopBackgroundMusic();
+
+                // Create or reuse audio element
+                if (!this.audioElement) {
+                    this.audioElement = new Audio();
+                    this.audioElement.loop = true;
+                }
+
+                // Set the source and configure
+                this.audioElement.src = filename;
+                this.audioElement.volume = this.musicVolume;
+                this.audioElement.muted = this.isMuted;
+
+                // Play the audio (handle autoplay restrictions)
+                const playPromise = this.audioElement.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('Audio playback prevented:', error);
+                    });
+                }
+            }
+
             stopBackgroundMusic() {
                 this.currentTrackId = null;
                 if (this.musicInterval) {
                     clearInterval(this.musicInterval);
                     this.musicInterval = null;
                 }
+                // Also stop audio element if it exists
+                if (this.audioElement) {
+                    this.audioElement.pause();
+                    this.audioElement.currentTime = 0;
+                }
             }
-            toggleMute() { this.isMuted = !this.isMuted; this.isMuted ? this.stopBackgroundMusic() : this.startBackgroundMusic(); return this.isMuted; }
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                if (this.audioElement) {
+                    this.audioElement.muted = this.isMuted;
+                }
+                this.isMuted ? this.stopBackgroundMusic() : this.startBackgroundMusic();
+                return this.isMuted;
+            }
         }
 
         const COLS = 10, ROWS = 20, HIDDEN_ROWS = 4;
@@ -6523,7 +6563,7 @@ function isPartOfPiece(boardX, boardY, piece) {
             is.addEventListener('input',(e)=>{settings.dasInterval=parseInt(e.target.value);iv.textContent=settings.dasInterval;saveSettings();});
             const mvs=document.getElementById('music-volume'),mvv=document.getElementById('music-volume-value'),svs=document.getElementById('sfx-volume'),svv=document.getElementById('sfx-volume-value');
             mvs.value=settings.musicVolume*100;mvv.textContent=Math.round(settings.musicVolume*100); svs.value=settings.sfxVolume*100;svv.textContent=Math.round(settings.sfxVolume*100);
-            mvs.addEventListener('input',(e)=>{settings.musicVolume=parseInt(e.target.value)/100;soundManager.musicVolume=settings.musicVolume;mvv.textContent=e.target.value;saveSettings();});
+            mvs.addEventListener('input',(e)=>{settings.musicVolume=parseInt(e.target.value)/100;soundManager.musicVolume=settings.musicVolume;if(soundManager.audioElement){soundManager.audioElement.volume=settings.musicVolume;}mvv.textContent=e.target.value;saveSettings();});
             svs.addEventListener('input',(e)=>{settings.sfxVolume=parseInt(e.target.value)/100;soundManager.sfxVolume=settings.sfxVolume;svv.textContent=e.target.value;saveSettings();});
             const mt=document.getElementById('music-track');
             mt.value=settings.musicTrack;
