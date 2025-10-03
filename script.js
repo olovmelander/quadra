@@ -1069,11 +1069,13 @@ function createCandlelitMonasteryScene() {
                 this.musicTrack = 'Ambient'; this.soundSet = 'Zen';
                 this.musicVolume = 1.0; this.sfxVolume = 1.0;
                 this.currentTrackId = null;
+                this.audioElement = null; // HTML5 Audio element for playing MP3 files
                 this.trackNames = [
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
                     'Galaxy', 'Rainfall', 'Koi', 'Meadow', 'MiracleTone', 'HealingDrone',
                     'CosmicChimes', 'SingingBowl', 'Starlight', 'SwedishForest', 'GongBath',
-                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight', 'MoonlitForest'
+                    'BreathOfStillness', 'SacredJourney', 'ReturnToLight', 'MoonlitForest',
+                    'EchoesOfTheSoul', 'EtherealEchoes'
                 ];
                 this.soundSets = {
                     Retro: {
@@ -1151,7 +1153,9 @@ function createCandlelitMonasteryScene() {
                     BreathOfStillness: () => this.startBreathOfStillnessMusic(trackId),
                     SacredJourney: () => this.startSacredJourneyMusic(trackId),
                     ReturnToLight: () => this.startReturnToLightMusic(trackId),
-                    MoonlitForest: () => this.startMoonlitForestMusic(trackId)
+                    MoonlitForest: () => this.startMoonlitForestMusic(trackId),
+                    EchoesOfTheSoul: () => this.playAudioFile('songs/Echoes of the Soul.mp3'),
+                    EtherealEchoes: () => this.playAudioFile('songs/Ethereal Echoes.mp3')
                 };
                 (tracks[this.musicTrack] || tracks.Nebula)(trackId);
             }
@@ -1521,14 +1525,50 @@ function createCandlelitMonasteryScene() {
                 setTimeout(playOwl, 12000);
             }
 
+            playAudioFile(filename) {
+                // Stop any existing music first
+                this.stopBackgroundMusic();
+
+                // Create or reuse audio element
+                if (!this.audioElement) {
+                    this.audioElement = new Audio();
+                    this.audioElement.loop = true;
+                }
+
+                // Set the source and configure
+                this.audioElement.src = filename;
+                this.audioElement.volume = this.musicVolume;
+                this.audioElement.muted = this.isMuted;
+
+                // Play the audio (handle autoplay restrictions)
+                const playPromise = this.audioElement.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('Audio playback prevented:', error);
+                    });
+                }
+            }
+
             stopBackgroundMusic() {
                 this.currentTrackId = null;
                 if (this.musicInterval) {
                     clearInterval(this.musicInterval);
                     this.musicInterval = null;
                 }
+                // Also stop audio element if it exists
+                if (this.audioElement) {
+                    this.audioElement.pause();
+                    this.audioElement.currentTime = 0;
+                }
             }
-            toggleMute() { this.isMuted = !this.isMuted; this.isMuted ? this.stopBackgroundMusic() : this.startBackgroundMusic(); return this.isMuted; }
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                if (this.audioElement) {
+                    this.audioElement.muted = this.isMuted;
+                }
+                this.isMuted ? this.stopBackgroundMusic() : this.startBackgroundMusic();
+                return this.isMuted;
+            }
         }
 
         const COLS = 10, ROWS = 20, HIDDEN_ROWS = 4;
@@ -3903,36 +3943,50 @@ function createCrystalCaveScene() {
     if (webglRenderer) {
         const crystalLayers = [
             // Background layer - deep cave colors
-            { zIndex: -0.9, count: 12, colors: ['rgba(30, 20, 60, 0.6)', 'rgba(20, 30, 70, 0.6)', 'rgba(40, 20, 80, 0.6)'], height: 0.6 },
+            { zIndex: -0.9, count: 12, colors: ['rgba(30, 20, 60, 0.6)', 'rgba(20, 30, 70, 0.6)', 'rgba(40, 20, 80, 0.6)'], height: 0.6, seed: 78901 },
             // Mid layer - richer colors
-            { zIndex: -0.8, count: 10, colors: ['rgba(60, 40, 100, 0.7)', 'rgba(30, 60, 90, 0.7)', 'rgba(50, 80, 100, 0.7)'], height: 0.75 },
+            { zIndex: -0.8, count: 10, colors: ['rgba(60, 40, 100, 0.7)', 'rgba(30, 60, 90, 0.7)', 'rgba(50, 80, 100, 0.7)'], height: 0.75, seed: 89012 },
             // Front layer - prominent crystals
-            { zIndex: -0.7, count: 8, colors: ['rgba(80, 60, 130, 0.8)', 'rgba(50, 90, 130, 0.8)', 'rgba(70, 100, 150, 0.8)'], height: 0.85 }
+            { zIndex: -0.7, count: 8, colors: ['rgba(80, 60, 130, 0.8)', 'rgba(50, 90, 130, 0.8)', 'rgba(70, 100, 150, 0.8)'], height: 0.85, seed: 90123 }
         ];
 
         crystalLayers.forEach(layer => {
-            const canvas = document.createElement('canvas');
             const C_WIDTH = 2048;
+            const C_HEIGHT = window.innerHeight;
+
+            // Create cache key based on layer properties and dimensions
+            const cacheKey = `crystal-${layer.zIndex}-${layer.count}-${layer.height}-${layer.colors.join(',')}-${C_WIDTH}x${C_HEIGHT}`;
+
+            // Check if we have this crystal layer cached
+            if (crystalCaveCache.has(cacheKey)) {
+                const cachedCanvas = crystalCaveCache.get(cacheKey);
+                webglRenderer.addLayer(cachedCanvas, layer.zIndex);
+                return;
+            }
+
+            // Generate new crystal layer with seeded random for deterministic output
+            const rng = seededRandom(layer.seed);
+            const canvas = document.createElement('canvas');
             canvas.width = C_WIDTH;
-            canvas.height = window.innerHeight;
+            canvas.height = C_HEIGHT;
             const ctx = canvas.getContext('2d');
 
             // Draw massive crystals with varied sizes
             for (let i = 0; i < layer.count; i++) {
-                const x = Math.random() * C_WIDTH;
-                const color = layer.colors[Math.floor(Math.random() * layer.colors.length)];
+                const x = rng() * C_WIDTH;
+                const color = layer.colors[Math.floor(rng() * layer.colors.length)];
 
                 // Vary crystal sizes dramatically
-                const isMassive = Math.random() > 0.6;
-                const baseWidth = isMassive ? Math.random() * 150 + 100 : Math.random() * 80 + 40;
-                const baseHeight = (Math.random() * 0.4 + 0.4) * canvas.height * layer.height;
+                const isMassive = rng() > 0.6;
+                const baseWidth = isMassive ? rng() * 150 + 100 : rng() * 80 + 40;
+                const baseHeight = (rng() * 0.4 + 0.4) * canvas.height * layer.height;
 
                 ctx.fillStyle = color;
                 ctx.strokeStyle = `rgba(180, 200, 255, 0.15)`;
                 ctx.lineWidth = 2;
 
                 // Draw from ceiling
-                if (Math.random() > 0.3) {
+                if (rng() > 0.3) {
                     ctx.beginPath();
                     ctx.moveTo(x - baseWidth / 2, 0);
                     // Add jagged facets
@@ -3954,10 +4008,10 @@ function createCrystalCaveScene() {
                 }
 
                 // Draw from floor
-                if (Math.random() > 0.3) {
-                    const floorX = Math.random() * C_WIDTH;
-                    const floorWidth = isMassive ? Math.random() * 140 + 90 : Math.random() * 70 + 35;
-                    const floorHeight = (Math.random() * 0.4 + 0.35) * canvas.height * layer.height;
+                if (rng() > 0.3) {
+                    const floorX = rng() * C_WIDTH;
+                    const floorWidth = isMassive ? rng() * 140 + 90 : rng() * 70 + 35;
+                    const floorHeight = (rng() * 0.4 + 0.35) * canvas.height * layer.height;
 
                     ctx.fillStyle = color;
                     ctx.beginPath();
@@ -3979,6 +4033,9 @@ function createCrystalCaveScene() {
                     ctx.fill();
                 }
             }
+
+            // Cache the generated canvas
+            crystalCaveCache.set(cacheKey, canvas);
             webglRenderer.addLayer(canvas, layer.zIndex);
         });
     }
@@ -4061,6 +4118,58 @@ function createCrystalCaveScene() {
 }
 
 function createLanternFestivalScene() {
+    // Check if already initialized with pooled elements
+    if (lanternFestivalElementPool.initialized) {
+        // Reuse existing elements - just make sure they're in the right containers
+        const lanternLayers = [
+            { container: document.getElementById('lanterns-back'), count: 20 },
+            { container: document.getElementById('lanterns-mid'), count: 15 },
+            { container: document.getElementById('lanterns-front'), count: 10 }
+        ];
+
+        let lanternIndex = 0;
+        lanternLayers.forEach(layer => {
+            if (layer.container) {
+                // Reattach pooled lanterns to this layer
+                for (let i = 0; i < layer.count; i++) {
+                    if (lanternFestivalElementPool.lanterns[lanternIndex]) {
+                        layer.container.appendChild(lanternFestivalElementPool.lanterns[lanternIndex]);
+                        lanternIndex++;
+                    }
+                }
+            }
+        });
+
+        // Reattach reflections
+        const waterContainer = document.getElementById('lantern-water');
+        if (waterContainer) {
+            lanternFestivalElementPool.reflections.forEach(reflection => {
+                waterContainer.appendChild(reflection);
+            });
+        }
+
+        // Reattach petals
+        const petalContainer = document.getElementById('lantern-petals');
+        if (petalContainer) {
+            lanternFestivalElementPool.petals.forEach(petal => {
+                petalContainer.appendChild(petal);
+            });
+        }
+
+        // Reattach embers
+        const emberContainer = document.getElementById('lantern-embers');
+        if (emberContainer) {
+            lanternFestivalElementPool.embers.forEach(ember => {
+                emberContainer.appendChild(ember);
+            });
+        }
+
+        return; // Skip expensive generation
+    }
+
+    // First time - create elements with seeded random for deterministic output
+    const rng = seededRandom(88888); // Seed for lantern festival
+
     // 1. Lanterns
     const lanternLayers = [
         { container: document.getElementById('lanterns-back'), count: 20, minSize: 20, maxSize: 40, minDuration: 40, maxDuration: 60 },
@@ -4086,26 +4195,27 @@ function createLanternFestivalScene() {
                 const lantern = document.createElement('div');
                 lantern.className = 'lantern';
 
-                const color = lanternColors[Math.floor(Math.random() * lanternColors.length)];
-                const shape = lanternShapes[Math.floor(Math.random() * lanternShapes.length)];
+                const color = lanternColors[Math.floor(rng() * lanternColors.length)];
+                const shape = lanternShapes[Math.floor(rng() * lanternShapes.length)];
                 lantern.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 80"><g fill="${encodeURIComponent(color)}" opacity="0.9">${shape}</g></svg>')`;
 
-                const size = Math.random() * (layer.maxSize - layer.minSize) + layer.minSize;
+                const size = rng() * (layer.maxSize - layer.minSize) + layer.minSize;
                 lantern.style.width = `${size}px`;
                 lantern.style.height = `${size * 1.2}px`;
 
-                const xPos = Math.random() * 100;
+                const xPos = rng() * 100;
                 lantern.style.left = `${xPos}%`;
 
-                const duration = Math.random() * (layer.maxDuration - layer.minDuration) + layer.minDuration;
+                const duration = rng() * (layer.maxDuration - layer.minDuration) + layer.minDuration;
                 lantern.style.animationDuration = `${duration}s`;
-                lantern.style.animationDelay = `-${Math.random() * duration}s`;
+                lantern.style.animationDelay = `-${rng() * duration}s`;
 
-                lantern.style.setProperty('--x-sway1', `${(Math.random() - 0.5) * 10}vw`);
-                lantern.style.setProperty('--x-sway2', `${(Math.random() - 0.5) * 10}vw`);
-                lantern.style.setProperty('--start-opacity', `${Math.random() * 0.5 + 0.5}`);
+                lantern.style.setProperty('--x-sway1', `${(rng() - 0.5) * 10}vw`);
+                lantern.style.setProperty('--x-sway2', `${(rng() - 0.5) * 10}vw`);
+                lantern.style.setProperty('--start-opacity', `${rng() * 0.5 + 0.5}`);
 
                 layer.container.appendChild(lantern);
+                lanternFestivalElementPool.lanterns.push(lantern); // Store in pool
 
                 // Add reflection for front lanterns
                 if (layer.container.id === 'lanterns-front' && waterContainer) {
@@ -4117,12 +4227,13 @@ function createLanternFestivalScene() {
 
                     // Match animation properties
                     reflection.style.animationDuration = `${duration}s, 4s`;
-                    reflection.style.animationDelay = `-${Math.random() * duration}s, -${Math.random() * 4}s`;
-                    reflection.style.setProperty('--x-sway1', `${(Math.random() - 0.5) * 10}vw`);
-                    reflection.style.setProperty('--x-sway2', `${(Math.random() - 0.5) * 10}vw`);
+                    reflection.style.animationDelay = `-${rng() * duration}s, -${rng() * 4}s`;
+                    reflection.style.setProperty('--x-sway1', `${(rng() - 0.5) * 10}vw`);
+                    reflection.style.setProperty('--x-sway2', `${(rng() - 0.5) * 10}vw`);
                     reflection.style.setProperty('--start-opacity', `0.4`); // Reflections are fainter
 
                     waterContainer.appendChild(reflection);
+                    lanternFestivalElementPool.reflections.push(reflection); // Store in pool
                 }
             }
         }
@@ -4134,16 +4245,17 @@ function createLanternFestivalScene() {
         for (let i = 0; i < 20; i++) {
             let petal = document.createElement('div');
             petal.className = 'lantern-petal';
-            petal.style.setProperty('--x-start', `${Math.random() * 100}vw`);
+            petal.style.setProperty('--x-start', `${rng() * 100}vw`);
             petal.style.setProperty('--y-start', `-10vh`);
-            petal.style.setProperty('--x-end', `${Math.random() * 100}vw`);
+            petal.style.setProperty('--x-end', `${rng() * 100}vw`);
             petal.style.setProperty('--y-end', `110vh`);
-            petal.style.setProperty('--r-start', `${Math.random() * 360}deg`);
-            petal.style.setProperty('--r-end', `${Math.random() * 720 - 360}deg`);
-            const duration = Math.random() * 10 + 15;
+            petal.style.setProperty('--r-start', `${rng() * 360}deg`);
+            petal.style.setProperty('--r-end', `${rng() * 720 - 360}deg`);
+            const duration = rng() * 10 + 15;
             petal.style.animationDuration = `${duration}s`;
-            petal.style.animationDelay = `-${Math.random() * duration}s`;
+            petal.style.animationDelay = `-${rng() * duration}s`;
             petalContainer.appendChild(petal);
+            lanternFestivalElementPool.petals.push(petal); // Store in pool
         }
     }
 
@@ -4153,14 +4265,18 @@ function createLanternFestivalScene() {
         for (let i = 0; i < 40; i++) {
             let ember = document.createElement('div');
             ember.className = 'lantern-ember';
-            ember.style.left = `${Math.random() * 100}%`;
-            ember.style.bottom = `-${Math.random() * 20}vh`; // Start from below or near bottom
-            const duration = Math.random() * 8 + 6;
+            ember.style.left = `${rng() * 100}%`;
+            ember.style.bottom = `-${rng() * 20}vh`; // Start from below or near bottom
+            const duration = rng() * 8 + 6;
             ember.style.animationDuration = `${duration}s`;
-            ember.style.animationDelay = `-${Math.random() * duration}s`;
+            ember.style.animationDelay = `-${rng() * duration}s`;
             emberContainer.appendChild(ember);
+            lanternFestivalElementPool.embers.push(ember); // Store in pool
         }
     }
+
+    // Mark as initialized
+    lanternFestivalElementPool.initialized = true;
 }
 
 function createFluidDreamsScene() {
@@ -4245,6 +4361,18 @@ const himalayanPeakCache = new Map();
 
 // Cache for Ice Temple backgrounds to avoid expensive canvas regeneration
 const iceTempleCache = new Map();
+
+// Cache for Crystal Cave backgrounds to avoid expensive canvas regeneration
+const crystalCaveCache = new Map();
+
+// Element pool for Lantern Festival to avoid expensive DOM regeneration
+const lanternFestivalElementPool = {
+    initialized: false,
+    lanterns: [],
+    reflections: [],
+    petals: [],
+    embers: []
+};
 
 // Seeded random number generator for deterministic procedural generation
 function seededRandom(seed) {
@@ -6435,7 +6563,7 @@ function isPartOfPiece(boardX, boardY, piece) {
             is.addEventListener('input',(e)=>{settings.dasInterval=parseInt(e.target.value);iv.textContent=settings.dasInterval;saveSettings();});
             const mvs=document.getElementById('music-volume'),mvv=document.getElementById('music-volume-value'),svs=document.getElementById('sfx-volume'),svv=document.getElementById('sfx-volume-value');
             mvs.value=settings.musicVolume*100;mvv.textContent=Math.round(settings.musicVolume*100); svs.value=settings.sfxVolume*100;svv.textContent=Math.round(settings.sfxVolume*100);
-            mvs.addEventListener('input',(e)=>{settings.musicVolume=parseInt(e.target.value)/100;soundManager.musicVolume=settings.musicVolume;mvv.textContent=e.target.value;saveSettings();});
+            mvs.addEventListener('input',(e)=>{settings.musicVolume=parseInt(e.target.value)/100;soundManager.musicVolume=settings.musicVolume;if(soundManager.audioElement){soundManager.audioElement.volume=settings.musicVolume;}mvv.textContent=e.target.value;saveSettings();});
             svs.addEventListener('input',(e)=>{settings.sfxVolume=parseInt(e.target.value)/100;soundManager.sfxVolume=settings.sfxVolume;svv.textContent=e.target.value;saveSettings();});
             const mt=document.getElementById('music-track');
             mt.value=settings.musicTrack;
