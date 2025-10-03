@@ -3979,97 +3979,178 @@ body {
     100% { transform: translate(var(--x-start), var(--y-start)) rotate(0deg); }
 }
 
-/* --- Ice Temple Theme --- */
+/* --- Ice Temple Theme (Frostborn Sanctum) --- */
 #ice-temple-theme {
-    background: linear-gradient(to top, #3a7bd5, #3a6073, #16222a);
+    background: linear-gradient(to bottom, #0a1628, #1a2e4a);
     overflow: hidden;
 }
 
+/* Layer 1: Sky Background */
 #ice-temple-sky {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     z-index: 1;
+    background: linear-gradient(to bottom, #0a1628, #1a2e4a);
 }
 
-#ice-temple-aurora {
+/* Layer 1: Stars */
+#ice-temple-stars {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
     z-index: 2;
-    mix-blend-mode: screen;
-    opacity: 0.7;
-}
-.ice-aurora-curtain {
-    position: absolute;
-    top: -50%; left: -25%;
-    width: 150%; height: 200%;
-    background: radial-gradient(ellipse at center, transparent 0%, transparent 40%, var(--aurora-color) 100%);
-    animation: aurora-curtain-flow 30s ease-in-out infinite alternate;
+    pointer-events: none;
 }
 
-#ice-temple-waterfalls {
+.ice-temple-star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: ice-star-twinkle var(--twinkle-duration) ease-in-out infinite;
+    animation-delay: var(--twinkle-delay);
+}
+
+@keyframes ice-star-twinkle {
+    0%, 100% { opacity: var(--min-opacity); }
+    50% { opacity: var(--max-opacity); }
+}
+
+/* Layer 2: Aurora Borealis */
+#ice-temple-aurora {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 4;
+    z-index: 3;
+    mix-blend-mode: screen;
+    opacity: 0.8;
+    pointer-events: none;
 }
-.frozen-waterfall {
+
+.ice-aurora-curtain {
     position: absolute;
     top: 0;
-    width: 80px;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(200, 220, 255, 0) 0%, rgba(200, 220, 255, 0.4) 50%, rgba(200, 220, 255, 0) 100%);
-    clip-path: polygon(20% 0, 80% 0, 100% 100%, 0% 100%);
-    animation: shimmer-ice 10s ease-in-out infinite alternate;
+    width: 30%;
+    height: 70%;
+    background: radial-gradient(ellipse at top, var(--aurora-color) 0%, transparent 60%);
+    filter: blur(40px);
+    animation: ice-aurora-wave var(--aurora-duration) ease-in-out infinite;
+    animation-delay: var(--aurora-delay);
 }
 
-@keyframes shimmer-ice {
-    from { opacity: 0.6; }
-    to { opacity: 0.9; }
+@keyframes ice-aurora-wave {
+    0%, 100% {
+        transform: translateY(0) scaleY(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(-5%) scaleY(1.1);
+        opacity: 0.9;
+    }
 }
 
-#ice-temple-sculptures {
+/* Layer 3: Distant Mountains */
+#ice-temple-mountains-distant {
     position: absolute;
-    bottom: 5%; left: 0;
-    width: 100%; height: 30%;
-    z-index: 6;
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
+    bottom: 0; left: 0;
+    width: 100%; height: 60%;
+    z-index: 4;
+    background-repeat: repeat-x;
+    background-position: bottom;
+    pointer-events: none;
 }
 
+/* Layer 6: Frozen Mist */
+#ice-temple-mist {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 5;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.ice-temple-mist-layer {
+    position: absolute;
+    top: 0;
+    width: 200%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+    filter: blur(60px);
+    animation: ice-mist-drift var(--mist-duration) linear infinite;
+    animation-delay: var(--mist-delay);
+}
+
+@keyframes ice-mist-drift {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0%); }
+}
+
+/* Layer 7: Snowfall */
+#ice-temple-snow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 6;
+    pointer-events: none;
+}
+
+.ice-temple-snowflake {
+    position: absolute;
+    top: -10px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: ice-snowfall var(--fall-duration) linear infinite;
+    animation-delay: var(--fall-delay);
+}
+
+@keyframes ice-snowfall {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateY(50vh) translateX(var(--sway-amount));
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0.5;
+    }
+}
+
+/* Layer 8: Prismatic Light Refractions */
 #ice-temple-refractions {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 7; /* On top of most elements */
+    z-index: 7;
     mix-blend-mode: screen;
     pointer-events: none;
 }
 
 .ice-refraction-ray {
     position: absolute;
-    width: 1px;
-    height: 150px;
-    background: linear-gradient(to bottom, transparent, #74b9ff, #a29bfe, #55efc4, #ff7675, #fdcb6e, transparent);
-    animation: ice-refraction-shimmer 10s ease-in-out infinite;
-    opacity: 0;
+    width: 2px;
+    height: 120px;
+    background: linear-gradient(to bottom, transparent, var(--ray-color), transparent);
+    filter: blur(1px);
+    transform: rotate(var(--ray-angle));
+    animation:
+        ice-refraction-rotate var(--ray-rotation-duration) linear infinite,
+        ice-refraction-pulse var(--ray-pulse-duration) ease-in-out infinite;
+    animation-delay: var(--ray-delay);
 }
 
-@keyframes ice-refraction-shimmer {
-    0%, 100% { opacity: 0; }
-    5% { opacity: 0.4; }
-    10% { opacity: 0; }
+@keyframes ice-refraction-rotate {
+    from { transform: rotate(var(--ray-angle)); }
+    to { transform: rotate(calc(var(--ray-angle) + 60deg)); }
 }
 
-.ice-sculpture {
-    width: 150px; height: 150px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    filter: drop-shadow(0 0 15px rgba(173, 216, 230, 0.7));
-    animation: shimmer-ice 8s ease-in-out infinite alternate-reverse;
+@keyframes ice-refraction-pulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.5; }
 }
 
 /* --- Himalayan Peak Theme --- */
