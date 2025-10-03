@@ -2416,20 +2416,6 @@ let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, 
                 }
             }
 
-            // Shooting Stars
-            const shootingStarContainer = document.getElementById('shooting-stars');
-            if (shootingStarContainer && shootingStarContainer.children.length === 0) {
-                for (let i = 0; i < 5; i++) {
-                    let star = document.createElement('div');
-                    star.className = 'shooting-star';
-                    star.style.top = `${Math.random() * 100}%`;
-                    const duration = Math.random() * 5 + 5;
-                    star.style.animationDuration = `${duration}s`;
-                    star.style.animationDelay = `${Math.random() * 20}s`;
-                    star.style.width = `${Math.random() * 100 + 100}px`;
-                    shootingStarContainer.appendChild(star);
-                }
-            }
         }
         function createAuroraScene() {
             const auroraContainer = document.getElementById('aurora-theme');

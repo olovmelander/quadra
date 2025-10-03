@@ -1765,11 +1765,14 @@ body {
     top: 50%; left: 50%;
     width: 100vmin; height: 100vmin;
     transform-style: preserve-3d;
-    animation: slow-rotate-3d 240s linear infinite;
+    animation: nebula-drift-rotate 60s ease-in-out infinite;
 }
-@keyframes slow-rotate-3d {
-    from { transform: translate(-50%, -50%) rotateY(0deg) rotateX(10deg); }
-    to { transform: translate(-50%, -50%) rotateY(360deg) rotateX(10deg); }
+@keyframes nebula-drift-rotate {
+    0% { transform: translate(-50%, -50%) rotateY(0deg) rotateX(10deg); }
+    25% { transform: translate(-40%, -55%) rotateY(90deg) rotateX(15deg); }
+    50% { transform: translate(-60%, -50%) rotateY(180deg) rotateX(5deg); }
+    75% { transform: translate(-50%, -45%) rotateY(270deg) rotateX(20deg); }
+    100% { transform: translate(-50%, -50%) rotateY(360deg) rotateX(10deg); }
 }
 .nebula {
     position: absolute;
