@@ -710,8 +710,8 @@ class WebGLRenderer {
     }
 
     loadTheme(themeName, themeData = null) {
-        // Note: texturedQuads are now cleared by the caller before scene creation
-        // Only clear particle systems here
+        // Clear both texturedQuads and particle systems to prevent theme overlap
+        this.texturedQuads = [];
         this.particleSystems = [];
         this.stop();
 
