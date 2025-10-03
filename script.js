@@ -930,6 +930,7 @@ function createCandlelitMonasteryScene() {
             constructor() {
                 this.audioContext = null; this.isMuted = false; this.musicInterval = null;
                 this.musicTrack = 'Ambient'; this.soundSet = 'Zen';
+                this.musicVolume = 1.0; this.sfxVolume = 1.0;
                 this.currentTrackId = null;
                 this.trackNames = [
                     'Ambient', 'Decay', 'Zen', 'Nostalgia', 'Nebula', 'Aurora',
@@ -957,12 +958,15 @@ function createCandlelitMonasteryScene() {
                 };
             }
             init() { if (!this.audioContext) this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
-            createTone(frequency, duration = 0.1, type = 'sine', volume = 0.3, onended = null) {
+            createTone(frequency, duration = 0.1, type = 'sine', volume = 0.3, onended = null, isMusic = false) {
                 if (!this.audioContext || this.isMuted) return;
+                const volumeMultiplier = isMusic ? this.musicVolume : this.sfxVolume;
+                const adjustedVolume = volume * volumeMultiplier;
+                if (adjustedVolume <= 0) return;
                 const osc = this.audioContext.createOscillator(), gain = this.audioContext.createGain();
                 osc.connect(gain); gain.connect(this.audioContext.destination);
                 osc.type = type; osc.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-                gain.gain.setValueAtTime(volume, this.audioContext.currentTime);
+                gain.gain.setValueAtTime(adjustedVolume, this.audioContext.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
                 osc.start(); osc.stop(this.audioContext.currentTime + duration);
                 if (onended) osc.onended = onended;
@@ -1025,10 +1029,10 @@ function createCandlelitMonasteryScene() {
                     const mainVolume = random(0.1, 0.2);
 
                     // Main gong tone - sine for a smoother fundamental
-                    this.createTone(baseFreq, duration, 'sine', mainVolume);
+                    this.createTone(baseFreq, duration, 'sine', mainVolume, null, true);
 
                     // Subtle lower octave sine for fundamental depth
-                    this.createTone(baseFreq / 2, duration * 1.1, 'sine', mainVolume * 0.6);
+                    this.createTone(baseFreq / 2, duration * 1.1, 'sine', mainVolume * 0.6, null, true);
 
                     // Inharmonic overtones for shimmer
                     for (let i = 2; i < 9; i++) {
@@ -1039,7 +1043,7 @@ function createCandlelitMonasteryScene() {
                             const overtoneDuration = duration * random(0.7, 1.1);
                              setTimeout(() => {
                                 if (this.isMuted || trackId !== this.currentTrackId) return;
-                                this.createTone(overtoneFreq, overtoneDuration, 'sine', overtoneVolume);
+                                this.createTone(overtoneFreq, overtoneDuration, 'sine', overtoneVolume, null, true);
                             }, random(100, 400)); // Stagger the overtones more
                         }
                     }
@@ -1052,71 +1056,71 @@ function createCandlelitMonasteryScene() {
             }
             startNebulaMusic(trackId) {
                 const b = [65, 73, 82, 73], m = [262, 294, 330, 349, 392, 440, 494, 523]; let bi=0, mi=0;
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(b[bi++ % b.length], 0.4, 'triangle', 0.1); if (bi % 2 === 0) this.createTone(m[mi++ % m.length], 0.2, 'sine', 0.15); }, 250);
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(b[bi++ % b.length], 0.4, 'triangle', 0.1, null, true); if (bi % 2 === 0) this.createTone(m[mi++ % m.length], 0.2, 'sine', 0.15, null, true); }, 250);
                 this.musicInterval = interval;
             }
 
             startAmbientMusic(trackId) {
                 const s=[261, 311, 349, 392, 466], d=130;
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(s[~~(Math.random()*s.length)], 0.8, 'sine', 0.15); if(Math.random()>0.7)this.createTone(s[~~(Math.random()*s.length)]/2,1.2,'sine',0.1); if(Math.random()>0.9)this.createTone(d,2.5,'sine',0.08); }, 900);
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } this.createTone(s[~~(Math.random()*s.length)], 0.8, 'sine', 0.15, null, true); if(Math.random()>0.7)this.createTone(s[~~(Math.random()*s.length)]/2,1.2,'sine',0.1, null, true); if(Math.random()>0.9)this.createTone(d,2.5,'sine',0.08, null, true); }, 900);
                 this.musicInterval = interval;
             }
             startDecayMusic(trackId) {
                 const n=[220, 277.18, 329.63];
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const note=n[~~(Math.random()*n.length)]; this.createTone(note*(1+(Math.random()-0.5)*0.005), 4, 'sine', Math.random()*0.05+0.05); }, 2000+Math.random()*2000);
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const note=n[~~(Math.random()*n.length)]; this.createTone(note*(1+(Math.random()-0.5)*0.005), 4, 'sine', Math.random()*0.05+0.05, null, true); }, 2000+Math.random()*2000);
                 this.musicInterval = interval;
             }
             startNostalgiaMusic(trackId) {
                 const m=[293.66, 329.63, 293.66, 220, 146.83]; let mi=0;
-                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const n=m[mi++ % m.length]; this.createTone(n, 2.5, 'triangle', 0.1); if(Math.random()>0.6) this.createTone(n*2,2.5,'sine',0.05); }, 1500);
+                const interval = setInterval(() => { if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; } const n=m[mi++ % m.length]; this.createTone(n, 2.5, 'triangle', 0.1, null, true); if(Math.random()>0.6) this.createTone(n*2,2.5,'sine',0.05, null, true); }, 1500);
                 this.musicInterval = interval;
             }
             startZenMusic(trackId) {
                 const scale = [261.63, 392.00, 440.00, 523.25], drone = 110;
                 const interval = setInterval(() => {
                     if (this.isMuted || trackId !== this.currentTrackId) { clearInterval(interval); return; }
-                    if (Math.random() > 0.8) this.createTone(drone, 10, 'sine', 0.05);
-                    if (Math.random() > 0.7) this.createTone(scale[~~(Math.random()*scale.length)], 3, 'sine', 0.1);
+                    if (Math.random() > 0.8) this.createTone(drone, 10, 'sine', 0.05, null, true);
+                    if (Math.random() > 0.7) this.createTone(scale[~~(Math.random()*scale.length)], 3, 'sine', 0.1, null, true);
                 }, 4000);
                  this.musicInterval = interval;
             }
              startAuroraMusic(trackId) {
-                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 100 + 80, 8, 'sine', Math.random() * 0.1, play); };
+                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 100 + 80, 8, 'sine', Math.random() * 0.1, play, true); };
                 play();
             }
             startGalaxyMusic(trackId) {
-                const playDrone = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(55, 15, 'sawtooth', 0.03, playDrone); };
-                const playSparkles = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 1000 + 1000, 0.1, 'triangle', Math.random() * 0.05); setTimeout(playSparkles, Math.random() * 2000 + 500); };
+                const playDrone = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(55, 15, 'sawtooth', 0.03, playDrone, true); };
+                const playSparkles = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(Math.random() * 1000 + 1000, 0.1, 'triangle', Math.random() * 0.05, null, true); setTimeout(playSparkles, Math.random() * 2000 + 500); };
                 playDrone(); playSparkles();
             }
             startRainfallMusic(trackId) {
                 const notes = [523, 587, 659, 784]; let idx = 0;
-                const playNote = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(notes[idx % notes.length], 0.5, 'sine', 0.1); idx++; setTimeout(playNote, Math.random() * 800 + 400); };
+                const playNote = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(notes[idx % notes.length], 0.5, 'sine', 0.1, null, true); idx++; setTimeout(playNote, Math.random() * 800 + 400); };
                 playNote();
             }
             startKoiMusic(trackId) {
                 const scale = [261, 329, 392, 523, 587];
-                const playPluck = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(scale[~~(Math.random()*scale.length)], 1.5, 'triangle', 0.15); setTimeout(playPluck, Math.random() * 2000 + 1000); };
+                const playPluck = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(scale[~~(Math.random()*scale.length)], 1.5, 'triangle', 0.15, null, true); setTimeout(playPluck, Math.random() * 2000 + 1000); };
                 playPluck();
             }
             startMeadowMusic(trackId) {
                 const padScale = [130.81, 196.00, 261.63];
                 const bellScale = [523.25, 659.25, 783.99];
-                const playPad = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(padScale[~~(Math.random()*padScale.length)], 12, 'sine', 0.1, playPad); };
-                const playBell = () => { if(this.isMuted || trackId !== this.currentTrackId) return; if(Math.random() > 0.6) this.createTone(bellScale[~~(Math.random()*bellScale.length)], 3, 'sine', 0.08); setTimeout(playBell, Math.random() * 5000 + 3000); };
+                const playPad = () => { if(this.isMuted || trackId !== this.currentTrackId) return; this.createTone(padScale[~~(Math.random()*padScale.length)], 12, 'sine', 0.1, playPad, true); };
+                const playBell = () => { if(this.isMuted || trackId !== this.currentTrackId) return; if(Math.random() > 0.6) this.createTone(bellScale[~~(Math.random()*bellScale.length)], 3, 'sine', 0.08, null, true); setTimeout(playBell, Math.random() * 5000 + 3000); };
                 playPad(); playBell();
             }
             startMiracleToneMusic(trackId) {
                 const play = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(528, 10, 'sine', 0.1);
-                    this.createTone(264, 10, 'sine', 0.05);
+                    this.createTone(528, 10, 'sine', 0.1, null, true);
+                    this.createTone(264, 10, 'sine', 0.05, null, true);
                     setTimeout(() => { if (!this.isMuted && trackId === this.currentTrackId) play(); }, 12000);
                 };
                 play();
             }
             startHealingDroneMusic(trackId) {
-                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(174, 15, 'sine', 0.15, play); };
+                const play = () => { if (this.isMuted || trackId !== this.currentTrackId) return; this.createTone(174, 15, 'sine', 0.15, play, true); };
                 play();
             }
 
@@ -1125,7 +1129,7 @@ function createCandlelitMonasteryScene() {
                 const playChime = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const freq = scale[~~(Math.random() * scale.length)];
-                    this.createTone(freq, 4, 'triangle', Math.random() * 0.08 + 0.02);
+                    this.createTone(freq, 4, 'triangle', Math.random() * 0.08 + 0.02, null, true);
                     setTimeout(playChime, Math.random() * 5000 + 3000);
                 };
                 playChime();
@@ -1136,12 +1140,12 @@ function createCandlelitMonasteryScene() {
                 const strikeNote = 329.63;
                 const playDrone = () => {
                     if(this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(drone, 15, 'sine', 0.1, playDrone);
+                    this.createTone(drone, 15, 'sine', 0.1, playDrone, true);
                 };
                 const playStrike = () => {
                     if(this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(strikeNote, 8, 'sine', 0.1);
-                    this.createTone(strikeNote * 2, 8, 'sine', 0.05);
+                    this.createTone(strikeNote, 8, 'sine', 0.1, null, true);
+                    this.createTone(strikeNote * 2, 8, 'sine', 0.05, null, true);
                     setTimeout(playStrike, Math.random() * 15000 + 10000);
                 };
                 playDrone();
@@ -1153,9 +1157,9 @@ function createCandlelitMonasteryScene() {
                 const playNote = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const note = scale[~~(Math.random() * scale.length)];
-                    this.createTone(note, 2, 'triangle', Math.random() * 0.1 + 0.05);
+                    this.createTone(note, 2, 'triangle', Math.random() * 0.1 + 0.05, null, true);
                     if (Math.random() > 0.8) {
-                        this.createTone(note / 2, 3, 'sine', 0.05);
+                        this.createTone(note / 2, 3, 'sine', 0.05, null, true);
                     }
                     setTimeout(playNote, Math.random() * 3000 + 1500);
                 };
@@ -1166,13 +1170,13 @@ function createCandlelitMonasteryScene() {
                 const droneFreq = 60;
                 const playDrone = () => {
                     if(this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(droneFreq, 20, 'sawtooth', 0.04, playDrone);
+                    this.createTone(droneFreq, 20, 'sawtooth', 0.04, playDrone, true);
                 };
 
                 const playWind = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     for (let i = 0; i < 5; i++) {
-                        this.createTone(80 + Math.random() * 40, 2 + Math.random() * 3, 'sine', 0.005 + Math.random() * 0.01);
+                        this.createTone(80 + Math.random() * 40, 2 + Math.random() * 3, 'sine', 0.005 + Math.random() * 0.01, null, true);
                     }
                     setTimeout(playWind, Math.random() * 4000 + 2000);
                 };
@@ -1182,8 +1186,8 @@ function createCandlelitMonasteryScene() {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     if (Math.random() > 0.6) {
                         const note = scale[~~(Math.random() * scale.length)];
-                        this.createTone(note, 5, 'triangle', 0.08);
-                        if (Math.random() > 0.5) { this.createTone(note/2, 5, 'sine', 0.04); }
+                        this.createTone(note, 5, 'triangle', 0.08, null, true);
+                        if (Math.random() > 0.5) { this.createTone(note/2, 5, 'sine', 0.04, null, true); }
                     }
                     setTimeout(playTones, Math.random() * 8000 + 5000);
                 };
@@ -1197,15 +1201,15 @@ function createCandlelitMonasteryScene() {
                 const droneFreq = 55; // A1, a very grounding frequency
                 const playDrone = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(droneFreq, 25, 'sine', 0.15, playDrone); // Long, soft drone
-                    this.createTone(droneFreq * 2, 25, 'sine', 0.05); // Add a subtle harmonic
+                    this.createTone(droneFreq, 25, 'sine', 0.15, playDrone, true); // Long, soft drone
+                    this.createTone(droneFreq * 2, 25, 'sine', 0.05, null, true); // Add a subtle harmonic
                 };
 
                 // "Wind" - multiple, slightly detuned high-frequency sines
                 const playWind = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     for (let i = 0; i < 6; i++) {
-                        this.createTone(1000 + random(-200, 200), random(5, 10), 'sine', random(0.001, 0.005));
+                        this.createTone(1000 + random(-200, 200), random(5, 10), 'sine', random(0.001, 0.005), null, true);
                     }
                     setTimeout(playWind, random(4000, 7000));
                 };
@@ -1215,7 +1219,7 @@ function createCandlelitMonasteryScene() {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const scale = [220, 277, 330, 370]; // A3, C#4, E4, F#4
                     const note = scale[~~(Math.random() * scale.length)];
-                    this.createTone(note, random(10, 15), 'sine', random(0.05, 0.1));
+                    this.createTone(note, random(10, 15), 'sine', random(0.05, 0.1), null, true);
                     setTimeout(playPads, random(8000, 12000));
                 };
 
@@ -1229,8 +1233,8 @@ function createCandlelitMonasteryScene() {
                 const playDrum = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     // A low, soft thump using a sawtooth wave for a bit of attack
-                    this.createTone(70, 0.4, 'sawtooth', 0.15);
-                    this.createTone(65, 0.5, 'sine', 0.1);
+                    this.createTone(70, 0.4, 'sawtooth', 0.15, null, true);
+                    this.createTone(65, 0.5, 'sine', 0.1, null, true);
                     setTimeout(playDrum, random(4000, 6000)); // Slow, spacious rhythm
                 };
 
@@ -1240,7 +1244,7 @@ function createCandlelitMonasteryScene() {
                     // Simulate a rattle with very short bursts of noise-like triangle waves
                     for (let i = 0; i < 5; i++) {
                         setTimeout(() => {
-                           this.createTone(random(800, 1200), 0.05, 'triangle', random(0.01, 0.03));
+                           this.createTone(random(800, 1200), 0.05, 'triangle', random(0.01, 0.03), null, true);
                         }, i * random(30, 60));
                     }
                     setTimeout(playRattle, random(5000, 9000));
@@ -1250,10 +1254,10 @@ function createCandlelitMonasteryScene() {
                 const playDrone = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const baseFreq = 65; // C2
-                    this.createTone(baseFreq, 12, 'sawtooth', 0.08);
+                    this.createTone(baseFreq, 12, 'sawtooth', 0.08, null, true);
                     // Add harmonics to create a richer, throat-like texture
-                    this.createTone(baseFreq * 3, 12, 'sine', 0.04);
-                    this.createTone(baseFreq * 5, 12, 'sine', 0.02);
+                    this.createTone(baseFreq * 3, 12, 'sine', 0.04, null, true);
+                    this.createTone(baseFreq * 5, 12, 'sine', 0.02, null, true);
                     setTimeout(playDrone, random(15000, 20000));
                 };
 
@@ -1262,7 +1266,7 @@ function createCandlelitMonasteryScene() {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const scale = [261, 329, 392, 440]; // Minor pentatonic feel
                     const note = scale[~~(Math.random() * scale.length)];
-                    this.createTone(note, random(3, 5), 'sine', 0.07);
+                    this.createTone(note, random(3, 5), 'sine', 0.07, null, true);
                     setTimeout(playFlute, random(10000, 15000));
                 };
 
@@ -1276,10 +1280,10 @@ function createCandlelitMonasteryScene() {
                 // Heartbeat Pulse
                 const playHeartbeat = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(45, 0.15, 'sine', 0.2); // First beat
+                    this.createTone(45, 0.15, 'sine', 0.2, null, true); // First beat
                     setTimeout(() => {
                         if (this.isMuted || trackId !== this.currentTrackId) return;
-                        this.createTone(45, 0.1, 'sine', 0.15); // Second beat, slightly softer
+                        this.createTone(45, 0.1, 'sine', 0.15, null, true); // Second beat, slightly softer
                     }, 350);
                     setTimeout(playHeartbeat, 1200); // ~50 BPM
                 };
@@ -1290,10 +1294,10 @@ function createCandlelitMonasteryScene() {
                     const scale = [523.25, 659.25, 783.99, 987.77, 1046.50]; // C5, E5, G5, B5, C6
                     const note = scale[~~(Math.random() * scale.length)];
                     // Use triangle for a softer, bell-like tone
-                    this.createTone(note, random(4, 6), 'triangle', random(0.05, 0.1));
+                    this.createTone(note, random(4, 6), 'triangle', random(0.05, 0.1), null, true);
                     // Add a higher, shimmering harmonic
                      if (Math.random() > 0.6) {
-                        this.createTone(note * 2, random(3, 5), 'sine', random(0.02, 0.04));
+                        this.createTone(note * 2, random(3, 5), 'sine', random(0.02, 0.04), null, true);
                     }
                     setTimeout(playChimes, random(3000, 5000));
                 };
@@ -1302,9 +1306,9 @@ function createCandlelitMonasteryScene() {
                 const playAiryPads = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     const baseFreq = 261.63; // C4
-                    this.createTone(baseFreq, 15, 'sine', 0.06);
-                    this.createTone(baseFreq * 1.5, 15, 'sine', 0.04); // Perfect fifth for harmony
-                    this.createTone(baseFreq * 2, 15, 'sine', 0.03); // Octave
+                    this.createTone(baseFreq, 15, 'sine', 0.06, null, true);
+                    this.createTone(baseFreq * 1.5, 15, 'sine', 0.04, null, true); // Perfect fifth for harmony
+                    this.createTone(baseFreq * 2, 15, 'sine', 0.03, null, true); // Octave
                     setTimeout(playAiryPads, random(18000, 25000));
                 };
 
@@ -1317,8 +1321,8 @@ function createCandlelitMonasteryScene() {
                 // Deep grounding drone - like the earth beneath the forest
                 const playDrone = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
-                    this.createTone(58.27, 30, 'sine', 0.12, playDrone); // A#1 - very grounding
-                    this.createTone(58.27 * 1.5, 30, 'sine', 0.06); // Perfect fifth harmonic
+                    this.createTone(58.27, 30, 'sine', 0.12, playDrone, true); // A#1 - very grounding
+                    this.createTone(58.27 * 1.5, 30, 'sine', 0.06, null, true); // Perfect fifth harmonic
                 };
 
                 // Gentle night crickets - very sparse, high frequency tones
@@ -1328,7 +1332,7 @@ function createCandlelitMonasteryScene() {
                         for (let i = 0; i < random(2, 4); i++) {
                             setTimeout(() => {
                                 if (this.isMuted || trackId !== this.currentTrackId) return;
-                                this.createTone(random(3000, 4500), random(0.05, 0.15), 'sine', random(0.008, 0.015));
+                                this.createTone(random(3000, 4500), random(0.05, 0.15), 'sine', random(0.008, 0.015), null, true);
                             }, i * random(100, 300));
                         }
                     }
@@ -1339,7 +1343,7 @@ function createCandlelitMonasteryScene() {
                 const playBreeze = () => {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     for (let i = 0; i < 4; i++) {
-                        this.createTone(random(800, 1400), random(4, 7), 'sine', random(0.003, 0.008));
+                        this.createTone(random(800, 1400), random(4, 7), 'sine', random(0.003, 0.008), null, true);
                     }
                     setTimeout(playBreeze, random(8000, 14000));
                 };
@@ -1350,10 +1354,10 @@ function createCandlelitMonasteryScene() {
                     const scale = [233.08, 261.63, 311.13, 349.23, 415.30]; // A#3, C4, D#4, F4, G#4 - minor pentatonic
                     if (Math.random() > 0.5) {
                         const note = scale[~~(Math.random() * scale.length)];
-                        this.createTone(note, random(6, 9), 'triangle', random(0.04, 0.07));
+                        this.createTone(note, random(6, 9), 'triangle', random(0.04, 0.07), null, true);
                         // Subtle harmonic
                         if (Math.random() > 0.6) {
-                            this.createTone(note * 2, random(5, 8), 'sine', random(0.02, 0.03));
+                            this.createTone(note * 2, random(5, 8), 'sine', random(0.02, 0.03), null, true);
                         }
                     }
                     setTimeout(playBells, random(8000, 15000));
@@ -1364,10 +1368,10 @@ function createCandlelitMonasteryScene() {
                     if (this.isMuted || trackId !== this.currentTrackId) return;
                     if (Math.random() > 0.6) {
                         // Two-note hoot
-                        this.createTone(220, 0.4, 'sine', 0.08);
+                        this.createTone(220, 0.4, 'sine', 0.08, null, true);
                         setTimeout(() => {
                             if (this.isMuted || trackId !== this.currentTrackId) return;
-                            this.createTone(196, 0.5, 'sine', 0.07);
+                            this.createTone(196, 0.5, 'sine', 0.07, null, true);
                         }, 600);
                     }
                     setTimeout(playOwl, random(20000, 35000));
@@ -1405,7 +1409,7 @@ function createCandlelitMonasteryScene() {
         let isProcessingPhysics = false, inputQueue = null, dasTimer = null, dasIntervalTimer = null, softDropTimer = null;
 let animationId = null, linesUntilNextLevel = 10, activeTheme = 'forest', randomThemeInterval = null, activeThemeAnimationId = null, webglRenderer = null, activeThemeData = null;
 
-        let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space', toggleMusic: 'M' } };
+        let settings = { dasDelay: 120, dasInterval: 40, musicTrack: 'Ambient', soundSet: 'Zen', musicVolume: 1.0, sfxVolume: 1.0, backgroundMode: 'Level', backgroundTheme: 'forest', controlScheme: 'ontouchstart' in window ? 'Touch' : 'Keyboard', keyBindings: { moveLeft: 'ArrowLeft', moveRight: 'ArrowRight', rotateRight: 'ArrowUp', rotateLeft: 'z', flip: 'a', softDrop: 'ArrowDown', hardDrop: 'Space' } };
         const soundManager = new SoundManager();
 let touchStartX = null, touchStartY = null, touchStartTime = null, lastTap = 0, touchLastX = null, touchLastY = null;
 
@@ -6099,15 +6103,15 @@ function isPartOfPiece(boardX, boardY, piece) {
             document.getElementById('settings-btn').addEventListener('click', pauseGame);
             document.getElementById('close-settings').addEventListener('click', resumeGame);
             document.getElementById('fullscreen-toggle').addEventListener('click', toggleFullScreen);
-            document.getElementById('sound-toggle').addEventListener('click', () => {
-                const m = soundManager.toggleMute();
-                document.getElementById('sound-toggle').textContent = m ? '🔇' : '🔊';
-            });
             document.getElementById('next-track-btn').addEventListener('click', () => soundManager.nextTrack());
             const ds=document.getElementById('das-delay'),dv=document.getElementById('das-delay-value'),is=document.getElementById('das-interval'),iv=document.getElementById('das-interval-value');
             ds.value=settings.dasDelay;dv.textContent=settings.dasDelay; is.value=settings.dasInterval;iv.textContent=settings.dasInterval;
             ds.addEventListener('input',(e)=>{settings.dasDelay=parseInt(e.target.value);dv.textContent=settings.dasDelay;saveSettings();});
             is.addEventListener('input',(e)=>{settings.dasInterval=parseInt(e.target.value);iv.textContent=settings.dasInterval;saveSettings();});
+            const mvs=document.getElementById('music-volume'),mvv=document.getElementById('music-volume-value'),svs=document.getElementById('sfx-volume'),svv=document.getElementById('sfx-volume-value');
+            mvs.value=settings.musicVolume*100;mvv.textContent=Math.round(settings.musicVolume*100); svs.value=settings.sfxVolume*100;svv.textContent=Math.round(settings.sfxVolume*100);
+            mvs.addEventListener('input',(e)=>{settings.musicVolume=parseInt(e.target.value)/100;soundManager.musicVolume=settings.musicVolume;mvv.textContent=e.target.value;saveSettings();});
+            svs.addEventListener('input',(e)=>{settings.sfxVolume=parseInt(e.target.value)/100;soundManager.sfxVolume=settings.sfxVolume;svv.textContent=e.target.value;saveSettings();});
             const mt=document.getElementById('music-track');
             mt.value=settings.musicTrack;
             mt.addEventListener('change',(e)=>{settings.musicTrack=e.target.value;soundManager.setTrack(settings.musicTrack);saveSettings();});
@@ -6166,11 +6170,11 @@ function isPartOfPiece(boardX, boardY, piece) {
         function listenForKey(el) { document.querySelectorAll('.key-input').forEach(e=>e.classList.remove('listening')); el.classList.add('listening'); el.textContent='Press a key...'; }
         function handleKeybinding(e,el){ e.preventDefault(); const a=el.id.substring(4), k=e.key===' '?'Space':e.key; if(Object.values(settings.keyBindings).includes(k)&&settings.keyBindings[a]!==k){ el.textContent=settings.keyBindings[a];el.classList.remove('listening');return; } settings.keyBindings[a]=k; el.textContent=k; el.classList.remove('listening'); saveSettings(); updateControlsDisplay(); }
         function saveSettings(){localStorage.setItem('quadraSettings',JSON.stringify(settings));}
-        function loadSettings(){ const s=localStorage.getItem('quadraSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; }
+        function loadSettings(){ const s=localStorage.getItem('quadraSettings'); if(s){ const l=JSON.parse(s); settings={...settings,...l}; settings.keyBindings={...settings.keyBindings,...l.keyBindings};} soundManager.musicTrack=settings.musicTrack; soundManager.soundSet=settings.soundSet; soundManager.musicVolume=settings.musicVolume; soundManager.sfxVolume=settings.sfxVolume; }
         function updateControlsDisplay() {
             const l = document.getElementById('controls-list');
             l.innerHTML = '';
-            const o = ['moveLeft', 'moveRight', 'rotateRight', 'rotateLeft', 'flip', 'softDrop', 'hardDrop', 'toggleMusic'];
+            const o = ['moveLeft', 'moveRight', 'rotateRight', 'rotateLeft', 'flip', 'softDrop', 'hardDrop'];
             if (settings.controlScheme === 'Keyboard') {
                 document.querySelectorAll('.key-input').forEach(el => el.parentElement.style.display = 'contents');
                 o.forEach(a => {
@@ -6283,7 +6287,6 @@ function isPartOfPiece(boardX, boardY, piece) {
                 case'moveRight':move(1);dasTimer=setTimeout(()=>{dasIntervalTimer=setInterval(()=>move(1),settings.dasInterval);},settings.dasDelay);break;
                 case'softDrop':softDrop();softDropTimer=setInterval(()=>softDrop(),50);break; case'rotateRight':rotate('right');break; case'rotateLeft':rotate('left');break; case'flip':rotate('flip');break;
                 case'hardDrop':e.preventDefault();hardDrop();break;
-                case'toggleMusic':const m=soundManager.toggleMute();document.getElementById('sound-toggle').textContent=m?'🔇':'🔊';break;
             }
         });
         document.addEventListener('keyup',(e)=>{

@@ -410,7 +410,6 @@
                 <h2>CONTROLS</h2>
                 <div class="controls-info"><div id="controls-list"></div></div>
             </div>
-            <button id="sound-toggle" class="action-btn">🔊</button>
             <button id="next-track-btn" class="action-btn">🎵</button>
             <button id="fullscreen-toggle" class="action-btn">⛶</button>
             <button id="settings-btn" class="action-btn">⚙️</button>
@@ -458,6 +457,18 @@
                         <label for="das-interval">DAS Interval (ms):</label>
                         <div class="slider-container">
                             <input type="range" id="das-interval" min="10" max="100" step="5"><span id="das-interval-value">50</span>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label for="music-volume">Music Volume:</label>
+                        <div class="slider-container">
+                            <input type="range" id="music-volume" min="0" max="100" step="1"><span id="music-volume-value">100</span>
+                        </div>
+                    </div>
+                    <div class="setting">
+                        <label for="sfx-volume">SFX Volume:</label>
+                        <div class="slider-container">
+                            <input type="range" id="sfx-volume" min="0" max="100" step="1"><span id="sfx-volume-value">100</span>
                         </div>
                     </div>
                     <div class="setting">
@@ -553,7 +564,6 @@
                     <div class="setting"><label>Flip (180°):</label> <div id="key-flip" class="key-input" tabindex="0">a</div></div>
                     <div class="setting"><label>Soft Drop:</label> <div id="key-softDrop" class="key-input" tabindex="0">ArrowDown</div></div>
                     <div class="setting"><label>Hard Drop:</label> <div id="key-hardDrop" class="key-input" tabindex="0">Space</div></div>
-                    <div class="setting"><label>Toggle Music:</label> <div id="key-toggleMusic" class="key-input" tabindex="0">M</div></div>
                     <div class="setting">
                         <label for="control-scheme">Controls:</label>
                         <select id="control-scheme" class="setting-select">
