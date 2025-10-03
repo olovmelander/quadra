@@ -3903,36 +3903,50 @@ function createCrystalCaveScene() {
     if (webglRenderer) {
         const crystalLayers = [
             // Background layer - deep cave colors
-            { zIndex: -0.9, count: 12, colors: ['rgba(30, 20, 60, 0.6)', 'rgba(20, 30, 70, 0.6)', 'rgba(40, 20, 80, 0.6)'], height: 0.6 },
+            { zIndex: -0.9, count: 12, colors: ['rgba(30, 20, 60, 0.6)', 'rgba(20, 30, 70, 0.6)', 'rgba(40, 20, 80, 0.6)'], height: 0.6, seed: 78901 },
             // Mid layer - richer colors
-            { zIndex: -0.8, count: 10, colors: ['rgba(60, 40, 100, 0.7)', 'rgba(30, 60, 90, 0.7)', 'rgba(50, 80, 100, 0.7)'], height: 0.75 },
+            { zIndex: -0.8, count: 10, colors: ['rgba(60, 40, 100, 0.7)', 'rgba(30, 60, 90, 0.7)', 'rgba(50, 80, 100, 0.7)'], height: 0.75, seed: 89012 },
             // Front layer - prominent crystals
-            { zIndex: -0.7, count: 8, colors: ['rgba(80, 60, 130, 0.8)', 'rgba(50, 90, 130, 0.8)', 'rgba(70, 100, 150, 0.8)'], height: 0.85 }
+            { zIndex: -0.7, count: 8, colors: ['rgba(80, 60, 130, 0.8)', 'rgba(50, 90, 130, 0.8)', 'rgba(70, 100, 150, 0.8)'], height: 0.85, seed: 90123 }
         ];
 
         crystalLayers.forEach(layer => {
-            const canvas = document.createElement('canvas');
             const C_WIDTH = 2048;
+            const C_HEIGHT = window.innerHeight;
+
+            // Create cache key based on layer properties and dimensions
+            const cacheKey = `crystal-${layer.zIndex}-${layer.count}-${layer.height}-${layer.colors.join(',')}-${C_WIDTH}x${C_HEIGHT}`;
+
+            // Check if we have this crystal layer cached
+            if (crystalCaveCache.has(cacheKey)) {
+                const cachedCanvas = crystalCaveCache.get(cacheKey);
+                webglRenderer.addLayer(cachedCanvas, layer.zIndex);
+                return;
+            }
+
+            // Generate new crystal layer with seeded random for deterministic output
+            const rng = seededRandom(layer.seed);
+            const canvas = document.createElement('canvas');
             canvas.width = C_WIDTH;
-            canvas.height = window.innerHeight;
+            canvas.height = C_HEIGHT;
             const ctx = canvas.getContext('2d');
 
             // Draw massive crystals with varied sizes
             for (let i = 0; i < layer.count; i++) {
-                const x = Math.random() * C_WIDTH;
-                const color = layer.colors[Math.floor(Math.random() * layer.colors.length)];
+                const x = rng() * C_WIDTH;
+                const color = layer.colors[Math.floor(rng() * layer.colors.length)];
 
                 // Vary crystal sizes dramatically
-                const isMassive = Math.random() > 0.6;
-                const baseWidth = isMassive ? Math.random() * 150 + 100 : Math.random() * 80 + 40;
-                const baseHeight = (Math.random() * 0.4 + 0.4) * canvas.height * layer.height;
+                const isMassive = rng() > 0.6;
+                const baseWidth = isMassive ? rng() * 150 + 100 : rng() * 80 + 40;
+                const baseHeight = (rng() * 0.4 + 0.4) * canvas.height * layer.height;
 
                 ctx.fillStyle = color;
                 ctx.strokeStyle = `rgba(180, 200, 255, 0.15)`;
                 ctx.lineWidth = 2;
 
                 // Draw from ceiling
-                if (Math.random() > 0.3) {
+                if (rng() > 0.3) {
                     ctx.beginPath();
                     ctx.moveTo(x - baseWidth / 2, 0);
                     // Add jagged facets
@@ -3954,10 +3968,10 @@ function createCrystalCaveScene() {
                 }
 
                 // Draw from floor
-                if (Math.random() > 0.3) {
-                    const floorX = Math.random() * C_WIDTH;
-                    const floorWidth = isMassive ? Math.random() * 140 + 90 : Math.random() * 70 + 35;
-                    const floorHeight = (Math.random() * 0.4 + 0.35) * canvas.height * layer.height;
+                if (rng() > 0.3) {
+                    const floorX = rng() * C_WIDTH;
+                    const floorWidth = isMassive ? rng() * 140 + 90 : rng() * 70 + 35;
+                    const floorHeight = (rng() * 0.4 + 0.35) * canvas.height * layer.height;
 
                     ctx.fillStyle = color;
                     ctx.beginPath();
@@ -3979,6 +3993,9 @@ function createCrystalCaveScene() {
                     ctx.fill();
                 }
             }
+
+            // Cache the generated canvas
+            crystalCaveCache.set(cacheKey, canvas);
             webglRenderer.addLayer(canvas, layer.zIndex);
         });
     }
@@ -4245,6 +4262,9 @@ const himalayanPeakCache = new Map();
 
 // Cache for Ice Temple backgrounds to avoid expensive canvas regeneration
 const iceTempleCache = new Map();
+
+// Cache for Crystal Cave backgrounds to avoid expensive canvas regeneration
+const crystalCaveCache = new Map();
 
 // Seeded random number generator for deterministic procedural generation
 function seededRandom(seed) {
